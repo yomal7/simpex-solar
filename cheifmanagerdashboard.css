@@ -92,8 +92,10 @@ body, html {
 
 .cards {
     display: flex;
-    gap: 1.4rem;
+    gap: 5rem; /* Increased gap between cards */
     margin-top: 1rem;
+    justify-content: center; /* Center cards horizontally */
+    flex-wrap: wrap; /* Allows cards to wrap to the next line if necessary */
 }
 
 .project-card, .client-card, .employee-card {
@@ -103,9 +105,28 @@ body, html {
     box-shadow: 0 2rem 3rem rgba(132, 139, 200, 0.18);
     cursor: pointer;
     transition: all 0.3s ease;
-    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100px; /* Fixed height for consistent layout */
+    width: 250px; /* Fixed width for consistent layout */
 }
 
 .project-card:hover, .client-card:hover, .employee-card:hover {
     box-shadow: none;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.title {
+    margin-bottom: auto;
+}
+
+.number {
+    align-self: flex-end;
 }
