@@ -58,39 +58,48 @@
             <div class="customer">
                 <h2>Customers</h2>
             
-                <div class="top-controls">
-                    <div class="search">
-                        <label>
-                            <span class="material-symbols-outlined search-icon">search</span>
-                            <input type="text" placeholder="Search here">
-                        </label>
+                <div class="customer-card">
+                    <div class="top-controls">
+                        <div class="search">
+                            <label>
+                                <span class="material-symbols-outlined search-icon">search</span>
+                                <input type="text" placeholder="Search here">
+                            </label>
+                        </div>
+                
+                        <button type="button" class="add-button">
+                            <span class="button-text">Add</span>
+                            <span class="button-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor" height="24" fill="none" class="svg">
+                                    <line y2="19" y1="5" x2="12" x1="12"></line>
+                                    <line y2="12" y1="12" x2="19" x1="5"></line>
+                                </svg>
+                            </span>
+                        </button>
                     </div>
-            
-                    <button type="button" class="add-button">
-                        <span class="button-text">Add</span>
-                        <span class="button-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor" height="24" fill="none" class="svg">
-                                <line y2="19" y1="5" x2="12" x1="12"></line>
-                                <line y2="12" y1="12" x2="19" x1="5"></line>
-                            </svg>
-                        </span>
-                    </button>
+                
+                    <table class="customer-table">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Availability</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
+            </div>
             
-                <table class="customer-table">
-                    <thead>
-                        <tr>
-                            <th>Image</th>
-                            <th>Name</th>
-                            <th>Status</th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>            
+            <div class="suppliers">
+                <h2>Suppliers</h2>
+                <div class="supplier-cards">
+                </div>
+            </div>
         </div>
     </div>
 
