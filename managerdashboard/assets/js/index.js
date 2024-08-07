@@ -102,5 +102,49 @@ document.addEventListener("DOMContentLoaded", function() {
   
       tableBody.appendChild(row);
     });
+
+
+    // supplier cards
+
+    
+      const suppliersData = [
+        {
+            image: 'assets/images/logo.png',
+            name: 'Browns Groups',
+            description: 'As you already know our Motherland has been completely freed from the clutches of separatist terrorism. From now on it is only the laws enacted by this sovereign Parliament that will be in force in every inch of Sri Lanka.'
+        },
+        {
+            image: 'assets/images/Panasoniclogo.jpeg',
+            name: 'Panasonic',
+            description: 'Hon. Speaker, I believe that today is a day of positive change in our country after a struggle. Today we are putting a significant step forward and this is an important day to initiate action to eliminate corruption, fraud and theft, which have become a curse to this country, from society, government and non-governmental bodies.'
+        },
+        {
+            image: 'assets/images/Adani_2012_logo.png',
+            name: 'Adani Groups',
+            description: 'Decisions were often driven by financial gains, rather than the long-term benefit to the nation, he noted. Dissanayake asserted that Sri Lanka cannot be bought or swayed, adding that the country\'s foreign policy must prioritize national interest above all else.'
+        }
+    ];
+
+    const supplierCardsContainer = document.querySelector(".supplier-cards");
+
+    suppliersData.forEach(supplier => {
+        const card = document.createElement("div");
+        card.className = "supplier-card";
+
+        card.innerHTML = `
+            <div class="icon-container">
+                <span class="material-symbols-outlined">edit</span>
+                <span class="material-symbols-outlined">delete</span>
+            </div>
+            <img src="${supplier.image}" alt="supplier profile picture" class="supplier-profilepic">
+            <div class="name">${supplier.name}</div>
+            <p class="description">${supplier.description}</p>
+            <button class="supplier-viewbutton" role="button">View</button>
+        `;
+
+        supplierCardsContainer.appendChild(card);
+    });
   });
+
+  
   
