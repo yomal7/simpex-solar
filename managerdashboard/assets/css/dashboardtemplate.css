@@ -103,6 +103,9 @@ body, html {
 .content {
     margin-left: 2.5rem;
     margin-top: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 .cards {
