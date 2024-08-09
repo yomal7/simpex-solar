@@ -225,7 +225,7 @@ body, html {
     align-items: center;
     border: 1px solid #34974d;
     background-color: #3aa856;
-    margin-bottom: 1rem; /* Add margin below the button */
+    margin-bottom: 0; /* Add margin below the button */
 }
 
 .add-button, .button-icon, .button-text {
