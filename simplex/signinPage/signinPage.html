@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+    <link rel="stylesheet" href="signinPage.css">
+    <title>Login & Registration Form</title>
+</head>
+<body>
+  <div class="signin-container">
+      <div class="sign-in-wrapper">
+            <img src="../assets/simpex-logo.png" alt="Logo" class="login-logo">
+            <header>Login Form</header>
+            <form action="#">
+              <div class="sign-in-field sign-in-email">
+                <div class="sign-in-input-area">
+                  <input type="text" placeholder="Email Address">
+                  <i class="uil uil-envelope icon"></i>
+                  <i class="sign-in-error sign-in-error-icon fas fa-exclamation-circle"></i>
+                </div>
+                <div class="sign-in-error sign-in-error-txt">Email can't be blank</div>
+              </div>
+              <div class="sign-in-field sign-in-password">
+                <div class="sign-in-input-area">
+                  <input type="password" placeholder="Password" class="password-container">
+                  <i class="uil uil-lock icon"></i>
+                  <i class="uil uil-eye-slash showHidePw"></i>
+                  <i class="sign-in-error sign-in-error-icon fas fa-exclamation-circle"></i>
+                </div>
+                <div class="sign-in-error sign-in-error-txt">Password can't be blank</div>
+              </div>
+              <div class="sign-in-pass-txt"><a href="../fogotpasswordPages/fogotPassword.html">Forgot password?</a></div>
+              <input type="submit" value="Login">
+            </form>
+            <div class="sign-in-txt">Not yet member? <a href="../signupPage/signupPage.html">Signup now</a></div>
+          </div>
+        <img src="../assets/solar-rooof.jpeg" alt="" class="signin-background-img ">
+        <!-- <div class="signin-blob"></div> -->
+        <!-- <video class="signin-background-video" autoplay muted loop>
+          <source src="../assets/animated-solar.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+      </video> -->
+      
+  </div>
+  <script src="./signinPage.js"></script>
+</body>
+</html>
