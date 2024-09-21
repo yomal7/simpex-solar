@@ -1,0 +1,278 @@
+:root {
+    --light-blue: #6C9BCF;
+    --white: #fff;
+    --sidebar-background: #f6f6f9;
+    --sidebar-link-hover: rgba(132, 139, 200, 0.18);
+    --sidebar-link-color: #7d8da1;
+    --sidebar-link-active-bg: rgba(132, 139, 200, 0.18);
+    --sidebar-link-active-color: #6C9BCF;
+}
+  
+* {
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    appearance: 0;
+    border: 0;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+  
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+  
+.container {
+    display: flex;
+    background-color: var(--sidebar-background);
+    padding: 10px 20px;
+    box-sizing: border-box;
+
+}
+  
+.sidebar {
+    width: 200px;
+    background-color: var(--white);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 15px;
+    box-shadow: 0 2rem 3rem var(--sidebar-link-hover);
+    height: calc(100vh - 20px); 
+    justify-content: flex-start; 
+}
+  
+.sidebar:hover {
+    box-shadow: none;
+}
+  
+.sidebar a {
+    display: flex;
+    align-items: center;
+    color: var(--sidebar-link-color);
+    height: 3.7rem;
+    gap: 1rem;
+    position: relative;
+    transition: all 0.3s ease;
+    width: 100%;
+    padding-left: 1rem;
+}
+  
+.sidebar a:last-child {
+    margin-top: auto; 
+}
+  
+.sidebar a:hover {
+    color: var(--light-blue);
+    margin-left: 0.6rem;
+}
+  
+.sidebar a.active {
+    width: 200px;
+    color: var(--sidebar-link-active-color);
+    background-color: var(--sidebar-link-active-bg);
+    margin-left: -20px;
+    padding-left: 35px;
+}
+
+.sidebar a.active::before {
+    content: '';
+    width: 6px;
+    height: 18px;
+    background-color: var(--light-blue);
+    position: absolute;
+    left: 0px;
+}
+  
+.sidebar a.active:hover {
+    border-radius: 15px;
+}
+  
+.profile-picture {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    align-self: center;
+}
+
+.content {
+    margin-left: 2.5rem;
+    margin-top: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.technician-table {
+    background-color: #fff;
+    width: 100%;
+    padding: 1.8rem;
+    text-align: center;
+    border-radius: 2rem;
+    transition: all 0.3s ease;
+    border-collapse: collapse; /* Ensures there are no gaps between cells */
+    border-spacing: 0; /* No extra spacing between cells */
+    overflow: hidden;
+}
+
+.technician-table thead th, .technician-table tbody td {
+    padding: 5px 10px; /* Reduced padding for smaller row height */
+    line-height: 1.1; /* Reduced line height */
+}
+
+.technician-table thead th {
+    border-bottom: 1px solid rgba(132, 139, 200, 0.18);
+    text-align: center;
+}
+
+.technician-table tbody td {
+    border-bottom: 1px solid rgba(132, 139, 200, 0.18);
+    color: #677483;
+}
+
+.technician-table tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.technician-table tbody tr:hover {
+    background-color: var(--sidebar-link-active-bg);
+}
+
+.technician-table tbody tr:last-child:hover {
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+}
+
+.technician-table tbody tr:last-child {
+    margin-bottom: 0; /* Remove margin for the last row */
+    border: none;
+}
+
+.technician-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+span.highlight {
+    display: inline-block;
+    border-radius: 10px;
+    padding: 5px 10px;
+    color: white;
+    font-weight: bold;
+}
+
+span.approved {
+    background-color: green;
+}
+
+span.not-approved {
+    background-color: red;
+}
+
+span.pending {
+    background-color: orange;
+}
+
+
+  
+/* form */
+
+.form-section{
+    margin-top: 1.4rem;
+    background-color: #fff;
+    border-radius: 2rem;
+    padding-top: 20px;
+    box-shadow: 0 2rem 3rem rgba(132, 139, 200, 0.18);
+    margin-top: 1.4rem;
+    margin-bottom: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.form-section:hover{
+    box-shadow: none;
+}
+
+.form-container {
+    position: relative;
+    max-width: 700px;
+    width: 100%;
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.form-container header {
+    font-size: 1.5rem;
+    color: #333;
+    font-weight: 500;
+    text-align: center;
+}
+
+.form-container .form {
+    margin-top: 30px;
+}
+
+.form .input-box {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.input-box label {
+    color: #333;
+}
+  
+.form :where(.input-box input, .select-box) {
+    position: relative;
+    height: 50px;
+    width: 100%;
+    outline: none;
+    font-size: 1rem;
+    color: #707070;
+    margin-top: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0 15px;
+}
+
+.input-box input:focus {
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.form .column {
+    display: flex;
+    column-gap: 15px;
+}
+  
+.select-box select {
+    height: 100%;
+    width: 100%;
+    outline: none;
+    border: none;
+    color: #707070;
+    font-size: 1rem;
+}
+
+.form button {
+    height: 55px;
+    width: 100%;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 400;
+    margin-top: 30px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: rgb(130, 106, 251);
+}
+
+.form button:hover {
+    background: rgb(88, 56, 250);
+}

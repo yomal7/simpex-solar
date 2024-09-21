@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineer Request Holiday</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/engineer-request-holiday.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <img src="assets/images/userimg.jpg" alt="engineer profile-picture" class="profile-picture">
+            <a href="#">
+                <h3>Overview</h3>
+            </a>
+            <a href="#" class="active">
+                <h3>Request Holiday</h3>
+            </a>
+            <a href="#">
+                <h3>Payment</h3>
+            </a>
+            <a href="#">
+                <span class="material-icons-sharp">logout</span>
+                <h3>Logout</h3>
+            </a>
+        </div>
+        <div class="content">
+            <div class="form-section">
+                <div class="form-container">
+                    <header>Request Holiday Form</header>
+                    <form action="#" class="form">
+                        <div class="column">
+                            <div class="input-box">
+                                <label>Date</label>
+                                <input type="date" placeholder="Enter leave date" required />
+                            </div>
+                            <div class="input-box">
+                                <label>Leave Type</label>
+                                <div class="select-box">
+                                    <select>
+                                    <option hidden>Select Type</option>
+                                    <option>Type1</option>
+                                    <option>Type2</option>
+                                    <option>Type3</option>
+                                    <option>Type4</option>
+                                    </select>
+                                </div>
+                            </div>                         
+                        </div>
+                        <div class="column">
+                            <div class="input-box">
+                                <label>Reason</label>
+                                <input type="text" placeholder="Enter the reason" required />
+                            </div>
+                            <div class="input-box">
+                                <label>Number of Days</label>
+                                <input type="number" placeholder="Enter number of days" required />
+                            </div>
+                        </div>                            
+                        <button>Submit</button>            
+                    </form>
+                </div>
+            </div>
+            <div class="technician">
+                <table class="technician-table">
+                    <thead>
+                        <tr>
+                            <th>Leave Type</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Number of Days</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>        
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/index.js"></script>
+</body>
+</html>
