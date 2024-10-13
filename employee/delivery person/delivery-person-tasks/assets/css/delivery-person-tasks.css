@@ -1,0 +1,264 @@
+:root {
+    --light-blue: #6C9BCF;
+    --white: #fff;
+    --sidebar-background: #f6f6f9;
+    --sidebar-link-hover: rgba(132, 139, 200, 0.18);
+    --sidebar-link-color: #7d8da1;
+    --sidebar-link-active-bg: rgba(132, 139, 200, 0.18);
+    --sidebar-link-active-color: #6C9BCF;
+}
+  
+* {
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    appearance: 0;
+    border: 0;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+  
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+  
+.container {
+    display: flex;
+    background-color: var(--sidebar-background);
+    padding: 10px 20px;
+    box-sizing: border-box;
+
+}
+  
+.sidebar {
+    width: 200px;
+    background-color: var(--white);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 15px;
+    box-shadow: 0 2rem 3rem var(--sidebar-link-hover);
+    height: calc(100vh - 20px); 
+    justify-content: flex-start; 
+}
+  
+.sidebar:hover {
+    box-shadow: none;
+}
+  
+.sidebar a {
+    display: flex;
+    align-items: center;
+    color: var(--sidebar-link-color);
+    height: 3.7rem;
+    gap: 1rem;
+    position: relative;
+    transition: all 0.3s ease;
+    width: 100%;
+    padding-left: 1rem;
+}
+  
+.sidebar a:last-child {
+    margin-top: auto; 
+}
+  
+.sidebar a:hover {
+    color: var(--light-blue);
+    margin-left: 0.6rem;
+}
+  
+.sidebar a.active {
+    width: 200px;
+    color: var(--sidebar-link-active-color);
+    background-color: var(--sidebar-link-active-bg);
+    margin-left: -20px;
+    padding-left: 35px;
+}
+
+.sidebar a.active::before {
+    content: '';
+    width: 6px;
+    height: 18px;
+    background-color: var(--light-blue);
+    position: absolute;
+    left: 0px;
+}
+  
+.sidebar a.active:hover {
+    border-radius: 15px;
+}
+  
+.profile-picture {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    align-self: center;
+}
+
+.content {
+    margin-left: 2.5rem;
+    margin-top: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.delivery-person-table {
+    background-color: #fff;
+    width: 100%;
+    padding: 1.8rem;
+    text-align: center;
+    border-radius: 2rem;
+    transition: all 0.3s ease;
+    border-collapse: collapse; /* Ensures there are no gaps between cells */
+    border-spacing: 0; /* No extra spacing between cells */
+    overflow: hidden;
+}
+
+.delivery-person-table thead th, .delivery-person-table tbody td {
+    padding: 5px 10px; /* Reduced padding for smaller row height */
+    line-height: 1.1; /* Reduced line height */
+}
+
+.delivery-person-table thead th {
+    border-bottom: 1px solid rgba(132, 139, 200, 0.18);
+    text-align: center;
+}
+
+.delivery-person-table tbody td {
+    border-bottom: 1px solid rgba(132, 139, 200, 0.18);
+    color: #677483;
+}
+
+.delivery-person-table tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.delivery-person-table tbody tr:hover {
+    background-color: var(--sidebar-link-active-bg);
+}
+
+.delivery-person-table tbody tr:last-child:hover {
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+}
+
+.delivery-person-table tbody tr:last-child {
+    margin-bottom: 0; /* Remove margin for the last row */
+    border: none;
+}
+
+.delivery-person-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+span.highlight {
+    display: inline-block;
+    border-radius: 10px;
+    padding: 5px 10px;
+    color: white;
+    font-weight: bold;
+}
+
+span.confirmed {
+    background-color: green;
+}
+
+span.not-confirmed {
+    background-color: red;
+}
+
+/*add comment button*/
+.addComment-button {
+    appearance: none;
+    background-color: transparent;
+    border: 2px solid #1A1A1A;
+    border-radius: 10px; /*Reduced radius for smaller button */
+    box-sizing: border-box;
+    color: #3B3B3B;
+    cursor: pointer;
+    display: inline-block;
+    font-family: Roobert,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;
+    font-size: 10px; /*Reduced font size */
+    font-weight: 600;
+    line-height: normal;
+    margin: 0;
+    min-height: 20px; /*Reduced height */
+    min-width: 0;
+    outline: none;
+    padding: 4px 8px; /* Reduced padding */
+    text-align: center;
+    text-decoration: none;
+    transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: auto;
+    will-change: transform;
+}
+
+.addComment-button:disabled {
+    pointer-events: none;
+}
+
+.addComment-button:hover {
+    color: #fff;
+    background-color: #1A1A1A;
+    box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
+    transform: translateY(-2px);
+}
+
+.addComment-button:active {
+    box-shadow: none;
+    transform: translateY(0);
+}
+
+/*add comment button*/
+.view-button {
+    appearance: none;
+    background-color: transparent;
+    border: 2px solid #1A1A1A;
+    border-radius: 10px; /*Reduced radius for smaller button */
+    box-sizing: border-box;
+    color: #3B3B3B;
+    cursor: pointer;
+    display: inline-block;
+    font-family: Roobert,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;
+    font-size: 10px; /*Reduced font size */
+    font-weight: 600;
+    line-height: normal;
+    margin: 0;
+    min-height: 20px; /*Reduced height */
+    min-width: 0;
+    outline: none;
+    padding: 4px 8px; /* Reduced padding */
+    text-align: center;
+    text-decoration: none;
+    transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: auto;
+    will-change: transform;
+}
+
+.view-button:disabled {
+    pointer-events: none;
+}
+
+.view-button:hover {
+    color: #fff;
+    background-color: #1A1A1A;
+    box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
+    transform: translateY(-2px);
+}
+
+.view-button:active {
+    box-shadow: none;
+    transform: translateY(0);
+}
