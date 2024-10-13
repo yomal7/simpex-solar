@@ -371,7 +371,7 @@ nav input{
       linear-gradient(to bottom, rgba(16, 24, 47, 0) 70%, #10182F), /* Fade to bottom */
       linear-gradient(to right, rgba(16, 24, 47, 0) 70%, #10182F), /* Fade to right */
       linear-gradient(to left, rgba(16, 24, 47, 0) 70%, #10182F), /* Fade to left */
-      url(./assets/solar-background1.png); /* Background image */
+      url(../assets/solar-background1.png); /* Background image */
     background-size: fit; /* Make the background image cover the entire container */
     background-position: center; /* Center the background image */
     background-repeat: no-repeat; /* Prevent the background image from repeating */
