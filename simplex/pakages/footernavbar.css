@@ -212,6 +212,32 @@ nav .wrapper{
 }
 
 @media screen and (max-width: 970px) {
+
+  .footer{
+    width: 100%;
+  }
+  .footer-info{
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+  }
+  .footer-info-cards{
+    margin: 0px;
+    padding: 0px;
+  }
+  .footer-email-icon, .footer-telephone-icon, .footer-address-icon{
+    display: none;
+  }
+
+  .footer-info-title{
+    font-size: 5px;
+    color: white;
+    padding: 0;
+    margin: 0;
+  }
+  .footer-info-content{
+    font-size: 10px;
+  }
   .wrapper .btn{
     display: block;
   }

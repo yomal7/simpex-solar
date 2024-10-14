@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>40kW 3 Phase Ongrid Solution - Solar Package</title>
+    <title>Solar Package Conformation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
-    <link rel="stylesheet" href="packageDetails.css">
+    <link rel="stylesheet" href="packageComformation.css">
     <link rel="stylesheet" href="footernavbar.css">
 </head>
 <body>
@@ -76,92 +76,43 @@
         </label>
         </div>
       </nav>
-    <div class="wrapper">
-        <div class="container">
-            <main class="main-content">
-                <div class="product-details">
-                    <div class="product-image">
-                        <img src="../assets/product_poster.png" alt="40kW 3 Phase Ongrid Solution">
-                    </div>
-                    <div class="product-info">
-                        <h1>40kW 3 Phase Ongrid Solution</h1>
-                        <div class="product-description">
-                            <p>This package includes 73 JA 550W P Type Panels and a Huawei 40kW Inverter, both with 10-year warranties. Enjoy free insurance for 1 year, 2 complimentary services, and CEB charges included for a seamless solar experience.
+      <div class="container">
+        <div class="image-section"></div>
+        <div class="form-section">
+            <h1>Request quotetion</h1>
+            <form>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
 
-                                Save on electricity with this powerful solar solution!</p>
-                        </div>
-                        <p class="price">Rs 5,463,000.00</p>
-                        <p class="warrenty">5 years warrenty</p>
-                        <div class="get-quote-btn-wrapper">
-                            <button class="get-quote-btn" onclick="window.location.href='packageComformation.html'">
-                                Get quote
-                                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                                    <path
-                                    fill-rule="evenodd"
-                                    d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm4.28 10.28a.75.75 0 000-1.06l-3-3a.75.75 0 10-1.06 1.06l1.72 1.72H8.25a.75.75 0 000 1.5h5.69l-1.72 1.72a.75.75 0 101.06 1.06l3-3z"
-                                    clip-rule="evenodd"
-                                    ></path>
-                                </svg>
-                                </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="tabs">
-                    <div class="tab-buttons">
-                        <button class="tab-button active" data-tab="description">Description</button>
-                        <button class="tab-button" data-tab="reviews">Reviews</button>
-                    </div>
-                    <div id="description" class="tab-content active">
-                        <table class="equipment-table">
-                            <thead>
-                                <tr>
-                                    <th>Equipment</th>
-                                    <th>Details</th>
-                                    <th>Link</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>JA 550W P Type Panels</td>
-                                    <td>73 Panels - 10 Years Warranty</td>
-                                    <td><a href="https://example.com/ja-550w-panels" target="_blank">Learn More</a></td>
-                                </tr>
-                                <tr>
-                                    <td>Huawei 40kW Inverter</td>
-                                    <td>10 Years Warranty</td>
-                                    <td><a href="https://example.com/huawei-40kw-inverter" target="_blank">Learn More</a></td>
-                                </tr>
-                                <tr>
-                                    <td>Insurance</td>
-                                    <td>Free for 1 year</td>
-                                    <td><a href="https://example.com/insurance" target="_blank">Learn More</a></td>
-                                </tr>
-                                <tr>
-                                    <td>Service</td>
-                                    <td>Free 2 Services</td>
-                                    <td><a href="https://example.com/free-service" target="_blank">Learn More</a></td>
-                                </tr>
-                                <tr>
-                                    <td>CEB Charges</td>
-                                    <td>Included</td>
-                                    <td><a href="https://example.com/ceb-charges" target="_blank">Learn More</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div id="reviews" class="tab-content">
-                        <h2>Customer Reviews</h2>
-                        <p>No reviews yet. Be the first to review this product!</p>
-                        <!-- Add a form for submitting reviews here -->
-                    </div>
-                </div>
-        
-    </div>
+                <label for="address">Address:</label>
+                <textarea id="address" name="address" required></textarea>
 
-    </main>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone" name="phone" required>
+
+                <label for="consumption">Monthly Average Electricity Consumption (Unit):</label>
+                <input type="number" id="consumption" name="consumption" required>
+
+                <label for="city">Nearest City:</label>
+                <input type="text" id="city" name="city" required>
+
+                <label for="customization">Customizations:</label>
+                <textarea id="customization" name="customization"></textarea>
+
+                <button type="submit" onclick="openPopup()">Submit Request</button>
+            </form>
+        </div>
+        <div class="popup" id="popup">
+            <img src="../assets/tick.png" alt="">
+            <h2>Thank you</h2>
+            <p>Your details has been successfully submitted. Please check your profile for more details.</p>
+            <button type="button" onclick="closePopup()">Ok</button>
+        </div>
     </div>
-</div>
+    <div class="overlay" id="overlay"></div>
     <section class="footer">
         <div class="footer-info">
         <div class="footer-address  footer-info-cards">
@@ -245,5 +196,6 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/TextPlugin.min.js"></script>
     <script src="packegeDetails.js"></script>
     <script src="footernavbar.js"></script>
+    <script src="packageConformation.js"></script>
 </body>
 </html>

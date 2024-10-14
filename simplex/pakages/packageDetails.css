@@ -16,11 +16,16 @@ body {
     justify-content: center; /* Horizontal centering */
     align-items: center; /* Vertical centering */
     box-sizing: border-box;
+
 }
 .container {
     margin-top: 5rem;
     display: flex;
     flex-wrap: wrap;
+    /* background-color: #ecf7f2; */
+    background: radial-gradient(circle at 10% 20%, rgba(216, 241, 230, 0.46) 0.1%, rgba(233, 226, 226, 0.28) 90.1%);
+    padding: 2rem; 
+    margin-bottom: 2rem;
 
 }
 .main-content {
