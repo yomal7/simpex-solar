@@ -852,7 +852,7 @@ Secondary form
     font-size: 24px;
     font-weight: 600;
     margin-bottom: 20px;
-    color: var(--primary-color);
+    color: var(--theme-color);
 }
 
 .secondary-form-grid {
@@ -886,7 +886,7 @@ Secondary form
 .secondary-form-group select:focus,
 .secondary-form-group textarea:focus {
     outline: none;
-    border-color: var(--primary-color);
+    border-color: var(--theme-color);
 }
 
 .secondary-form-group textarea {
@@ -895,7 +895,7 @@ Secondary form
 }
 
 .secondary-form-submit {
-    background-color: var(--primary-color);
+    background-color: var(--theme-color);
     color: var(--white);
     border: none;
     padding: 12px 20px;
