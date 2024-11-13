@@ -1,0 +1,19 @@
+<!-- # Ensure that all files in this directory and its subdirectories are accessible
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+</IfModule>
+
+# Deny access to .htaccess files themselves
+<Files ".htaccess">
+    Require all denied
+</Files>
+
+# Allow access to CSS files
+<FilesMatch "\.(css)$">
+    Require all granted
+</FilesMatch>
+
+# Add other file types if needed, like images or JavaScript
+<FilesMatch "\.(jpg|jpeg|png|gif|js|css)$">
+    Require all granted
+</FilesMatch> -->
