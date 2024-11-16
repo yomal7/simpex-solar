@@ -1,12 +1,12 @@
 <?php
-    //Databse Configarations
+    //Database Configuration
     define('DB_HOST', 'localhost');
     define('DB_USER', 'root');
-    define('DB_PASS', '');
-    define('DB_NAME', 'simplex_db');
+    define('DB_PASSWORD', '');
+    define("DB_NAME", "mvc-framework");
 
     //Addresses
     define('APPROOT', dirname(dirname(__FILE__)));
     define('URLROOT','http://localhost/simplex');
-    define('SITENAME', 'simplex')
+    define('SITENAME', 'simplex ')
 ?>

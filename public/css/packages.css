@@ -1,0 +1,10 @@
+/* CSS LIBRARY */
+
+/* COMPONENTS */
+@import url('components/navbar.css');
+@import url('components/footer.css');
+
+/* package showcase */
+@import url('packages/packageShowcase.css');
+@import url('packages/packageDetails.css');
+@import url('packages/packageConformation.css');
