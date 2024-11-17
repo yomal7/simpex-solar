@@ -19,7 +19,8 @@
                         <p class="price">Rs 5,463,000.00</p>
                         <p class="warrenty">5 years warrenty</p>
                         <div class="get-quote-btn-wrapper">
-                            <button class="get-quote-btn" onclick="window.location.href='packageComformation.html'">
+                            <!-- <button class="get-quote-btn" onclick="window.location.href='packageComformation.html'"> -->
+                            <button class="get-quote-btn" onclick="window.location.href='<?= URLROOT; ?>/packages/packageConformation'">
                                 Get quote
                                 <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
                                     <path
