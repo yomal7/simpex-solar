@@ -1,0 +1,238 @@
+:root {
+    --primary-color: #2ecc71;
+    --primary-dark: #27ae60;
+    --background-color: #f5f6fa;
+    --card-background: #ffffff;
+    --text-color: #2d3436;
+    --input-background: #f8f9fa;
+    --input-border: #e1e1e1;
+    --animation-duration: 0.3s;
+}
+
+
+.container {
+    width: 100%;
+    max-width: 700px;
+}
+
+.profile-card {
+    background: var(--card-background);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    animation: fadeIn 0.5s ease;
+}
+
+.profile-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 30px;
+    text-align: center;
+    background-image: linear-gradient(to right top, #051937, #004d7a, #008793, #00bf72, #a8eb12);
+}
+
+.profile-img-container {
+    position: relative;
+    width: calc(100% / 4);
+    height: 100px;
+    margin: 0 auto;
+}
+
+.profile-header p {
+    flex: 1;
+    font-size: 40px;
+    font-weight: bold;
+    color:white
+}
+
+#profile-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 20%;
+    object-fit: cover;
+    border: 4px solid white;
+    transition: transform var(--animation-duration) ease;
+}
+
+.img-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 20%;
+    opacity: 0;
+    transition: opacity var(--animation-duration) ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.profile-img-container:hover .img-overlay {
+    opacity: 1;
+}
+
+.profile-img-container:hover #profile-img {
+    transform: scale(1.05);
+}
+
+.upload-btn {
+    color: white;
+    cursor: pointer;
+}
+
+.profile-content {
+    /* padding: 30px; */
+    display: flex;
+    flex-direction:column;
+
+}
+
+.info-group {
+    width: 80%;
+    margin-bottom: 10px;
+}
+
+.info-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.info-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    background: var(--input-background);
+    transition: all var(--animation-duration) ease;
+}
+
+.info-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+}
+
+.info-group input:disabled {
+    background: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.password-section {
+    width: 100%;
+    border-top: 1px solid var(--input-border);
+    padding-top: 10px;
+    margin-top: 10px;
+    padding-left: 120px;
+    border-radius: 10px;
+    background-color: #f5eeed;
+}
+
+.save-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    transition: all var(--animation-duration) ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.save-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.save-btn:active {
+    transform: translateY(0);
+}
+
+.success-animation {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 24px;
+    height: 24px;
+    opacity: 0;
+}
+
+.success-animation svg {
+    width: 100%;
+    height: 100%;
+    stroke: white;
+    stroke-width: 2;
+    fill: none;
+}
+
+.save-btn.success .success-animation {
+    animation: successPop 0.5s ease forwards;
+}
+
+.save-btn.success span {
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes successPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    70% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+
+    .profile-card {
+        border-radius: 15px;
+    }
+
+    .profile-header {
+        padding: 20px;
+    }
+
+    .profile-img-container {
+        width: 120px;
+        height: 120px;
+    }
+
+    .profile-content {
+        padding: 20px;
+    }
+
+    .info-group input {
+        padding: 10px;
+    }
+}

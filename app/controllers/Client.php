@@ -52,6 +52,11 @@ class Client extends Controller {
         $this->view('client/v_clientInstallation', $data);  
     }
 
+    public function settings() {
+        $data = [];
+        $this->view('client/v_clientSettings', $data);  
+    }
+
 }
 ?>
 
