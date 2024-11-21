@@ -32,5 +32,11 @@ class OperationsManager extends Controller {
         $this->view('operationsManager/v_manageAproject', $data);
     }
 
+    public function managePackages() {
+        // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
+        $data = [];
+        $this->view('operationsManager/v_managePackages', $data);
+    }
+
 }
 ?>

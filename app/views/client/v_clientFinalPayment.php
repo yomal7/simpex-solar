@@ -191,6 +191,7 @@
 
     <div class="overlay" id="overlay"></div>
     <div id="toastContainer" class="toast-container"></div>
-    </body>
+
+
     <script src="<?php echo URLROOT; ?>/js/client/finalPayment.js"></script>
-<?php require APPROOT.'/views/packages/footer.php';?>
+<?php require APPROOT.'/views/client/footer.php';?>
