@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsManager/managePackages.css">
+    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/managePackages.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -168,5 +168,5 @@
 
     <div id="overlay"></div>
     <script src="script.js"></script>
-    <script src="<?php echo URLROOT; ?>/js/operationsManager/managePackages.js"></script>
-<?php require APPROOT.'/views/operationsManager/footer.php';?>
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/managePackages.js"></script>
+<?php require APPROOT.'/views/operationsCoordinator/footer.php';?>
