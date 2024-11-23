@@ -1,5 +1,5 @@
-<?php require APPROOT.'/views/operationsManager/header.php';?>
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsManager/manageAproject.css">
+<?php require APPROOT.'/views/operationsCoordinator/header.php';?>
+    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/manageAproject.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -294,8 +294,8 @@
 
     <div class="overlay" id="overlay"></div>
 
-    <script src="<?php echo URLROOT; ?>/js/operationsManager/dashboard.js"></script>
-    <script src="<?php echo URLROOT; ?>/js/operationsManager/quationPhase.js"></script>
-    <script src="<?php echo URLROOT; ?>/js/operationsManager/siteVisit.js"></script>
-    <script src="<?php echo URLROOT; ?>/js/operationsManager/manageAproject.js"></script>
-<?php require APPROOT.'/views/operationsManager/footer.php';?>
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/quationPhase.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/siteVisit.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/manageAproject.js"></script>
+<?php require APPROOT.'/views/operationsCoordinator/footer.php';?>
