@@ -38,5 +38,11 @@ class operationsCoordinator extends Controller {
         $this->view('operationsCoordinator/v_managePackages', $data);
     }
 
+    public function tasks() {
+        // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
+        $data = [];
+        $this->view('operationsCoordinator/v_tasks', $data);
+    }
+
 }
 ?>

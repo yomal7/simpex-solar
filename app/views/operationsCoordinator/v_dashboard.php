@@ -16,25 +16,21 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="#" class="active">
+            <a href="./dashboard" class="active">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">person</span>
-                <h3>Customers</h3>
-            </a>
-            <a href="#">
+            <a href="./manageAproject">
                 <span class="material-icons-sharp">receipt_long</span>
                 <h3>Projects</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">inventory</span>
-                <h3>Inventory</h3>
+            <a href="./managePackages">
+                <span class="material-icons-sharp">solar_power</span>
+                <h3>Packages</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">group</span>
-                <h3>Employees</h3>
+            <a href="./tasks">
+                <span class="material-icons-sharp">task</span>
+                <h3>Tasks</h3>
             </a>
             <a href="#">
                 <span class="material-icons-sharp">settings</span>
