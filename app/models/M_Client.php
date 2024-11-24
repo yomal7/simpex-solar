@@ -15,38 +15,88 @@
             return $this->db->single();
         }
 
-        public function getUserById($id) {
-            $this->db->query('SELECT * FROM users WHERE user_id = :id');
-            $this->db->bind(':id', $id);
-            return $this->db->single();
+        // public function getUserById($id) {
+        //     $this->db->query('SELECT * FROM users WHERE user_id = :id');
+        //     $this->db->bind(':id', $id);
+        //     return $this->db->single();
+        // }
+
+        public function getUserById($userId) {
+            $this->db->query('SELECT user_id, name, email, phone, profile_picture, role FROM users WHERE user_id = :user_id AND role = "customer"');
+            $this->db->bind(':user_id', $userId);
+            
+            $result = $this->db->single();
+            
+            if ($this->db->rowCount() > 0) {
+                return $result;
+            }
+            
+            return false;
         }
     
+        // public function updateProfile($userId, $data) {
+        //     $this->db->query('UPDATE users SET phone = :phone WHERE user_id = :id');
+        //     $this->db->bind(':phone', $data['phone']);
+        //     $this->db->bind(':id', $userId);
+        //     return $this->db->execute();
+        // }
         public function updateProfile($userId, $data) {
-            $this->db->query('UPDATE users SET phone = :phone WHERE user_id = :id');
+            $this->db->query('UPDATE users SET phone = :phone WHERE user_id = :user_id AND role = "customer"');
+            
             $this->db->bind(':phone', $data['phone']);
-            $this->db->bind(':id', $userId);
+            $this->db->bind(':user_id', $userId);
+            
             return $this->db->execute();
         }
 
     
+        // public function verifyPassword($userId, $password) {
+        //     $this->db->query('SELECT password FROM users WHERE user_id = :id');
+        //     $this->db->bind(':id', $userId);
+        //     $row = $this->db->single();
+        //     return password_verify($password, $row->password);
+        // }
         public function verifyPassword($userId, $password) {
-            $this->db->query('SELECT password FROM users WHERE user_id = :id');
-            $this->db->bind(':id', $userId);
+            $this->db->query('SELECT password FROM users WHERE user_id = :user_id AND role = "customer"');
+            $this->db->bind(':user_id', $userId);
+            
             $row = $this->db->single();
-            return password_verify($password, $row->password);
+            
+            if ($row) {
+                return password_verify($password, $row->password);
+            }
+            
+            return false;
         }
     
+        // public function updatePassword($userId, $newPassword) {
+        //     $this->db->query('UPDATE users SET password = :password WHERE user_id = :id');
+        //     $this->db->bind(':password', password_hash($newPassword, PASSWORD_DEFAULT));
+        //     $this->db->bind(':id', $userId);
+        //     return $this->db->execute();
+        // }
+
         public function updatePassword($userId, $newPassword) {
-            $this->db->query('UPDATE users SET password = :password WHERE user_id = :id');
+            $this->db->query('UPDATE users SET password = :password WHERE user_id = :user_id AND role = "customer"');
+            
             $this->db->bind(':password', password_hash($newPassword, PASSWORD_DEFAULT));
-            $this->db->bind(':id', $userId);
+            $this->db->bind(':user_id', $userId);
+            
             return $this->db->execute();
         }
     
+        // public function updateProfilePicture($userId, $fileName) {
+        //     $this->db->query('UPDATE users SET profile_picture = :profile_picture WHERE user_id = :id');
+        //     $this->db->bind(':profile_picture', $fileName);
+        //     $this->db->bind(':id', $userId);
+        //     return $this->db->execute();
+        // }
         public function updateProfilePicture($userId, $fileName) {
-            $this->db->query('UPDATE users SET profile_picture = :profile_picture WHERE user_id = :id');
+            $this->db->query('UPDATE users SET profile_picture = :profile_picture WHERE user_id = :user_id AND role = "customer"');
+            
             $this->db->bind(':profile_picture', $fileName);
-            $this->db->bind(':id', $userId);
+            $this->db->bind(':user_id', $userId);
+            
             return $this->db->execute();
         }
 

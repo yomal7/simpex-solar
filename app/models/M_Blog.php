@@ -3,200 +3,359 @@ class M_Blog {
     private $db;
 
     public function __construct() {
-        $this->db = new Database();
+        $this->db = new Database;
     }
 
-    public function getPublishedPosts() {
-        $this->db->query("SELECT * FROM posts WHERE published=true");
-        $posts = $this->db->resultSet();
-    
-        foreach ($posts as &$post) {
-            $post->topic = $this->getPostTopic($post->id);
-        }
-    
-        return $posts;
+    // Create new blog post
+    public function createPost($data) {
+        $this->db->query('INSERT INTO blog_posts (user_id, category_id, title, slug, summary, body, featured_image, status) 
+                         VALUES (:user_id, :category_id, :title, :slug, :summary, :body, :featured_image, :status)');
+        
+        // Bind values
+        $this->db->bind(':user_id', $_SESSION['user_id']);
+        $this->db->bind(':category_id', $data['category_id']);
+        $this->db->bind(':title', $data['title']);
+        $this->db->bind(':slug', $data['slug']);
+        $this->db->bind(':summary', $data['summary']);
+        $this->db->bind(':body', $data['body']);
+        $this->db->bind(':featured_image', $data['featured_image']);
+        $this->db->bind(':status', $data['status']);
+
+        return $this->db->execute();
     }
 
-    public function getPostTopic($postId) {
-        if (!is_numeric($postId)) {
-            error_log("Invalid post ID: " . print_r($postId, true));
-            return null;
-        }
-    
-        $this->db->query("
-            SELECT t.* 
-            FROM topics t
-            INNER JOIN post_topic pt ON t.id = pt.topic_id
-            WHERE pt.post_id = :post_id 
-            LIMIT 1
-        ");
-    
-        $this->db->bind(':post_id', $postId);
-        $topic = $this->db->single();
-    
-        if (!$topic) {
-            error_log("No topic found for post ID: $postId");
-            return null;
-        }
-    
-        return $topic;
-    }
-
-
-    public function getPublishedPostsByTopic($topicId) {
-        if (!is_numeric($topicId)) {
-            error_log("Invalid topic ID provided: " . print_r($topicId, true));
-            return [];
-        }
-        
-        // First verify the topic exists
-        $this->db->query("SELECT id, name FROM topics WHERE id = :topic_id");
-        $this->db->bind(':topic_id', $topicId);
-        
-        $topic = $this->db->single();
-        if (!$topic) {
-            error_log("Topic not found with ID: $topicId");
-            return [];
-        }
-        
-        // Get posts for the topic
-        $sql = "
-            SELECT 
-                p.*,
-                t.name as topic_name,
-                t.slug as topic_slug
-            FROM posts p
-            INNER JOIN post_topic pt ON p.id = pt.post_id
-            INNER JOIN topics t ON pt.topic_id = t.id
-            WHERE pt.topic_id = :topic_id 
-            AND p.published = true
-            ORDER BY p.created_at DESC
-        ";
-        
-        $this->db->query($sql);
-        $this->db->bind(':topic_id', $topicId);
-        $posts = $this->db->resultSet();
-        
-        if (!empty($posts)) {
-            foreach ($posts as &$post) {
-                $post->topic = (object)[
-                    'id' => $topicId,
-                    'name' => $topic->name,
-                    'slug' => $post->topic_slug ?? null
-                ];
-            }
-        }
-        
-        return $posts;
-    }
-
-    public function getTopicNameById($id) {
-        if (!is_numeric($id)) {
-            error_log("Invalid topic ID format: " . print_r($id, true));
-            return null;
-        }
-        
-        $this->db->query("SELECT name FROM topics WHERE id = :id");
-        $this->db->bind(':id', $id);
-        $result = $this->db->single();
-        
-        return $result ? $result->name : null;
-    }
-
-
-
-    public function getAdjacentPost($currentDate, $direction = 'next') {
-        $operator = $direction === 'next' ? '>' : '<';
-        $order = $direction === 'next' ? 'ASC' : 'DESC';
-        
-        $this->db->query("
-            SELECT id, title, slug 
-            FROM posts 
-            WHERE published = true 
-            AND created_at {$operator} :current_date
-            ORDER BY created_at {$order}
-            LIMIT 1
-        ");
-        
-        $this->db->bind(':current_date', $currentDate);
-        return $this->db->single();
-    }
-
-    public function getAllPublishedPosts() {
-        $this->db->query("
-            SELECT 
-                p.*,
-                t.name as topic_name,
-                t.slug as topic_slug,
-                t.id as topic_id
-            FROM posts p
-            LEFT JOIN post_topic pt ON p.id = pt.post_id
-            LEFT JOIN topics t ON pt.topic_id = t.id
-            WHERE p.published = true
-            ORDER BY p.created_at DESC
-        ");
-        
-        $posts = $this->db->resultSet();
-        
-        if (!empty($posts)) {
-            foreach ($posts as &$post) {
-                $post->topic = (object)[
-                    'id' => $post->topic_id,
-                    'name' => $post->topic_name,
-                    'slug' => $post->topic_slug
-                ];
-                unset($post->topic_id);
-                unset($post->topic_name);
-                unset($post->topic_slug);
-            }
-        }
-        
-        return $posts;
-    }
-
-    public function getAllTopics() {
-        $this->db->query("
-            SELECT 
-                t.*,
-                COUNT(pt.post_id) as post_count
-            FROM topics t
-            LEFT JOIN post_topic pt ON t.id = pt.topic_id
-            LEFT JOIN posts p ON pt.post_id = p.id AND p.published = true
-            GROUP BY t.id
-            ORDER BY t.name ASC
-        ");
+    // Get all blog posts
+    public function getAllPosts() {
+        $this->db->query('SELECT p.*, c.name as category_name, u.name as author_name 
+                         FROM blog_posts p 
+                         LEFT JOIN blog_categories c ON p.category_id = c.category_id 
+                         LEFT JOIN users u ON p.user_id = u.user_id 
+                         ORDER BY p.created_at DESC');
         
         return $this->db->resultSet();
     }
 
-    public function getPost($slug) {
-        if (empty($slug)) {
-            return null;
-        }
+    // Get post by ID
+    public function getPostById($id) {
+        $this->db->query('SELECT p.*, c.name as category_name, u.name as author_name 
+                         FROM blog_posts p 
+                         LEFT JOIN blog_categories c ON p.category_id = c.category_id 
+                         LEFT JOIN users u ON p.user_id = u.user_id 
+                         WHERE p.post_id = :id');
         
-        $this->db->query("SELECT * FROM posts WHERE slug=:slug AND published=true");
-        $this->db->bind(':slug', $slug);
-        $post = $this->db->single();
-
-        if ($post) {
-            $post->topic = $this->getPostTopic($post->id);
-            $post->next_post = $this->getAdjacentPost($post->created_at, 'next');
-            $post->prev_post = $this->getAdjacentPost($post->created_at, 'prev');
-            $post->body = html_entity_decode($post->body);
-        }
-
-        return $post;
+        $this->db->bind(':id', $id);
+        
+        return $this->db->single();
     }
 
-    // public function getPostTopic($postId) {
-    //     $this->query("
-    //         SELECT t.name AS topic_name 
-    //         FROM topics t 
-    //         INNER JOIN post_topic pt ON t.id = pt.topic_id 
-    //         WHERE pt.post_id = :postId
-    //     ");
-    //     $this->bind(':postId', $postId);
-    //     return $this->single();
-    // }
+    // Get all categories
+    public function getCategories() {
+        $this->db->query('SELECT * FROM blog_categories ORDER BY name');
+        return $this->db->resultSet();
+    }
+
+    // Get total posts count
+    public function getTotalPosts() {
+        $this->db->query('SELECT COUNT(*) as total FROM blog_posts');
+        $row = $this->db->single();
+        return $row->total;
+    }
+
+    // Get total draft posts count
+    public function getTotalDraftPosts() {
+        $this->db->query("SELECT COUNT(*) as total FROM blog_posts WHERE status = 'draft'");
+        $row = $this->db->single();
+        return $row->total;
+    }
+
+    // Get total published posts count
+    public function getTotalPublishedPosts() {
+        $this->db->query("SELECT COUNT(*) as total FROM blog_posts WHERE status = 'published'");
+        $row = $this->db->single();
+        return $row->total;
+    }
+
+    // Get recent posts
+    public function getRecentPosts($limit = 5) {
+        $this->db->query('SELECT p.*, c.name as category_name, u.name as author_name 
+                         FROM blog_posts p 
+                         LEFT JOIN blog_categories c ON p.category_id = c.category_id 
+                         LEFT JOIN users u ON p.user_id = u.user_id 
+                         ORDER BY p.created_at DESC LIMIT :limit');
+        
+        $this->db->bind(':limit', $limit);
+        
+        return $this->db->resultSet();
+    }
+
+    // Increment view count
+    public function incrementViews($id) {
+        $this->db->query('UPDATE blog_posts SET views = views + 1 WHERE post_id = :id');
+        $this->db->bind(':id', $id);
+        return $this->db->execute();
+    }
+
+    public function getDraftPosts() {
+        $this->db->query('SELECT p.*, c.name as category_name 
+                         FROM blog_posts p 
+                         LEFT JOIN blog_categories c ON p.category_id = c.category_id 
+                         WHERE p.status = "draft" 
+                         ORDER BY p.updated_at DESC');
+        
+        return $this->db->resultSet();
+    }
+    
+    public function publishDraft($id) {
+        $this->db->query('UPDATE blog_posts SET status = "published" WHERE post_id = :id');
+        $this->db->bind(':id', $id);
+        
+        return $this->db->execute();
+    }
+
+    public function getPublishedPosts($page = 1, $perPage = 10) {
+        $offset = ($page - 1) * $perPage;
+        
+        $this->db->query('SELECT p.*, c.name as category_name 
+                         FROM blog_posts p 
+                         LEFT JOIN blog_categories c ON p.category_id = c.category_id 
+                         WHERE p.status = "published" 
+                         ORDER BY p.created_at DESC 
+                         LIMIT :limit OFFSET :offset');
+        
+        $this->db->bind(':limit', $perPage);
+        $this->db->bind(':offset', $offset);
+        
+        return $this->db->resultSet();
+    }
+    
+    public function getPublishedPostsPagination($currentPage = 1, $perPage = 10) {
+        $this->db->query('SELECT COUNT(*) as total FROM blog_posts WHERE status = "published"');
+        $row = $this->db->single();
+        $total = $row->total;
+        
+        $totalPages = ceil($total / $perPage);
+        
+        if ($totalPages <= 1) {
+            return '';
+        }
+        
+        $pagination = '<div class="pagination">';
+        
+        // Previous button
+        if ($currentPage > 1) {
+            $pagination .= '<a href="?page=' . ($currentPage - 1) . '" class="page-link">&laquo; Previous</a>';
+        }
+        
+        // Page numbers
+        for ($i = 1; $i <= $totalPages; $i++) {
+            if ($i == $currentPage) {
+                $pagination .= '<span class="page-link active">' . $i . '</span>';
+            } else {
+                $pagination .= '<a href="?page=' . $i . '" class="page-link">' . $i . '</a>';
+            }
+        }
+        
+        // Next button
+        if ($currentPage < $totalPages) {
+            $pagination .= '<a href="?page=' . ($currentPage + 1) . '" class="page-link">Next &raquo;</a>';
+        }
+        
+        $pagination .= '</div>';
+        
+        return $pagination;
+    }
+    
+    public function updatePost($data) {
+        $this->db->query('UPDATE blog_posts SET 
+            title = :title,
+            slug = :slug,
+            summary = :summary,
+            body = :body,
+            category_id = :category_id,
+            featured_image = :featured_image,
+            status = :status,
+            updated_at = CURRENT_TIMESTAMP
+            WHERE post_id = :id');
+        
+        $this->db->bind(':id', $data['post_id']);
+        $this->db->bind(':title', $data['title']);
+        $this->db->bind(':slug', $data['slug']);
+        $this->db->bind(':summary', $data['summary']);
+        $this->db->bind(':body', $data['body']);
+        $this->db->bind(':category_id', $data['category_id']);
+        $this->db->bind(':featured_image', $data['featured_image']);
+        $this->db->bind(':status', $data['status']);
+
+        try {
+            return $this->db->execute();
+        } catch (PDOException $e) {
+            // Log error
+            error_log("Error updating post: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    public function deletePost($id) {
+        $this->db->query('DELETE FROM blog_posts WHERE post_id = :id');
+        $this->db->bind(':id', $id);
+        
+        return $this->db->execute();
+    }
+    
+    public function slugExists($slug, $excludeId = null) {
+        $sql = 'SELECT post_id FROM blog_posts WHERE slug = :slug';
+        if ($excludeId) {
+            $sql .= ' AND post_id != :id';
+        }
+        
+        $this->db->query($sql);
+        $this->db->bind(':slug', $slug);
+        
+        if ($excludeId) {
+            $this->db->bind(':id', $excludeId);
+        }
+        
+        try {
+            $this->db->execute();
+            return $this->db->rowCount() > 0;
+        } catch (PDOException $e) {
+            error_log("Error checking slug: " . $e->getMessage());
+            return true; // Return true to force unique slug generation
+        }
+    }
+
+    public function getPostRevisions($postId) {
+        $this->db->query('SELECT * FROM post_revisions 
+                         WHERE post_id = :post_id 
+                         ORDER BY created_at DESC');
+        
+        $this->db->bind(':post_id', $postId);
+        
+        try {
+            return $this->db->resultSet();
+        } catch (PDOException $e) {
+            error_log("Error getting post revisions: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function createRevision($postData) {
+        $this->db->query('INSERT INTO post_revisions 
+                         (post_id, title, summary, body, category_id, status) 
+                         VALUES (:post_id, :title, :summary, :body, :category_id, :status)');
+        
+        $this->db->bind(':post_id', $postData['post_id']);
+        $this->db->bind(':title', $postData['title']);
+        $this->db->bind(':summary', $postData['summary']);
+        $this->db->bind(':body', $postData['body']);
+        $this->db->bind(':category_id', $postData['category_id']);
+        $this->db->bind(':status', $postData['status']);
+
+        try {
+            return $this->db->execute();
+        } catch (PDOException $e) {
+            error_log("Error creating revision: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getFeaturedPosts($limit = 3) {
+        $this->db->query('SELECT p.*, c.name as category_name 
+                         FROM blog_posts p 
+                         LEFT JOIN blog_categories c ON p.category_id = c.category_id 
+                         WHERE p.status = "published" 
+                         ORDER BY p.views DESC, p.created_at DESC 
+                         LIMIT :limit');
+        
+        $this->db->bind(':limit', $limit);
+        return $this->db->resultSet();
+    }
+
+    public function getAllPublishedPosts($page = 1, $postsPerPage = 6) {
+        $offset = ($page - 1) * $postsPerPage;
+        
+        $this->db->query('SELECT p.*, c.name as category_name, c.slug as category_slug 
+                         FROM blog_posts p 
+                         LEFT JOIN blog_categories c ON p.category_id = c.category_id 
+                         WHERE p.status = "published" 
+                         ORDER BY p.created_at DESC 
+                         LIMIT :limit OFFSET :offset');
+        
+        $this->db->bind(':limit', $postsPerPage);
+        $this->db->bind(':offset', $offset);
+        
+        return $this->db->resultSet();
+    }
+
+    public function getPostsByCategory($categorySlug, $page = 1, $postsPerPage = 6) {
+        $offset = ($page - 1) * $postsPerPage;
+        
+        $this->db->query('SELECT p.*, c.name as category_name, c.slug as category_slug 
+                         FROM blog_posts p 
+                         LEFT JOIN blog_categories c ON p.category_id = c.category_id 
+                         WHERE p.status = "published" AND c.slug = :category_slug 
+                         ORDER BY p.created_at DESC 
+                         LIMIT :limit OFFSET :offset');
+        
+        $this->db->bind(':category_slug', $categorySlug);
+        $this->db->bind(':limit', $postsPerPage);
+        $this->db->bind(':offset', $offset);
+        
+        return $this->db->resultSet();
+    }
+
+    public function getTotalPostsByCategory($categorySlug) {
+        $this->db->query('SELECT COUNT(*) as total 
+                         FROM blog_posts p 
+                         LEFT JOIN blog_categories c ON p.category_id = c.category_id 
+                         WHERE p.status = "published" AND c.slug = :category_slug');
+        
+        $this->db->bind(':category_slug', $categorySlug);
+        $row = $this->db->single();
+        return $row->total;
+    }
+
+
+    // Get categories with post count
+    public function getCategoriesWithCount() {
+        $this->db->query('SELECT c.*, 
+                         COUNT(CASE WHEN p.status = "published" THEN 1 END) as post_count 
+                         FROM blog_categories c 
+                         LEFT JOIN blog_posts p ON c.category_id = p.category_id 
+                         GROUP BY c.category_id 
+                         ORDER BY c.name');
+        
+        return $this->db->resultSet();
+    }
+
+
+    // Get post by slug
+    public function getPostBySlug($slug) {
+        $this->db->query('SELECT p.*, c.name as category_name, c.slug as category_slug 
+                         FROM blog_posts p 
+                         LEFT JOIN blog_categories c ON p.category_id = c.category_id 
+                         WHERE p.slug = :slug AND p.status = "published"');
+        
+        $this->db->bind(':slug', $slug);
+        return $this->db->single();
+    }
+
+    // Get related posts
+    public function getRelatedPosts($categoryId, $currentPostId, $limit = 3) {
+        $this->db->query('SELECT p.*, c.name as category_name, c.slug as category_slug 
+                         FROM blog_posts p 
+                         LEFT JOIN blog_categories c ON p.category_id = c.category_id 
+                         WHERE p.status = "published" 
+                         AND p.category_id = :category_id 
+                         AND p.post_id != :current_post_id 
+                         ORDER BY p.views DESC 
+                         LIMIT :limit');
+        
+        $this->db->bind(':category_id', $categoryId);
+        $this->db->bind(':current_post_id', $currentPostId);
+        $this->db->bind(':limit', $limit);
+        
+        return $this->db->resultSet();
+    }
+
 }
-?>

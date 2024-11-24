@@ -1,7 +1,5 @@
-<div class="footer">
-                        <p>MyViewers &copy; <?php echo date('Y'); ?></p>
-                </div>
-        </div>
-        <!-- // container -->
-</body>
+    <script src="<?php echo URLROOT; ?>/js/components/navbarFooter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/TextPlugin.min.js"></script>
+    </body>
 </html>

@@ -244,3 +244,138 @@
         padding: 10px;
     }
 }
+
+#toast-container {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    z-index: 9999; /* Higher z-index to appear above other elements */
+    pointer-events: none; /* Allow clicking through the container */
+    max-width: 100%;
+    padding: 10px;
+}
+
+.toast {
+    pointer-events: auto; /* Re-enable pointer events for individual toasts */
+    background: white;
+    min-width: 300px;
+    max-width: 95vw;
+    margin-bottom: 10px;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: slideIn 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.toast.success {
+    border-left: 4px solid #4CAF50;
+}
+
+.toast.error {
+    border-left: 4px solid #f44336;
+}
+
+.toast.warning {
+    border-left: 4px solid #ff9800;
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #333;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.toast-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+}
+
+.toast-icon.success {
+    color: #4CAF50;
+}
+
+.toast-icon.error {
+    color: #f44336;
+}
+
+.toast-icon.warning {
+    color: #ff9800;
+}
+
+.toast-close {
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    margin-left: 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.toast-close:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #333;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Progress bar styles */
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.toast-progress-bar {
+    height: 100%;
+    background: currentColor;
+    transition: width linear;
+}
+
+.toast.success .toast-progress-bar {
+    color: #4CAF50;
+}
+
+.toast.error .toast-progress-bar {
+    color: #f44336;
+}
+
+.toast.warning .toast-progress-bar {
+    color: #ff9800;
+}
