@@ -141,7 +141,7 @@
                                     
                                 </div>
                                 <span class="form-invalid" style="color: red; font-size: 0.8em;"><?php echo isset($data['confirm_password_err']) ? $data['confirm_password_err'] : ''; ?></span>
-
+                                <input type="hidden" name="role" value="customer">
                                 <input type="submit" value="Sign Up" class="sign-btn" />
 
                                 <p class="text">

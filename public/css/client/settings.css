@@ -89,11 +89,16 @@
     /* padding: 30px; */
     display: flex;
     flex-direction:column;
+    width: 100%;
+    margin: 0 auto;
 
+}
+.profile-info{
+    width: 80%;
 }
 
 .info-group {
-    width: 80%;
+    width: 100%;
     margin-bottom: 10px;
 }
 
@@ -129,7 +134,10 @@
     border-top: 1px solid var(--input-border);
     padding-top: 10px;
     margin-top: 10px;
-    padding-left: 120px;
+    /* padding-left: 120px; */
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-bottom: 2rem;
     border-radius: 10px;
     background-color: #f5eeed;
 }
