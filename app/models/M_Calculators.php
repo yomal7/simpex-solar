@@ -1,5 +1,5 @@
 <?php
-class M_Packages
+class M_Calculators
 {
     private $db;
     public function __construct()
