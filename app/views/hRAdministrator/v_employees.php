@@ -1,8 +1,14 @@
-<?php require APPROOT.'/views/operationsCoordinator/header.php';?>
-
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/tasks.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo SITENAME; ?></title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/managePackages.css">
 </head>
-
 <body>
     <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
@@ -13,25 +19,26 @@
 
         <div class="sidebar" id="sidebar">
             <img
-
+                
                 src="<?php echo URLROOT; ?>/public/assets/profile.png"
                 alt="manager profile-picture"
-                class="profile-picture" />
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/dashboard">
+                class="profile-picture"
+            />
+            <a href="<?php echo URLROOT ?>/hRAdministrator/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/manageAproject">
-                <span class="material-icons-sharp">receipt_long</span>
-                <h3>Projects</h3>
+            <a href="<?php echo URLROOT ?>/hRAdministrator/attendance">
+                <span class="material-icons-sharp">checklist_rtl</span>
+                <h3>Attendance</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/managePackages">
-                <span class="material-icons-sharp">solar_power</span>
-                <h3>Packages</h3>
+            <a href="<?php echo URLROOT ?>/hRAdministrator/employees" class="active">
+                <span class="material-icons-sharp">group</span>
+                <h3>Employees</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/tasks" class="active">
-                <span class="material-icons-sharp">task</span>
-                <h3>Tasks</h3>
+            <a href="<?php echo URLROOT ?>/hRAdministrator/holiday">
+                <span class="material-icons-sharp">date_range</span>
+                <h3>Holiday</h3>
             </a>
             <a href="#">
                 <span class="material-icons-sharp">settings</span>
@@ -177,10 +184,7 @@
         </div>
     </div>
 
-    <!-- <div class="overlay" id="overlay"></div> -->
-
-
-
-
-    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script>
+    <div id="overlay"></div>
+    <script src="script.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/managePackages.js"></script>
 <?php require APPROOT.'/views/operationsCoordinator/footer.php';?>
