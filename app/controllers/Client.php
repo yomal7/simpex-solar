@@ -159,6 +159,12 @@ class Client extends Controller {
     
             $this->view('client/v_clientSettings', $viewData);
         }
+
+        public function shop() {
+            // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
+            $data = [];
+            $this->view('client/v_clientShop', $data);
+        }
     }
 
 
