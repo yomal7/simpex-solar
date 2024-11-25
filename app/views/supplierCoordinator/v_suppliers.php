@@ -1,5 +1,5 @@
 <?php require APPROOT . '/views/supplierCoordinator/header.php'; ?>
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsManager/dashboard.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/dashboard.css">
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/supplierCoordinator/suppliers.css">
 </head>
 
