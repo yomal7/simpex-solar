@@ -343,4 +343,5 @@ function showToast(message, type = 'success') {
 // Close modals
 function closeEditModal() {
     editModal.style.display = 'none';
+    
 }
