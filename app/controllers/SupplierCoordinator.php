@@ -97,11 +97,62 @@ class SupplierCoordinator extends Controller {
         }
     }
 
-
     public function manageAproject() {
         // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
         $data = [];
         $this->view('operationsManager/v_manageAproject', $data);
+    }
+
+    public function suppliers() {
+        $suppliers = $this->supplierModel->getSuppliers();
+        $data = [
+            'title' => 'Manage Suppliers',
+            'suppliers' => $suppliers
+        ];
+        $this->view('supplierCoordinator/v_suppliers', $data);
+    }
+
+
+    public function getSupplierDetails() {
+        if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
+            $supplier = $this->supplierModel->getSupplierById($_POST['id']);
+            if($supplier) {
+                echo json_encode($supplier);
+            } else {
+                echo json_encode(['error' => 'Supplier not found']);
+            }
+        }
+    }
+
+    public function updateSupplier() {
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            
+            $data = [
+                'id' => $_POST['id'],
+                'name' => trim($_POST['name']),
+                'address' => trim($_POST['address']),
+                'email' => trim($_POST['email']),
+                'contact_number' => trim($_POST['contact_number']),
+                'other_details' => trim($_POST['other_details'])
+            ];
+
+            if($this->supplierModel->updateSupplier($data)) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false]);
+            }
+        }
+    }
+
+    public function deleteSupplier() {
+        if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
+            if($this->supplierModel->deleteSupplier($_POST['id'])) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false]);
+            }
+        }
     }
 
 }
