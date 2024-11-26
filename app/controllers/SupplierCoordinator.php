@@ -5,6 +5,10 @@ class SupplierCoordinator extends Controller {
     private $supplierModel;
 
     public function __construct() {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'supplierCoordinator') {
+            flash('error_msg', 'Unauthorized access');
+            redirect('users/login');
+        }
         $this->supplierModel = $this->model('M_Suppliers');
     }
 

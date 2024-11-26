@@ -8,6 +8,10 @@ class OperationsCoordinator extends Controller {
     private $inventoryModel;
 
     public function __construct() {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'operationsCoordinator') {
+            flash('error_msg', 'Unauthorized access');
+            redirect('users/login');
+        }
         // $this->clientModel = $this->model('M_Client');
         $this->tasksModel = $this->model('M_Tasks');
         $this->packageModel = $this->model('M_Packages');
