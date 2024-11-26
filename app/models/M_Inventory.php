@@ -13,6 +13,7 @@ class M_Inventory
     {
         $this->db->query('
             SELECT 
+                Inventory.id AS item_id,
                 Inventory.name AS product_name, 
                 Suppliers.name AS supplier_name, 
                 Inventory.price, 
@@ -31,10 +32,29 @@ class M_Inventory
     // Get item by ID
     public function getItemById($itemId)
     {
-        $this->db->query('SELECT * FROM Inventory WHERE item_id = :item_id');
+        $this->db->query(
+            'SELECT 
+            i.id AS item_id,
+            i.name AS item_name,
+            i.price,
+            i.quantity,
+            i.description,
+            i.blog_link,
+            i.image,
+            s.id AS supplier_id,
+            s.name AS supplier_name
+        FROM inventory i
+        JOIN suppliers s ON i.supplier_id = s.id
+        WHERE i.id = :item_id'
+        );
+
+        // Bind the item ID
         $this->db->bind(':item_id', $itemId);
+
+        // Return the single result
         return $this->db->single();
     }
+
 
     // Create new inventory item
     public function createItem($data)
@@ -56,28 +76,48 @@ class M_Inventory
     }
 
     // Update existing inventory item
+    // public function updateItem($itemId, $data)
+    // {
+    //     $this->db->query('UPDATE Inventory 
+    //         SET name = :name, 
+    //             supplier_id = :supplier, 
+    //             description = :description, 
+    //             price = :price, 
+    //             quantity = :quantity, 
+    //             status = :status,
+    //             blog_link = :blog_link, 
+    //             image_path = :image_path 
+    //         WHERE item_id = :item_id');
+
+    //     $this->db->bind(':item_id', $itemId);
+    //     $this->db->bind(':name', $data['name']);
+    //     $this->db->bind(':supplier_id', $data['supplier_id']);
+    //     $this->db->bind(':description', $data['description']);
+    //     $this->db->bind(':price', $data['price']);
+    //     $this->db->bind(':quantity', $data['quantity']);
+    //     $this->db->bind(':status', $data['status']);
+    //     $this->db->bind(':blog_link', $data['blog_link']);
+    //     $this->db->bind(':image_path', $data['image_path'] ?? null);
+    //     return $this->db->execute();
+    // }
+
     public function updateItem($itemId, $data)
     {
-        $this->db->query('UPDATE Inventory 
-            SET name = :name, 
-                supplier_id = :supplier, 
-                description = :description, 
-                price = :price, 
-                quantity = :quantity, 
-                status = :status,
-                blog_link = :blog_link, 
-                image_path = :image_path 
-            WHERE item_id = :item_id');
+        $this->db->query('UPDATE inventory 
+        SET supplier_id = :supplier_id,
+            description = :description,
+            price = :price,
+            quantity = :quantity,
+            blog_link = :blog_link
+        WHERE id = :item_id');
 
         $this->db->bind(':item_id', $itemId);
-        $this->db->bind(':name', $data['name']);
         $this->db->bind(':supplier_id', $data['supplier_id']);
         $this->db->bind(':description', $data['description']);
         $this->db->bind(':price', $data['price']);
         $this->db->bind(':quantity', $data['quantity']);
-        $this->db->bind(':status', $data['status']);
         $this->db->bind(':blog_link', $data['blog_link']);
-        $this->db->bind(':image_path', $data['image_path'] ?? null);
+
         return $this->db->execute();
     }
 

@@ -416,4 +416,114 @@ class SupplierCoordinator extends Controller
 
         return true;
     }
+
+    public function editInventory($id = null)
+    {
+        if ($id === null) {
+            flash('error_msg', 'No product specified');
+            redirect('inventory');
+        }
+
+        // Handle GET request to show edit form
+        $product = $this->inventoryModel->getItemById($id);
+
+        if (!$product) {
+            flash('inventory_message', 'Product not found', 'alert alert-danger');
+            redirect('Inventory');
+        }
+
+        $data = [
+            'id' => $id,
+            'name' => $product->item_name, // Using item_name from the query
+            'price' => $product->price,
+            'quantity' => $product->quantity,
+            'description' => $product->description,
+            'supplier_id' => $product->supplier_id,
+            'blog_link' => $product->blog_link,
+            'image_path' => $product->image,
+            'supplier_name' => $product->supplier_name,
+            'suppliers' => $this->supplierModel->getSuppliers(),
+            'price_err' => '',
+            'quantity_err' => '',
+            'description_err' => '',
+            'blog_link_err' => '',
+            'supplier_err' => ''
+        ];
+
+        $this->view('supplierCoordinator/v_inventoryEdit', $data);
+    }
+
+    public function updateInventory()
+    {
+        // Handle POST request for updating inventory
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Sanitize POST data
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+            $data = [
+                'id' => $_POST['id'],
+                'price' => trim($_POST['price']),
+                'quantity' => trim($_POST['quantity']),
+                'description' => trim($_POST['description']),
+                'supplier_id' => trim($_POST['supplier']),
+                'blog_link' => trim($_POST['blog_link']),
+                'price_err' => '',
+                'quantity_err' => '',
+                'description_err' => '',
+                'blog_link_err' => '',
+                'supplier_err' => ''
+            ];
+
+            // Validation
+            if (empty($data['price'])) {
+                $data['price_err'] = 'Please enter the price';
+            } elseif (!is_numeric($data['price'])) {
+                $data['price_err'] = 'Price must be a number';
+            }
+
+            if (empty($data['quantity'])) {
+                $data['quantity_err'] = 'Please enter the quantity';
+            } elseif (!is_numeric($data['quantity'])) {
+                $data['quantity_err'] = 'Quantity must be a number';
+            }
+
+            if (empty($data['description'])) {
+                $data['description_err'] = 'Please enter a description';
+            }
+
+            if (empty($data['supplier_id'])) {
+                $data['supplier_err'] = 'Please select a supplier';
+            }
+
+            if (empty($data['blog_link'])) {
+                $data['blog_link_err'] = 'Please enter the blog link';
+            } elseif (!filter_var($data['blog_link'], FILTER_VALIDATE_URL)) {
+                $data['blog_link_err'] = 'Please enter a valid URL';
+            }
+
+            // Check for any validation errors
+            if (
+                empty($data['price_err']) && empty($data['quantity_err']) &&
+                empty($data['description_err']) && empty($data['supplier_err']) &&
+                empty($data['blog_link_err'])
+            ) {
+                // Attempt to update inventory item
+                if ($this->inventoryModel->updateItem($data['id'], $data)) {
+                    flash('product_message', 'Product updated successfully');
+                    redirect('supplierCoordinator/inventory');
+                } else {
+                    flash('product_message', 'Error updating product', 'alert alert-danger');
+                    $data['suppliers'] = $this->supplierModel->getSuppliers();
+                    $this->view('supplierCoordinator/v_inventoryEdit', $data);
+                }
+            } else {
+                // If validation fails, re-render the edit form with error messages
+                $data['suppliers'] = $this->supplierModel->getSuppliers();
+                $this->view('supplierCoordinator/v_inventoryEdit', $data);
+            }
+        } else {
+            // If not a POST request, redirect to inventory list
+            redirect('supplierCoordinator/inventory');
+        }
+    }
 }

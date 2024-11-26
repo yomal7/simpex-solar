@@ -85,7 +85,7 @@
                                         <button onclick="viewInventory(<?php echo $product->id; ?>)" class="btn-icon view view-btn">
                                             <span class="material-icons-sharp">visibility</span>
                                         </button>
-                                        <button onclick="editInventory(<?php echo $product->id; ?>)" class="btn-icon edit edit-btn">
+                                        <button onclick="location.href='<?php echo URLROOT; ?>/supplierCoordinator/editInventory/<?php echo $product->item_id ?>'" class="btn-icon edit edit-btn">
                                             <span class="material-icons-sharp">edit</span>
                                         </button>
                                         <button onclick="deleteInventory(<?php echo $product->id; ?>)" class="btn-icon delete delete-btn">
