@@ -50,9 +50,6 @@
                 <div class="content-wrapper">
                     <div class="page-header">
                         <h1>Create New Blog Post</h1>
-                        <button class="preview-btn" onclick="previewPost()">
-                            <i class="fas fa-eye"></i> Preview
-                        </button>
                     </div>
 
                     <?php flash('blog_message'); ?>

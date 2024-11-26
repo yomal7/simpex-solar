@@ -49,10 +49,7 @@
         <div class="container">
                 <div class="content-wrapper">
                     <div class="page-header">
-                        <h1>Create New Blog Post</h1>
-                        <button class="preview-btn" onclick="previewPost()">
-                            <i class="fas fa-eye"></i> Preview
-                        </button>
+                        <h1 style="margin-bottom: 10px;">Create New Blog Post</h1>
                     </div>
 
                     <?php flash('blog_message'); ?>
