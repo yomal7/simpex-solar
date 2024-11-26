@@ -22,14 +22,15 @@ class M_Inventory {
     // Create new inventory item
     public function createItem($data) {
         $this->db->query('INSERT INTO Inventory 
-            (name, category, description, price, quantity, blog_link, image_path) 
-            VALUES (:name, :category, :description, :price, :quantity, :blog_link, :image_path)');
+            (name, supplier_id, description, price, quantity, status, blog_link, image_path) 
+            VALUES (:name, :supplier_id, :description, :price, :quantity, :status, :blog_link, :image_path)');
         
         $this->db->bind(':name', $data['name']);
-        $this->db->bind(':category', $data['category']);
+        $this->db->bind(':supplier_id', $data['supplier_id']);
         $this->db->bind(':description', $data['description']);
         $this->db->bind(':price', $data['price']);
         $this->db->bind(':quantity', $data['quantity']);
+        $this->db->bind(':status', $data['status']);
         $this->db->bind(':blog_link', $data['blog_link']);
         $this->db->bind(':image_path', $data['image_path'] ?? null);
 
@@ -41,23 +42,24 @@ class M_Inventory {
     public function updateItem($itemId, $data) {
         $this->db->query('UPDATE Inventory 
             SET name = :name, 
-                category = :category, 
+                supplier_id = :supplier, 
                 description = :description, 
                 price = :price, 
                 quantity = :quantity, 
+                status = :status,
                 blog_link = :blog_link, 
                 image_path = :image_path 
             WHERE item_id = :item_id');
         
         $this->db->bind(':item_id', $itemId);
         $this->db->bind(':name', $data['name']);
-        $this->db->bind(':category', $data['category']);
+        $this->db->bind(':supplier_id', $data['supplier_id']);
         $this->db->bind(':description', $data['description']);
         $this->db->bind(':price', $data['price']);
         $this->db->bind(':quantity', $data['quantity']);
+        $this->db->bind(':status', $data['status']);
         $this->db->bind(':blog_link', $data['blog_link']);
         $this->db->bind(':image_path', $data['image_path'] ?? null);
-
         return $this->db->execute();
     }
 
@@ -80,12 +82,7 @@ class M_Inventory {
         return $this->db->execute();
     }
 
-    // Get items by category
-    public function getItemsByCategory($category) {
-        $this->db->query('SELECT * FROM Inventory WHERE category = :category');
-        $this->db->bind(':category', $category);
-        return $this->db->resultSet();
-    }
+    
 
     // Check item availability
     public function checkItemAvailability($itemId, $requiredQuantity) {

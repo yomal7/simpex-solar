@@ -3,9 +3,13 @@
 class SupplierCoordinator extends Controller {
 
     private $supplierModel;
+    private $inventoryModel;
+    
 
     public function __construct() {
         $this->supplierModel = $this->model('M_Suppliers');
+        $this->inventoryModel = $this->model('M_Inventory');
+
     }
 
     public function index() {
@@ -154,6 +158,150 @@ class SupplierCoordinator extends Controller {
             }
         }
     }
+
+    public function inventory() {
+        $products = $this->inventoryModel->getAllItems();
+        $data = [
+            'title' => 'Manage Inventory',
+            'products' => $products
+        ];
+        $this->view('supplierCoordinator/v_inventory', $data);
+    }
+
+    public function addProduct() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Sanitize POST data
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+    
+            // Init data
+            $data = [
+                'name' => trim($_POST['name']),
+                'supplier_id' => trim($_POST['supplier']),
+                'description' => trim($_POST['description']),
+                'price' => trim($_POST['price']),
+                'quantity' => trim($_POST['quantity']),
+                'status' => trim($_POST['status']),
+                'blog_link' => trim($_POST['blog_link']),
+                'image_path' => $_FILES['image_path']['name'],
+                'name_err' => '',
+                'supplier_err' => '',
+                'description_err' => '',
+                'price_err' => '',
+                'quantity_err' => '',
+                'status_err' => '',
+                'blog_link_err' => '',
+                'image_path_err' => '',
+                'suppliers' => $this->supplierModel->getSuppliers()
+            ];
+    
+            // Validate inputs
+            if (empty($data['name'])) {
+                $data['name_err'] = 'Please enter the product name.';
+            }
+    
+            if (empty($data['supplier_id'])) {
+                $data['supplier_err'] = 'Please select a supplier.';
+            }
+    
+            if (empty($data['description'])) {
+                $data['description_err'] = 'Please enter a description.';
+            }
+    
+            if (empty($data['price'])) {
+                $data['price_err'] = 'Please enter the price.';
+            } elseif (!is_numeric($data['price'])) {
+                $data['price_err'] = 'Price must be a number.';
+            }
+    
+            if (empty($data['quantity'])) {
+                $data['quantity_err'] = 'Please enter the quantity.';
+            } elseif (!is_numeric($data['quantity'])) {
+                $data['quantity_err'] = 'Quantity must be a number.';
+            }
+    
+            if (empty($data['status'])) {
+                $data['status_err'] = 'Please select the product status.';
+            }
+    
+            if (empty($data['blog_link'])) {
+                $data['blog_link_err'] = 'Please enter the blog link.';
+            } elseif (!filter_var($data['blog_link'], FILTER_VALIDATE_URL)) {
+                $data['blog_link_err'] = 'Please enter a valid URL.';
+            }
+    
+            if (empty($data['image_path'])) {
+                $data['image_path_err'] = 'Please upload an image.';
+            }
+    
+            // Check if there are no errors
+            if (empty($data['name_err']) && empty($data['supplier_err']) && empty($data['description_err']) &&
+                empty($data['price_err']) && empty($data['quantity_err']) && empty($data['status_err']) && 
+                empty($data['blog_link_err']) && empty($data['image_path_err'])) {
+    
+                // Handle image upload
+                $targetDir = "uploads/images/"; // specify the directory for storing images
+                $targetFile = $targetDir . basename($data['image_path']);
+                $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+    
+                // Check if the file is an image
+                if (getimagesize($_FILES['image_path']['tmp_name']) === false) {
+                    $data['image_path_err'] = "File is not an image.";
+                }
+    
+                // Check file size (5MB max)
+                if ($_FILES['image_path']['size'] > 5000000) {
+                    $data['image_path_err'] = "File is too large.";
+                }
+    
+                // Allow certain file formats
+                if (!in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif'])) {
+                    $data['image_path_err'] = "Only JPG, JPEG, PNG, and GIF files are allowed.";
+                }
+    
+                // If no errors in image upload, move file to the target directory
+                if (empty($data['image_path_err']) && move_uploaded_file($_FILES['image_path']['tmp_name'], $targetFile)) {
+                    // Add product to the database
+                    if ($this->inventoryModel->createItem($data)) {
+                        flash('product_message', 'Product Added Successfully');
+                        redirect('supplierCoordinator/inventory');
+                    } else {
+                        die('Something went wrong');
+                    }
+                } else {
+                    // Display image upload error
+                    $this->view('supplierCoordinator/v_addProducts', $data);
+                }
+            } else {
+                // Load view with errors
+                $this->view('supplierCoordinator/v_addProducts', $data);
+            }
+        } else {
+            // Init data
+            $data = [
+                'name' => '',
+                'supplier_id' => '',
+                'description' => '',
+                'price' => '',
+                'quantity' => '',
+                'status' => '',
+                'blog_link' => '',
+                'image_path' => '',
+                'suppliers' => $this->supplierModel->getSuppliers(),
+                'name_err' => '',
+                'supplier_err' => '',
+                'description_err' => '',
+                'price_err' => '',
+                'quantity_err' => '',
+                'status_err' => '',
+                'blog_link_err' => '',
+                'image_path_err' => ''
+            ];
+    
+            // Load view
+            $this->view('supplierCoordinator/v_addProducts', $data);
+        }
+    }
+    
 
 }
 ?>
