@@ -65,27 +65,22 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Supplier</th>
-                                <th>Description</th>
                                 <th>Price</th>
                                 <th>Quantity</th>
                                 <th>Status</th>
-                                <th>Blog Link</th>
-                                <th>Image</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($data['products'] as $product) : ?>
                                 <tr>
-                                    <td><?php echo $product->name; ?></td>
-                                    <td><?php echo $product->supplier_id; ?></td>
-                                    <td><?php echo $product->description; ?></td>
+                                    <td><?php echo $product->product_name; ?></td>
+                                    <td><?php echo $product->supplier_name; ?></td>
                                     <td><?php echo $product->price; ?></td>
-                                    <td><?php echo $product->quantity; ?></td>
-                                    <td><?php echo $product->status; ?></td>
-                                    <td><?php echo $product->blog_link; ?></td>
-                                    <td><?php echo $product->image_path; ?></td>
-                                    <td><?php echo date('M d, Y', strtotime($product->created_at)); ?></td>
+                                    <td class="quantity" data-quantity="<?php echo $product->quantity; ?>">
+                                        <?php echo $product->quantity; ?>
+                                    </td>
+                                    <td class="status" id="status-<?php echo $product->id; ?>"></td>
                                     <td class="actions">
                                         <button onclick="viewInventory(<?php echo $product->id; ?>)" class="btn-icon view view-btn">
                                             <span class="material-icons-sharp">visibility</span>
@@ -99,6 +94,7 @@
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
+
                         </tbody>
                     </table>
                 </div>
@@ -186,6 +182,5 @@
     </div>
 
     <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/suppliers.js"></script>
-    <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/suppliers.js"></script>
-    <script src="<?php echo URLROOT; ?>/js/product.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/status.js"></script>
     <?php require APPROOT . '/views/supplierCoordinator/footer.php'; ?>

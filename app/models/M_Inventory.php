@@ -8,9 +8,22 @@ class M_Inventory {
 
     // Get all inventory items
     public function getAllItems() {
-        $this->db->query('SELECT * FROM Inventory');
+        $this->db->query('
+            SELECT 
+                Inventory.name AS product_name, 
+                Suppliers.name AS supplier_name, 
+                Inventory.price, 
+                Inventory.quantity
+            FROM 
+                Inventory
+            INNER JOIN 
+                Suppliers 
+            ON 
+                Inventory.supplier_id = Suppliers.id
+        ');
         return $this->db->resultSet();
     }
+    
 
     // Get item by ID
     public function getItemById($itemId) {
