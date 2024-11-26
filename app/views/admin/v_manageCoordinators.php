@@ -126,7 +126,8 @@
                             <option value="">Select Role</option>
                             <option value="chiefCoordinator">Chief Coordinator</option>
                             <option value="operationsCoordinator">Operations Coordinator</option>
-                            <option value="HrCoordinator">HR Coordinator</option>
+                            <option value="hRAdministrator">HR Administrator</option>
+                            <option value="supplierCoordinator">Supplier Coordinator</option>
                         </select>
                     </div>
                     <div class="form-actions">
@@ -158,7 +159,8 @@
                         <select id="edit_role" name="role" required>
                             <option value="chiefCoordinator">Chief Coordinator</option>
                             <option value="operationsCoordinator">Operations Coordinator</option>
-                            <option value="HrCoordinator">HR Coordinator</option>
+                            <option value="hRAdministrator">HR Administrator</option>
+                            <option value="supplierCoordinator">Supplier Coordinator</option>
                         </select>
                     </div>
                     <div class="form-actions">
