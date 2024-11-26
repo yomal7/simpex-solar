@@ -25,7 +25,7 @@ class Core{
         // Instantiate the controller class
         $this->currentController = new $this->currentController;
 
-        //Check wethere the method exist in the cotroller or not
+        //Check whether the method exist in the controller or not
 
         if(isset($url[1])){
             if(method_exists($this->currentController, $url[1])){

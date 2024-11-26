@@ -152,8 +152,8 @@ class Users extends Controller {
                     case 'customer':
                         redirect('client/index');
                         break;
-                    case 'operationsManager':
-                        redirect('operationsManager/index');
+                    case 'operationsCoordinator':
+                        redirect('operationsCoordinator/index');
                         break;
                     default:
                         redirect('');
