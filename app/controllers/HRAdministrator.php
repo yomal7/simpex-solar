@@ -6,6 +6,10 @@ class HRAdministrator extends Controller {
 
     public function __construct() {
         // $this->clientModel = $this->model('M_Client');
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'hRAdministrator') {
+            flash('error_msg', 'Unauthorized access');
+            redirect('users/login');
+        }
         
     }
 
