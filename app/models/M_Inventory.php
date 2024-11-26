@@ -121,6 +121,7 @@ class M_Inventory
         return $this->db->execute();
     }
 
+
     // Delete inventory item
     public function deleteItem($itemId)
     {
