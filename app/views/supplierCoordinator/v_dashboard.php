@@ -1,5 +1,5 @@
 <?php require APPROOT.'/views/supplierCoordinator/header.php';?>
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsManager/dashboard.css">
+    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/dashboard.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -220,5 +220,5 @@
         <button type="button" onclick="confirmDelete()">Delete User</button>
     </div>
 
-    <script src="<?php echo URLROOT; ?>/js/operationsManager/dashboard.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script>
 <?php require APPROOT.'/views/supplierCoordinator/footer.php';?>

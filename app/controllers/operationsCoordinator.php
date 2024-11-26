@@ -1,6 +1,6 @@
 <?php
 
-class OperationsManager extends Controller {
+class operationsCoordinator extends Controller {
 
     private $packageModel;
     private $inventoryModel;
@@ -13,25 +13,25 @@ class OperationsManager extends Controller {
     public function index() {
         // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
         $data = [];
-        $this->view('operationsManager/v_dashboard', $data);
+        $this->view('operationsCoordinator/v_dashboard', $data);
     }
 
     public function dashboard() {
         // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
         $data = [];
-        $this->view('operationsManager/v_dashboard', $data);
+        $this->view('operationsCoordinator/v_dashboard', $data);
     }
 
     public function projects() {
         // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
         $data = [];
-        $this->view('operationsManager/v_projects', $data);
+        $this->view('operationsCoordinator/v_projects', $data);
     }
 
     public function manageAproject() {
         // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
         $data = [];
-        $this->view('operationsManager/v_manageAproject', $data);
+        $this->view('operationsCoordinator/v_manageAproject', $data);
     }
 
     public function managePackages() {
@@ -40,7 +40,13 @@ class OperationsManager extends Controller {
             'packages' => $this->packageModel->getAllPackages(),
             'inventoryItems' => $this->inventoryModel->getAllItems()
         ];
-        $this->view('operationsManager/v_managePackages', $data);
+        $this->view('operationsCoordinator/v_managePackages', $data);
+    }
+
+    public function tasks() {
+        // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
+        $data = [];
+        $this->view('operationsCoordinator/v_tasks', $data);
     }
 
     public function getInventoryItems() {

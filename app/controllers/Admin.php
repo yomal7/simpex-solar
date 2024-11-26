@@ -1,6 +1,7 @@
 <?php
 class Admin extends Controller {
     private $blogModel;
+    private $userModel;
     
     public function __construct() {
         // Check if user is logged in and is admin
@@ -10,6 +11,7 @@ class Admin extends Controller {
         }
         
         $this->blogModel = $this->model('M_Blog');
+        $this->userModel = $this->model('M_Users');
     }
 
     // Dashboard
@@ -255,21 +257,12 @@ class Admin extends Controller {
         }
     
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Check if it's an AJAX request
-            $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-                      strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
-            
             // Handle POST request
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
             
             // Get existing post data
             $post = $this->blogModel->getPostById($id);
             if (!$post) {
-                if ($isAjax) {
-                    header('Content-Type: application/json');
-                    echo json_encode(['success' => false, 'message' => 'Post not found']);
-                    return;
-                }
                 flash('error_msg', 'Post not found');
                 redirect('admin/published');
             }
@@ -325,51 +318,7 @@ class Admin extends Controller {
                 $data['body_err'] = 'Please enter content';
             }
     
-            // Handle AJAX requests (draft save or auto-save)
-            if ($isAjax) {
-                header('Content-Type: application/json');
-                
-                if (empty($data['title_err']) && empty($data['summary_err']) && empty($data['body_err'])) {
-                    // Update slug if title changed
-                    if ($data['title'] !== $post->title) {
-                        $data['slug'] = $this->createSlug($data['title']);
-                        if ($this->blogModel->slugExists($data['slug'], $id)) {
-                            $data['slug'] = $data['slug'] . '-' . uniqid();
-                        }
-                    } else {
-                        $data['slug'] = $post->slug;
-                    }
-    
-                    $success = $this->blogModel->updatePost($data);
-                    
-                    // Check if this is a draft save
-                    if ($success && $data['status'] === 'draft') {
-                        echo json_encode([
-                            'success' => true,
-                            'message' => 'Post saved as draft successfully',
-                            'redirect' => URLROOT . '/admin/drafts'
-                        ]);
-                    } else {
-                        echo json_encode([
-                            'success' => $success,
-                            'message' => $success ? 'Post updated successfully' : 'Error updating post'
-                        ]);
-                    }
-                } else {
-                    echo json_encode([
-                        'success' => false,
-                        'message' => 'Validation failed',
-                        'errors' => [
-                            'title' => $data['title_err'],
-                            'summary' => $data['summary_err'],
-                            'body' => $data['body_err']
-                        ]
-                    ]);
-                }
-                return;
-            }
-    
-            // Handle regular form submission
+            // Handle form submission
             if (empty($data['title_err']) && empty($data['summary_err']) && empty($data['body_err'])) {
                 // Update slug if title changed
                 if ($data['title'] !== $post->title) {
@@ -424,5 +373,125 @@ class Admin extends Controller {
         $slug = preg_replace('/-+/', '-', $slug);
         // Remove leading/trailing dashes
         return trim($slug, '-');
+    }
+
+    // manage coordinators
+
+    public function coordinators() {
+        $coordinators = $this->userModel->getCoordinators();
+        $coordinator_types = ['chiefCoordinator', 'operationsCoordinator', 'HrCoordinator'];
+        
+        $data = [
+            'coordinators' => $coordinators,
+            'coordinator_types' => $coordinator_types
+        ];
+
+        $this->view('admin/v_manageCoordinators', $data);
+    }
+
+    public function addCoordinator() {
+        if($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('admin/coordinators');
+        }
+
+        // Sanitize POST data
+        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+        $data = [
+            'name' => trim($_POST['name']),
+            'email' => trim($_POST['email']),
+            'password' => trim($_POST['password']),
+            'role' => trim($_POST['role']),
+            'name_err' => '',
+            'email_err' => '',
+            'password_err' => '',
+            'role_err' => ''
+        ];
+
+        // Validate role and check if coordinator already exists
+        if($this->userModel->getCoordinatorByRole($data['role'])) {
+            $data['role_err'] = 'A coordinator for this role already exists';
+        }
+
+        // Validate email
+        if($this->userModel->findUserByEmail($data['email'])) {
+            $data['email_err'] = 'Email is already taken';
+        }
+
+        // Make sure no errors
+        if(empty($data['email_err']) && empty($data['name_err']) && 
+           empty($data['password_err']) && empty($data['role_err'])) {
+            
+            // Hash Password
+            $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+
+            if($this->userModel->register($data)) {
+                flash('coordinator_message', 'Coordinator added successfully', 'success');
+                redirect('admin/coordinators');
+            } else {
+                die('Something went wrong');
+            }
+        } else {
+            flash('coordinator_message', 'Unable to add coordinator. Please check the errors', 'error');
+            redirect('admin/coordinators');
+        }
+    }
+
+    public function updateCoordinator() {
+        if($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('admin/coordinators');
+        }
+
+        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+        $data = [
+            'user_id' => trim($_POST['user_id']),
+            'name' => trim($_POST['name']),
+            'email' => trim($_POST['email']),
+            'role' => trim($_POST['role']),
+            'name_err' => '',
+            'email_err' => '',
+            'role_err' => ''
+        ];
+
+        // Check if another coordinator exists for this role
+        $existingCoordinator = $this->userModel->getCoordinatorByRole($data['role']);
+        if($existingCoordinator && $existingCoordinator->user_id != $data['user_id']) {
+            $data['role_err'] = 'A coordinator for this role already exists';
+        }
+
+        // Check email uniqueness
+        $existingEmail = $this->userModel->findUserByEmail($data['email']);
+        if($existingEmail && $existingEmail->user_id != $data['user_id']) {
+            $data['email_err'] = 'Email is already taken';
+        }
+
+        if(empty($data['email_err']) && empty($data['name_err']) && empty($data['role_err'])) {
+            if($this->userModel->updateCoordinator($data)) {
+                flash('coordinator_message', 'Coordinator updated successfully', 'success');
+            } else {
+                flash('coordinator_message', 'Unable to update coordinator', 'error');
+            }
+        } else {
+            flash('coordinator_message', 'Unable to update coordinator. Please check the errors', 'error');
+        }
+
+        redirect('admin/coordinators');
+    }
+
+    public function deleteCoordinator() {
+        if($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('admin/coordinators');
+        }
+
+        $user_id = $_POST['user_id'];
+
+        if($this->userModel->deleteUser($user_id)) {
+            flash('coordinator_message', 'Coordinator deleted successfully', 'success');
+        } else {
+            flash('coordinator_message', 'Unable to delete coordinator', 'error');
+        }
+
+        redirect('admin/coordinators');
     }
 }

@@ -108,7 +108,7 @@ class SupplierCoordinator extends Controller
     {
         // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
         $data = [];
-        $this->view('operationsManager/v_manageAproject', $data);
+        $this->view('operationsCoordinator/v_manageAproject', $data);
     }
 
     public function suppliers()
