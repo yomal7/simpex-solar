@@ -52,5 +52,12 @@ class Core{
             return $url;
         }
     }
+
+    public function loadService($service) {
+        // Require service file
+        require_once 'app/services/' . $service . '.php';
+        // Instantiate service
+        return new $service();
+    }
 }
 ?>

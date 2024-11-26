@@ -58,7 +58,29 @@
               </div>
             </li>
             <li><a href="#">Feedback</a></li>
-            <li><a href="../signinPage/signinPage.html" class="sign-in-btn">Sign In</a></li>
+
+              <?php
+                $navbarData = getNavbarData();
+                $isLoggedIn = $navbarData['isLoggedIn'] ?? false; // Default to false if undefined
+                $profilePicture = $navbarData['profile_picture'] ?? 'profile.png'; // Default to a placeholder image
+              ?>
+
+              <li id="auth-section">
+                <?php if ($isLoggedIn): ?>
+                    <div class="profile-section" id="profile-section">
+                        <img src="<?php echo $profilePicture; ?>" alt="Profile" class="profile-pic" id="profile-pic">
+
+                        <div class="profile-dropdown">
+                            <ul>
+                                <li><a href="<?php echo URLROOT; ?>/client/dashboard">Profile</a></li>
+                                <li><a href="<?php echo URLROOT; ?>/users/logout" id="logout-btn">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <a href="<?php echo URLROOT; ?>/users/login" class="sign-in-btn" id="sign-in-btn">Sign In</a>
+                <?php endif; ?>
+            </li>
           </ul>
           <label for="menu-btn" class="btn menu-btn">
             <i class="fas fa-bars" style="color: black !important;"></i>

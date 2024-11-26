@@ -10,6 +10,7 @@ class Users extends Controller {
             'email' => '',
             'password' => '',
             'confirm_password' => '',
+            'role' => '',
             'name_err' => '',
             'email_err' => '',
             'password_err' => '',
@@ -47,6 +48,7 @@ class Users extends Controller {
             'email' => trim($postData['email']),
             'password' => trim($postData['password']),
             'confirm_password' => trim($postData['confirm_password']),
+            'role' => trim($postData['role']),
             'name_err' => '',
             'email_err' => '',
             'password_err' => '',
@@ -96,6 +98,19 @@ class Users extends Controller {
         }
     }
 
+
+    public function createUserSession($user) {
+        error_log("Creating session with user data: " . print_r($user, true));
+        
+        // Use user_id instead of id
+        $_SESSION['user_id'] = $user->user_id;
+        $_SESSION['user_email'] = $user->email;
+        $_SESSION['user_name'] = $user->name;
+        $_SESSION['role'] = $user->role;
+        
+        error_log("Session created with: " . print_r($_SESSION, true));
+    }
+
     private function handleLogin($postData) {
         $data = [
             'email' => trim($postData['email']),
@@ -109,24 +124,41 @@ class Users extends Controller {
         if (empty($data['email'])) {
             $data['email_err'] = 'Please enter email';
         }
-
+        
         if (empty($data['password'])) {
             $data['password_err'] = 'Please enter password';
         }
-
-        // Only check for user if email is provided
+        
         if (!empty($data['email'])) {
             $user = $this->userModel->getUserByEmail($data['email']);
             if (!$user) {
                 $data['email_err'] = 'No user found';
             }
         }
-
+        
         if (empty($data['email_err']) && empty($data['password_err'])) {
             $user = $this->userModel->login($data['email'], $data['password']);
+            
             if ($user) {
+                // Add debug logging
+                error_log("Login successful. User data: " . print_r($user, true));
+                
                 $this->createUserSession($user);
-                redirect('pages/index');
+                
+                switch ($user->role) {
+                    case 'admin':
+                        redirect('admin/index');
+                        break;
+                    case 'customer':
+                        redirect('client/index');
+                        break;
+                    case 'operationsCoordinator':
+                        redirect('operationsCoordinator/index');
+                        break;
+                    default:
+                        redirect('');
+                        break;
+                }
             } else {
                 $data['password_err'] = 'Invalid password';
                 $this->view('users/v_auth', $data);
@@ -136,17 +168,12 @@ class Users extends Controller {
         }
     }
 
-    public function createUserSession($user) {
-        $_SESSION['user_id'] = $user->id;
-        $_SESSION['user_email'] = $user->email;
-        $_SESSION['user_name'] = $user->name;
-        redirect('pages/index');
-    }
 
     public function logout() {
         unset($_SESSION['user_id']);
         unset($_SESSION['user_email']);
         unset($_SESSION['user_name']);
+        unset($_SESSION['role']);
         session_destroy();
         redirect('users/index');
     }
