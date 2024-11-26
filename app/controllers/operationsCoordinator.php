@@ -120,6 +120,7 @@ class OperationsCoordinator extends Controller {
             
             $this->view('operationsCoordinator/v_addTask', $data);
         }
+    }
 
     public function getInventoryItems() {
         $items = $this->inventoryModel->getAllItems();
