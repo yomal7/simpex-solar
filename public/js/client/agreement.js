@@ -8,7 +8,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
         async function loadPDF() {
             try {
                 // Replace with your local PDF path
-                const loadingTask = pdfjsLib.getDocument('./quatation1.pdf');
+                const loadingTask = pdfjsLib.getDocument('../assets/quatation.pdf');
                 const pdfDoc = await loadingTask.promise;
                 renderAllPages(pdfDoc);
             } catch (error) {

@@ -1,5 +1,5 @@
 <?php require APPROOT . '/views/supplierCoordinator/header.php'; ?>
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsManager/dashboard.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/dashboard.css">
 </head>
 
 <body>
@@ -13,6 +13,7 @@
         <div class="sidebar" id="sidebar">
             <img
 
+
                 src="<?php echo URLROOT; ?>/public/assets/profile.png"
                 alt="manager profile-picture"
                 class="profile-picture" />
@@ -24,7 +25,8 @@
                 <span class="material-icons-sharp">person</span>
                 <h3>Shop</h3>
             </a>
-            <a href="./v_suppliers">
+            <a href="<?php echo APPROOT; ?>/views/supplierCoordinator/v_suppliers">
+
                 <span class="material-icons-sharp">receipt_long</span>
                 <h3>Suppliers</h3>
             </a>
@@ -53,6 +55,7 @@
                             <path d="M3 3H21V21H3V3Z" stroke="#0066cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             <path d="M3 9H21" stroke="#0066cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             <path d="M9 21V9" stroke="#0066cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
                         </svg>
                         <h2 class="card-title">Total Projects</h2>
                         <p class="card-value">0</p>
@@ -77,6 +80,7 @@
                         <svg class="card-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85999" stroke="#0066cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             <path d="M22 4L12 14.01L9 11.01" stroke="#0066cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
                         </svg>
                         <h2 class="card-title">Completed Projects</h2>
                         <p class="card-value">0</p>
@@ -220,5 +224,5 @@
         <button type="button" onclick="confirmDelete()">Delete User</button>
     </div>
 
-    <script src="<?php echo URLROOT; ?>/js/operationsManager/dashboard.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script>
     <?php require APPROOT . '/views/supplierCoordinator/footer.php'; ?>

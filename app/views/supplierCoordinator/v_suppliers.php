@@ -1,6 +1,6 @@
 <?php require APPROOT . '/views/supplierCoordinator/header.php'; ?>
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsManager/dashboard.css">
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/supplier.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/dashboard.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/supplierCoordinator/suppliers.css">
 </head>
 
 <body>
@@ -17,7 +17,7 @@
                 src="<?php echo URLROOT; ?>/public/assets/profile.png"
                 alt="manager profile-picture"
                 class="profile-picture" />
-            <a href="./v_dashboard">
+            <a href="<?php echo APPROOT; ?>/views/supplierCoordinator/v_dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
@@ -46,165 +46,137 @@
                 <h3>Logout</h3>
             </a>
         </div>
+
         <div class="main-content">
-            <div class="container">
-                <div class="table-container">
-                    <div class="table-header">
-                        <h2>Suppliers</h2>
-                        <div class="add-button">
-                            <button
-                                type="button"
-                                class="add-button"
-                                onclick="openPopup('userFormPopup')">
-                                <span class="button-text">Add </span>
-                                <span class="button-icon">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="24"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="2"
-                                        stroke-linejoin="round"
-                                        stroke-linecap="round"
-                                        stroke="currentColor"
-                                        height="24"
-                                        fill="none"
-                                        class="svg">
-                                        <line y2="19" y1="5" x2="12" x1="12"></line>
-                                        <line y2="12" y1="12" x2="19" x1="5"></line>
-                                    </svg>
-                                </span>
-                            </button>
-                        </div>
-                    </div>
-                    <table>
+            <div class="page-header">
+                <h1><?php echo $data['title']; ?></h1>
+                <button onclick="location.href='<?php echo URLROOT; ?>/supplierCoordinator/addSupplier'" class="add-button">
+                    <span class="material-icons-sharp">add</span>
+                    Add New Supplier
+                </button>
+            </div>
+
+            <?php flash('supplier_message'); ?>
+
+            <div class="suppliers-container">
+                <div class="table-responsive">
+                    <table class="suppliers-table">
                         <thead>
                             <tr>
-                                <th>Supplier Image</th>
                                 <th>Name</th>
                                 <th>Email</th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
+                                <th>Contact</th>
+                                <th>Address</th>
+                                <th>Created Date</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBody">
-                            <!-- Table rows will be dynamically added here -->
+                        <tbody>
+                            <?php foreach ($data['suppliers'] as $supplier) : ?>
+                                <tr>
+                                    <td><?php echo $supplier->name; ?></td>
+                                    <td><?php echo $supplier->email; ?></td>
+                                    <td><?php echo $supplier->contact_number; ?></td>
+                                    <td><?php echo $supplier->address; ?></td>
+                                    <td><?php echo date('M d, Y', strtotime($supplier->created_at)); ?></td>
+                                    <td class="actions">
+                                        <button onclick="viewSupplier(<?php echo $supplier->id; ?>)" class="btn-icon view view-btn">
+                                            <span class="material-icons-sharp">visibility</span>
+                                        </button>
+                                        <button onclick="location.href='<?php echo URLROOT; ?>/supplierCoordinator/edit/<?php echo $supplier->id ?>'" class="btn-icon edit edit-btn">
+                                            <span class="material-icons-sharp">edit</span>
+                                        </button>
+                                        <button onclick="deleteSupplier(<?php echo $supplier->id; ?>)" class="btn-icon delete delete-btn">
+                                            <span class="material-icons-sharp">delete</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
-                    <!-- Add this after your table -->
-                    <div class="pagination-controls" id="paginationControls">
-                        <!-- Pagination controls will be inserted here by JavaScript -->
-                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="overlay" id="overlay"></div>
-
-
-        <!-- ********** -->
-        <!-- Add users popup -->
-        <!-- ************* -->
-
-        <div class="popup" class="form-container" id="userFormPopup">
-            <h2>Add New User</h2>
-            <form id="userForm" id="addUserForm" onsubmit="handleSubmit(event)">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <!-- <label for="firstName">First Name</label> -->
-                        <input type="text" id="firstName" name="firstName" required placeholder="First Name">
-                    </div>
-                    <div class="form-group">
-                        <!-- <label for="lastName">Last Name</label> -->
-                        <input type="text" id="lastName" name="lastName" required placeholder="Last Name">
-                    </div>
-                    <div class="form-group">
-                        <!-- <label for="email">Email</label> -->
-                        <input type="email" id="email" name="email" required placeholder="Email">
-                    </div>
-                    <div class="form-group">
-                        <!-- <label for="phone">Phone Number</label> -->
-                        <input type="tel" id="phone" name="phone" required placeholder="Phone Number">
-                    </div>
-                    <div class="form-group">
-                        <!-- <label for="role">Role</label> -->
-                        <select id="role" name="role" required>
-                            <option value="">Select Role</option>
-                            <option value="admin">Admin</option>
-                            <option value="user">User</option>
-                            <option value="manager">Manager</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <!-- <label for="department">Department</label> -->
-                        <select id="department" name="department" required>
-                            <option value="">Select Department</option>
-                            <option value="it">IT</option>
-                            <option value="hr">HR</option>
-                            <option value="sales">Sales</option>
-                            <option value="marketing">Marketing</option>
-                        </select>
-                    </div>
+    <!-- View Modal -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Supplier Details</h2>
+            <div class="supplier-info">
+                <div class="info-row">
+                    <label>Name:</label>
+                    <span id="view-name"></span>
                 </div>
-                <div class="button-group">
-                    <button type="submit" class="btn btn-primary">Add User</button>
-                    <button type="button" class="btn btn-secondary" style="background-color: red;" onclick="closePopup('userFormPopup')">Cancel</button>
+                <div class="info-row">
+                    <label>Email:</label>
+                    <span id="view-email"></span>
+                </div>
+                <div class="info-row">
+                    <label>Contact:</label>
+                    <span id="view-contact"></span>
+                </div>
+                <div class="info-row">
+                    <label>Address:</label>
+                    <span id="view-address"></span>
+                </div>
+                <div class="info-row">
+                    <label>Other Details:</label>
+                    <span id="view-other-details"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Supplier</h2>
+            <form id="editSupplierForm">
+                <input type="hidden" id="edit-id" name="id">
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" id="edit-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="edit-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Contact:</label>
+                    <input type="text" id="edit-contact" name="contact_number" required>
+                </div>
+                <div class="form-group">
+                    <label>Address:</label>
+                    <textarea id="edit-address" name="address" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Other Details:</label>
+                    <textarea id="edit-other-details" name="other_details"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="save-btn">Save Changes</button>
                 </div>
             </form>
         </div>
+    </div>
 
-
-
-
-        <!-- ********* -->
-        <!-- Change Availability popup -->
-        <!-- ************** -->
-
-
-        <div class="popup" id="availabilityPopup">
-            <img src="tick.png" alt="Success">
-            <h2>Change Availability</h2>
-            <p>Select the new availability status:</p>
-            <select id="availabilitySelect">
-                <option value="in-stock">In Stock</option>
-                <option value="low-stock">Low Stock</option>
-                <option value="out-of-stock">Out of Stock</option>
-            </select>
-            <button type="button" onclick="confirmAvailabilityChange()">Confirm</button>
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Delete Supplier</h2>
+            <p>Are you sure you want to delete this supplier? This action cannot be undone.</p>
+            <div class="form-actions">
+                <button class="cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+                <button class="delete-btn" onclick="confirmDelete()">Delete</button>
+            </div>
         </div>
+    </div>
 
-
-        <!-- *************** -->
-        <!-- Edit popup -->
-        <!-- **************** -->
-
-        <div class="popup" id="editPopup">
-            <img src="edit.png" alt="Edit">
-            <h2>Edit User</h2>
-            <label for="editName">Name</label>
-            <input type="text" id="editName" placeholder="Name">
-
-            <label for="editAddress">Address</label>
-            <input type="text" id="editAddress" placeholder="Address">
-
-            <label for="editEmail">Email</label>
-            <input type="text" id="editEmail" placeholder="Email">
-
-            <button type="button" onclick="confirmEdit()">Update User</button>
-        </div>
-
-
-        <!-- *************** -->
-        <!-- Delete popup -->
-        <!-- **************** -->
-
-        <div class="popup" id="deletePopup">
-            <img src="delete.png" alt="Delete">
-            <h2>Confirm Delete</h2>
-            <p>Are you sure you want to delete this user?</p>
-            <button type="button" onclick="confirmDelete()">Delete User</button>
-        </div>
-
-        <script src="<?php echo URLROOT; ?>/js/operationsManager/dashboard.js"></script>
-        <script src="<?php echo URLROOT; ?>/js/supplier.js"></script>
-        <?php require APPROOT . '/views/supplierCoordinator/footer.php'; ?>
+    <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/suppliers.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/supplier.js"></script>
+    <?php require APPROOT . '/views/supplierCoordinator/footer.php'; ?>

@@ -26,7 +26,7 @@
         </ul>
         <ul class="side-menu">
             <li>
-                <a href="#" class="logout">
+                <a href=<?php echo URLROOT; ?>/users/logout class="logout">
                     <i class='bx bx-log-out-circle'></i>
                     Logout
                 </a>
@@ -212,6 +212,6 @@
         </main>
 
     </div>
-</body>
+    
     <script src="<?php echo URLROOT; ?>/js/client/dashboard.js"></script>
-<?php require APPROOT.'/views/packages/footer.php';?> 
+<?php require APPROOT.'/views/client/footer.php';?> 

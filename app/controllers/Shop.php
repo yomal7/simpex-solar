@@ -1,73 +1,34 @@
 <?php
-
 class Shop extends Controller
 {
-    private $productModel;
+    private $shopModel;
+    // private $blogService;
 
     public function __construct()
     {
-        $this->productModel = $this->model('M_Shop');
+        // $this->blogModel = $this->model('M_Blog');
+        // require_once '../app/services/BlogService.php';
+        // $this->blogService = new BlogService($this->blogModel);
     }
 
     public function index()
     {
-        // Get category from URL, defaulting to 'all' if not set
-        $category = isset($_GET['category']) ? trim($_GET['category']) : 'all';
+        $data = [];
 
-        try {
-            // Fetch products based on category
-            if ($category === 'all') {
-                $products = $this->productModel->getAllProducts();
-            } else {
-                $products = $this->productModel->getProductsByCategory($category);
-            }
-
-            // Initialize products as empty array if null
-            if ($products === null) {
-                $products = [];
-            }
-
-            $data = [
-                'products' => $products,
-                'category' => $category,
-                'title' => 'Online Store'
-            ];
-
-            $this->view('shop/v_shopLanding', $data);
-        } catch (Exception $e) {
-            // Log error and show user-friendly message
-            error_log($e->getMessage());
-            $data = [
-                'products' => [],
-                'category' => $category,
-                'error' => 'Unable to fetch products. Please try again later.',
-                'title' => 'Online Store'
-            ];
-            $this->view('shop/v_shopLanding', $data);
-        }
+        $this->view('shop/v_home', $data);
     }
-
-    public function detail($id = null)
+    public function productDetail()
     {
-        try {
-            if ($id === null) {
-                redirect('shop/index');
-            }
-
-            $product = $this->productModel->getProductById($id);
-
-            if ($product) {
-                $data = [
-                    'product' => $product,
-                    'title' => $product->name
-                ];
-                $this->view('shop/v_productDetail', $data);
-            } else {
-                throw new Exception('Product not found');
-            }
-        } catch (Exception $e) {
-            $data = ['error' => 'Product not found'];
-            $this->view('errors/404', $data);
-        }
+        $data = [
+            // 'product' => $this->shopModel->getProductById($productId)
+        ];
+        $this->view('shop/v_productDetails', $data);
+    }
+    public function purchaseRequest()
+    {
+        $data = [
+            // 'product' => $this->shopModel->getProductById($productId)
+        ];
+        $this->view('shop/v_purchaseRequest', $data);
     }
 }

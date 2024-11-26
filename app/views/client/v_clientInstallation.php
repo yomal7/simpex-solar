@@ -89,7 +89,8 @@
     </div>
     <div class="overlay" id="overlay"></div>
 
-</body>
+
+    
     <script src="<?php echo URLROOT; ?>/js/client/installation.js"></script>
-<?php require APPROOT.'/views/packages/footer.php';?>
+<?php require APPROOT.'/views/client/footer.php';?>
 

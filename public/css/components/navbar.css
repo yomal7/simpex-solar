@@ -375,3 +375,136 @@ nav input{
   font-size: 45px;
   font-weight: 600;
 }
+
+/* nav bar auth */
+
+/* .profile-section {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  object-fit: cover;
+  border: 2px solid #00ED64;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  background: white;
+  min-width: 180px;
+  border-radius: 8px;
+  box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+  display: none;
+  z-index: 1000;
+}
+
+.profile-section:hover .profile-dropdown {
+  display: block;
+}
+
+.profile-dropdown ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-dropdown ul li {
+  margin: 0;
+  padding: 0;
+}
+
+.profile-dropdown ul li a {
+  color: #001E2B;
+  padding: 12px 20px;
+  display: block;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.profile-dropdown ul li a:hover {
+  background-color: #f5f5f5;
+  border-radius: 0;
+} */
+
+.profile-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.profile-pic {
+  margin-top: 5px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 1px solid #00ED64;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  display: none;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.profile-section:hover .profile-dropdown {
+  display: block;
+}
+
+.profile-dropdown ul {
+  /* list-style: none; */
+  margin: 0;
+  /* padding: 10px 0; */
+}
+
+.profile-dropdown ul li {
+  padding: 0px 0px;
+}
+
+.profile-dropdown ul li a {
+  margin-top: -10px;
+  margin-bottom: -10px;
+  padding-top: -10px;
+  padding-bottom: -10px;
+  font-size: 10px;
+  font-weight: bold;
+  text-decoration: none;
+  color: #333;
+}
+
+/* Mobile responsive additions */
+@media screen and (max-width: 970px) {
+  .profile-section {
+    display: flex;
+    flex-direction: column;
+      padding: 0 20px;
+  }
+
+  .profile-dropdown {
+      position: static;
+      box-shadow: none;
+      display: block;
+      margin-top: 10px;
+  }
+
+  .profile-pic {
+      margin-left: 20px;
+  }
+
+  .profile-dropdown ul li a {
+      padding: 10px 40px;
+  }
+}

@@ -26,7 +26,7 @@
             }
         }
 
-        //Prepared statment
+        //Prepared statement
 
         public function query($sql){
             $this->statement= $this->dbh->prepare($sql);
@@ -53,7 +53,7 @@
             $this->statement->bindValue($param, $value, $type);
 
         }
-        //Execute the prepared statment
+        //Execute the prepared statement
         public function execute(){
             return $this->statement->execute();
         }
@@ -71,9 +71,12 @@
             return $this->statement->fetch(PDO::FETCH_OBJ);
         }
 
-        //Geet the row count
+        //Get the row count
         public function rowCount(){
             return $this->statement->rowCount();
+        }
+        public function lastInsertId() {
+            return $this->dbh->lastInsertId();
         }
     }
 ?>

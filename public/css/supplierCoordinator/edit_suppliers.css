@@ -1,0 +1,109 @@
+.content-wrapper {
+  /* padding-left: 30%; */
+  width: 1500px;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+input,
+textarea {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: #fff;
+}
+.back-btn {
+  margin-bottom: 2rem;
+  background: #74dd9a;
+  color: #212529;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.back-btn:hover {
+  background: #0dd162;
+}
+
+/* Flash Messages */
+.flash-message {
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.flash-success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .content-wrapper {
+    padding-left: 20%;
+    width: 80%;
+    height: 80%;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  input,
+  textarea {
+    font-size: 0.875rem;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
