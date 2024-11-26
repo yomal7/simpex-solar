@@ -206,39 +206,7 @@ class SupplierCoordinator extends Controller
             ];
 
             // Validate inputs
-            if (empty($data['name'])) {
-                $data['name_err'] = 'Please enter the product name.';
-            }
-
-            if (empty($data['supplier_id'])) {
-                $data['supplier_err'] = 'Please select a supplier.';
-            }
-
-            if (empty($data['description'])) {
-                $data['description_err'] = 'Please enter a description.';
-            }
-
-            if (empty($data['price'])) {
-                $data['price_err'] = 'Please enter the price.';
-            } elseif (!is_numeric($data['price'])) {
-                $data['price_err'] = 'Price must be a number.';
-            }
-
-            if (empty($data['quantity'])) {
-                $data['quantity_err'] = 'Please enter the quantity.';
-            } elseif (!is_numeric($data['quantity'])) {
-                $data['quantity_err'] = 'Quantity must be a number.';
-            }
-
-            if (empty($data['blog_link'])) {
-                $data['blog_link_err'] = 'Please enter the blog link.';
-            } elseif (!filter_var($data['blog_link'], FILTER_VALIDATE_URL)) {
-                $data['blog_link_err'] = 'Please enter a valid URL.';
-            }
-
-            if (empty($data['image_path'])) {
-                $data['image_path_err'] = 'Please upload an image.';
-            }
+            $this->validateProductData($data);
 
             // Check if there are no errors
             if (
@@ -246,29 +214,27 @@ class SupplierCoordinator extends Controller
                 empty($data['price_err']) && empty($data['quantity_err']) &&
                 empty($data['blog_link_err']) && empty($data['image_path_err'])
             ) {
-
                 // Handle image upload
-                $targetDir = "uploads/images/"; // specify the directory for storing images
-                $targetFile = $targetDir . basename($data['image_path']);
+                $targetDir = "uploads/images/";
+                if (!is_dir($targetDir)) {
+                    mkdir($targetDir, 0777, true); // Create directory if it doesn't exist
+                }
+
+                // Sanitize and create a unique filename to prevent overwriting
+                $uniqueFileName = uniqid() . '_' . basename($data['image_path']);
+                $targetFile = $targetDir . $uniqueFileName;
                 $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
-                // Check if the file is an image
-                if (getimagesize($_FILES['image_path']['tmp_name']) === false) {
-                    $data['image_path_err'] = "File is not an image.";
+                // Perform image upload validation
+                if (!$this->validateImageUpload($targetFile, $imageFileType, $_FILES['image_path']['tmp_name'], $_FILES['image_path']['size'], $data)) {
+                    $this->view('supplierCoordinator/v_addProducts', $data);
+                    return;
                 }
 
-                // Check file size (5MB max)
-                if ($_FILES['image_path']['size'] > 5000000) {
-                    $data['image_path_err'] = "File is too large.";
-                }
+                // Move uploaded file
+                if (move_uploaded_file($_FILES['image_path']['tmp_name'], $targetFile)) {
+                    $data['image_path'] = $uniqueFileName;
 
-                // Allow certain file formats
-                if (!in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif'])) {
-                    $data['image_path_err'] = "Only JPG, JPEG, PNG, and GIF files are allowed.";
-                }
-
-                // If no errors in image upload, move file to the target directory
-                if (empty($data['image_path_err']) && move_uploaded_file($_FILES['image_path']['tmp_name'], $targetFile)) {
                     // Add product to the database
                     if ($this->inventoryModel->createItem($data)) {
                         flash('product_message', 'Product Added Successfully');
@@ -277,7 +243,7 @@ class SupplierCoordinator extends Controller
                         die('Something went wrong');
                     }
                 } else {
-                    // Display image upload error
+                    $data['image_path_err'] = 'Failed to move the uploaded file.';
                     $this->view('supplierCoordinator/v_addProducts', $data);
                 }
             } else {
@@ -285,14 +251,13 @@ class SupplierCoordinator extends Controller
                 $this->view('supplierCoordinator/v_addProducts', $data);
             }
         } else {
-            // Init data
+            // Init data for GET request
             $data = [
                 'name' => '',
                 'supplier_id' => '',
                 'description' => '',
                 'price' => '',
                 'quantity' => '',
-                'status' => '',
                 'blog_link' => '',
                 'image_path' => '',
                 'suppliers' => $this->supplierModel->getSuppliers(),
@@ -301,7 +266,6 @@ class SupplierCoordinator extends Controller
                 'description_err' => '',
                 'price_err' => '',
                 'quantity_err' => '',
-                'status_err' => '',
                 'blog_link_err' => '',
                 'image_path_err' => ''
             ];
@@ -309,5 +273,71 @@ class SupplierCoordinator extends Controller
             // Load view
             $this->view('supplierCoordinator/v_addProducts', $data);
         }
+    }
+
+    /**
+     * Validate product data.
+     */
+    private function validateProductData(&$data)
+    {
+        if (empty($data['name'])) {
+            $data['name_err'] = 'Please enter the product name.';
+        }
+
+        if (empty($data['supplier_id'])) {
+            $data['supplier_err'] = 'Please select a supplier.';
+        }
+
+        if (empty($data['description'])) {
+            $data['description_err'] = 'Please enter a description.';
+        }
+
+        if (empty($data['price'])) {
+            $data['price_err'] = 'Please enter the price.';
+        } elseif (!is_numeric($data['price'])) {
+            $data['price_err'] = 'Price must be a number.';
+        }
+
+        if (empty($data['quantity'])) {
+            $data['quantity_err'] = 'Please enter the quantity.';
+        } elseif (!is_numeric($data['quantity'])) {
+            $data['quantity_err'] = 'Quantity must be a number.';
+        }
+
+        if (empty($data['blog_link'])) {
+            $data['blog_link_err'] = 'Please enter the blog link.';
+        } elseif (!filter_var($data['blog_link'], FILTER_VALIDATE_URL)) {
+            $data['blog_link_err'] = 'Please enter a valid URL.';
+        }
+
+        if (empty($data['image_path'])) {
+            $data['image_path_err'] = 'Please upload an image.';
+        }
+    }
+
+    /**
+     * Validate image upload.
+     */
+    private function validateImageUpload($targetFile, $imageFileType, $tmpFile, $fileSize, &$data)
+    {
+        // Check if the file is an image
+        if (getimagesize($tmpFile) === false) {
+            $data['image_path_err'] = 'File is not an image.';
+            return false;
+        }
+
+        // Check file size (5MB max)
+        if ($fileSize > 5000000) {
+            $data['image_path_err'] = 'File is too large.';
+            return false;
+        }
+
+        // Allow certain file formats
+        if (!in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif'])) {
+            $data['image_path_err'] = 'Only JPG, JPEG, PNG, and GIF files are allowed.';
+            return false;
+        }
+
+        return true;
     }
 }

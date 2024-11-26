@@ -72,19 +72,13 @@
                         <select id="supplier" name="supplier" class="form-control <?php echo (!empty($data['supplier_err'])) ? 'is-invalid' : ''; ?>" required>
                             <option value="">Select a Supplier</option>
                             <?php foreach ($data['suppliers'] as $supplier) { ?>
-                                <option value="<?php echo $supplier['id']; ?>" <?php echo ($data['supplier_id'] == $supplier['id']) ? 'selected' : ''; ?>>
-                                    <?php echo $supplier['name']; ?>
+                                <option value="<?php echo $supplier->id; ?>" <?php echo ($data['supplier_id'] == $supplier->id) ? 'selected' : ''; ?>>
+                                    <?php echo $supplier->name; ?>
                                 </option>
                             <?php } ?>
                         </select>
-                        <span class="invalid-feedback"><?php echo $data['supplier_err']; ?></span>
-                    </div>
 
-                    <!-- Description -->
-                    <div class="form-group">
-                        <label for="description">Description <span class="required">*</span></label>
-                        <input type="text" id="description" name="description" class="form-control <?php echo (!empty($data['description_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['description']; ?>" required>
-                        <span class="invalid-feedback"><?php echo $data['description_err']; ?></span>
+                        <span class="invalid-feedback"><?php echo $data['supplier_err']; ?></span>
                     </div>
 
                     <!-- Price -->
@@ -101,16 +95,6 @@
                         <span class="invalid-feedback"><?php echo $data['quantity_err']; ?></span>
                     </div>
 
-                    <!-- Product Status -->
-                    <div class="form-group">
-                        <label for="status">Status <span class="required">*</span></label>
-                        <select id="status" name="status" class="form-control <?php echo (!empty($data['status_err'])) ? 'is-invalid' : ''; ?>" required>
-                            <option value="1" <?php echo ($data['status'] == '1') ? 'selected' : ''; ?>>Available</option>
-                            <option value="0" <?php echo ($data['status'] == '0') ? 'selected' : ''; ?>>Not Available</option>
-                        </select>
-                        <span class="invalid-feedback"><?php echo $data['status_err']; ?></span>
-                    </div>
-
                     <!-- Blog Link -->
                     <div class="form-group">
                         <label for="blog_link">Blog Link <span class="required">*</span></label>
@@ -125,12 +109,26 @@
                         <span class="invalid-feedback"><?php echo $data['image_path_err']; ?></span>
                     </div>
 
-                    <button type="submit" class="btn submit-btn">Add Product</button>
+                    <!-- Description -->
+                    <div class="form-group full-width">
+                        <label for="description">Description <span class="required">*</span></label>
+                        <textarea id="description" name="description" rows="4" class="form-control <?php echo (!empty($data['description_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['description']; ?>" required></textarea>
+                        <span class="invalid-feedback"><?php echo $data['description_err']; ?></span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="reset" class="btn reset-btn">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                        <button type="submit" class="btn submit-btn">
+                            <i class="fas fa-save"></i> Save Product
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
-    
-        <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/add_products.js"></script>
-        <script src="<?php echo URLROOT; ?>/js/inventory.js"></script>
-        <?php require APPROOT . '/views/supplierCoordinator/footer.php'; ?>
+
+    <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/add_products.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/inventory.js"></script>
+    <?php require APPROOT . '/views/supplierCoordinator/footer.php'; ?>
