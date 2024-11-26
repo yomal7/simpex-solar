@@ -1,0 +1,150 @@
+/* Supplier-specific styles */
+.supplier-profile-pic {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #7ab87a;
+}
+
+.supplier-table-container {
+  margin-top: 20px;
+}
+
+.supplier-table th {
+  background-color: #7ab87a;
+  color: white;
+  font-weight: 500;
+}
+
+.supplier-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.supplier-actions button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.supplier-edit-btn {
+  background-color: #7ab87a;
+  color: white;
+}
+
+.supplier-edit-btn:hover {
+  background-color: #69a769;
+}
+
+.supplier-delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.supplier-delete-btn:hover {
+  background-color: #bd2130;
+}
+
+/* Supplier Form Popup Styles */
+.supplier-form-popup {
+  max-width: 500px;
+}
+
+.supplier-form-popup .form-grid {
+  grid-template-columns: 1fr;
+}
+
+.supplier-form-popup input:focus,
+.supplier-form-popup select:focus {
+  border-color: #7ab87a;
+  box-shadow: 0 0 0 2px rgba(122, 184, 122, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .supplier-actions {
+    flex-direction: column;
+  }
+
+  .supplier-actions button {
+    width: 100%;
+  }
+}
+
+/* Previous CSS code... */
+
+/* Pagination Controls */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 20px 0;
+  padding: 10px;
+}
+
+.pagination-controls button {
+  padding: 8px 16px;
+  background-color: #7ab87a;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pagination-controls button:hover:not([disabled]) {
+  background-color: #69a769;
+}
+
+.pagination-controls button[disabled] {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.pagination-controls span {
+  font-weight: 500;
+  color: #333;
+}
+
+/* Supplier Actions */
+.supplier-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.supplier-view-btn {
+  background-color: #4a90e2;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.supplier-view-btn:hover {
+  background-color: #357abd;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .supplier-actions {
+    flex-direction: column;
+  }
+
+  .supplier-actions button {
+    width: 100%;
+    margin-bottom: 4px;
+  }
+
+  .pagination-controls {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

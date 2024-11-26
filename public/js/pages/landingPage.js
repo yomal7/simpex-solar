@@ -119,6 +119,98 @@ function handleSmallScreens() {
 
 handleSmallScreens();
 
+// banner section
+
+const track = document.querySelector('.slider-track');
+const slides = document.querySelectorAll('.project-slide');
+const prevBtn = document.querySelector('.prev');
+const nextBtn = document.querySelector('.next');
+
+function updateSlideWidth() {
+    const slide = slides[0];
+    const computedStyle = window.getComputedStyle(slide);
+    return slide.offsetWidth + parseInt(computedStyle.paddingRight);
+}
+
+// Clone slides for infinite effect
+track.appendChild(slides[0].cloneNode(true));
+track.insertBefore(slides[slides.length - 1].cloneNode(true), slides[0]);
+
+let currentIndex = 1;
+let slideWidth = updateSlideWidth();
+
+// Update slide width on resize
+window.addEventListener('resize', () => {
+    slideWidth = updateSlideWidth();
+    track.style.transition = 'none';
+    track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+});
+
+// Initial position
+track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+
+function slideToIndex(index) {
+    track.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+    track.style.transform = `translateX(-${index * slideWidth}px)`;
+}
+
+function handleTransitionEnd() {
+    if (currentIndex === slides.length + 1) {
+        currentIndex = 1;
+        track.style.transition = 'none';
+        track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+    }
+    if (currentIndex === 0) {
+        currentIndex = slides.length;
+        track.style.transition = 'none';
+        track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+    }
+}
+
+function nextSlide() {
+    currentIndex++;
+    slideToIndex(currentIndex);
+}
+
+function prevSlide() {
+    currentIndex--;
+    slideToIndex(currentIndex);
+}
+
+// Event listeners
+track.addEventListener('transitionend', handleTransitionEnd);
+nextBtn.addEventListener('click', nextSlide);
+prevBtn.addEventListener('click', prevSlide);
+
+// Touch support
+let touchStartX = 0;
+let touchEndX = 0;
+
+track.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+}, false);
+
+track.addEventListener('touchend', e => {
+    touchEndX = e.changedTouches[0].screenX;
+    if (touchStartX - touchEndX > 50) {
+        nextSlide();
+    } else if (touchEndX - touchStartX > 50) {
+        prevSlide();
+    }
+}, false);
+
+// Auto slide every 5 seconds
+let autoSlideInterval = setInterval(nextSlide, 5000);
+
+// Pause auto-slide on hover
+track.addEventListener('mouseenter', () => {
+    clearInterval(autoSlideInterval);
+});
+
+track.addEventListener('mouseleave', () => {
+    autoSlideInterval = setInterval(nextSlide, 5000);
+});
+
 
 
 

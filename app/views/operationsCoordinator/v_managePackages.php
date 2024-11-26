@@ -80,7 +80,7 @@
             </div>
         </div>
 
-        <div id="packageFormPopup" class="popup">
+        <!-- <div id="packageFormPopup" class="popup">
             <div class="popup-content">
                 <div class="popup-header">
                     <h2 id="formTitle">Add New Package</h2>
@@ -141,7 +141,109 @@
                     </div>
                 </form>
             </div>
+        </div> -->
+
+        <div class="main-content">
+    <div class="container">
+        <header>
+            <h1>Solar Package Management</h1>
+            <button id="addPackageBtn" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Package
+            </button>
+        </header>
+
+        <div class="table-container">
+            <table id="packagesTable">
+                <thead>
+                    <tr>
+                        <th>Package</th>
+                        <th>Details</th>
+                        <th>Pricing</th>
+                        <th>Warranty</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="packagesTableBody"></tbody>
+            </table>
         </div>
+    </div>
+
+    <!-- Package Form Popup -->
+    <div id="packageFormPopup" class="popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2>Add/Edit Package</h2>
+                <button class="close-btn" onclick="closePopup('packageFormPopup')">&times;</button>
+            </div>
+            <form id="packageForm" onsubmit="handleSubmit(event)">
+                <div class="form-group">
+                    <label>Package Image</label>
+                    <input type="file" id="packageImage" accept="image/*">
+                    <img id="imagePreview" style="display:none; max-width:200px; margin-top:10px;">
+                </div>
+
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="packageType" name="type" required>
+                        <option value="on-grid">On-Grid</option>
+                        <option value="off-grid">Off-Grid</option>
+                        <option value="hybrid">Hybrid</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="description" name="description" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Base Price (Rs)</label>
+                        <input type="number" id="price" name="price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Service Charge (Rs)</label>
+                        <input type="number" id="serviceCharge" name="serviceCharge" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Final Price (Rs)</label>
+                        <input type="number" id="finalPrice" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Warranty (Years)</label>
+                        <input type="number" id="warranty" name="warranty_years" required>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Features</h3>
+                    <button type="button" onclick="addFeatureRow()" class="btn btn-secondary">
+                        <i class="fas fa-plus"></i> Add Feature
+                    </button>
+                    <div id="featuresContainer"></div>
+                </div>
+
+                <div class="section">
+                    <h3>Equipment</h3>
+                    <button type="button" onclick="addEquipmentRow()" class="btn btn-secondary">
+                        <i class="fas fa-plus"></i> Add Equipment
+                    </button>
+                    <div id="equipmentContainer"></div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" onclick="closePopup('packageFormPopup')" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Package</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
         <div id="deleteConfirmPopup" class="popup">
             <div class="popup-content">
