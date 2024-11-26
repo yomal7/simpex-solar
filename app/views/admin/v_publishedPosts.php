@@ -88,7 +88,7 @@
                                     <td data-label="Views"><?php echo $post->views; ?></td>
                                     <td data-label="Published"><?php echo date('M d, Y', strtotime($post->created_at)); ?></td>
                                     <td data-label="Actions" class="action-buttons">
-                                        <a href="<?php echo URLROOT; ?>/blogs/view/<?php echo $post->slug; ?>" 
+                                        <a href="<?php echo URLROOT; ?>/blog/showPost/<?php echo $post->slug; ?>"" 
                                            target="_blank" 
                                            class="btn view-btn" 
                                            title="View Post">

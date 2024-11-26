@@ -1,5 +1,5 @@
-<?php require APPROOT.'/views/operationsManager/header.php';?>
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsManager/dashboard.css">
+<?php require APPROOT.'/views/hRAdministrator/header.php';?>
+    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/hRAdministrator/dashboard.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -16,25 +16,21 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="#" class="active">
+            <a href="<?php echo URLROOT ?>/hRAdministrator/dashboard" class="active">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">person</span>
-                <h3>Customers</h3>
+            <a href="<?php echo URLROOT ?>/hRAdministrator/attendance">
+                <span class="material-icons-sharp">checklist_rtl</span>
+                <h3>Attendance</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">receipt_long</span>
-                <h3>Projects</h3>
-            </a>
-            <a href="#">
-                <span class="material-icons-sharp">inventory</span>
-                <h3>Inventory</h3>
-            </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/hRAdministrator/employees">
                 <span class="material-icons-sharp">group</span>
                 <h3>Employees</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/hRAdministrator/holiday">
+                <span class="material-icons-sharp">date_range</span>
+                <h3>Holiday</h3>
             </a>
             <a href="#">
                 <span class="material-icons-sharp">settings</span>
@@ -220,5 +216,5 @@
         <button type="button" onclick="confirmDelete()">Delete User</button>
     </div>
 
-    <script src="<?php echo URLROOT; ?>/js/operationsManager/dashboard.js"></script>
-<?php require APPROOT.'/views/operationsManager/footer.php';?>
+    <script src="<?php echo URLROOT; ?>/js/hRAdministrator/dashboard.js"></script>
+<?php require APPROOT.'/views/hRAdministrator/footer.php';?>

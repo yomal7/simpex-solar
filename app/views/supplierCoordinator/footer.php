@@ -1,3 +1,4 @@
-<script src="<?php echo URLROOT; ?>/js/operationsManager/dashboard.js"></script>
-    </body>
+<script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script>
+</body>
+
 </html>

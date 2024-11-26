@@ -1,5 +1,5 @@
 <?php require APPROOT . '/views/supplierCoordinator/header.php'; ?>
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsManager/dashboard.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/dashboard.css">
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/supplierCoordinator/suppliers.css">
 </head>
 
@@ -72,25 +72,25 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach($data['suppliers'] as $supplier) : ?>
-                            <tr>
-                                <td><?php echo $supplier->name; ?></td>
-                                <td><?php echo $supplier->email; ?></td>
-                                <td><?php echo $supplier->contact_number; ?></td>
-                                <td><?php echo $supplier->address; ?></td>
-                                <td><?php echo date('M d, Y', strtotime($supplier->created_at)); ?></td>
-                                <td class="actions">
-                                    <button onclick="viewSupplier(<?php echo $supplier->id; ?>)" class="btn-icon view view-btn">
-                                        <span class="material-icons-sharp">visibility</span>
-                                    </button>
-                                    <button onclick="editSupplier(<?php echo $supplier->id; ?>)" class="btn-icon edit edit-btn">
-                                        <span class="material-icons-sharp">edit</span>
-                                    </button>
-                                    <button onclick="deleteSupplier(<?php echo $supplier->id; ?>)" class="btn-icon delete delete-btn">
-                                        <span class="material-icons-sharp">delete</span>
-                                    </button>
-                                </td>
-                            </tr>
+                            <?php foreach ($data['suppliers'] as $supplier) : ?>
+                                <tr>
+                                    <td><?php echo $supplier->name; ?></td>
+                                    <td><?php echo $supplier->email; ?></td>
+                                    <td><?php echo $supplier->contact_number; ?></td>
+                                    <td><?php echo $supplier->address; ?></td>
+                                    <td><?php echo date('M d, Y', strtotime($supplier->created_at)); ?></td>
+                                    <td class="actions">
+                                        <button onclick="viewSupplier(<?php echo $supplier->id; ?>)" class="btn-icon view view-btn">
+                                            <span class="material-icons-sharp">visibility</span>
+                                        </button>
+                                        <button onclick="location.href='<?php echo URLROOT; ?>/supplierCoordinator/edit/<?php echo $supplier->id ?>'" class="btn-icon edit edit-btn">
+                                            <span class="material-icons-sharp">edit</span>
+                                        </button>
+                                        <button onclick="deleteSupplier(<?php echo $supplier->id; ?>)" class="btn-icon delete delete-btn">
+                                            <span class="material-icons-sharp">delete</span>
+                                        </button>
+                                    </td>
+                                </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
@@ -99,85 +99,84 @@
         </div>
     </div>
 
-        <!-- View Modal -->
-        <div id="viewModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Supplier Details</h2>
-                <div class="supplier-info">
-                    <div class="info-row">
-                        <label>Name:</label>
-                        <span id="view-name"></span>
-                    </div>
-                    <div class="info-row">
-                        <label>Email:</label>
-                        <span id="view-email"></span>
-                    </div>
-                    <div class="info-row">
-                        <label>Contact:</label>
-                        <span id="view-contact"></span>
-                    </div>
-                    <div class="info-row">
-                        <label>Address:</label>
-                        <span id="view-address"></span>
-                    </div>
-                    <div class="info-row">
-                        <label>Other Details:</label>
-                        <span id="view-other-details"></span>
-                    </div>
+    <!-- View Modal -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Supplier Details</h2>
+            <div class="supplier-info">
+                <div class="info-row">
+                    <label>Name:</label>
+                    <span id="view-name"></span>
+                </div>
+                <div class="info-row">
+                    <label>Email:</label>
+                    <span id="view-email"></span>
+                </div>
+                <div class="info-row">
+                    <label>Contact:</label>
+                    <span id="view-contact"></span>
+                </div>
+                <div class="info-row">
+                    <label>Address:</label>
+                    <span id="view-address"></span>
+                </div>
+                <div class="info-row">
+                    <label>Other Details:</label>
+                    <span id="view-other-details"></span>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Edit Modal -->
-        <div id="editModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Edit Supplier</h2>
-                <form id="editSupplierForm">
-                    <input type="hidden" id="edit-id" name="id">
-                    <div class="form-group">
-                        <label>Name:</label>
-                        <input type="text" id="edit-name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email:</label>
-                        <input type="email" id="edit-email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Contact:</label>
-                        <input type="text" id="edit-contact" name="contact_number" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Address:</label>
-                        <textarea id="edit-address" name="address" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Other Details:</label>
-                        <textarea id="edit-other-details" name="other_details"></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="cancel-btn" onclick="closeEditModal()">Cancel</button>
-                        <button type="submit" class="save-btn">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-<!-- Delete Modal -->
-        <div id="deleteModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Delete Supplier</h2>
-                <p>Are you sure you want to delete this supplier? This action cannot be undone.</p>
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Supplier</h2>
+            <form id="editSupplierForm">
+                <input type="hidden" id="edit-id" name="id">
+                <div class="form-group">
+                    <label>Name:</label>
+                    <input type="text" id="edit-name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="edit-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Contact:</label>
+                    <input type="text" id="edit-contact" name="contact_number" required>
+                </div>
+                <div class="form-group">
+                    <label>Address:</label>
+                    <textarea id="edit-address" name="address" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Other Details:</label>
+                    <textarea id="edit-other-details" name="other_details"></textarea>
+                </div>
                 <div class="form-actions">
-                    <button class="cancel-btn" onclick="closeDeleteModal()">Cancel</button>
-                    <button class="delete-btn" onclick="confirmDelete()">Delete</button>
+                    <button type="button" class="cancel-btn" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="save-btn">Save Changes</button>
                 </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Delete Supplier</h2>
+            <p>Are you sure you want to delete this supplier? This action cannot be undone.</p>
+            <div class="form-actions">
+                <button class="cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+                <button class="delete-btn" onclick="confirmDelete()">Delete</button>
             </div>
         </div>
+    </div>
 
-        <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/suppliers.js"></script>
-        <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/suppliers.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/suppliers.js"></script>
     <script src="<?php echo URLROOT; ?>/js/supplier.js"></script>
-<?php require APPROOT . '/views/supplierCoordinator/footer.php'; ?>
+    <?php require APPROOT . '/views/supplierCoordinator/footer.php'; ?>

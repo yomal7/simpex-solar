@@ -1,5 +1,5 @@
-<?php require APPROOT.'/views/operationsManager/header.php';?>
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsManager/manageAproject.css">
+<?php require APPROOT.'/views/operationsCoordinator/header.php';?>
+    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/manageAproject.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -12,21 +12,21 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/hRAdministrator/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="#"  class="active">
-                <span class="material-icons-sharp">receipt_long</span>
-                <h3>Projects</h3>
+            <a href="<?php echo URLROOT ?>/hRAdministrator/attendance" class="active">
+                <span class="material-icons-sharp">checklist_rtl</span>
+                <h3>Attendance</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">inventory</span>
-                <h3>Tasks</h3>
+            <a href="<?php echo URLROOT ?>/hRAdministrator/employees">
+                <span class="material-icons-sharp">group</span>
+                <h3>Employees</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">chat</span>
-                <h3>Messages</h3>
+            <a href="<?php echo URLROOT ?>/hRAdministrator/holiday">
+                <span class="material-icons-sharp">date_range</span>
+                <h3>Holiday</h3>
             </a>
             <a href="#">
                 <span class="material-icons-sharp">settings</span>
@@ -294,8 +294,8 @@
 
     <div class="overlay" id="overlay"></div>
 
-    <script src="<?php echo URLROOT; ?>/js/operationsManager/dashboard.js"></script>
-    <script src="<?php echo URLROOT; ?>/js/operationsManager/quationPhase.js"></script>
-    <script src="<?php echo URLROOT; ?>/js/operationsManager/siteVisit.js"></script>
-    <script src="<?php echo URLROOT; ?>/js/operationsManager/manageAproject.js"></script>
-<?php require APPROOT.'/views/operationsManager/footer.php';?>
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/quationPhase.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/siteVisit.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/manageAproject.js"></script>
+<?php require APPROOT.'/views/operationsCoordinator/footer.php';?>

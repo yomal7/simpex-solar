@@ -6,9 +6,12 @@ class SupplierCoordinator extends Controller
     private $supplierModel;
     private $inventoryModel;
 
-
     public function __construct()
     {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'supplierCoordinator') {
+            flash('error_msg', 'Unauthorized access');
+            redirect('users/login');
+        }
         $this->supplierModel = $this->model('M_Suppliers');
         $this->inventoryModel = $this->model('M_Inventory');
     }
@@ -111,7 +114,7 @@ class SupplierCoordinator extends Controller
     {
         // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
         $data = [];
-        $this->view('operationsManager/v_manageAproject', $data);
+        $this->view('operationsCoordinator/v_manageAproject', $data);
     }
 
     public function suppliers()
@@ -137,9 +140,43 @@ class SupplierCoordinator extends Controller
         }
     }
 
-    public function updateSupplier()
+    public function edit($id = null)
     {
+        if ($id === null) {
+            flash('error_msg', 'No supplier specified');
+            redirect('suppliers');
+        }
+
+        // Handle GET request to show edit form
+        $supplier = $this->supplierModel->getSupplierById($id);
+
+        if (!$supplier) {
+            flash('supplier_message', 'Supplier not found', 'alert alert-danger');
+            redirect('suppliers');
+        }
+
+        $data = [
+            'id' => $id,
+            'name' => $supplier->name,
+            'address' => $supplier->address,
+            'email' => $supplier->email,
+            'contact_number' => $supplier->contact_number,
+            'other_details' => $supplier->other_details,
+            'name_err' => '',
+            'address_err' => '',
+            'email_err' => '',
+            'contact_number_err' => '',
+            'other_details_err' => ''
+        ];
+
+        $this->view('supplierCoordinator/v_supplierEdit', $data);
+    }
+
+    public function update()
+    {
+        // Handle POST request for updating supplier
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Sanitize POST data
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
             $data = [
@@ -148,17 +185,56 @@ class SupplierCoordinator extends Controller
                 'address' => trim($_POST['address']),
                 'email' => trim($_POST['email']),
                 'contact_number' => trim($_POST['contact_number']),
-                'other_details' => trim($_POST['other_details'])
+                'other_details' => trim($_POST['other_details']),
+                'name_err' => '',
+                'address_err' => '',
+                'email_err' => '',
+                'contact_number_err' => '',
+                'other_details_err' => ''
             ];
 
-            if ($this->supplierModel->updateSupplier($data)) {
-                echo json_encode(['success' => true]);
-            } else {
-                echo json_encode(['success' => false]);
+            // Validation
+            if (empty($data['name'])) {
+                $data['name_err'] = 'Please enter supplier name';
             }
+
+            if (empty($data['address'])) {
+                $data['address_err'] = 'Please enter address';
+            }
+
+            if (empty($data['email'])) {
+                $data['email_err'] = 'Please enter email';
+            } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                $data['email_err'] = 'Please enter a valid email';
+            }
+
+            if (empty($data['contact_number'])) {
+                $data['contact_number_err'] = 'Please enter contact number';
+            }
+
+            // Check for any validation errors
+            if (
+                empty($data['name_err']) && empty($data['address_err']) &&
+                empty($data['email_err']) && empty($data['contact_number_err'])
+            ) {
+                // Attempt to update supplier
+                if ($this->supplierModel->updateSupplier($data)) {
+                    flash('supplier_message', 'Supplier updated successfully');
+                    redirect('suppliercoordinator/suppliers');
+                } else {
+                    flash('supplier_message', 'Error updating supplier', 'alert alert-danger');
+                    // If update fails, re-render the edit form with current data
+                    $this->view('supplierCoordinator/v_supplierEdit', $data);
+                }
+            } else {
+                // If validation fails, re-render the edit form with error messages
+                $this->view('supplierCoordinator/v_supplierEdit', $data);
+            }
+        } else {
+            // If not a POST request, redirect to suppliers list
+            redirect('suppliers');
         }
     }
-
     public function deleteSupplier()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {

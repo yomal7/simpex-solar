@@ -50,4 +50,32 @@ class M_Users {
         
         return $this->db->rowCount() > 0;
     }
+
+    public function getCoordinators() {
+        $this->db->query('SELECT user_id, name, email, role FROM users WHERE role IN ("chiefCoordinator", "operationsCoordinator", "HrCoordinator") ORDER BY role');
+        return $this->db->resultSet();
+    }
+
+    public function getCoordinatorByRole($role) {
+        $this->db->query('SELECT user_id, name, email, role FROM users WHERE role = :role');
+        $this->db->bind(':role', $role);
+        return $this->db->single();
+    }
+
+    public function updateCoordinator($data) {
+        $this->db->query('UPDATE users SET name = :name, email = :email, role = :role WHERE user_id = :user_id');
+        
+        $this->db->bind(':user_id', $data['user_id']);
+        $this->db->bind(':name', $data['name']);
+        $this->db->bind(':email', $data['email']);
+        $this->db->bind(':role', $data['role']);
+
+        return $this->db->execute();
+    }
+
+    public function deleteUser($userId) {
+        $this->db->query('DELETE FROM users WHERE user_id = :user_id');
+        $this->db->bind(':user_id', $userId);
+        return $this->db->execute();
+    }
 }

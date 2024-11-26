@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsManager/managePackages.css">
+    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/managePackages.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -24,25 +24,21 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="#" class="active">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">person</span>
-                <h3>Customers</h3>
-            </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/manageAproject">
                 <span class="material-icons-sharp">receipt_long</span>
                 <h3>Projects</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">inventory</span>
-                <h3>Inventory</h3>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/managePackages"  class="active">
+                <span class="material-icons-sharp">solar_power</span>
+                <h3>Packages</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">group</span>
-                <h3>Employees</h3>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/tasks">
+                <span class="material-icons-sharp">task</span>
+                <h3>Tasks</h3>
             </a>
             <a href="#">
                 <span class="material-icons-sharp">settings</span>
@@ -270,5 +266,5 @@
 
     <div id="overlay"></div>
     <script src="script.js"></script>
-    <script src="<?php echo URLROOT; ?>/js/operationsManager/managePackages.js"></script>
-<?php require APPROOT.'/views/operationsManager/footer.php';?>
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/managePackages.js"></script>
+<?php require APPROOT.'/views/operationsCoordinator/footer.php';?>
