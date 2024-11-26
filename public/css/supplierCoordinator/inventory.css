@@ -575,3 +575,25 @@
 }
 
 
+.status {
+    font-weight: bold;
+    text-align: center;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+}
+
+.status.out-of-stock {
+    background-color: #dc3545;
+    color: white;
+}
+
+.status.low-stock {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.status.in-stock {
+    background-color: #6fd649;
+    color: white;
+}
