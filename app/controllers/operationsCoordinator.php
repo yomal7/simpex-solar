@@ -126,6 +126,11 @@ class OperationsCoordinator extends Controller {
         }
     }
 
+    public function getInventoryItems() {
+        $items = $this->inventoryModel->getAllItems();
+        echo json_encode($items);
+    }
+
     public function createPackage() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $packageData = [
