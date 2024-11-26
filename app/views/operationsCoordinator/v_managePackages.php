@@ -24,19 +24,19 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="./dashboard">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="./manageAproject">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/manageAproject">
                 <span class="material-icons-sharp">receipt_long</span>
                 <h3>Projects</h3>
             </a>
-            <a href="./managePackages"  class="active">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/managePackages"  class="active">
                 <span class="material-icons-sharp">solar_power</span>
                 <h3>Packages</h3>
             </a>
-            <a href="./tasks">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/tasks">
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>
             </a>
