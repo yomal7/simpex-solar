@@ -43,7 +43,7 @@
             </a>
         </div>
         <div class="main-content">
-            <div class="container">
+            <div class="form-container">
 
                 <h2>Assign New Task</h2>
                 <form action="<?php echo URLROOT; ?>/operationsCoordinator/addTask" method="POST" id="userForm" id="addUserForm" onsubmit="handleSubmit(event)">
@@ -98,8 +98,12 @@
                         </div>
                     </div>
                     <div class="button-group">
-                        <input type="submit" value="Assign Task" class="btn btn-primary">
-                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/tasks"><button type="button" class="btn btn-secondary" style="background-color: red;" onclick="closePopup('userFormPopup')">Cancel</button></a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Assign Task
+                        </button>
+                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/tasks" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
                     </div>
                 </form>
 

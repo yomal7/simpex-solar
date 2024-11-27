@@ -68,14 +68,24 @@ class OperationsCoordinator extends Controller
         $this->view('operationsCoordinator/v_tasks', $data);
     }
 
-    // View aTask
+    // View Task
     public function viewTask($taskId)
     {
-        $task = $this->tasksModel->getTaskByID($taskId);
-        $data = [
-            'id' => $taskId
+        // Fetch the task from the model
+        $task = $this->tasksModel->getTaskById($taskId);
+
+        // Check if task exists
+        if ($task) {
+            $data = [
+                'task' => $task
             ];
-        $this->view('operationsCoordinator/v_viewTask', $data);
+            // Load the view with task data
+            $this->view('operationsCoordinator/v_viewTask', $data);
+        } else {
+            // Task not found, redirect to tasks list
+            flash('task_msg', 'Task not found', 'alert alert-danger');
+            redirect('operationsCoordinator/tasks');
+        }
     }
 
     // Add Task
@@ -259,7 +269,7 @@ class OperationsCoordinator extends Controller
     // Delete TaskA
     public function deleteTask($taskId)
     {
-        $task = $this->tasksModel->getTaskByID($taskId);
+        $task = $this->tasksModel->getTaskById($taskId);
         
         if($this->tasksModel->delete($taskId)){
             flash('task_msg', 'Task removed successfully');

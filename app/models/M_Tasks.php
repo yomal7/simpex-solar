@@ -26,7 +26,7 @@ class M_Tasks
     //     return $row;
     // }
 
-    public function getTaskByID($taskId)
+    public function getTaskById($taskId)
     {   
         $this->db->query('SELECT * FROM Tasks WHERE id = :id');
         $this->db->bind(':id', $taskId);
