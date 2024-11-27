@@ -526,4 +526,58 @@ class SupplierCoordinator extends Controller
             redirect('supplierCoordinator/inventory');
         }
     }
+
+    // public function deleteItem()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
+    //         // Validate the ID
+    //         $itemId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+
+    //         if ($itemId === false || $itemId === null) {
+    //             echo json_encode(['success' => false, 'message' => 'Invalid item ID']);
+    //             return;
+    //         }
+
+    //         // Attempt soft delete
+    //         if ($this->inventoryModel->softDeleteItem($itemId)) {
+    //             echo json_encode(['success' => true]);
+    //         } else {
+    //             echo json_encode(['success' => false, 'message' => 'Failed to delete item']);
+    //         }
+    //     } else {
+    //         // Invalid request method or missing ID
+    //         echo json_encode(['success' => false, 'message' => 'Invalid request']);
+    //     }
+    // }
+
+    public function deleteItem($itemId = null)
+    {
+        header('Content-Type: application/json'); // Set JSON response
+
+        try {
+            // Get ID from POST or raw input
+            $itemId = isset($_POST['id']) ?
+                filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT) :
+                json_decode(file_get_contents('php://input'), true)['id'] ?? null;
+
+            if ($itemId === null || $itemId === false) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => 'Invalid item ID']);
+                return;
+            }
+
+            // Attempt soft delete
+            $deleteResult = $this->inventoryModel->softDeleteItem($itemId);
+
+            if ($deleteResult) {
+                echo json_encode(['success' => true]);
+            } else {
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'Failed to delete item']);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Server Error', 'details' => $e->getMessage()]);
+        }
+    }
 }

@@ -73,7 +73,7 @@
                         </thead>
                         <tbody>
                             <?php foreach ($data['products'] as $product) : ?>
-                                <tr>
+                                <tr data-item-id="<?php echo $product->item_id; ?>">
                                     <td><?php echo $product->product_name; ?></td>
                                     <td><?php echo $product->supplier_name; ?></td>
                                     <td><?php echo $product->price; ?></td>
@@ -88,13 +88,12 @@
                                         <button onclick="location.href='<?php echo URLROOT; ?>/supplierCoordinator/editInventory/<?php echo $product->item_id ?>'" class="btn-icon edit edit-btn">
                                             <span class="material-icons-sharp">edit</span>
                                         </button>
-                                        <button onclick="deleteInventory(<?php echo $product->id; ?>)" class="btn-icon delete delete-btn">
+                                        <button onclick="openDeleteModal(<?php echo $product->item_id; ?>)" class="btn-icon delete delete-btn">
                                             <span class="material-icons-sharp">delete</span>
                                         </button>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
-
                         </tbody>
                     </table>
                 </div>
@@ -103,76 +102,13 @@
         </div>
     </div>
 
-    <!-- View Modal -->
-    <!-- <div id="viewModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Product Details</h2>
-                <div class="product-info">
-                    <div class="info-row">
-                        <label>Name:</label>
-                        <span id="view-name"></span>
-                    </div>
-                    <div class="info-row">
-                        <label>Supplier:</label>
-                        <span id="view-email"></span>
-                    </div>
-                    <div class="info-row">
-                        <label>Quantity:</label>
-                        <span id="view-contact"></span>
-                    </div>
-                    <div class="info-row">
-                        <label>Address:</label>
-                        <span id="view-address"></span>
-                    </div>
-                    <div class="info-row">
-                        <label>Other Details:</label>
-                        <span id="view-other-details"></span>
-                    </div>
-                </div>
-            </div>
-        </div> -->
 
-    <!-- Edit Modal -->
-    <!-- <div id="editModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Edit Supplier</h2>
-                <form id="editSupplierForm">
-                    <input type="hidden" id="edit-id" name="id">
-                    <div class="form-group">
-                        <label>Name:</label>
-                        <input type="text" id="edit-name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email:</label>
-                        <input type="email" id="edit-email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Contact:</label>
-                        <input type="text" id="edit-contact" name="contact_number" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Address:</label>
-                        <textarea id="edit-address" name="address" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Other Details:</label>
-                        <textarea id="edit-other-details" name="other_details"></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="cancel-btn" onclick="closeEditModal()">Cancel</button>
-                        <button type="submit" class="save-btn">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div> -->
 
     <!-- Delete Modal -->
     <div id="deleteModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>Delete Prodcut</h2>
+            <h2>Delete Product</h2>
             <p>Are you sure you want to delete this product? This action cannot be undone.</p>
             <div class="form-actions">
                 <button class="cancel-btn" onclick="closeDeleteModal()">Cancel</button>
@@ -181,6 +117,9 @@
         </div>
     </div>
 
-    <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/suppliers.js"></script>
+    <script>
+        const URLROOT = "<?php echo URLROOT; ?>";
+    </script>
+    <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/inventory.js"></script>
     <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/status.js"></script>
     <?php require APPROOT . '/views/supplierCoordinator/footer.php'; ?>

@@ -12,19 +12,42 @@ class M_Inventory
     public function getAllItems()
     {
         $this->db->query('
-            SELECT 
-                Inventory.id AS item_id,
-                Inventory.name AS product_name, 
-                Suppliers.name AS supplier_name, 
-                Inventory.price, 
-                Inventory.quantity
-            FROM 
-                Inventory
-            INNER JOIN 
-                Suppliers 
-            ON 
-                Inventory.supplier_id = Suppliers.id
-        ');
+        SELECT 
+            Inventory.id AS item_id,
+            Inventory.name AS product_name, 
+            Suppliers.name AS supplier_name, 
+            Inventory.price, 
+            Inventory.quantity
+        FROM 
+            Inventory
+        INNER JOIN 
+            Suppliers 
+        ON 
+            Inventory.supplier_id = Suppliers.id
+        WHERE 
+            Inventory.deleted_at IS NULL
+    ');
+        return $this->db->resultSet();
+    }
+
+    // Optional: Method to get all items, including soft-deleted ones
+    public function getAllItemsIncludingDeleted()
+    {
+        $this->db->query('
+        SELECT 
+            Inventory.id AS item_id,
+            Inventory.name AS product_name, 
+            Suppliers.name AS supplier_name, 
+            Inventory.price, 
+            Inventory.quantity,
+            Inventory.deleted_at
+        FROM 
+            Inventory
+        INNER JOIN 
+            Suppliers 
+        ON 
+            Inventory.supplier_id = Suppliers.id
+    ');
         return $this->db->resultSet();
     }
 
@@ -123,11 +146,30 @@ class M_Inventory
 
 
     // Delete inventory item
-    public function deleteItem($itemId)
+    // public function deleteItem($itemId)
+    // {
+    //     $this->db->query('DELETE FROM Inventory WHERE item_id = :item_id');
+    //     $this->db->bind(':item_id', $itemId);
+    //     return $this->db->execute();
+    // }
+
+    public function softDeleteItem($itemId)
     {
-        $this->db->query('DELETE FROM Inventory WHERE item_id = :item_id');
-        $this->db->bind(':item_id', $itemId);
-        return $this->db->execute();
+        try {
+            // Prepare the soft delete query
+            $this->db->query('UPDATE Inventory SET deleted_at = CURRENT_TIMESTAMP WHERE id = :item_id AND deleted_at IS NULL');
+            $this->db->bind(':item_id', $itemId);
+
+            // Execute and check if rows were affected
+            $this->db->execute();
+
+            // Return true if a row was actually updated
+            return $this->db->rowCount() > 0;
+        } catch (Exception $e) {
+            // Log the error
+            error_log("Soft Delete Error for Item ID $itemId: " . $e->getMessage());
+            return false;
+        }
     }
 
     // Decrease item quantity when used in a package
