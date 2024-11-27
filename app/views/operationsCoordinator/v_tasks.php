@@ -1,6 +1,6 @@
-<?php require APPROOT.'/views/operationsCoordinator/header.php';?>
+<?php require APPROOT . '/views/operationsCoordinator/header.php'; ?>
 
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/tasks.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/tasks.css">
 </head>
 
 <body>
@@ -62,103 +62,25 @@
                                 <th>No.</th>
                                 <th>Task Title</th>
                                 <th>Assigned To</th>
-                                <th>Start Time</th>
-                                <th>End Time</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>mytitle</td>
-                                <td>fullname</td>
-                                <td>2024-11-23 15:00</td>
-                                <td>2024-11-28 12:00</td>
-                                <td>In Progress</td>
-                                <td><button class="view-btn" onclick="downloadQuotation('${project.id}')">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>mytitle</td>
-                                <td>fullname</td>
-                                <td>2024-11-23 15:00</td>
-                                <td>2024-11-28 12:00</td>
-                                <td>In Progress</td>
-                                <td><button class="view-btn" onclick="downloadQuotation('${project.id}')">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>mytitle</td>
-                                <td>fullname</td>
-                                <td>2024-11-23 15:00</td>
-                                <td>2024-11-28 12:00</td>
-                                <td>In Progress</td>
-                                <td><button class="view-btn" onclick="downloadQuotation('${project.id}')">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>mytitle</td>
-                                <td>fullname</td>
-                                <td>2024-11-23 15:00</td>
-                                <td>2024-11-28 12:00</td>
-                                <td>In Progress</td>
-                                <td><button class="view-btn" onclick="downloadQuotation('${project.id}')">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>mytitle</td>
-                                <td>fullname</td>
-                                <td>2024-11-23 15:00</td>
-                                <td>2024-11-28 12:00</td>
-                                <td>In Progress</td>
-                                <td><button class="view-btn" onclick="downloadQuotation('${project.id}')">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>mytitle</td>
-                                <td>fullname</td>
-                                <td>2024-11-23 15:00</td>
-                                <td>2024-11-28 12:00</td>
-                                <td>In Progress</td>
-                                <td><button class="view-btn" onclick="downloadQuotation('${project.id}')">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>mytitle</td>
-                                <td>fullname</td>
-                                <td>2024-11-23 15:00</td>
-                                <td>2024-11-28 12:00</td>
-                                <td>In Progress</td>
-                                <td><button class="view-btn" onclick="downloadQuotation('${project.id}')">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>mytitle</td>
-                                <td>fullname</td>
-                                <td>2024-11-23 15:00</td>
-                                <td>2024-11-28 12:00</td>
-                                <td>In Progress</td>
-                                <td><button class="view-btn" onclick="downloadQuotation('${project.id}')">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>mytitle</td>
-                                <td>fullname</td>
-                                <td>2024-11-23 15:00</td>
-                                <td>2024-11-28 12:00</td>
-                                <td>In Progress</td>
-                                <td><button class="view-btn" onclick="downloadQuotation('${project.id}')">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>mytitle</td>
-                                <td>fullname</td>
-                                <td>2024-11-23 15:00</td>
-                                <td>2024-11-28 12:00</td>
-                                <td>In Progress</td>
-                                <td><button class="view-btn" onclick="downloadQuotation('${project.id}')">View</button></td>
-                            </tr>
+
+                            <?php foreach ($data['tasks'] as $task): ?>
+                                <tr>
+                                    <td><?php echo $task->id; ?></td>
+                                    <td><?php echo $task->title; ?></td>
+                                    <td><?php echo $task->employee_id; ?></td>
+                                    <td><?php echo $task->start_date; ?></td>
+                                    <td><?php echo $task->end_date; ?></td>
+                                    <td><?php echo $task->status; ?></td>
+                                    <td><a href="<?php echo URLROOT; ?>/operationsCoordinator/viewTask/<?php echo $task->id; ?>"><button class="view-btn" onclick="downloadQuotation('${project.id}')">View</button></a></td>
+                                </tr>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                     <div class="pagination" id="pagination">
@@ -183,4 +105,4 @@
 
 
     <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script>
-<?php require APPROOT.'/views/operationsCoordinator/footer.php';?>
+    <?php require APPROOT . '/views/operationsCoordinator/footer.php'; ?>

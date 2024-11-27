@@ -21,14 +21,20 @@ CREATE VIEW V_posts AS
     ON Posts.user_id= Urses.id
     ORDER BY Posts.created_at
 
+-- tasks table for testing purpose
+CREATE TABLE Tasks (
+   id INT AUTO_INCREMENT,
+   title varchar(255) NOT NULL,
+   description TEXT,
+   start_date DATE DEFAULT NULL,
+   end_date DATE DEFAULT NULL,
+   project_id INT,
+   employee_id INT,
+   status ENUM('incomplete', 'in_progress', 'completed') NOT NULL DEFAULT 'incomplete',
+   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY(id),
+   FOREIGN KEY (employee_id) REFERENCES Employees(employee_id)
+);
 
-CREATE TABLE IF NOT EXISTS `task_info` (
-`task_id` int(50) NOT NULL,
-  `t_title` varchar(120) NOT NULL,
-  `t_description` text,
-  `t_start_time` varchar(100) DEFAULT NULL,
-  `t_end_time` varchar(100) DEFAULT NULL,
-  `t_user_id` int(20) NOT NULL,
-  `status` int(11) NOT NULL DEFAULT '0' COMMENT '0 = incomplete, 1 = In progress, 2 = complete'
-) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
 

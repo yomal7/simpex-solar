@@ -1,0 +1,82 @@
+<?php require APPROOT . '/views/operationsCoordinator/header.php'; ?>
+
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/tasks.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+
+        <!-- ************ -->
+        <!-- Sidebar -->
+        <!-- ************ -->
+
+        <div class="sidebar" id="sidebar">
+            <img
+
+                src="<?php echo URLROOT; ?>/public/assets/profile.png"
+                alt="manager profile-picture"
+                class="profile-picture" />
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/dashboard">
+                <span class="material-icons-sharp">dashboard</span>
+                <h3>Dashboard</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/manageAproject">
+                <span class="material-icons-sharp">receipt_long</span>
+                <h3>Projects</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/managePackages">
+                <span class="material-icons-sharp">solar_power</span>
+                <h3>Packages</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/tasks" class="active">
+                <span class="material-icons-sharp">task</span>
+                <h3>Tasks</h3>
+            </a>
+            <a href="#">
+                <span class="material-icons-sharp">settings</span>
+                <h3>Settings</h3>
+            </a>
+            <a href="#">
+                <span class="material-icons-sharp">logout</span>
+                <h3>Logout</h3>
+            </a>
+        </div>
+        <div class="main-content">
+            <div class="container">
+
+                <h2>View</h2>
+                <?php
+                $task = $this->tasksModel->getTaskByID($id);
+                ?>
+
+                <div class="task-view">
+                    <h2><?php echo $task->title; ?></h2>
+                    <p><?php echo $task->description; ?></p>
+                    <p>Start Date: <?php echo $task->start_date; ?></p>
+                    <p>End Date: <?php echo $task->end_date; ?></p>
+                    <p>Project ID: <?php echo $task->project_id; ?></p>
+                    <p>Employee ID: <?php echo $task->employee_id; ?></p>
+                    <p>Status: <?php echo $task->status; ?></p>
+                    <p>Created At: <?php echo $task->created_at; ?></p>
+                    <p>Updated At: <?php echo $task->updated_at; ?></p>
+                </div>
+
+                <div class="button-group">
+                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/editTask/<?php echo $task->id; ?>"><button type="button" class="btn btn-primary">Edit</button></a>    
+                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/deleteTask/<?php echo $task->id; ?>"><button type="button" class="btn btn-secondary" style="background-color: red;" onclick="closePopup('userFormPopup')">Delete</button></a>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- <div class="overlay" id="overlay"></div> -->
+
+
+
+
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script>
+    <?php require APPROOT . '/views/operationsCoordinator/footer.php'; ?>
