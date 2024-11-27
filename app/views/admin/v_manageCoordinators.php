@@ -107,7 +107,7 @@
                     <h2>Add New Coordinator</h2>
                     <span class="close">&times;</span>
                 </div>
-                <form id="addCoordinatorForm" action="<?php echo URLROOT; ?>/admin/addCoordinator" method="POST">
+                <form action="<?php echo URLROOT; ?>/operationsCoordinator/createPackage" method="POST" enctype="multipart/form-data" class="package-form">
                     <div class="form-group">
                         <label for="name">Name</label>
                         <input type="text" id="name" name="name" required>
@@ -126,7 +126,8 @@
                             <option value="">Select Role</option>
                             <option value="chiefCoordinator">Chief Coordinator</option>
                             <option value="operationsCoordinator">Operations Coordinator</option>
-                            <option value="HrCoordinator">HR Coordinator</option>
+                            <option value="hRAdministrator">HR Administrator</option>
+                            <option value="supplierCoordinator">Supplier Coordinator</option>
                         </select>
                     </div>
                     <div class="form-actions">
@@ -154,12 +155,13 @@
                         <input type="email" id="edit_email" name="email" required>
                     </div>
                     <div class="form-group">
-                        <label for="edit_role">Role</label>
-                        <select id="edit_role" name="role" required>
-                            <option value="chiefCoordinator">Chief Coordinator</option>
-                            <option value="operationsCoordinator">Operations Coordinator</option>
-                            <option value="HrCoordinator">HR Coordinator</option>
+                        <label for="type">Package Type</label>
+                        <select name="type" id="type" class="form-control" required>
+                            <option value="on-grid" <?php echo ($data['type'] === 'on-grid') ? 'selected' : ''; ?>>On Grid</option>
+                            <option value="off-grid" <?php echo ($data['type'] === 'off-grid') ? 'selected' : ''; ?>>Off Grid</option>
+                            <option value="hybrid" <?php echo ($data['type'] === 'hybrid') ? 'selected' : ''; ?>>Hybrid</option>
                         </select>
+                        <span class="error"><?php echo $data['errors']['type'] ?? ''; ?></span>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn-submit">Update Coordinator</button>

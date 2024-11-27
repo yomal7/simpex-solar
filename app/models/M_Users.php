@@ -52,7 +52,7 @@ class M_Users {
     }
 
     public function getCoordinators() {
-        $this->db->query('SELECT user_id, name, email, role FROM users WHERE role IN ("chiefCoordinator", "operationsCoordinator", "HrCoordinator") ORDER BY role');
+        $this->db->query('SELECT user_id, name, email, role FROM users WHERE role IN ("chiefCoordinator", "operationsCoordinator", "hRAdministrator", "supplierCoordinator") ORDER BY role');
         return $this->db->resultSet();
     }
 

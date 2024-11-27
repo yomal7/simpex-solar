@@ -379,7 +379,7 @@ class Admin extends Controller {
 
     public function coordinators() {
         $coordinators = $this->userModel->getCoordinators();
-        $coordinator_types = ['chiefCoordinator', 'operationsCoordinator', 'HrCoordinator'];
+        $coordinator_types = ['chiefCoordinator', 'operationsCoordinator', 'hRAdministrator', 'supplierCoordinator'];
         
         $data = [
             'coordinators' => $coordinators,

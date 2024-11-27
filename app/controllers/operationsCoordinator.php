@@ -42,15 +42,6 @@ class OperationsCoordinator extends Controller {
         $this->view('operationsCoordinator/v_manageAproject', $data);
     }
 
-    public function managePackages() {
-        // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
-        $data = [
-            'packages' => $this->packageModel->getAllPackages(),
-            'inventoryItems' => $this->inventoryModel->getAllItems()
-        ];
-        $this->view('operationsCoordinator/v_managePackages', $data);
-    }
-
     public function tasks() {
         // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
         $data = [];
@@ -126,78 +117,132 @@ class OperationsCoordinator extends Controller {
         }
     }
 
-    public function getInventoryItems() {
-        $items = $this->inventoryModel->getAllItems();
-        echo json_encode($items);
+    public function managePackages() {
+        // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
+        $data = [
+            'packages' => $this->packageModel->getAllPackages(),
+            'inventoryItems' => $this->inventoryModel->getAllItems()
+        ];
+        $this->view('operationsCoordinator/v_managePackages', $data);
     }
+
+    public function packages() {
+        $inventoryItems = $this->inventoryModel->getAllItems();
+        
+        $data = [
+            'title' => '',
+            'description' => '',
+            'warranty_years' => '',
+            'type' => 'onGrid', 
+            'service_charge' => '',
+            'inventory_items' => $inventoryItems,
+            'errors' => []
+        ];
+
+        $this->view('operationsCoordinator/v_createPackage', $data);
+    }
+
 
     public function createPackage() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $packageData = [
-                'title' => $_POST['title'],
-                'type' => $_POST['type'],
-                'description' => $_POST['description'],
-                'price' => $_POST['price'],
-                'service_charge' => $_POST['service_charge'],
-                'warranty_years' => $_POST['warranty_years']
-            ];
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-            // Handle package image upload
-            $imagePath = $this->uploadPackageImage();
-            if ($imagePath) {
-                $packageData['image_path'] = $imagePath;
-            }
+            // Handle file upload
+            $image = null;
+            if(isset($_FILES['package_image']) && $_FILES['package_image']['error'] === 0) {
+                $allowed = ['jpg', 'jpeg', 'png'];
+                $file = $_FILES['package_image'];
+                $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
-            $packageId = $this->packageModel->createPackage($packageData);
+                if(in_array($file_ext, $allowed)) {
+                    $file_name = uniqid('package_') . '.' . $file_ext;
+                    $file_destination = APPROOT . '/../public/uploads/packages/' . $file_name;
 
-            // Add features
-            if (isset($_POST['features'])) {
-                foreach ($_POST['features'] as $feature) {
-                    $this->packageModel->addFeature($packageId, $feature);
+                    if(move_uploaded_file($file['tmp_name'], $file_destination)) {
+                        $image = 'uploads/packages/' . $file_name;
+                    }
                 }
             }
 
-            // Add equipment
-            if (isset($_POST['equipment'])) {
-                foreach ($_POST['equipment'] as $equipment) {
-                    $this->packageModel->addEquipment($packageId, $equipment['item_id'], $equipment['quantity']);
+            // Process equipment items
+            $equipment = [];
+            if(isset($_POST['item_id'])) {
+                foreach ($_POST['item_id'] as $key => $item_id) {
+                    if (!empty($item_id) && !empty($_POST['quantity'][$key])) {
+                        $equipment[] = [
+                            'item_id' => $item_id,
+                            'quantity' => $_POST['quantity'][$key]
+                        ];
+                    }
                 }
             }
 
-            echo json_encode(['success' => true, 'package_id' => $packageId]);
-        }
-    }
+            // Process features
+            $features = [];
+            if(isset($_POST['feature_name'])) {
+                foreach ($_POST['feature_name'] as $key => $name) {
+                    if (!empty($name)) {
+                        $features[] = [
+                            'name' => $name,
+                            'description' => $_POST['feature_description'][$key]
+                        ];
+                    }
+                }
+            }
 
-    public function updatePackage($packageId) {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Similar logic to createPackage, but for updating
-            $packageData = [
-                'title' => $_POST['title'],
-                'type' => $_POST['type'],
-                'description' => $_POST['description'],
-                'price' => $_POST['price'],
-                'service_charge' => $_POST['service_charge'],
-                'warranty_years' => $_POST['warranty_years']
+            $data = [
+                'title' => trim($_POST['title']),
+                'description' => trim($_POST['description']),
+                'warranty_years' => intval($_POST['warranty_years']),
+                'type' => trim($_POST['type']),
+                'service_charge' => floatval($_POST['service_charge']) ?: 0.00,
+                'equipment' => $equipment,
+                'features' => $features,
+                'image' => $image,
+                'errors' => []
             ];
 
-            $this->packageModel->updatePackage($packageId, $packageData);
-
-            // Update logic for features and equipment similar to createPackage
-        }
-    }
-
-    private function uploadPackageImage() {
-        if (isset($_FILES['package_image']) && $_FILES['package_image']['error'] == 0) {
-            $uploadDir = 'uploads/packages/';
-            $fileName = uniqid() . '_' . basename($_FILES['package_image']['name']);
-            $uploadPath = $uploadDir . $fileName;
-
-            if (move_uploaded_file($_FILES['package_image']['tmp_name'], $uploadPath)) {
-                return $uploadPath;
+            // Validate input
+            if (empty($data['title'])) {
+                $data['errors']['title'] = 'Please enter package title';
             }
+            if (empty($data['type']) || !in_array($data['type'], ['on-grid', 'off-grid', 'hybrid'])) {
+                $data['errors']['type'] = 'Please select a valid package type';
+            }
+            if (empty($equipment)) {
+                $data['errors']['equipment'] = 'Please add at least one equipment item';
+            }
+
+            if (empty($data['errors'])) {
+                // Calculate prices
+                $data['price'] = $this->packageModel->calculateFinalPrice($equipment, 0); // Base price without service charge
+                $data['final_price'] = $data['price'] + $data['service_charge'];
+
+                if ($this->packageModel->createPackage($data)) {
+                    flash('package_message', 'Package created successfully');
+                    redirect('operationsCoordinator/packages');
+                } else {
+                    flash('package_message', 'Something went wrong', 'alert alert-danger');
+                    $this->view('operationsCoordinator/v_createPackage', $data);
+                }
+            } else {
+                $this->view('operationsCoordinator/v_createPackage', $data);
+            }
+        } else {
+            $inventoryItems = $this->inventoryModel->getAllItems();
+            $data = [
+                'title' => '',
+                'description' => '',
+                'warranty_years' => '',
+                'type' => 'onGrid',
+                'service_charge' => '',
+                'inventory_items' => $inventoryItems,
+                'errors' => []
+            ];
+            $this->view('operationsCoordinator/v_createPackage', $data);
         }
-        return null;
     }
+
 
 }
 ?>
