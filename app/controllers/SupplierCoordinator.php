@@ -5,6 +5,7 @@ class SupplierCoordinator extends Controller
 
     private $supplierModel;
     private $inventoryModel;
+    private $shopModel;
 
     public function __construct()
     {
@@ -14,6 +15,7 @@ class SupplierCoordinator extends Controller
         }
         $this->supplierModel = $this->model('M_Suppliers');
         $this->inventoryModel = $this->model('M_Inventory');
+        $this->shopModel = $this->model('M_Shop');
     }
 
     public function index()
@@ -525,5 +527,15 @@ class SupplierCoordinator extends Controller
             // If not a POST request, redirect to inventory list
             redirect('supplierCoordinator/inventory');
         }
+    }
+
+    public function shop()
+    {
+        $products = $this->shopModel->getProducts();
+        $data = [
+            'title' => 'Manage Products',
+            'products' => $products
+        ];
+        $this->view('supplierCoordinator/v_shop', $data);
     }
 }

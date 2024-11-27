@@ -56,4 +56,22 @@ class M_Shop
             return null;
         }
     }
+
+    //for supplier view
+    public function getProducts()
+    {
+        $this->db->query('SELECT 
+            p.id, 
+            p.name AS product_name, 
+            p.price, 
+            p.description, 
+            s.name AS supplier_name, 
+            c.category 
+        FROM products p
+        JOIN suppliers s ON p.supplier_id = s.id
+        JOIN categories c ON p.category_id = c.id
+        WHERE p.deleted_at IS NULL');
+
+        return $this->db->resultSet();
+    }
 }
