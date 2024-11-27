@@ -20,7 +20,7 @@
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/manageAproject">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/projects">
                 <span class="material-icons-sharp">receipt_long</span>
                 <h3>Projects</h3>
             </a>
