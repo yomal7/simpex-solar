@@ -46,7 +46,7 @@
             <div class="form-container">
 
                 <h2>Assign New Task</h2>
-                <form action="<?php echo URLROOT; ?>/operationsCoordinator/addTask" method="POST" id="userForm" id="addUserForm" onsubmit="handleSubmit(event)">
+                <form action="<?php echo URLROOT; ?>/operationsCoordinator/addTask" method="POST" id="userForm" id="addUserForm">
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="title">Task Title</label>
@@ -117,4 +117,5 @@
 
 
     <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script>
-    <?php require APPROOT . '/views/operationsCoordinator/footer.php'; ?>
+    </body>
+</html>
