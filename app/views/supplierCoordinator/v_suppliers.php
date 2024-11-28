@@ -17,7 +17,7 @@
                 src="<?php echo URLROOT; ?>/public/assets/profile.png"
                 alt="manager profile-picture"
                 class="profile-picture" />
-            <a href="<?php echo APPROOT; ?>/views/supplierCoordinator/v_dashboard">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
@@ -48,15 +48,24 @@
                 <h1><?php echo $data['title']; ?></h1>
                 <button onclick="location.href='<?php echo URLROOT; ?>/supplierCoordinator/addSupplier'" class="add-button">
                     <span class="material-icons-sharp">add</span>
-                    Add New Supplier
+                    Supplier
                 </button>
             </div>
 
-            <?php flash('supplier_message'); ?>
+            <div class="message"><?php flash('supplier_message'); ?></div>
+
+            <!-- Add search bar after page header -->
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <span class="material-icons-sharp">search</span>
+                    <input type="text" id="supplierSearch" placeholder="supplier name...">
+                    <span class="material-icons-sharp clear-search" id="clearSearchIcon">close</span>
+                </div>
+            </div>
 
             <div class="suppliers-container">
                 <div class="table-responsive">
-                    <table class="suppliers-table">
+                    <table class="suppliers-table" id="suppliersTable">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -172,6 +181,119 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('supplierSearch');
+            const clearIcon = document.getElementById('clearSearchIcon');
+            const table = document.getElementById('suppliersTable');
+
+            function filterSuppliers() {
+                const filter = searchInput.value.toLowerCase();
+                const rows = table.getElementsByTagName('tr');
+                let visibleCount = 0;
+
+                // Show/hide clear button
+                clearIcon.style.display = filter ? 'block' : 'none';
+
+                // Skip header row (i=1)
+                for (let i = 1; i < rows.length; i++) {
+                    const nameCell = rows[i].getElementsByTagName('td')[0]; // First column is supplier name
+                    if (nameCell) {
+                        const supplierName = nameCell.textContent || nameCell.innerText;
+                        const shouldShow = supplierName.toLowerCase().includes(filter);
+                        rows[i].style.display = shouldShow ? '' : 'none';
+                        if (shouldShow) visibleCount++;
+                    }
+                }
+
+                // Show/hide no results message
+                updateNoResults(visibleCount === 0 && filter !== '');
+            }
+
+            function updateNoResults(show) {
+                let message = document.getElementById('noResultsMessage');
+                if (show) {
+                    if (!message) {
+                        message = document.createElement('div');
+                        message.id = 'noResultsMessage';
+                        message.className = 'no-results';
+                        message.textContent = 'No supplier found with that name';
+                        table.parentNode.insertBefore(message, table.nextSibling);
+                    }
+                    message.style.display = 'block';
+                } else if (message) {
+                    message.style.display = 'none';
+                }
+            }
+
+            function clearSearch() {
+                searchInput.value = '';
+                filterSuppliers();
+                searchInput.focus();
+            }
+
+            // Event listeners
+            searchInput.addEventListener('input', filterSuppliers);
+            clearIcon.addEventListener('click', clearSearch);
+            clearIcon.style.display = 'none';
+        });
+    </script>
+
+    <style>
+        .search-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 300px;
+            margin-left: 0;
+        }
+
+        .search-wrapper input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 5px;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+
+        .search-wrapper .material-icons-sharp {
+            color: #666;
+            cursor: pointer;
+        }
+
+        .search-wrapper .clear-search {
+            display: none;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 15px;
+            color: #666;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .message {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
 
     <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/suppliers.js"></script>
     <script src="<?php echo URLROOT; ?>/js/supplier.js"></script>

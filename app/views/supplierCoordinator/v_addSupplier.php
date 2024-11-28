@@ -17,7 +17,7 @@
                 src="<?php echo URLROOT; ?>/public/assets/profile.png"
                 alt="manager profile-picture"
                 class="profile-picture" />
-            <a href="<?php echo APPROOT; ?>/views/supplierCoordinator/v_dashboard">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>

@@ -14,7 +14,7 @@
                 src="<?php echo URLROOT; ?>/public/assets/profile.png"
                 alt="manager profile-picture"
                 class="profile-picture" />
-            <a href="<?php echo APPROOT; ?>/views/supplierCoordinator/v_dashboard">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
@@ -45,7 +45,7 @@
                 <h1><?php echo $data['title']; ?></h1>
                 <button onclick="location.href='<?php echo URLROOT; ?>/supplierCoordinator/addProduct'" class="add-button">
                     <span class="material-icons-sharp">add</span>
-                    Add New Product
+                    Product
                 </button>
             </div>
 
