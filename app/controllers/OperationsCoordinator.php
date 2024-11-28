@@ -1,11 +1,13 @@
 <?php
-class OperationsCoordinator extends Controller {
+class OperationsCoordinator extends Controller
+{
     private $clientModel;
     private $tasksModel;
     private $packageModel;
     private $inventoryModel;
 
-    public function __construct() {
+    public function __construct()
+    {
         if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'operationsCoordinator') {
             flash('error_msg', 'Unauthorized access');
             redirect('users/login');
@@ -15,61 +17,89 @@ class OperationsCoordinator extends Controller {
         $this->inventoryModel = $this->model('M_Inventory');
     }
 
-    public function index() {
+    public function index()
+    {
         $data = [];
         $this->view('operationsCoordinator/v_dashboard', $data);
     }
 
-    public function dashboard() {
+    public function dashboard()
+    {
         $data = [];
         $this->view('operationsCoordinator/v_dashboard', $data);
     }
 
-    public function projects() {
+    public function projects()
+    {
         $data = [];
         $this->view('operationsCoordinator/v_projects', $data);
     }
 
-    public function manageAproject() {
+    public function manageAproject()
+    {
         $data = [];
         $this->view('operationsCoordinator/v_manageAproject', $data);
     }
 
-    public function tasks() {
+    public function tasks()
+    {
         $data = [];
         $this->view('operationsCoordinator/v_tasks', $data);
     }
 
-    public function addTask() {
-        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // View Task
+    public function viewTask($taskId)
+    {
+        // Fetch the task from the model
+        $task = $this->tasksModel->getTaskById($taskId);
+
+        // Check if task exists
+        if ($task) {
+            $data = [
+                'task' => $task
+            ];
+            // Load the view with task data
+            $this->view('operationsCoordinator/v_viewTask', $data);
+        } else {
+            // Task not found, redirect to tasks list
+            flash('task_msg', 'Task not found', 'alert alert-danger');
+            redirect('operationsCoordinator/tasks');
+        }
+    }
+
+    public function addTask()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
             $data = [
-                'title' => trim($_POST['title']), 
+                'title' => trim($_POST['title']),
                 'start_time' => trim($_POST['start_time']),
                 'end_time' => trim($_POST['end_time']),
-                'description' => trim($_POST['description']), 
-                'title_err' => '', 
-                'start_time_err' => '', 
+                'description' => trim($_POST['description']),
+                'title_err' => '',
+                'start_time_err' => '',
                 'end_time_err' => '',
                 'description_err' => ''
             ];
 
-            if(empty($data['title'])) {
+            if (empty($data['title'])) {
                 $data['title_err'] = 'Please enter title';
             }
-            if(empty($data['start_time'])) {
+            if (empty($data['start_time'])) {
                 $data['start_time_err'] = 'Please enter start time';
             }
-            if(empty($data['end_time'])) {
+            if (empty($data['end_time'])) {
                 $data['end_time_err'] = 'Please enter end time';
             }
-            if(empty($data['description'])) {
+            if (empty($data['description'])) {
                 $data['description_err'] = 'Please enter description';
             }
 
-            if(empty($data['title_err']) && empty($data['start_time_err']) && 
-               empty($data['end_time_err']) && empty($data['description_err'])) {
-                if($this->tasksModel->create($data)) {
+            if (
+                empty($data['title_err']) && empty($data['start_time_err']) &&
+                empty($data['end_time_err']) && empty($data['description_err'])
+            ) {
+                if ($this->tasksModel->create($data)) {
                     flash('task_msg', 'Task added successfully');
                     redirect('operationsCoordinator/tasks');
                 } else {
@@ -93,39 +123,41 @@ class OperationsCoordinator extends Controller {
         }
     }
 
-    public function packages() {
+    public function packages()
+    {
         // Get inventory items through packageModel
         $inventoryItems = $this->packageModel->getInventoryItems();
-        
+
         $data = [
             'title' => '',
             'description' => '',
             'warranty_years' => '',
-            'type' => 'on-grid', 
+            'type' => 'on-grid',
             'service_charge' => '',
             'inventory_items' => $inventoryItems,
             'errors' => []
         ];
-    
+
         $this->view('operationsCoordinator/v_createPackage', $data);
     }
 
-    public function createPackage() {
+    public function createPackage()
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
             // Handle file upload
             $image = null;
-            if(isset($_FILES['package_image']) && $_FILES['package_image']['error'] === 0) {
+            if (isset($_FILES['package_image']) && $_FILES['package_image']['error'] === 0) {
                 $allowed = ['jpg', 'jpeg', 'png'];
                 $file = $_FILES['package_image'];
                 $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
-                if(in_array($file_ext, $allowed)) {
+                if (in_array($file_ext, $allowed)) {
                     $file_name = uniqid('package_') . '.' . $file_ext;
                     $file_destination = APPROOT . '/../public/uploads/packages/' . $file_name;
 
-                    if(move_uploaded_file($file['tmp_name'], $file_destination)) {
+                    if (move_uploaded_file($file['tmp_name'], $file_destination)) {
                         $image = 'uploads/packages/' . $file_name;
                     }
                 }
@@ -133,7 +165,7 @@ class OperationsCoordinator extends Controller {
 
             // Process equipment items
             $equipment = [];
-            if(isset($_POST['item_id']) && is_array($_POST['item_id'])) {
+            if (isset($_POST['item_id']) && is_array($_POST['item_id'])) {
                 foreach ($_POST['item_id'] as $key => $item_id) {
                     if (!empty($item_id) && isset($_POST['quantity'][$key])) {
                         $equipment[] = [
@@ -146,7 +178,7 @@ class OperationsCoordinator extends Controller {
 
             // Process features
             $features = [];
-            if(isset($_POST['feature_name']) && is_array($_POST['feature_name'])) {
+            if (isset($_POST['feature_name']) && is_array($_POST['feature_name'])) {
                 foreach ($_POST['feature_name'] as $key => $name) {
                     if (!empty($name) && isset($_POST['feature_description'][$key])) {
                         $features[] = [
@@ -177,7 +209,7 @@ class OperationsCoordinator extends Controller {
             // Validation
             if (empty($data['title'])) {
                 $data['errors']['title'] = 'Please enter package title';
-            } 
+            }
             if (!in_array($data['type'], ['on-grid', 'off-grid', 'hybrid'])) {
                 $data['type'] = str_replace('onGrid', 'on-grid', $data['type']);
                 $data['type'] = str_replace('offGrid', 'off-grid', $data['type']);
@@ -189,7 +221,7 @@ class OperationsCoordinator extends Controller {
 
             if (empty($data['errors'])) {
                 $result = $this->packageModel->createPackage($data);
-                
+
                 if ($result) {
                     flash('package_message', 'Package created successfully');
                     redirect('operationsCoordinator/managePackages');
@@ -210,34 +242,36 @@ class OperationsCoordinator extends Controller {
                 'inventory_items' => $this->inventoryModel->getAllItems(),
                 'errors' => []
             ];
-            
+
             $this->view('operationsCoordinator/v_createPackage', $data);
         }
     }
 
-    public function managePackages() {
+    public function managePackages()
+    {
         $data = [
             'packages' => $this->packageModel->getAllPackagesWithDetails(),
             'title' => 'Manage Packages'
         ];
-    
+
         $this->view('operationsCoordinator/v_managePackages', $data);
     }
 
-    public function editPackage($id) {
+    public function editPackage($id)
+    {
         // First verify if package exists and user has permission
         $package = $this->packageModel->getPackageById($id);
         if (!$package) {
             flash('package_message', 'Package not found', 'alert alert-danger');
             redirect('operationsCoordinator/managePackages');
         }
-    
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-    
+
             // Process equipment items
             $equipment = [];
-            if(isset($_POST['item_id']) && is_array($_POST['item_id'])) {
+            if (isset($_POST['item_id']) && is_array($_POST['item_id'])) {
                 foreach ($_POST['item_id'] as $key => $item_id) {
                     if (!empty($item_id) && isset($_POST['quantity'][$key])) {
                         // Verify if item exists in inventory and has sufficient quantity
@@ -251,10 +285,10 @@ class OperationsCoordinator extends Controller {
                     }
                 }
             }
-    
+
             // Process features
             $features = [];
-            if(isset($_POST['feature_name']) && is_array($_POST['feature_name'])) {
+            if (isset($_POST['feature_name']) && is_array($_POST['feature_name'])) {
                 foreach ($_POST['feature_name'] as $key => $name) {
                     if (!empty($name) && isset($_POST['feature_description'][$key])) {
                         $features[] = [
@@ -264,7 +298,7 @@ class OperationsCoordinator extends Controller {
                     }
                 }
             }
-    
+
             $data = [
                 'package_id' => $id,
                 'title' => trim($_POST['title']),
@@ -277,7 +311,7 @@ class OperationsCoordinator extends Controller {
                 'inventory_items' => $this->inventoryModel->getAllItems(),
                 'errors' => []
             ];
-    
+
             // Validation
             if (empty($data['title'])) {
                 $data['errors']['title'] = 'Please enter package title';
@@ -297,7 +331,7 @@ class OperationsCoordinator extends Controller {
             if ($data['service_charge'] < 0) {
                 $data['errors']['service_charge'] = 'Service charge cannot be negative';
             }
-    
+
             if (empty($data['errors'])) {
                 try {
                     if ($this->packageModel->updatePackage($id, $data)) {
@@ -330,12 +364,13 @@ class OperationsCoordinator extends Controller {
                 'inventory_items' => $this->inventoryModel->getAllItems(),
                 'errors' => []
             ];
-    
+
             $this->view('operationsCoordinator/v_editPackage', $data);
         }
     }
-    
-    public function deletePackage($id) {
+
+    public function deletePackage($id)
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($this->packageModel->deletePackage($id)) {
                 flash('package_message', 'Package deleted successfully');
