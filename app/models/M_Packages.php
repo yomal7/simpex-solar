@@ -7,50 +7,252 @@ class M_Packages {
     }
 
     public function getAllPackages() {
-        $this->db->query('SELECT * FROM Package');
+        $this->db->query('SELECT * FROM Package WHERE deleted_at IS NULL');
         return $this->db->resultSet();
     }
 
     public function createPackage($data) {
-        $this->db->query('INSERT INTO Package 
-            (title, type, description, price, service_charge, warranty_years, image_path) 
-            VALUES (:title, :type, :description, :price, :service_charge, :warranty_years, :image_path)');
-        
-        $this->db->bind(':title', $data['title']);
-        $this->db->bind(':type', $data['type']);
-        $this->db->bind(':description', $data['description']);
-        $this->db->bind(':price', $data['price']);
-        $this->db->bind(':service_charge', $data['service_charge']);
-        $this->db->bind(':warranty_years', $data['warranty_years']);
-        $this->db->bind(':image_path', $data['image_path'] ?? null);
-
-        $this->db->execute();
-        return $this->db->lastInsertId();
+        try {
+            // Calculate the total price from equipment
+            $equipmentPrice = $this->calculateFinalPrice($data['equipment'], $data['service_charge']);
+            $finalPrice = $equipmentPrice + floatval($data['service_charge']);
+    
+            $this->db->query('INSERT INTO package (
+                title, 
+                description, 
+                price, 
+                warranty_years, 
+                type, 
+                image, 
+                service_charge, 
+                final_price
+            ) VALUES (
+                :title, 
+                :description, 
+                :price, 
+                :warranty_years, 
+                :type, 
+                :image, 
+                :service_charge, 
+                :final_price
+            )');
+           
+            $this->db->bind(':title', $data['title']);
+            $this->db->bind(':description', $data['description']);
+            $this->db->bind(':price', $equipmentPrice);
+            $this->db->bind(':warranty_years', $data['warranty_years']);
+            $this->db->bind(':type', $data['type']);
+            $this->db->bind(':image', $data['image']);
+            $this->db->bind(':service_charge', $data['service_charge']);
+            $this->db->bind(':final_price', $finalPrice);
+            
+            if (!$this->db->execute()) {
+                throw new Exception("Failed to insert package");
+            }
+            
+            $package_id = $this->db->lastInsertId();
+            
+            // Add equipment
+            foreach ($data['equipment'] as $item) {
+                if (!$this->addEquipment($package_id, $item['item_id'], $item['quantity'])) {
+                    throw new Exception("Failed to add equipment");
+                }
+            }
+            
+            // Add features
+            foreach ($data['features'] as $feature) {
+                if (!$this->addFeature($package_id, $feature['feature_name'], $feature['description'])) {
+                    throw new Exception("Failed to add feature");
+                }
+            }
+            
+            return true;
+        } catch (Exception $e) {
+            error_log("Error creating package: " . $e->getMessage());
+            return false;
+        }
     }
-
-    public function updatePackage($packageId, $data) {
-        $this->db->query('UPDATE Package 
-            SET title = :title, type = :type, description = :description, 
-            price = :price, service_charge = :service_charge, 
-            warranty_years = :warranty_years 
-            WHERE package_id = :package_id');
+    
+    public function calculateFinalPrice($equipment, $serviceCharge) {
+        $totalPrice = 0;
         
-        $this->db->bind(':package_id', $packageId);
-        // Bind other parameters similarly
-    }
-
-    public function addFeature($packageId, $feature) {
-        $this->db->query('INSERT INTO PackageFeature (package_id, feature_name) VALUES (:package_id, :feature)');
-        $this->db->bind(':package_id', $packageId);
-        $this->db->bind(':feature', $feature);
-        $this->db->execute();
+        foreach ($equipment as $item) {
+            $this->db->query('SELECT price FROM inventory WHERE id = :id AND deleted_at IS NULL');
+            $this->db->bind(':id', $item['item_id']);
+            $result = $this->db->single();
+            
+            if ($result) {
+                $totalPrice += $result->price * $item['quantity'];
+            }
+        }
+    
+        return $totalPrice;
     }
 
     public function addEquipment($packageId, $itemId, $quantity) {
-        $this->db->query('INSERT INTO PackageEquipment (package_id, item_id, quantity) VALUES (:package_id, :item_id, :quantity)');
+        $this->db->query('INSERT INTO packageequipment (package_id, item_id, quantity) 
+                          VALUES (:package_id, :item_id, :quantity)');
         $this->db->bind(':package_id', $packageId);
         $this->db->bind(':item_id', $itemId);
         $this->db->bind(':quantity', $quantity);
-        $this->db->execute();
+        return $this->db->execute();
     }
+
+    public function addFeature($packageId, $featureName, $description) {
+        try {
+            $this->db->query('INSERT INTO packagefeature (package_id, feature_name, description) 
+                              VALUES (:package_id, :feature_name, :description)');
+            $this->db->bind(':package_id', $packageId);
+            $this->db->bind(':feature_name', $featureName);
+            $this->db->bind(':description', $description);
+            return $this->db->execute();
+        } catch (Exception $e) {
+            error_log("Error adding feature: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getInventoryItems() {
+        // Update column names to match inventory table structure
+        $this->db->query('SELECT id as item_id, name as product_name, price, quantity 
+                          FROM inventory 
+                          WHERE quantity > 0 
+                          AND deleted_at IS NULL');
+        return $this->db->resultSet();
+    }
+
+    public function getPackageById($id) {
+        $this->db->query('SELECT * FROM package 
+                          WHERE package_id = :id 
+                          AND deleted_at IS NULL');
+        $this->db->bind(':id', $id);
+        return $this->db->single();
+    }
+
+    public function getPackageEquipment($package_id) {
+        $this->db->query('SELECT pe.*, i.name as item_name, i.price as item_price 
+                         FROM packageequipment pe 
+                         JOIN inventory i ON pe.item_id = i.id 
+                         WHERE pe.package_id = :package_id');
+        $this->db->bind(':package_id', $package_id);
+        return $this->db->resultSet();
+    }
+
+    public function updatePackage($id, $data) {
+        try {
+            // Calculate the total price from equipment
+            $equipmentPrice = $this->calculateFinalPrice($data['equipment'], $data['service_charge']);
+            $finalPrice = $equipmentPrice + floatval($data['service_charge']);
+    
+            $this->db->query('UPDATE package SET 
+                title = :title,
+                description = :description,
+                price = :price,
+                warranty_years = :warranty_years,
+                type = :type,
+                service_charge = :service_charge,
+                final_price = :final_price
+                WHERE package_id = :package_id');
+            
+            $this->db->bind(':package_id', $id);
+            $this->db->bind(':title', $data['title']);
+            $this->db->bind(':description', $data['description']);
+            $this->db->bind(':price', $equipmentPrice);
+            $this->db->bind(':warranty_years', $data['warranty_years']);
+            $this->db->bind(':type', $data['type']);
+            $this->db->bind(':service_charge', $data['service_charge']);
+            $this->db->bind(':final_price', $finalPrice);
+    
+            if (!$this->db->execute()) {
+                throw new Exception("Failed to update package");
+            }
+    
+            // Delete existing equipment and features
+            $this->db->query('DELETE FROM packageequipment WHERE package_id = :package_id');
+            $this->db->bind(':package_id', $id);
+            $this->db->execute();
+    
+            $this->db->query('DELETE FROM packagefeature WHERE package_id = :package_id');
+            $this->db->bind(':package_id', $id);
+            $this->db->execute();
+    
+            // Add updated equipment
+            foreach ($data['equipment'] as $item) {
+                if (!$this->addEquipment($id, $item['item_id'], $item['quantity'])) {
+                    throw new Exception("Failed to add equipment");
+                }
+            }
+    
+            // Add updated features
+            foreach ($data['features'] as $feature) {
+                if (!$this->addFeature($id, $feature['name'], $feature['description'])) {
+                    throw new Exception("Failed to add feature");
+                }
+            }
+    
+            return true;
+        } catch (Exception $e) {
+            error_log("Error updating package: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deletePackage($id) {
+        try {
+            // Soft delete the package first
+            $this->db->query('UPDATE package 
+                             SET deleted_at = CURRENT_TIMESTAMP 
+                             WHERE package_id = :id');
+            $this->db->bind(':id', $id);
+            
+            if (!$this->db->execute()) {
+                return false;
+            }
+    
+            // Delete features
+            $this->db->query('DELETE FROM packagefeature WHERE package_id = :id');
+            $this->db->bind(':id', $id);
+            $this->db->execute();
+    
+            // Delete equipment associations
+            $this->db->query('DELETE FROM packageequipment WHERE package_id = :id');
+            $this->db->bind(':id', $id);
+            $this->db->execute();
+    
+            return true;
+    
+        } catch (Exception $e) {
+            error_log("Error deleting package: " . $e->getMessage());
+            return false;
+        }
+    }
+
+
+    public function getAllPackagesWithDetails() {
+        $this->db->query('
+            SELECT p.*,
+                0 as equipment_count,
+                "" as features
+            FROM package p
+            WHERE p.deleted_at IS NULL
+            ORDER BY p.created_at DESC
+        ');
+        
+        return $this->db->resultSet();
+    }
+    
+    
+    public function getPackageFeatures($package_id) {
+        try {
+            $this->db->query('SELECT feature_id, package_id, feature_name, description 
+                              FROM packagefeature 
+                              WHERE package_id = :package_id');
+            $this->db->bind(':package_id', $package_id);
+            return $this->db->resultSet();
+        } catch (Exception $e) {
+            error_log("Error getting package features: " . $e->getMessage());
+            return [];
+        }
+    }
+
 }
