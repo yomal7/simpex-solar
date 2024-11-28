@@ -1,5 +1,5 @@
 <?php require APPROOT . '/views/supplierCoordinator/header.php'; ?>
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsManager/dashboard.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/dashboard.css">
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/supplierCoordinator/inventory.css">
 </head>
 
@@ -22,11 +22,11 @@
                 <span class="material-icons-sharp">person</span>
                 <h3>Shop</h3>
             </a>
-            <a href="#" class="active">
+            <a href="#">
                 <span class="material-icons-sharp">receipt_long</span>
                 <h3>Suppliers</h3>
             </a>
-            <a href="#">
+            <a href="#" class="active">
                 <span class="material-icons-sharp">inventory</span>
                 <h3>Inventory</h3>
             </a>
