@@ -1,0 +1,5 @@
+products
+id	name	price	category_id	description	blog_link	supplier_id	created_at	updated_at	deleted_at	image1	image2	image3
+
+product_features
+	feature_id	product_id	feature	created_at	updated_at
