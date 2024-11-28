@@ -16,18 +16,11 @@
             <div class="logo-name"><span>Asmr</span>Prog</div>
         </a> -->
         <ul class="side-menu">
-            
-            <li ><a href="#" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a></li>
-            <li class="active"><a href="Dashboard.html"><i class='bx bxs-dashboard'></i>Dashboard</a></li>
-            <li ><a href="Project.html"><i class='bx bx-analyse'></i>Project</a></li>
-            <li><a href="#"><i class='bx bx-store-alt'></i>Shop</a></li>
-            <li><a href="#"><i class='bx bx-message-square-dots'></i>Chat</a></li>
-            <!-- <li><a href="#"><i class='bx bx-group'></i>Users</a></li> -->
-            <li><a href="#"><i class='bx bx-cog'></i>Settings</a></li>
+            <a href="<?php echo URLROOT; ?>/client/project" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a></li>
         </ul>
         <ul class="side-menu">
             <li>
-                <a href="#" class="logout">
+                <a href="<?php echo URLROOT; ?>/users/logout" class="logout">
                     <i class='bx bx-log-out-circle'></i>
                     Logout
                 </a>

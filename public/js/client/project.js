@@ -49,12 +49,11 @@ window.history.back();
 
 // Define the mapping of each phase to its URL
 const phaseToUrlMap = {
-    'Project Initiation': 'ProjectInitiation.html',
-    'Requirements Gathering': 'RequirementsGathering.html',
-    'Design Phase': 'DesignPhase.html',
-    'Development': 'Development.html',
-    'Testing': 'Testing.html',
-    'Deployment': 'Deployment.html'
+    'Agreemnet phase': 'agreement',
+    'Site visit phase': 'sitevisit',
+    'Installation phase': 'installation',
+    'first payment phase': 'firstpayment',
+    'Final payment phase': 'finalpayment',
 };
 
 // Find the active timeline item
