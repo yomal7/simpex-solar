@@ -30,7 +30,7 @@
                 <span class="material-icons-sharp">inventory</span>
                 <h3>Inventory</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>

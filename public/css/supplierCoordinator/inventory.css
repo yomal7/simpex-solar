@@ -513,11 +513,8 @@
 
 /* Inventory Container */
 .inventory-container {
-  background: white;
   border-radius: 10px;
-  padding: 20px;
   margin: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Inventory Table */
@@ -587,7 +584,7 @@
 }
 
 .status {
-  padding: 0.5rem 1rem;
+  padding: 2rem 4rem;
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -741,14 +738,20 @@
 .in-stock {
   background: #d4edda;
   color: #155724;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
 }
 .low-stock {
   background: #fff3cd;
   color: #856404;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
 }
 .out-of-stock {
   background: #f8d7da;
   color: #721c24;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
 }
 
 .blog-link {

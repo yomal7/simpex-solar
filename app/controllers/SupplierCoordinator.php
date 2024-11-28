@@ -594,4 +594,10 @@ class SupplierCoordinator extends Controller
             redirect('supplierCoordinator/inventory');
         }
     }
+
+    public function settings()
+    {
+        $data = [];
+        $this->view('supplierCoordinator/v_setting', $data);
+    }
 }
