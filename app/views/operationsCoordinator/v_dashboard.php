@@ -28,7 +28,7 @@
                 <span class="material-icons-sharp">solar_power</span>
                 <h3>Packages</h3>
             </a>
-            <a href="/tasks">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/tasks">
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>
             </a>
