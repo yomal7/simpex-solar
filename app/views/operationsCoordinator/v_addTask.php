@@ -114,6 +114,15 @@
     <!-- <div class="overlay" id="overlay"></div> -->
 
 
+    <script>
+        // Set the min attribute of the start date input to today's date
+        document.getElementById('start_date').min = new Date().toISOString().split('T')[0];
+
+        // Add an event listener to the start date input to update the min attribute of the end date input
+        document.getElementById('start_date').addEventListener('change', function() {
+            document.getElementById('end_date').min = this.value;
+        });
+    </script>
 
 
     <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script>

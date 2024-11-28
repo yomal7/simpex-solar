@@ -77,7 +77,7 @@
                                     <td><?php echo $task->employee_id; ?></td>
                                     <td><?php echo $task->start_date; ?></td>
                                     <td><?php echo $task->end_date; ?></td>
-                                    <td><?php echo $task->status; ?></td>
+                                    <td><span class="task-status <?php echo strtolower($task->status); ?>"><?php echo $task->status; ?></span></td>
                                     <td><a href="<?php echo URLROOT; ?>/operationsCoordinator/viewTask/<?php echo $task->id; ?>"><button class="view-btn" onclick="downloadQuotation('${project.id}')">View</button></a></td>
                                 </tr>
                             <?php endforeach; ?>
