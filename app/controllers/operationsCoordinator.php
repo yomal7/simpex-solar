@@ -43,7 +43,11 @@ class OperationsCoordinator extends Controller
 
     public function tasks()
     {
-        $data = [];
+        // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
+        $tasks = $this->tasksModel->getAllTasks();
+        $data = [
+            'tasks' => $tasks
+        ];
         $this->view('operationsCoordinator/v_tasks', $data);
     }
 
@@ -67,38 +71,60 @@ class OperationsCoordinator extends Controller
         }
     }
 
+    // Add Task
     public function addTask()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
             $data = [
                 'title' => trim($_POST['title']),
-                'start_time' => trim($_POST['start_time']),
-                'end_time' => trim($_POST['end_time']),
+                'start_date' => trim($_POST['start_date']),
+                'end_date' => trim($_POST['end_date']),
                 'description' => trim($_POST['description']),
+                'project_id' => trim($_POST['project_id']),
+                'employee_id' => trim($_POST['employee_id']),
+                'status' => trim($_POST['status']),
                 'title_err' => '',
-                'start_time_err' => '',
-                'end_time_err' => '',
-                'description_err' => ''
+                'start_date_err' => '',
+                'end_date_err' => '',
+                'description_err' => '',
+                'project_id_err' => '',
+                'employee_id_err' => '',
+                'status_err' => ''
             ];
 
+            // Validation
             if (empty($data['title'])) {
                 $data['title_err'] = 'Please enter title';
             }
-            if (empty($data['start_time'])) {
-                $data['start_time_err'] = 'Please enter start time';
+
+            if (empty($data['start_date'])) {
+                $data['start_date_err'] = 'Please enter start time';
             }
-            if (empty($data['end_time'])) {
-                $data['end_time_err'] = 'Please enter end time';
+
+            if (empty($data['end_date'])) {
+                $data['end_date_err'] = 'Please enter end time';
             }
+
             if (empty($data['description'])) {
                 $data['description_err'] = 'Please enter description';
             }
 
-            if (
-                empty($data['title_err']) && empty($data['start_time_err']) &&
-                empty($data['end_time_err']) && empty($data['description_err'])
-            ) {
+            if (empty($data['project_id'])) {
+                $data['project_id_err'] = 'Please select project';
+            }
+
+            if (empty($data['employee_id'])) {
+                $data['employee_id_err'] = 'Please select employee';
+            }
+
+            if (empty($data['status'])) {
+                $data['status_err'] = 'Please select status';
+            }
+
+            // Make sure no errors
+            if (empty($data['title_err']) && empty($data['start_date_err']) && empty($data['end_date_err']) && empty($data['description_err']) && empty($data['project_id_err']) && empty($data['employee_id_err']) && empty($data['status_err'])) {
+                // Validated
                 if ($this->tasksModel->create($data)) {
                     flash('task_msg', 'Task added successfully');
                     redirect('operationsCoordinator/tasks');
@@ -106,20 +132,133 @@ class OperationsCoordinator extends Controller
                     die('Something went wrong');
                 }
             } else {
+                // Load view with errors
                 $this->view('operationsCoordinator/v_addTask', $data);
             }
         } else {
             $data = [
                 'title' => '',
-                'start_time' => '',
-                'end_time' => '',
+                'start_date' => '',
+                'end_date' => '',
                 'description' => '',
+                'project_id' => '',
+                'employee_id' => '',
+                'status' => '',
                 'title_err' => '',
-                'start_time_err' => '',
-                'end_time_err' => '',
-                'description_err' => ''
+                'start_date_err' => '',
+                'end_date_err' => '',
+                'description_err' => '',
+                'project_id_err' => '',
+                'employee_id_err' => '',
+                'status_err' => ''
             ];
+
             $this->view('operationsCoordinator/v_addTask', $data);
+        }
+    }
+
+    // Edit Task
+    public function editTask($taskId)
+    {
+        if($_SERVER['REQUEST_METHOD'] == 'POST'){
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            $data = [
+                'id' => $taskId,
+                'title' => trim($_POST['title']),   
+                'start_date' => trim($_POST['start_date']),
+                'end_date' => trim($_POST['end_date']),
+                'description' => trim($_POST['description']),
+                'project_id' => trim($_POST['project_id']),
+                'employee_id' => trim($_POST['employee_id']),
+                'status' => trim($_POST['status']),
+                'title_err' => '',
+                'start_date_err' => '',
+                'end_date_err' => '',
+                'description_err' => '',
+                'project_id_err' => '',
+                'employee_id_err' => '',
+                'status_err' => ''
+            ];
+
+            // Validation
+            if (empty($data['title'])) {
+                $data['title_err'] = 'Please enter title';
+            }
+
+            if (empty($data['start_date'])) {
+                $data['start_date_err'] = 'Please enter start time';
+            }
+
+            if (empty($data['end_date'])) {
+                $data['end_date_err'] = 'Please enter end time';
+            }
+
+            if (empty($data['description'])) {
+                $data['description_err'] = 'Please enter description';
+            }
+
+            if (empty($data['project_id'])) {
+                $data['project_id_err'] = 'Please select project';
+            }
+
+            if (empty($data['employee_id'])) {
+                $data['employee_id_err'] = 'Please select employee';
+            }
+
+            if (empty($data['status'])) {
+                $data['status_err'] = 'Please select status';
+            }
+
+            // Make sure no errors
+            if(empty($data['title_err']) && empty($data['start_date_err']) && empty($data['end_date_err']) && empty($data['description_err']) && empty($data['project_id_err']) && empty($data['employee_id_err']) && empty($data['status_err'])){
+                // Validated
+                if($this->tasksModel->edit($data)){
+                    flash('task_msg', 'Task updated successfully'); 
+                    redirect('operationsCoordinator/tasks');
+                }else{
+                    die('Something went wrong');
+                }
+            } else {
+                // Load view with errors
+                $this->view('operationsCoordinator/v_editTask', $data);
+            }
+        }else{
+            $task = $this->tasksModel->getTaskById($taskId);
+
+            $data = [
+                'id' => $taskId,
+                'title' => $task->title,
+                'start_date' => $task->start_date,
+                'end_date' => $task->end_date,
+                'description' => $task->description,
+                'project_id' => $task->project_id,
+                'employee_id' => $task->employee_id,
+                'status' => $task->status,
+                'title_err' => '',
+                'start_date_err' => '',
+                'end_date_err' => '',
+                'description_err' => '',
+                'project_id_err' => '',
+                'employee_id_err' => '',
+                'status_err' => ''
+            ];
+
+            $this->view('operationsCoordinator/v_editTask', $data);
+
+        }
+        
+    }
+ 
+    // Delete TaskA
+    public function deleteTask($taskId)
+    {
+        $task = $this->tasksModel->getTaskById($taskId);
+        
+        if($this->tasksModel->delete($taskId)){
+            flash('task_msg', 'Task removed successfully');
+            redirect('operationsCoordinator/tasks');
+        }else{
+            die('Something went wrong');
         }
     }
 
