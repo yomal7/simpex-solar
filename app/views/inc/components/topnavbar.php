@@ -5,7 +5,7 @@
           <input type="radio" name="slider" id="close-btn">
           <ul class="nav-links">
             <label for="close-btn" class="btn close-btn"><i class="fas fa-times"></i></label>
-            <li><a href="#">Home</a></li>
+            <li><a href="<?php echo URLROOT; ?>">Home</a></li>
             <li><a href="#">About</a></li>
             <li>
               <a href="#" class="desktop-item">Dropdown Menu</a>
@@ -19,39 +19,39 @@
               </ul>
             </li>
             <li>
-              <a href="#" class="desktop-item">Blog</a>
+              <a href="<?php echo URLROOT; ?>/blog" class="desktop-item">Blog</a>
               <input type="checkbox" id="showMega">
               <label for="showMega" class="mobile-item">Mega Menu</label>
               <div class="mega-box">
                 <div class="content">
                   <div class="row">
-                    <img src="img.jpg" alt="">
+                    <img src="<?php echo URLROOT; ?>/public/assets/solar_panels.jpg" alt="Default Image">
                   </div>
                   <div class="row">
-                    <header>Design Services</header>
+                    <header>Get to know</header>
                     <ul class="mega-links">
-                      <li><a href="#">Graphics</a></li>
-                      <li><a href="#">Vectors</a></li>
-                      <li><a href="#">Business cards</a></li>
-                      <li><a href="#">Custom logo</a></li>
+                      <li><a href="<?php echo URLROOT; ?>/blog?category=package-selection">Package selection</a></li>
+                      <li><a href="<?php echo URLROOT; ?>/blog?category=equipment">Equipment section</a></li>
+                      <li><a href="<?php echo URLROOT; ?>/blog?category=energy-management">Energy managment</a></li>
+                      <li><a href="<?php echo URLROOT; ?>/blog?category=user-guide">User guide</a></li>
+                      
                     </ul>
                   </div>
                   <div class="row">
-                    <header>Email Services</header>
+                    <header>Project services</header>
                     <ul class="mega-links">
-                      <li><a href="#">Personal Email</a></li>
-                      <li><a href="#">Business Email</a></li>
-                      <li><a href="#">Mobile Email</a></li>
-                      <li><a href="#">Web Marketing</a></li>
+                      <li><a href="<?php echo URLROOT; ?>/blog?category=agreements">Agreemnet and documentation</a></li>
+                      <li><a href="#">Installation Process</a></li>
+                      <li><a href="<?php echo URLROOT; ?>/blog?category=payment-financing">Payment and financing</a></li>
                     </ul>
                   </div>
                   <div class="row">
-                    <header>Security services</header>
+                    <header>Other sections</header>
                     <ul class="mega-links">
-                      <li><a href="#">Site Seal</a></li>
-                      <li><a href="#">VPS Hosting</a></li>
-                      <li><a href="#">Privacy Seal</a></li>
-                      <li><a href="#">Website design</a></li>
+                      <li><a href="<?php echo URLROOT; ?>/blog?category=customer-support">Customer support</a></li>
+                      <li><a href="<?php echo URLROOT; ?>/blog?category=industry-news">Industry news and innovations</a></li>
+                      <li><a href="<?php echo URLROOT; ?>/blog?category=sustainability">Enviromental</a></li>
+
                     </ul>
                   </div>
                 </div>
