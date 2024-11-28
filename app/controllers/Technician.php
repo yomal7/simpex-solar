@@ -1,6 +1,6 @@
 <?php
 
-class techncian extends Controller {
+class technician extends Controller {
     private $technicianModel;
 
     public function __construct() {
@@ -8,29 +8,48 @@ class techncian extends Controller {
     }
 
     public function index() {
-        //$techncian = $this->techncianModel->getTechncianByUserId($_SESSION['employee_id']);
+        //$technician = $this->technicianModel->getTechnicianByUserId($_SESSION['employee_id']);
         $data = [];
-        $this->view('techncian/v_techncianDashboard', $data);
+        $this->view('technician/v_technicianDashboard', $data);
     }
 
     public function dashboard() {
-        //$techncian = $this->techncianModel->getTechncianByUserId($_SESSION['employee_id']);
+        //$technician = $this->technicianModel->getTechnicianByUserId($_SESSION['employee_id']);
         $data = [];
-        $this->view('techncian/v_techncianDashboard', $data);
+        $this->view('technician/v_technicianDashboard', $data);
     }
 
     public function requestHoliday() {
-        //$holidayRecords = $this->techncianModel->getHolidayRecords($_SESSION['employee_id']);
+        //$holidayRecords = $this->technicianModel->getHolidayRecords($_SESSION['employee_id']);
         $data = [
 //            'holidayRecords' => $holidayRecords
         ];
-        $this->view('techncian/v_techncianRequestHoliday', $data);
+        $this->view('technician/v_technicianRequestHoliday', $data);
+    }
+
+    public function addRequests() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'employee_id' => $_SESSION['employee_id'],
+                'start_date' => $_POST['startDate'],
+                'end_date' => $_POST['endDate'],
+                'number_of_days' => $_POST['numberOfDays'],
+                'reason' => $_POST['reason'],
+                'leave_type' => $_POST['leaveType']
+            ];
+
+            if ($this->technicianModel->addHolidayRecords($data)) {
+                header('Location: ' . URLROOT . '/Technician');
+            } else {
+                die('Something went wrong');
+            }
+        }
     }
 
     public function tasks() {
-        //$technician = $this->technicianModel->getTechncianByUserId($_SESSION['employee_id']);
+        //$technician = $this->technicianModel->getTechnicianByUserId($_SESSION['employee_id']);
         $data = [];
-        $this->view('techncian/v_techncianTasks', $data);
+        $this->view('technician/v_technicianTasks', $data);
     }
 
     public function settings() {

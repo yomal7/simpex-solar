@@ -17,23 +17,23 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="#">
+            <a href="<?php echo URLROOT?>/deliveryPerson/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT?>/deliveryPerson/tasks">
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>
             </a>
-            <a href="#" class="active">
+            <a href="<?php echo URLROOT?>/deliveryPerson/requestHoliday" class="active">
                 <span class="material-icons-sharp">event</span>
                 <h3>Request Holiday</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT?>/deliveryPerson/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT?>/deliveryPerson/dashboard">
                 <span class="material-icons-sharp">logout</span>
                 <h3>Logout</h3>
             </a>
