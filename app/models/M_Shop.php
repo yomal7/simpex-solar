@@ -74,4 +74,61 @@ class M_Shop
 
         return $this->db->resultSet();
     }
+
+
+
+    public function addProduct($data)
+    {
+        // Prepare SQL to insert product
+        $this->db->query('INSERT INTO products (name, supplier_id, category_id, price, blog_link, description, image1, image2, image3, created_at) 
+                      VALUES (:name, :supplier_id, :category_id, :price, :blog_link, :description, :image1, :image2, :image3, NOW())');
+
+        // Bind values
+        $this->db->bind(':name', $data['name']);
+        $this->db->bind(':supplier_id', $data['supplier_id']);
+        $this->db->bind(':category_id', $data['category_id']);
+        $this->db->bind(':price', $data['price']);
+        $this->db->bind(':blog_link', $data['blog_link']);
+        $this->db->bind(':description', $data['description']);
+        $this->db->bind(':image1', $data['image1']);
+        $this->db->bind(':image2', $data['image2']);
+        $this->db->bind(':image3', $data['image3']);
+
+        // Execute and return last inserted ID
+        if ($this->db->execute()) {
+            return $this->db->lastInsertId();
+        }
+
+        return false;
+    }
+
+    public function addProductFeatures($data)
+    {
+        // Prepare SQL to insert features
+        $this->db->query('INSERT INTO product_features (product_id, feature, created_at) 
+                      VALUES (:product_id, :feature, NOW())');
+
+        // Prepare features array
+        $features = array_filter([
+            $data['feature1'],
+            $data['feature2'],
+            $data['feature3'],
+            $data['feature4']
+        ]);
+
+        // Track success
+        $success = true;
+
+        // Insert each non-empty feature
+        foreach ($features as $feature) {
+            $this->db->bind(':product_id', $data['product_id']);
+            $this->db->bind(':feature', $feature);
+
+            if (!$this->db->execute()) {
+                $success = false;
+            }
+        }
+
+        return $success;
+    }
 }

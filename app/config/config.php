@@ -12,3 +12,4 @@ define("DB_NAME", "simpex_db");
 define('APPROOT', dirname(dirname(__FILE__)));
 define('URLROOT', 'http://localhost/simplex');
 define('SITENAME', 'simpex ');
+define('UPLOADPATH', 'public/uploads/');

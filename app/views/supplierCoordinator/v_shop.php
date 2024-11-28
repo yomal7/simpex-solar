@@ -50,7 +50,7 @@
         <div class="main-content">
             <div class="page-header">
                 <h1>Product Management</h1>
-                <button onclick="location.href='<?php echo URLROOT; ?>/supplierCoordinator/addProduct'" class="add-button">
+                <button onclick="location.href='<?php echo URLROOT; ?>/supplierCoordinator/addShop'" class="add-button">
                     <span class="material-icons-sharp">add</span>
                     Add New Product
                 </button>

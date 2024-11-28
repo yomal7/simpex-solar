@@ -6,6 +6,7 @@ class SupplierCoordinator extends Controller
     private $supplierModel;
     private $inventoryModel;
     private $shopModel;
+    private $categoryModel;
 
     public function __construct()
     {
@@ -16,6 +17,7 @@ class SupplierCoordinator extends Controller
         $this->supplierModel = $this->model('M_Suppliers');
         $this->inventoryModel = $this->model('M_Inventory');
         $this->shopModel = $this->model('M_Shop');
+        $this->categoryModel = $this->model('M_Category');
     }
 
     public function index()
@@ -36,7 +38,7 @@ class SupplierCoordinator extends Controller
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Sanitize POST data
-            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             // Init data
             $data = [
@@ -537,5 +539,160 @@ class SupplierCoordinator extends Controller
             'products' => $products
         ];
         $this->view('supplierCoordinator/v_shop', $data);
+    }
+
+    public function addShop()
+    {
+        // Check if it's a POST request
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Sanitize and validate input data
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+            // Prepare data array
+            $data = [
+                'name' => trim($_POST['name']),
+                'supplier_id' => trim($_POST['supplier']),
+                'category_id' => trim($_POST['category']),
+                'price' => trim($_POST['price']),
+                'blog_link' => trim($_POST['blog_link']),
+                'description' => trim($_POST['description']),
+                'suppliers' => $this->supplierModel->getAllSuppliers(),
+                'categories' => $this->categoryModel->getAllCategories(),
+
+                // Initialize error variables
+                'name_err' => '',
+                'supplier_err' => '',
+                'category_err' => '',
+                'price_err' => '',
+                'blog_link_err' => '',
+                'description_err' => '',
+                'image_err' => ''
+            ];
+
+            // Validate name
+            if (empty($data['name'])) {
+                $data['name_err'] = 'Please enter a product name';
+            }
+
+            // Validate supplier
+            if (empty($data['supplier_id'])) {
+                $data['supplier_err'] = 'Please select a supplier';
+            }
+
+            // Validate category
+            if (empty($data['category_id'])) {
+                $data['category_err'] = 'Please select a category';
+            }
+
+            // Validate price
+            if (empty($data['price']) || !is_numeric($data['price'])) {
+                $data['price_err'] = 'Please enter a valid price';
+            }
+
+            // Validate blog link
+            if (empty($data['blog_link']) || !filter_var($data['blog_link'], FILTER_VALIDATE_URL)) {
+                $data['blog_link_err'] = 'Please enter a valid URL';
+            }
+
+            // Validate description
+            if (empty($data['description'])) {
+                $data['description_err'] = 'Please enter a product description';
+            }
+
+            // Handle image uploads
+            $uploadedImages = [];
+            $uploadDir = UPLOADPATH . 'shop/';
+
+            // Ensure upload directory exists
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            // Image upload handling for required images
+            for ($i = 1; $i <= 3; $i++) {
+                $imageKey = 'image' . $i;
+
+                if ($i <= 2 || !empty($_FILES[$imageKey]['name'])) {
+                    if (!empty($_FILES[$imageKey]['name'])) {
+                        $fileName = uniqid() . '_' . basename($_FILES[$imageKey]['name']);
+                        $uploadPath = $uploadDir . $fileName;
+
+                        // Move uploaded file
+                        if (move_uploaded_file($_FILES[$imageKey]['tmp_name'], $uploadPath)) {
+                            $uploadedImages[$imageKey] = $fileName;
+                        } else {
+                            $data['image_err'] = 'Error uploading image ' . $i;
+                        }
+                    } elseif ($i <= 2) {
+                        $data['image_err'] = 'Image ' . $i . ' is required';
+                    }
+                }
+            }
+
+            // Check for any validation errors
+            if (
+                empty($data['name_err']) && empty($data['supplier_err']) &&
+                empty($data['category_err']) && empty($data['price_err']) &&
+                empty($data['blog_link_err']) && empty($data['description_err']) &&
+                empty($data['image_err'])
+            ) {
+
+                // Prepare product data for insertion
+                $productData = [
+                    'name' => $data['name'],
+                    'supplier_id' => $data['supplier_id'],
+                    'category_id' => $data['category_id'],
+                    'price' => $data['price'],
+                    'blog_link' => $data['blog_link'],
+                    'description' => $data['description'],
+                    'image1' => $uploadedImages['image1'] ?? null,
+                    'image2' => $uploadedImages['image2'] ?? null,
+                    'image3' => $uploadedImages['image3'] ?? null
+                ];
+
+                // Attempt to add product
+                if ($productId = $this->shopModel->addProduct($productData)) {
+                    // Add product features
+                    $featureData = [
+                        'product_id' => $productId,
+                        'feature1' => trim($_POST['feature1']),
+                        'feature2' => trim($_POST['feature2']),
+                        'feature3' => trim($_POST['feature3'] ?? ''),
+                        'feature4' => trim($_POST['feature4'] ?? '')
+                    ];
+
+                    $this->shopModel->addProductFeatures($featureData);
+
+                    // Set flash message and redirect
+                    flash('product_message', 'Product Added Successfully');
+                    redirect('supplierCoordinator/shop');
+                } else {
+                    // Product addition failed
+                    flash('product_message', 'Failed to Add Product', 'alert alert-danger');
+                    $this->view('supplierCoordinator/v_addShop', $data);
+                }
+            } else {
+                // Reload view with errors
+                $this->view('supplierCoordinator/v_addShop', $data);
+            }
+        } else {
+            // Initial load of the form
+            $data = [
+                'name' => '',
+                'supplier_id' => '',
+                'category_id' => '',
+                'price' => '',
+                'blog_link' => '',
+                'description' => '',
+                'feature1' => '',
+                'feature2' => '',
+                'feature3' => '',
+                'feature4' => '',
+                'suppliers' => $this->supplierModel->getAllSuppliers(),
+                'categories' => $this->categoryModel->getAllCategories()
+            ];
+
+            $this->view('supplierCoordinator/v_addShop', $data);
+        }
     }
 }
