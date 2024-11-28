@@ -80,8 +80,8 @@
                         <div class="form-group">
                             <label for="type">Package Type</label>
                             <select name="type" id="type" class="form-control" required>
-                                <option value="onGrid">On Grid</option>
-                                <option value="offGrid">Off Grid</option>
+                                <option value="on-grid">On Grid</option>
+                                <option value="off-grid">Off Grid</option>
                                 <option value="hybrid">Hybrid</option>
                             </select>
                         </div>
@@ -103,17 +103,16 @@
                     <div id="equipment-container">
                         <div class="equipment-row">
                             <div class="form-group">
-                                <label>Select Item</label>
-                                <select name="item_id[]" class="form-control" required>
-                                    <option value="">Choose equipment</option>
-                                    <?php if(isset($data['inventory_items']) && !empty($data['inventory_items'])): ?>
-                                        <?php foreach($data['inventory_items'] as $item): ?>
-                                            <option value="<?php echo $item->id; ?>" data-price="<?php echo $item->price; ?>">
-                                                <?php echo $item->name; ?> (Stock: <?php echo $item->quantity; ?>)
-                                            </option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
+                            <select name="item_id[]" class="form-control" required>
+                                <option value="">Choose equipment</option>
+                                <?php if(isset($data['inventory_items']) && !empty($data['inventory_items'])): ?>
+                                    <?php foreach($data['inventory_items'] as $item): ?>
+                                        <option value="<?php echo $item->item_id; ?>" data-price="<?php echo $item->price; ?>">
+                                            <?php echo $item->product_name; ?> (Stock: <?php echo $item->quantity; ?>)
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
                             </div>
                             <div class="form-group">
                                 <label>Quantity</label>
@@ -155,4 +154,5 @@
         </div>
     </div>
     <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/createPackage.js"></script>
+    
 <?php require APPROOT.'/views/operationsCoordinator/footer.php';?>

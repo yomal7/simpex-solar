@@ -8,6 +8,7 @@ class M_Inventory
         $this->db = new Database();
     }
 
+
     // Get all inventory items
     public function getAllItems()
     {
@@ -202,6 +203,15 @@ class M_Inventory
     {
         $this->db->query('SELECT * FROM Inventory WHERE quantity <= :threshold');
         $this->db->bind(':threshold', $threshold);
+        return $this->db->resultSet();
+    }
+
+
+    public function getInventoryItems() {
+        $this->db->query('SELECT id, name, price, quantity 
+                          FROM inventory 
+                          WHERE quantity > 0 
+                          AND deleted_at IS NULL');
         return $this->db->resultSet();
     }
 }
