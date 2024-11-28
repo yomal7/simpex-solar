@@ -14,12 +14,12 @@
             <div class="logo-name"><span>Asmr</span>Prog</div>
         </a> -->
         <ul class="side-menu">
-            <li class="active"><a href="Dashboard.html"><i class='bx bxs-dashboard'></i>Dashboard</a></li>
+            <li ><a href="<?php echo URLROOT; ?>/client/dashboard"><i class='bx bxs-dashboard'></i>Dashboard</a></li>
             <li ><a href="<?php echo URLROOT; ?>/client/project"><i class='bx bx-analyse'></i>Project</a></li>
-            <li><a href="<?php echo URLROOT; ?>/client/project"><i class='bx bx-store-alt'></i>Shop</a></li>
+            <li class="active" ><a href="<?php echo URLROOT; ?>/client/shop"><i class='bx bx-store-alt'></i>Shop</a></li>
             <li><a href="#"><i class='bx bx-message-square-dots'></i>Chat</a></li>
             <!-- <li><a href="#"><i class='bx bx-group'></i>Users</a></li> -->
-            <li><a href="<?php echo URLROOT; ?>/client/settings"><i class='bx bx-cog'></i>Settings</a></li>
+            <li ><a href="<?php echo URLROOT; ?>/client/settings"><i class='bx bx-cog'></i>Settings</a></li>
         </ul>
         <ul class="side-menu">
             <li>
@@ -58,11 +58,7 @@
 
 
             <div class="container">
-                <button class="back-button">← Back</button>
                 <div class="dashboard-container">
-                    <div class="dashboard-header">
-                        <h1>My Orders</h1>
-                    </div>
 
                     <!-- Filters -->
                     <div class="order-filters">
@@ -109,7 +105,7 @@
                                             Solar Inverter 5kW
                                         </div>
                                     </td>
-                                    <td>$2,499.99</td>
+                                    <td>Rs2,499.99</td>
                                     <td>
                                         <span class="status-badge status-pending">Pending Approval</span>
                                     </td>
@@ -135,7 +131,7 @@
                                             Mounting System
                                         </div>
                                     </td>
-                                    <td>$3,299.99</td>
+                                    <td>Rs. 3,299.99</td>
                                     <td>
                                         <span class="status-badge status-approved">Approved</span>
                                     </td>
@@ -164,7 +160,7 @@
                                             Battery System
                                         </div>
                                     </td>
-                                    <td>$4,199.99</td>
+                                    <td>Rs. 4,199.99</td>
                                     <td>
                                         <span class="status-badge status-completed">Completed</span>
                                     </td>

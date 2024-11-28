@@ -16,14 +16,8 @@
             <div class="logo-name"><span>Asmr</span>Prog</div>
         </a> -->
         <ul class="side-menu">
-            <a href="<?php echo URLROOT; ?>/client/project" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a></li>
-        </ul>
-        <ul class="side-menu">
             <li>
-                <a href="<?php echo URLROOT; ?>/users/logout" class="logout">
-                    <i class='bx bx-log-out-circle'></i>
-                    Logout
-                </a>
+                <a href="<?php echo URLROOT; ?>/client/project" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a></li>
             </li>
         </ul>
     </div>
