@@ -123,9 +123,18 @@
         </div>
     </div>
 
-    <!-- Delete Modal remains the same -->
+
+    <!-- Delete Modal -->
     <div id="deleteModal" class="modal">
-        <!-- ... (previous modal content) ... -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Delete Product</h2>
+            <p>Are you sure you want to delete this product? This action cannot be undone.</p>
+            <div class="form-actions">
+                <button class="cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+                <button class="delete-btn" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
     </div>
 
     <script>
