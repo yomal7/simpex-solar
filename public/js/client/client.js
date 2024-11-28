@@ -1,5 +1,3 @@
-alert('Welcome to the client dashboard!');
-
 const sideLinks = document.querySelectorAll('.sidebar .side-menu li a:not(.logout)');
 
 sideLinks.forEach(item => {

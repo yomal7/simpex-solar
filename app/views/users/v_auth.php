@@ -9,6 +9,12 @@
         <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/auth.css">
     </head>
     <body>
+    <a href="<?php echo URLROOT; ?>" class="home-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        Back to Home</a>
     <main class="<?php echo ($data['mode'] === 'signup') ? 'sign-up-mode' : ''; ?>">
             <div class="box">
                 <div class="inner-box">
@@ -141,7 +147,7 @@
                                     
                                 </div>
                                 <span class="form-invalid" style="color: red; font-size: 0.8em;"><?php echo isset($data['confirm_password_err']) ? $data['confirm_password_err'] : ''; ?></span>
-
+                                <input type="hidden" name="role" value="customer">
                                 <input type="submit" value="Sign Up" class="sign-btn" />
 
                                 <p class="text">
@@ -263,6 +269,28 @@
                     input.classList.add('active');
                 }
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const homeBtn = document.querySelector('.home-btn');
+            
+            // Add hover effect
+            homeBtn.addEventListener('mouseover', function() {
+                this.style.backgroundColor = '#f8f9fa';
+            });
+            
+            homeBtn.addEventListener('mouseout', function() {
+                this.style.backgroundColor = 'white';
+            });
+            
+            // Add click effect
+            homeBtn.addEventListener('mousedown', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            
+            homeBtn.addEventListener('mouseup', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
         });
     </script>
     </body>

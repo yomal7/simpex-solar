@@ -18,15 +18,15 @@
         </a> -->
         <ul class="side-menu">
             <li class="active"><a href="Dashboard.html"><i class='bx bxs-dashboard'></i>Dashboard</a></li>
-            <li ><a href="Project.html"><i class='bx bx-analyse'></i>Project</a></li>
-            <li><a href="#"><i class='bx bx-store-alt'></i>Shop</a></li>
+            <li ><a href="<?php echo URLROOT; ?>/client/project"><i class='bx bx-analyse'></i>Project</a></li>
+            <li><a href="<?php echo URLROOT; ?>/client/project"><i class='bx bx-store-alt'></i>Shop</a></li>
             <li><a href="#"><i class='bx bx-message-square-dots'></i>Chat</a></li>
             <!-- <li><a href="#"><i class='bx bx-group'></i>Users</a></li> -->
-            <li><a href="#"><i class='bx bx-cog'></i>Settings</a></li>
+            <li><a href="<?php echo URLROOT; ?>/client/settings"><i class='bx bx-cog'></i>Settings</a></li>
         </ul>
         <ul class="side-menu">
             <li>
-                <a href="#" class="logout">
+                <a href=<?php echo URLROOT; ?>/users/logout class="logout">
                     <i class='bx bx-log-out-circle'></i>
                     Logout
                 </a>
@@ -50,10 +50,6 @@
                 <div class="left">
                     <h1>Dashboard</h1>
                 </div>
-                <a href="#" class="report">
-                    <i class='bx bx-cloud-download'></i>
-                    <span>Download CSV</span>
-                </a>
             </div>
 
             <!-- Insights -->
@@ -72,8 +68,8 @@
                             </div>
                             <div class="greeting">
                                 <h1 class="greeting-text">
-                                    <span id="greeting-message"></span>,
-                                    <span class="user-name">Sirisena</span>
+                                    <span id="greeting-message" style="color: black;"></span>,
+                                    <span class="user-name">Saman</span>
                                 </h1>
                                 <p class="welcome-back">Welcome back to your dashboard</p>
                             </div>
@@ -147,7 +143,7 @@
                             <tr>
                                 <td>
                                     <img src="<?php echo URLROOT; ?>/public/assets/profile.png">
-                                    <p>John Doe</p>
+                                    <p>Saman Thushara</p>
                                 </td>
                                 <td>14-08-2023</td>
                                 <td><span class="status completed">Completed</span></td>
@@ -155,7 +151,7 @@
                             <tr>
                                 <td>
                                     <img src="<?php echo URLROOT; ?>/public/assets/profile.png">
-                                    <p>John Doe</p>
+                                    <p>Saman Thushara</p>
                                 </td>
                                 <td>14-08-2023</td>
                                 <td><span class="status pending">Pending</span></td>
@@ -163,7 +159,7 @@
                             <tr>
                                 <td>
                                     <img src="<?php echo URLROOT; ?>/public/assets/profile.png">
-                                    <p>John Doe</p>
+                                    <p>Saman Thushara</p>
                                 </td>
                                 <td>14-08-2023</td>
                                 <td><span class="status process">Processing</span></td>
@@ -184,21 +180,21 @@
                         <li class="completed">
                             <div class="task-title">
                                 <i class='bx bx-check-circle'></i>
-                                <p>Start Our Meeting</p>
+                                <p>Upcoming next payment</p>
                             </div>
                             <i class='bx bx-dots-vertical-rounded'></i>
                         </li>
                         <li class="completed">
                             <div class="task-title">
                                 <i class='bx bx-check-circle'></i>
-                                <p>Analyse Our Site</p>
+                                <p>Your site visit is scheduled</p>
                             </div>
                             <i class='bx bx-dots-vertical-rounded'></i>
                         </li>
                         <li class="not-completed">
                             <div class="task-title">
                                 <i class='bx bx-x-circle'></i>
-                                <p>Play Footbal</p>
+                                <p>Agreemnet is approved</p>
                             </div>
                             <i class='bx bx-dots-vertical-rounded'></i>
                         </li>
@@ -212,6 +208,6 @@
         </main>
 
     </div>
-</body>
+    
     <script src="<?php echo URLROOT; ?>/js/client/dashboard.js"></script>
-<?php require APPROOT.'/views/packages/footer.php';?> 
+<?php require APPROOT.'/views/client/footer.php';?> 

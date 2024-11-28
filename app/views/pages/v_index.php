@@ -80,26 +80,79 @@
             </div>
           </div>
         </div>
+      </section>
 
-    <section id="services" class="services">
-        <h2>Our Services</h2>
-        <div class="services-grid">
-            <div class="service-card">
-                <i class="fas fa-leaf"></i>
-                <h3>Eco Consulting</h3>
-                <p>Expert guidance for sustainable business practices</p>
-            </div>
-            <div class="service-card">
-                <i class="fas fa-recycle"></i>
-                <h3>Waste Management</h3>
-                <p>Innovative recycling and waste reduction solutions</p>
-            </div>
-            <div class="service-card">
-                <i class="fas fa-solar-panel"></i>
-                <h3>Green Energy</h3>
-                <p>Renewable energy implementation and consulting</p>
-            </div>
-        </div>
+        <section class="banner-section">
+          <div class="banner-background"></div>
+          <div class="banner-overlay"></div>
+          
+          <h2 class="section-title">Featured Projects</h2>
+          
+          <div class="project-slider">
+              <div class="slider-track">
+                  <div class="project-slide">
+                      <div class="project-card">
+                          <img src="<?php echo URLROOT; ?>/assets/project1.jpeg" alt="Project 1" class="project-image">
+                          <div class="project-info">
+                              <h3 class="project-title">Solar Innovation Park</h3>
+                          </div>
+                      </div>
+                  </div>
+
+                  <div class="project-slide">
+                      <div class="project-card">
+                          <img src="<?php echo URLROOT; ?>/assets/project2.jpg" alt="Project 2" class="project-image">
+                          <div class="project-info">
+                              <h3 class="project-title">Coastal Wind Farm</h3>
+                          </div>
+                      </div>
+                  </div>
+
+                  <div class="project-slide">
+                      <div class="project-card">
+                          <img src="<?php echo URLROOT; ?>/assets/project3.jpg" alt="Project 3" class="project-image">
+                          <div class="project-info">
+                              <h3 class="project-title">Green Office Complex</h3>
+                          </div>
+                      </div>
+                  </div>
+
+                  <div class="project-slide">
+                      <div class="project-card">
+                          <img src="<?php echo URLROOT; ?>/assets/project4.jpg" alt="Project 4" class="project-image">
+                          <div class="project-info">
+                              <h3 class="project-title">Hydro Energy Plant</h3>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="slider-nav">
+                  <button class="nav-button prev">‹</button>
+                  <button class="nav-button next">›</button>
+              </div>
+          </div>
+      </section>
+        
+      <section id="services" class="services">
+          <h2>Our Services</h2>
+          <div class="services-grid">
+              <div class="service-card">
+                  <i class="fas fa-leaf"></i>
+                  <h3>Eco Consulting</h3>
+                  <p>Expert guidance for sustainable business practices</p>
+              </div>
+              <div class="service-card">
+                  <i class="fas fa-recycle"></i>
+                  <h3>Waste Management</h3>
+                  <p>Innovative recycling and waste reduction solutions</p>
+              </div>
+              <div class="service-card">
+                  <i class="fas fa-solar-panel"></i>
+                  <h3>Green Energy</h3>
+                  <p>Renewable energy implementation and consulting</p>
+              </div>
+          </div>
     </section>
 
     <section id="products" class="products">

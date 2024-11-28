@@ -1,0 +1,314 @@
+/* .dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background: #f5f5f5;
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+    margin-left: 250px;
+    transition: margin 0.3s ease;
+} */
+
+.main-content {
+    flex: 1;
+    /* padding: 30px; */
+}
+
+/* Package Grid */
+.packages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    padding: 20px;
+}
+
+/* Package Card */
+.package-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* .package-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+} */
+
+/* Package Image */
+.package-image {
+    position: relative;
+    height: 200px;
+    background: #98f0bd;
+    overflow: hidden;
+}
+
+.package-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+.no-image {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e9ecef;
+}
+
+.no-image span {
+    font-size: 48px;
+    color: #adb5bd;
+}
+
+/* Package Type Badge */
+.package-type {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.package-type.on-grid { background-color: #2e7d32; }
+.package-type.off-grid { background-color: #d32f2f; }
+.package-type.hybrid { background-color: #1976d2; }
+
+/* Package Content */
+.package-content {
+    padding: 20px;
+}
+
+.package-content h3 {
+    margin: 0 0 15px;
+    font-size: 1.25rem;
+    color: #2c3e50;
+}
+
+.package-meta {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 15px;
+}
+
+.package-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.package-meta i {
+    color: #2e7d32;
+    font-size: 1.1rem;
+}
+
+.package-description {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.package-warranty{
+    color: #e06e79;
+    font-size: 1rem;
+}
+
+/* Pricing Section */
+.package-pricing {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.price, .service-charge {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.service-charge {
+    margin-bottom: 0;
+    color: #666;
+}
+
+.amount {
+    font-weight: 600;
+    color: #2e7d32;
+}
+
+/* Action Buttons */
+.package-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.btn-edit, .btn-delete {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-edit {
+    background-color: #2e7d32;
+    color: white;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-edit:hover, .btn-delete:hover {
+    transform: scale(1.1);
+}
+
+/* Empty State */
+.no-packages {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.no-packages span {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.no-packages h3 {
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.no-packages p {
+    color: #666;
+}
+
+/* Header Section */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.btn-add {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.btn-add:hover {
+    background-color: #1b5e20;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+    }
+
+    .packages-grid {
+        grid-template-columns: 1fr;
+        padding: 10px;
+    }
+}
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h3 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.modal-content p {
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.modal-actions button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-cancel {
+    background-color: #6c757d;
+    color: white;
+}
+
+.model-delete-btn{
+    background-color: #dc3545;
+    color: white;
+    width: 100px;
+}
+
+.btn-cancel:hover {
+    background-color: #5a6268;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}

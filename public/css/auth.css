@@ -393,3 +393,39 @@ main.sign-up-mode .carousel {
     padding: 1rem 2rem 1.5rem;
   }
 }
+
+.home-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  color: #151111;
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.home-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.home-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 570px) {
+  .home-btn {
+      top: 10px;
+      left: 10px;
+      padding: 8px 16px;
+      font-size: 14px;
+  }
+}

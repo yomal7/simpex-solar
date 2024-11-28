@@ -1,0 +1,244 @@
+.main-content {
+    flex: 1;
+    padding: 20px;
+    /* margin-left: 250px; */
+    transition: margin 0.3s ease;
+}
+
+/* Edit Form Styles */
+.edit-form {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.form-section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-section h3 {
+    color: #2e7d32;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+    outline: none;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* Equipment and Features */
+.equipment-row, .feature-row {
+    display: grid;
+    gap: 15px;
+    margin-bottom: 15px;
+    align-items: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.equipment-row {
+    grid-template-columns: 2fr 1fr 40px;
+}
+
+.feature-row {
+    grid-template-columns: 1fr 2fr 40px;
+}
+
+.equipment-row:hover, .feature-row:hover {
+    transform: translateX(5px);
+}
+
+/* Buttons */
+.btn-add {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-add:hover {
+    background-color: #1b5e20;
+}
+
+.btn-remove {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+.btn-remove:hover {
+    background-color: #c82333;
+    transform: rotate(90deg);
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-submit, .btn-cancel {
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-submit {
+    background-color: #2e7d32;
+    color: white;
+}
+
+.btn-submit:hover {
+    background-color: #1b5e20;
+    transform: translateY(-2px);
+}
+
+.btn-cancel {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
+/* Error Messages */
+.error {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-section {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        padding: 15px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .equipment-row, .feature-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .btn-remove {
+        align-self: flex-end;
+    }
+}
+
+/* Page Header */
+.page-header {
+    margin-bottom: 24px;
+}
+
+.page-header h2 {
+    color: #2e7d32;
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+/* Flash Messages */
+.flash-message {
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.flash-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.flash-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
