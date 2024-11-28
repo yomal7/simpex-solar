@@ -99,7 +99,7 @@
                     </div>
                     <div class="button-group">
                         <input type="submit" value="Update Task" class="btn btn-primary">
-                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/tasks"><button type="button" class="btn btn-secondary" onclick="closePopup('userFormPopup')">Cancel</button></a>
+                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/viewTask/<?php echo $data['id']; ?>"><button type="button" class="btn btn-secondary">Cancel</button></a>
                     </div>
                 </form>
 

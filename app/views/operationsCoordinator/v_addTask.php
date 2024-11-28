@@ -98,12 +98,8 @@
                         </div>
                     </div>
                     <div class="button-group">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Assign Task
-                        </button>
-                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/tasks" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Cancel
-                        </a>
+                        <input type="submit" value="Assign Task" class="btn btn-primary">
+                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/tasks"><button type="button" class="btn btn-secondary">Cancel</button></a>
                     </div>
                 </form>
 
