@@ -43,7 +43,7 @@
             </a>
         </div>
         <div class="main-content">
-            <div class="container">
+            <div class="form-container">
 
                 <h2>Edit Task</h2>
                 <form action="<?php echo URLROOT; ?>/operationsCoordinator/editTask/<?php echo $data['id']; ?>" method="POST" id="userForm" id="addUserForm">
@@ -99,7 +99,7 @@
                     </div>
                     <div class="button-group">
                         <input type="submit" value="Update Task" class="btn btn-primary">
-                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/tasks"><button type="button" class="btn btn-secondary" style="background-color: red;" onclick="closePopup('userFormPopup')">Cancel</button></a>
+                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/tasks"><button type="button" class="btn btn-secondary" onclick="closePopup('userFormPopup')">Cancel</button></a>
                     </div>
                 </form>
 
