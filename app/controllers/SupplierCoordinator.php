@@ -580,4 +580,16 @@ class SupplierCoordinator extends Controller
             echo json_encode(['success' => false, 'message' => 'Server Error', 'details' => $e->getMessage()]);
         }
     }
+
+    public function viewProductDetails($itemId) {
+        $product = $this->inventoryModel->viewItem($itemId);
+        if (!$product) {
+            die('Product not found.');
+        }
+        $data = [
+            'title' => 'Product Details',
+            'product' => $product
+        ];
+        $this->view('supplierCoordinator/v_viewProduct', $data);
+    }
 }
