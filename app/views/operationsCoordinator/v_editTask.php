@@ -21,7 +21,7 @@
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/projects">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/manageAproject">
                 <span class="material-icons-sharp">receipt_long</span>
                 <h3>Projects</h3>
             </a>
@@ -37,7 +37,7 @@
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
-            <a href="<?php echo URLROOT; ?>/users/logout">
+            <a href="#">
                 <span class="material-icons-sharp">logout</span>
                 <h3>Logout</h3>
             </a>
@@ -45,27 +45,27 @@
         <div class="main-content">
             <div class="form-container">
 
-                <h2>Assign New Task</h2>
-                <form action="<?php echo URLROOT; ?>/operationsCoordinator/addTask" method="POST" id="userForm" id="addUserForm" onsubmit="handleSubmit(event)">
+                <h2>Edit Task</h2>
+                <form action="<?php echo URLROOT; ?>/operationsCoordinator/editTask/<?php echo $data['id']; ?>" method="POST" id="userForm" id="addUserForm">
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="title">Task Title</label>
-                            <input type="text" name="title" id="title" placeholder="Task Title" value="<?php $data['title']; ?>">
+                            <input type="text" name="title" id="title" placeholder="Task Title" value="<?php echo $data['title']; ?>">
                             <span class="form-invalid"><?php echo isset($data['title_err']) ? $data['title_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
                             <label for="start_date">Start Date</label>
-                            <input type="date" name="start_date" id="start_date" placeholder="Start Date" value="<?php $data['start_date']; ?>">
+                            <input type="date" name="start_date" id="start_date" placeholder="Start Date" value="<?php echo $data['start_date']; ?>">
                             <span class="form-invalid"><?php echo isset($data['start_date_err']) ? $data['start_date_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
                             <label for="end_date">End Date</label>
-                            <input type="date" name="end_date" id="end_date" placeholder="End Date" value="<?php $data['end_date']; ?>">
+                            <input type="date" name="end_date" id="end_date" placeholder="End Date" value="<?php echo $data['end_date']; ?>">
                             <span class="form-invalid"><?php echo isset($data['end_date_err']) ? $data['end_date_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
                             <label for="project_id">Project</label>
-                            <input type="text" name="project_id" id="project_id" placeholder="Project" value="<?php $data['project_id']; ?>">
+                            <input type="text" name="project_id" id="project_id" placeholder="Project" value="<?php echo $data['project_id']; ?>">
                             <!-- <select id="project_id" name="project_id" required>
                                 <option value="">Select Project...</option>
                                 options will be populated dynamically
@@ -74,7 +74,7 @@
                         </div>
                         <div class="form-group">
                             <label for="employee_id">Assign To</label>
-                            <input type="text" name="employee_id" id="employee_id" placeholder="Employee" value="<?php $data['employee_id']; ?>">
+                            <input type="text" name="employee_id" id="employee_id" placeholder="Employee" value="<?php echo $data['employee_id']; ?>">
                             <!-- <select id="employee_id" name="employee_id" required>
                                 <option value="">Select Employee...</option>
                                 options will be populated dynamically
@@ -83,27 +83,23 @@
                         </div>
                         <div class="form-group">
                             <label for="status">Status</label>
-                            <select id="status" name="status">
+                            <select id="status" name="status"">
                                 <option value="">Select Status...</option>
-                                <option value="incomplete">Incomplete</option>
-                                <option value="in_progress">In Progress</option>
-                                <option value="completed">Completed</option>
+                                <option value="incomplete" <?php echo $data['status'] == 'incomplete' ? 'selected' : ''; ?>>Incomplete</option>
+                                <option value="in_progress" <?php echo $data['status'] == 'in_progress' ? 'selected' : ''; ?>>In Progress</option>
+                                <option value="completed" <?php echo $data['status'] == 'completed' ? 'selected' : ''; ?>>Completed</option>
                             </select>
                             <span class="form-invalid"><?php echo isset($data['status_err']) ? $data['status_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
                             <label for="description">Task Description</label>
-                            <textarea name="description" id="description" placeholder="Task Description" rows="10" cols="10"><?php $data['description']; ?></textarea>
+                            <textarea name="description" id="description" placeholder="Task Description" rows="10" cols="10"><?php echo $data['description']; ?></textarea>
                             <span class="form-invalid"><?php echo isset($data['description_err']) ? $data['description_err'] : ''; ?></span>
                         </div>
                     </div>
                     <div class="button-group">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Assign Task
-                        </button>
-                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/tasks" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Cancel
-                        </a>
+                        <input type="submit" value="Update Task" class="btn btn-primary">
+                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/tasks"><button type="button" class="btn btn-secondary" onclick="closePopup('userFormPopup')">Cancel</button></a>
                     </div>
                 </form>
 
