@@ -1,8 +1,8 @@
-<?php require APPROOT.'/views/technician/header.php';?>
+<?php require APPROOT . '/views/technician/header.php'; ?>
 
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/technician/dashboard.css">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/technician/dashboard.css">
 
 </head>
 
@@ -11,24 +11,23 @@
 
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
         <div class="sidebar" id="sidebar">
-            <img            
+            <img
                 src="<?php echo URLROOT ?>/assets/profile.png"
                 alt="manager profile-picture"
-                class="profile-picture"
-            />
-            <a href="<?php echo URLROOT?>/technician/dashboard" class="active">
+                class="profile-picture" />
+            <a href="<?php echo URLROOT ?>/technician/dashboard" class="active">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="<?php echo URLROOT?>/technician/tasks">
+            <a href="<?php echo URLROOT ?>/technician/tasks">
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>
             </a>
-            <a href="<?php echo URLROOT?>/technician/requestHoliday">
+            <a href="<?php echo URLROOT ?>/technician/requestHoliday">
                 <span class="material-icons-sharp">event</span>
                 <h3>Request Holiday</h3>
             </a>
-            <a href="<?php echo URLROOT?>/technician/settings">
+            <a href="<?php echo URLROOT ?>/technician/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
@@ -47,34 +46,57 @@
                             <span class="material-icons card-icon">work_outline</span>
                             <h2 class="card-title">Project 1</h2>
                         </div>
-                        <p class="card-value">Project Name: ___</p>
-                        <p class="card-value">Tasks: ___</p>
+                        <h3 class="card-value">Project Name:</h3>
+                        <h2>Keels Installation</h2>
+                        <h3 class="card-value">Tasks:</h3>
+                        <h4>Install 5kW solar panel system</h4>
                     </div>
+
                     <div class="card">
                         <div class="card-header">
                             <span class="material-icons card-icon">work_outline</span>
                             <h2 class="card-title">Project 2</h2>
                         </div>
-                        <p class="card-value">Project Name: ___</p>
-                        <p class="card-value">Tasks: ___</p>
+                        <h3 class="card-value">Project Name:</h3>
+                        <h2>Watawala Industries Maintenance</h2>
+                        <h3 class="card-value">Tasks:</h3>
+                        <h4>Solar panel maintenance</h4>
                     </div>
+
                     <div class="card">
                         <div class="card-header">
                             <span class="material-icons card-icon">work_outline</span>
                             <h2 class="card-title">Project 3</h2>
                         </div>
-                        <p class="card-value">Project Name: ___</p>
-                        <p class="card-value">Tasks: ___</p>
+                        <h3 class="card-value">Project Name:</h3>
+                        <h2>DB Ltd Repair</h2>
+                        <h3 class="card-value">Tasks:</h3>
+                        <h4>Repair solar inverter</h4>
                     </div>
+
                     <div class="card">
                         <div class="card-header">
                             <span class="material-icons card-icon">work_outline</span>
                             <h2 class="card-title">Project 4</h2>
                         </div>
-                        <p class="card-value">Project Name: ___</p>
-                        <p class="card-value">Tasks: ___</p>
+                        <h3 class="card-value">Project Name:</h3>
+                        <h2>Residential Battery Installation</h2>
+                        <h3 class="card-value">Tasks:</h3>
+                        <h4>Install battery storage system</h4>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="material-icons card-icon">work_outline</span>
+                            <h2 class="card-title">Project 5</h2>
+                        </div>
+                        <h3 class="card-value">Project Name:</h3>
+                        <h2>City Mall Site Survey</h2>
+                        <h3 class="card-value">Tasks:</h3>
+                        <h4>Site survey at City Mall</h4>
                     </div>
                 </section>
+
 
             </div>
         </div>
@@ -82,7 +104,7 @@
 
     <div class="överlay" id="overlay"></div>
 
-    
+
 
 </body>
-    <script src="<?php echo URLROOT; ?>/js/technician/dashboard.js"></script>
+<script src="<?php echo URLROOT; ?>/js/technician/dashboard.js"></script>
