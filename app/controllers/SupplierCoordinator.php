@@ -5,6 +5,7 @@ class SupplierCoordinator extends Controller
 
     private $supplierModel;
     private $inventoryModel;
+    private $shopModel;
 
     public function __construct()
     {
@@ -14,6 +15,7 @@ class SupplierCoordinator extends Controller
         }
         $this->supplierModel = $this->model('M_Suppliers');
         $this->inventoryModel = $this->model('M_Inventory');
+        $this->shopModel = $this->model('M_Shop');
     }
 
     public function index()
@@ -581,15 +583,258 @@ class SupplierCoordinator extends Controller
         }
     }
 
-    public function viewProductDetails($itemId) {
-        $product = $this->inventoryModel->viewItem($itemId);
-        if (!$product) {
-            die('Product not found.');
+    public function viewProductDetails($id)
+    {
+
+        $inventory = $this->inventoryModel->getInventoryById($id);
+
+        if ($inventory) {
+            $data = [
+                'inventory' => $inventory
+            ];
+            $this->view('supplierCoordinator/v_productDetails', $data);
+        } else {
+            redirect('supplierCoordinator/inventory');
         }
+    }
+
+    public function settings()
+    {
+        $data = [];
+        $this->view('supplierCoordinator/v_setting', $data);
+    }
+
+    public function shop()
+    {
+        $products = $this->shopModel->getProducts();
+
         $data = [
-            'title' => 'Product Details',
-            'product' => $product
+            'title' => 'Product Management',
+            'products' => $products
         ];
-        $this->view('supplierCoordinator/v_viewProduct', $data);
+
+        $this->view('supplierCoordinator/v_shop', $data);
+    }
+
+    public function viewProduct($id)
+    {
+        $product = $this->shopModel->getProductById($id);
+        $features = $this->shopModel->getProductFeatures($id);
+
+        if (!$product) {
+            flash('product_message', 'Product not found', 'alert alert-danger');
+            redirect('supplierCoordinator/shop');
+        }
+
+        $data = [
+            'product' => $product,
+            'features' => $features
+        ];
+
+        $this->view('supplierCoordinator/v_productDetails', $data);
+    }
+
+    public function addShopProduct()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            $data = [
+                'suppliers' => $this->supplierModel->getSuppliers(),
+                'name' => '',
+                'price' => '',
+                'description' => '',
+                'category' => '',
+                'supplier_id' => '',
+                'blog_link' => '',
+                'name_err' => '',
+                'price_err' => '',
+                'description_err' => '',
+                'category_err' => '',
+                'supplier_err' => ''
+            ];
+
+            $this->view('supplierCoordinator/v_addshop', $data);
+        } else {
+            // Sanitize POST data
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+            $data = [
+                'suppliers' => $this->supplierModel->getSuppliers(),
+                'name' => trim($_POST['name']),
+                'price' => trim($_POST['price']),
+                'description' => trim($_POST['description']),
+                'category' => trim($_POST['category']),
+                'supplier_id' => trim($_POST['supplier_id']),
+                'blog_link' => trim($_POST['blog_link']),
+                'features' => $_POST['features'] ?? [],
+                // Initialize all error fields
+                'name_err' => '',
+                'price_err' => '',
+                'description_err' => '',
+                'category_err' => '',
+                'supplier_err' => '',
+                'blog_link_err' => '',
+                'features_err' => ''
+            ];
+
+            // Validation
+            if (empty($data['name'])) {
+                $data['name_err'] = 'Please enter product name';
+            }
+            if (empty($data['price'])) {
+                $data['price_err'] = 'Please enter price';
+            }
+            if (empty($data['description'])) {
+                $data['description_err'] = 'Please enter description';
+            }
+            if (empty($data['category'])) {
+                $data['category_err'] = 'Please select category';
+            }
+            if (empty($data['supplier_id'])) {
+                $data['supplier_err'] = 'Please select supplier';
+            }
+            if (empty($_POST['features'][0]) || empty($_POST['features'][1])) {
+                $data['features_err'] = 'First two features are required';
+            }
+
+            // Make sure no errors
+            if (
+                empty($data['name_err']) && empty($data['price_err']) &&
+                empty($data['description_err']) && empty($data['category_err']) &&
+                empty($data['supplier_err']) && empty($data['features_err'])
+            ) {
+
+                // Handle file uploads
+                $image1 = $_FILES['image1']['name'] ? $this->handleUpload($_FILES['image1']) : null;
+                $image2 = $_FILES['image2']['name'] ? $this->handleUpload($_FILES['image2']) : null;
+                $image3 = $_FILES['image3']['name'] ? $this->handleUpload($_FILES['image3']) : null;
+
+                // Prepare product data
+                $productData = [
+                    'name' => $data['name'],
+                    'price' => $data['price'],
+                    'description' => $data['description'],
+                    'category' => $data['category'],
+                    'supplier_id' => $data['supplier_id'],
+                    'blog_link' => $data['blog_link'],
+                    'image1' => $image1,
+                    'image2' => $image2,
+                    'image3' => $image3,
+                    'features' => $_POST['features']
+                ];
+
+                if ($this->shopModel->addProduct($productData)) {
+                    flash('product_message', 'Product Added Successfully');
+                    redirect('supplierCoordinator/shop');
+                } else {
+                    die('Something went wrong');
+                }
+            } else {
+                // Load view with errors
+                $this->view('supplierCoordinator/v_addshop', $data);
+            }
+        }
+    }
+
+    private function handleUpload($file)
+    {
+        $targetDir = "public/uploads/shop/";
+        $fileName = time() . '_' . basename($file['name']);
+        $targetFilePath = $targetDir . $fileName;
+
+        if (move_uploaded_file($file['tmp_name'], $targetFilePath)) {
+            return $fileName;
+        }
+        return null;
+    }
+
+    public function editShopProduct($id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            $product = $this->shopModel->getProductById($id);
+            $features = $this->shopModel->getProductFeatures($id);
+
+            if (!$product) {
+                flash('product_message', 'Product not found', 'alert alert-danger');
+                redirect('supplierCoordinator/shop');
+            }
+
+            $data = [
+                'id' => $id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'description' => $product->description,
+                'category' => $product->category,
+                'supplier_id' => $product->supplier_id,
+                'blog_link' => $product->blog_link,
+                'features' => array_column($features, 'feature'),
+                'suppliers' => $this->supplierModel->getSuppliers(),
+                'name_err' => '',
+                'price_err' => '',
+                'description_err' => '',
+                'category_err' => '',
+                'supplier_err' => '',
+                'blog_link_err' => '',
+                'features_err' => ''
+            ];
+
+            $this->view('supplierCoordinator/v_editshop', $data);
+        }
+    }
+
+    public function updateShopProduct()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+            $data = [
+                'id' => $_POST['id'],
+                'name' => trim($_POST['name']),
+                'price' => trim($_POST['price']),
+                'description' => trim($_POST['description']),
+                'category' => trim($_POST['category']),
+                'supplier_id' => trim($_POST['supplier_id']),
+                'blog_link' => trim($_POST['blog_link']),
+                'features' => $_POST['features'],
+                'suppliers' => $this->supplierModel->getSuppliers(),
+                'name_err' => '',
+                'price_err' => '',
+                'description_err' => '',
+                'category_err' => '',
+                'supplier_err' => '',
+                'features_err' => ''
+            ];
+
+            // Validation
+            if (empty($data['name'])) {
+                $data['name_err'] = 'Please enter name';
+            }
+            if (empty($data['price'])) {
+                $data['price_err'] = 'Please enter price';
+            }
+            // Add other validation as needed
+
+            if (empty($data['name_err']) && empty($data['price_err'])) {
+                if ($this->shopModel->updateProduct($data['id'], $data)) {
+                    flash('product_message', 'Product Updated');
+                    redirect('supplierCoordinator/shop');
+                } else {
+                    die('Something went wrong');
+                }
+            } else {
+                $this->view('supplierCoordinator/v_editshop', $data);
+            }
+        }
+    }
+
+    public function deleteShopProduct($id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if ($this->shopModel->deleteProduct($id)) {
+                flash('product_message', 'Product Removed');
+            } else {
+                flash('product_message', 'Something went wrong', 'alert alert-danger');
+            }
+        }
+        redirect('supplierCoordinator/shop');
     }
 }

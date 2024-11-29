@@ -15,7 +15,7 @@
             <p class="fade-in">Creating a greener future through innovative environmental solutions</p>
             <div class="hero-buttons">
                 <button class="cta-button fade-in">Get to Know Us</button>
-                <button class="cta-button secondary fade-in">Get Quote</button>
+                <a href="<?php echo URLROOT; ?>/packages"><button class="cta-button secondary fade-in">Get Quote</button></a>
             </div>
         </div>
     </section>
@@ -31,11 +31,11 @@
           <div class="about-content">
             <div class="about-image">
               <div class="image-wrapper">
-                <img src="https://images.unsplash.com/photo-1497366216548-37526070297c" alt="Sustainability" class="main-image">
-                <div class="experience-badge">
+                <img src="<?php echo URLROOT; ?>/public/assets/landing-page-solar.jpg" alt="Sustainability" class="main-image">
+                <!-- <div class="experience-badge">
                   <span>10+</span>
                   <p>Years of Excellence</p>
-                </div>
+                </div> -->
               </div>
             </div>
   
@@ -121,7 +121,7 @@
                       <div class="project-card">
                           <img src="<?php echo URLROOT; ?>/assets/project4.jpg" alt="Project 4" class="project-image">
                           <div class="project-info">
-                              <h3 class="project-title">Hydro Energy Plant</h3>
+                              <h3 class="project-title">10kW Energy Plant</h3>
                           </div>
                       </div>
                   </div>
@@ -134,26 +134,26 @@
           </div>
       </section>
         
-      <section id="services" class="services">
+      <!-- <section id="services" class="services">
           <h2>Our Services</h2>
           <div class="services-grid">
               <div class="service-card">
                   <i class="fas fa-leaf"></i>
                   <h3>Eco Consulting</h3>
-                  <p>Expert guidance for sustainable business practices</p>
+                  <p>Expert guidance for sustainable soar solutions</p>
               </div>
               <div class="service-card">
-                  <i class="fas fa-recycle"></i>
-                  <h3>Waste Management</h3>
-                  <p>Innovative recycling and waste reduction solutions</p>
+                  <i class="fas fa-lightbulb"></i>
+                  <h3>Empowering nation</h3>
+                  <p>Sustainability initiatives for a greener future</p>
               </div>
               <div class="service-card">
                   <i class="fas fa-solar-panel"></i>
-                  <h3>Green Energy</h3>
-                  <p>Renewable energy implementation and consulting</p>
+                  <h3>Hassle-free Solar project</h3>
+                  <p>Effortless installation and maintenance</p>
               </div>
           </div>
-    </section>
+    </section> -->
 
     <section id="products" class="products">
         <h2>Featured Products</h2>

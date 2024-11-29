@@ -128,3 +128,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Close when clicking the close button
   closeBtn.addEventListener("click", closeDeleteModal);
 });
+
+function viewInventory(id) {
+  window.location.href =
+    URLROOT + "/supplierCoordinator/viewProductDetails/" + id;
+}

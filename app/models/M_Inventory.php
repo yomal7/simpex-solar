@@ -207,7 +207,8 @@ class M_Inventory
     }
 
 
-    public function getInventoryItems() {
+    public function getInventoryItems()
+    {
         $this->db->query('SELECT id, name, price, quantity 
                           FROM inventory 
                           WHERE quantity > 0 
@@ -234,6 +235,14 @@ class M_Inventory
                 Inventory.supplier_id = Suppliers.id
             WHERE Inventory.id = :itemId');
         $this->db->bind(':itemId', $itemId);
+
+    public function getInventoryById($id)
+    {
+        $this->db->query('SELECT i.*, s.name as supplier_name 
+                          FROM inventory i 
+                          LEFT JOIN suppliers s ON i.supplier_id = s.id 
+                          WHERE i.id = :id');
+        $this->db->bind(':id', $id);
         return $this->db->single();
     }
 }

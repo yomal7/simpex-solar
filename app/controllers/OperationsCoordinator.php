@@ -5,6 +5,7 @@ class OperationsCoordinator extends Controller
     private $tasksModel;
     private $packageModel;
     private $inventoryModel;
+    private $employeeModel;
 
     public function __construct()
     {
@@ -15,6 +16,7 @@ class OperationsCoordinator extends Controller
         $this->tasksModel = $this->model('M_Tasks');
         $this->packageModel = $this->model('M_Packages');
         $this->inventoryModel = $this->model('M_Inventory');
+        $this->employeeModel = $this->model('M_Employee');
     }
 
     public function index()
@@ -74,6 +76,7 @@ class OperationsCoordinator extends Controller
     // Add Task
     public function addTask()
     {
+
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
             $data = [
@@ -84,6 +87,7 @@ class OperationsCoordinator extends Controller
                 'project_id' => trim($_POST['project_id']),
                 'employee_id' => trim($_POST['employee_id']),
                 'status' => trim($_POST['status']),
+                'employees' => $this->employeeModel->getAllEmployees(), // Add employees list
                 'title_err' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',
@@ -144,6 +148,7 @@ class OperationsCoordinator extends Controller
                 'project_id' => '',
                 'employee_id' => '',
                 'status' => '',
+                'employees' => $this->employeeModel->getAllEmployees(), // Add employees list
                 'title_err' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',
@@ -171,6 +176,7 @@ class OperationsCoordinator extends Controller
                 'project_id' => trim($_POST['project_id']),
                 'employee_id' => trim($_POST['employee_id']),
                 'status' => trim($_POST['status']),
+                'employees' => $this->employeeModel->getAllEmployees(),
                 'title_err' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',
@@ -234,6 +240,7 @@ class OperationsCoordinator extends Controller
                 'project_id' => $task->project_id,
                 'employee_id' => $task->employee_id,
                 'status' => $task->status,
+                'employees' => $this->employeeModel->getAllEmployees(),
                 'title_err' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',

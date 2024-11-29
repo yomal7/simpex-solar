@@ -7,7 +7,8 @@
             <label for="close-btn" class="btn close-btn"><i class="fas fa-times"></i></label>
             <li><a href="<?php echo URLROOT; ?>">Home</a></li>
             <li><a href="#">About</a></li>
-            <li>
+            <li><a href="<?php echo URLROOT; ?>/packages">Packages</a></li>
+            <!-- <li>
               <a href="#" class="desktop-item">Dropdown Menu</a>
               <input type="checkbox" id="showDrop">
               <label for="showDrop" class="mobile-item">Dropdown Menu</label>
@@ -17,7 +18,7 @@
                 <li><a href="#">Drop menu 3</a></li>
                 <li><a href="#">Drop menu 4</a></li>
               </ul>
-            </li>
+            </li> -->
             <li>
               <a href="<?php echo URLROOT; ?>/blog" class="desktop-item">Blog</a>
               <input type="checkbox" id="showMega">

@@ -4,7 +4,7 @@ const packagesData = [
         id: 1,
         name: "Basic Off-Grid Package",
         type: "off-grid",
-        price: "$8,999",
+        price: "Rs 8,999",
         image: "/api/placeholder/400/320",
         features: [
             "5kW System Capacity",
@@ -17,7 +17,7 @@ const packagesData = [
         id: 2,
         name: "Premium On-Grid Package",
         type: "on-grid",
-        price: "$12,999",
+        price: "Rs 12,999",
         image: "/api/placeholder/400/320",
         features: [
             "7.5kW System Capacity",
@@ -30,7 +30,7 @@ const packagesData = [
         id: 3,
         name: "Advanced Hybrid Package",
         type: "hybrid",
-        price: "$16,999",
+        price: "Rs 16,999",
         image: "/api/placeholder/400/320",
         features: [
             "10kW System Capacity",
@@ -43,7 +43,7 @@ const packagesData = [
         id: 4,
         name: "Ultimate Off-Grid Package",
         type: "off-grid",
-        price: "$22,999",
+        price: "Rs22,999",
         image: "/api/placeholder/400/320",
         features: [
             "15kW System Capacity",

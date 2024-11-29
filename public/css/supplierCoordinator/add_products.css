@@ -2,6 +2,51 @@
   /* padding-left: 30%; */
   width: 1500px;
 }
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.page-header h2 {
+  text-align: center;
+  flex-grow: 1;
+  color: #2c3e50;
+}
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #74dd9a; /* Updated color to match theme */
+  color: #2c3e50;
+  text-decoration: none;
+  border-radius: 25px;
+  border: 1px solid #4caf50; /* Match primary color */
+  transition: all 0.3s ease;
+  position: absolute;
+  left: 0;
+}
+
+.back-btn .material-icons-sharp {
+  font-size: 20px;
+  transition: transform 0.3s ease;
+  color: #2c3e50;
+}
+
+.back-btn:hover {
+  background-color: #4caf50; /* Darker shade on hover */
+  border-color: #45a049;
+  color: white;
+}
+
+.back-btn:hover .material-icons-sharp {
+  transform: translateX(-3px);
+  color: white;
+}
+
 .inventory-form {
   background: #fff;
   padding: 2rem;
@@ -101,17 +146,7 @@
   background: #5a6268;
 }
 
-.back-btn {
-  margin-bottom: 2rem;
-  background: #74dd9a;
-  color: #212529;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-}
-
-.back-btn:hover {
-  background: #0dd162;
-}
+/* Update back button styles in edit_inventory.css */
 
 /* Flash Messages */
 .flash-message {
