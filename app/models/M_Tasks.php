@@ -13,10 +13,29 @@ class M_Tasks
     //     return $results;
     // }
 
-    public function getAllTasks(){
-        $this->db->query('SELECT * FROM Tasks ORDER BY created_at DESC');
-        $results= $this->db->resultSet();
-        return $results;
+    // public function getAllTasks(){
+    //     $this->db->query('SELECT * FROM Tasks ORDER BY created_at DESC');
+    //     $results= $this->db->resultSet();
+    //     return $results;
+    // }
+
+
+    public function getAllTasks()
+    {
+        $this->db->query('SELECT t.*, e.name as employee_name 
+                      FROM tasks t 
+                      LEFT JOIN employe e ON t.employee_id = e.employee_id 
+                      ORDER BY t.id');
+        return $this->db->resultSet();
+    }
+
+    public function getTaskById($taskId) {
+        $this->db->query('SELECT t.*, e.name as employee_name 
+                          FROM tasks t 
+                          LEFT JOIN employe e ON t.employee_id = e.employee_id 
+                          WHERE t.id = :id');
+        $this->db->bind(':id', $taskId);
+        return $this->db->single();
     }
 
     // public function getPostById($postId){
@@ -26,13 +45,13 @@ class M_Tasks
     //     return $row;
     // }
 
-    public function getTaskById($taskId)
-    {   
-        $this->db->query('SELECT * FROM Tasks WHERE id = :id');
-        $this->db->bind(':id', $taskId);
-        $row= $this->db->single();
-        return $row;
-    }
+    // public function getTaskById($taskId)
+    // {
+    //     $this->db->query('SELECT * FROM Tasks WHERE id = :id');
+    //     $this->db->bind(':id', $taskId);
+    //     $row = $this->db->single();
+    //     return $row;
+    // }
 
     public function create($data)
     {
@@ -96,7 +115,8 @@ class M_Tasks
     //     }
     // }
 
-    public function delete($taskId) {
+    public function delete($taskId)
+    {
         $this->db->query('DELETE FROM Tasks WHERE id = :id');
         $this->db->bind(':id', $taskId);
 

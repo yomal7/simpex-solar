@@ -90,8 +90,8 @@
                             <div class="detail-item">
                                 <i class="fas fa-user"></i>
                                 <div class="detail-content">
-                                    <label>Employee ID</label>
-                                    <p><?php echo $data['task']->employee_id; ?></p>
+                                    <label>Assigned To</label>
+                                    <p><?php echo $data['task']->employee_name; ?></p>
                                 </div>
                             </div>
                         </div>
