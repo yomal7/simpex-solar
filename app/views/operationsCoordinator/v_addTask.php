@@ -74,7 +74,16 @@
                         </div>
                         <div class="form-group">
                             <label for="employee_id">Assign To</label>
-                            <input type="text" name="employee_id" id="employee_id" placeholder="Employee" value="<?php $data['employee_id']; ?>">
+                            <select name="employee_id" id="employee_id" class="form-control <?php echo (!empty($data['employee_id_err'])) ? 'is-invalid' : ''; ?>">
+                                <option value="">Select Employee</option>
+                                <?php foreach ($data['employees'] as $employee) : ?>
+                                    <option value="<?php echo $employee->employee_id; ?>"
+                                        <?php echo (isset($data['employee_id']) && $data['employee_id'] == $employee->employee_id) ? 'selected' : ''; ?>>
+                                        <?php echo $employee->employee_id . ' - ' . $employee->name . ' - ' . $employee->role; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <!-- <input type="text" name="employee_id" id="employee_id" placeholder="Employee" value="<?php $data['employee_id']; ?>"> -->
                             <!-- <select id="employee_id" name="employee_id" required>
                                 <option value="">Select Employee...</option>
                                 options will be populated dynamically
@@ -126,5 +135,6 @@
 
 
     <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script>
-    </body>
+</body>
+
 </html>

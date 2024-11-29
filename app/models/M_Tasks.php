@@ -14,7 +14,7 @@ class M_Tasks
     // }
 
     public function getAllTasks(){
-        $this->db->query('SELECT * FROM Tasks');
+        $this->db->query('SELECT * FROM Tasks ORDER BY created_at DESC');
         $results= $this->db->resultSet();
         return $results;
     }
@@ -106,5 +106,12 @@ class M_Tasks
             return false;
         }
     }
+
+
+    // public function getAllEmployees() {
+    //     $this->db->query('SELECT id, name FROM employees ORDER BY name');
+    //     $results= $this->db->resultSet();
+    //     return $results;
+    // }
 
 }

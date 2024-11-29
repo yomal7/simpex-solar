@@ -21,13 +21,13 @@
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/hRAdministrator/attendance">
-                <span class="material-icons-sharp">checklist_rtl</span>
-                <h3>Attendance</h3>
-            </a>
             <a href="<?php echo URLROOT ?>/hRAdministrator/employees">
                 <span class="material-icons-sharp">group</span>
                 <h3>Employees</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/hRAdministrator/attendance">
+                <span class="material-icons-sharp">checklist_rtl</span>
+                <h3>Attendance</h3>
             </a>
             <a href="<?php echo URLROOT ?>/hRAdministrator/holiday" class="active">
                 <span class="material-icons-sharp">date_range</span>
