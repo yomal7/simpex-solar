@@ -100,7 +100,9 @@
                                         ?>
                                     </td>
                                     <td class="actions">
+
                                         <button onclick="viewInventory(<?php echo $product->item_id; ?>)" class="btn-icon view view-btn">
+
                                             <span class="material-icons-sharp">visibility</span>
                                         </button>
                                         <button onclick="location.href='<?php echo URLROOT; ?>/supplierCoordinator/editInventory/<?php echo $product->item_id ?>'" class="btn-icon edit edit-btn">
