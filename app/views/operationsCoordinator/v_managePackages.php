@@ -86,11 +86,11 @@
                                 <div class="package-pricing">
                                     <div class="price">
                                         <span class="label">Price:</span>
-                                        <span class="amount">$<?php echo number_format($package->final_price ?? 0, 2); ?></span>
+                                        <span class="amount">Rs <?php echo number_format($package->final_price ?? 0, 2); ?></span>
                                     </div>
                                     <div class="service-charge">
                                         <span class="label">Service Charge:</span>
-                                        <span class="amount">$<?php echo number_format($package->service_charge ?? 0, 2); ?></span>
+                                        <span class="amount">Rs <?php echo number_format($package->service_charge ?? 0, 2); ?></span>
                                     </div>
                                 </div>
 
