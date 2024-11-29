@@ -216,6 +216,26 @@ class M_Inventory
         return $this->db->resultSet();
     }
 
+    public function viewItem($itemId) {
+        $this->db->query('SELECT 
+                Inventory.id,
+                Inventory.image,
+                Inventory.name AS product_name, 
+                Suppliers.name AS supplier_name, 
+                Inventory.price, 
+                Inventory.quantity,
+                Inventory.description,
+                Inventory.blog_link,
+                Inventory.created_at
+            FROM 
+                Inventory
+            INNER JOIN 
+                Suppliers 
+            ON 
+                Inventory.supplier_id = Suppliers.id
+            WHERE Inventory.id = :itemId');
+        $this->db->bind(':itemId', $itemId);
+
     public function getInventoryById($id)
     {
         $this->db->query('SELECT i.*, s.name as supplier_name 

@@ -582,6 +582,7 @@ class SupplierCoordinator extends Controller
             echo json_encode(['success' => false, 'message' => 'Server Error', 'details' => $e->getMessage()]);
         }
     }
+
     public function viewProductDetails($id)
     {
 
