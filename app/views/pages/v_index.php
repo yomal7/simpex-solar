@@ -155,7 +155,7 @@
           </div>
     </section> -->
 
-    <section id="products" class="products">
+    <!-- <section id="products" class="products">
         <h2>Featured Products</h2>
         <div class="product-slider">
             <div class="product-card">
@@ -177,7 +177,7 @@
                 <button>Learn More</button>
             </div>
         </div>
-    </section>
+    </section> -->
 
     <section class="testimonials">
         <h2>What Our Customers Say</h2>
