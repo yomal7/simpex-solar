@@ -18,7 +18,7 @@
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/shop">
                 <span class="material-icons-sharp">person</span>
                 <h3>Shop</h3>
             </a>
