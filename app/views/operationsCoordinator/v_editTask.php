@@ -74,7 +74,17 @@
                         </div>
                         <div class="form-group">
                             <label for="employee_id">Assign To</label>
-                            <input type="text" name="employee_id" id="employee_id" placeholder="Employee" value="<?php echo $data['employee_id']; ?>">
+                            <select name="employee_id" id="employee_id"
+                                class="form-control <?php echo (!empty($data['employee_id_err'])) ? 'is-invalid' : ''; ?>">
+                                <option value="">Select Employee</option>
+                                <?php foreach ($data['employees'] as $employee) : ?>
+                                    <option value="<?php echo $employee->employee_id; ?>"
+                                        <?php echo (isset($data['employee_id']) && $data['employee_id'] == $employee->employee_id) ? 'selected' : ''; ?>>
+                                        <?php echo $employee->employee_id . ' - ' . $employee->name . ' - ' . $employee->role; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <!-- <input type="text" name="employee_id" id="employee_id" placeholder="Employee" value="<?php echo $data['employee_id']; ?>"> -->
                             <!-- <select id="employee_id" name="employee_id" required>
                                 <option value="">Select Employee...</option>
                                 options will be populated dynamically
@@ -85,7 +95,7 @@
                             <label for="status">Status</label>
                             <select id="status" name="status"">
                                 <option value="">Select Status...</option>
-                                <option value="incomplete" <?php echo $data['status'] == 'incomplete' ? 'selected' : ''; ?>>Incomplete</option>
+                                <option value=" incomplete" <?php echo $data['status'] == 'incomplete' ? 'selected' : ''; ?>>Incomplete</option>
                                 <option value="in_progress" <?php echo $data['status'] == 'in_progress' ? 'selected' : ''; ?>>In Progress</option>
                                 <option value="completed" <?php echo $data['status'] == 'completed' ? 'selected' : ''; ?>>Completed</option>
                             </select>

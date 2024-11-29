@@ -90,20 +90,24 @@
                             <div class="detail-item">
                                 <i class="fas fa-user"></i>
                                 <div class="detail-content">
-                                    <label>Employee ID</label>
-                                    <p><?php echo $data['task']->employee_id; ?></p>
+                                    <label>Assigned To</label>
+                                    <p><?php echo $data['task']->employee_name; ?></p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="action-buttons">
-                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/editTask/<?php echo $data['task']->id; ?>" 
-                           class="btn btn-edit">
+                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/editTask/<?php echo $data['task']->id; ?>"
+                            class="btn btn-edit">
                             <i class="fas fa-edit"></i> Edit Task
                         </a>
-                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/deleteTask/<?php echo $data['task']->id; ?>" 
-                           class="btn btn-danger">
+                        <!-- <a href="<?php echo URLROOT; ?>/operationsCoordinator/deleteTask/<?php echo $data['task']->id; ?>" onclick="return confirm('Are you sure you want to delete this task?');">
+                            <button class="btn btn-danger"><i class="fas fa-trash"></i> Delete Task</button>
+                        </a> -->
+                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/deleteTask/<?php echo $data['task']->id; ?>"
+                            class="btn btn-danger"
+                            onclick="return confirm('Are you sure you want to delete this task?');">
                             <i class="fas fa-trash"></i> Delete Task
                         </a>
                     </div>
