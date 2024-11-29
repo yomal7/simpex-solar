@@ -17,27 +17,23 @@
                 src="<?php echo URLROOT; ?>/public/assets/profile.png"
                 alt="manager profile-picture"
                 class="profile-picture" />
-            <a href="<?php echo APPROOT; ?>/views/supplierCoordinator/v_dashboard">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/shop">
                 <span class="material-icons-sharp">person</span>
                 <h3>Shop</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/suppliers">
                 <span class="material-icons-sharp">receipt_long</span>
                 <h3>Suppliers</h3>
             </a>
-            <a href="#" class="active">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/inventory" class="active">
                 <span class="material-icons-sharp">inventory</span>
                 <h3>Inventory</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">group</span>
-                <h3>Employees</h3>
-            </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
@@ -47,90 +43,99 @@
             </a>
         </div>
 
-        <div class="page-header">
-            <a href="<?php echo URLROOT; ?>/supplierCoordinator/inventory" class="btn back-btn">
-                <i class="fas fa-arrow-left"></i> Back to List
-            </a>
-        </div>
+        <!-- v_inventoryEdit.php -->
         <div class="content-wrapper">
-            <div class="main-content">
+            <div class="page-header">
+                <a href="<?php echo URLROOT; ?>/supplierCoordinator/inventory" class="back-btn">
+                    <span class="material-icons-sharp">arrow_back</span> Back to Inventory
+                </a>
+                <h2>Edit Product</h2>
+            </div>
 
-                <?php flash('product_message'); ?>
-
-                <div class="product-details-section">
-                    <div class="product-header">
-                        <div class="product-image">
-                            <img src="<?php echo URLROOT; ?>/uploads/images/<?php echo $data['image_path']; ?>"
-                                alt="<?php echo htmlspecialchars($data['name']); ?>"
-                                class="img-fluid">
-                        </div>
-                        <div class="product-title">
-                            <h2><?php echo htmlspecialchars($data['name']); ?></h2>
-                        </div>
+            <div class="edit-container">
+                <!-- Left Column - Product Info -->
+                <div class="product-info-section">
+                    <div class="product-info">
+                        <h2><?php echo htmlspecialchars($data['name']); ?></h2>
                     </div>
+                    <div class="product-image-container">
+                        <?php if (!empty($data['image_path'])): ?>
+                            <img src="<?php echo URLROOT . '/public/uploads/images/' . $data['image_path']; ?>"
+                                alt="<?php echo htmlspecialchars($data['name']); ?>"
+                                class="product-image">
+                        <?php else: ?>
+                            <div class="no-image">
+                                <span class="material-icons-sharp">image_not_available</span>
+                                <p>No image available</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
                 </div>
 
-                <form action="<?php echo URLROOT; ?>/supplierCoordinator/updateInventory" method="POST" class="inventory-form">
-                    <div class="form-grid">
+                <!-- Right Column - Edit Form -->
+                <div class="edit-form-section">
+                    <form action="<?php echo URLROOT; ?>/supplierCoordinator/updateInventory" method="POST" class="edit-form">
+                        <input type="hidden" name="id" value="<?php echo $data['id']; ?>">
 
-                        <!-- Supplier Selection -->
                         <div class="form-group">
-                            <label for="supplier">Supplier <span class="required">*</span></label>
-                            <select id="supplier" name="supplier" class="form-control <?php echo (!empty($data['supplier_err'])) ? 'is-invalid' : ''; ?>" required>
-                                <option value="">Select a Supplier</option>
-                                <?php foreach ($data['suppliers'] as $supplier) { ?>
-                                    <option value="<?php echo $supplier->id; ?>" <?php echo ($data['supplier_id'] == $supplier->id) ? 'selected' : ''; ?>>
-                                        <?php echo $supplier->name; ?>
+                            <label>Supplier <span class="required">*</span></label>
+                            <select name="supplier" class="form-control <?php echo (!empty($data['supplier_err'])) ? 'is-invalid' : ''; ?>">
+                                <?php foreach ($data['suppliers'] as $supplier): ?>
+                                    <option value="<?php echo $supplier->id; ?>"
+                                        <?php echo ($data['supplier_id'] == $supplier->id) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($supplier->name); ?>
                                     </option>
-                                <?php } ?>
+                                <?php endforeach; ?>
                             </select>
                             <span class="invalid-feedback"><?php echo $data['supplier_err']; ?></span>
                         </div>
 
-                        <!-- Price -->
                         <div class="form-group">
-                            <label for="price">Price <span class="required">*</span></label>
-                            <input type="text" id="price" name="price" class="form-control <?php echo (!empty($data['price_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['price']; ?>" required>
+                            <label>Price (Rs.) <span class="required">*</span></label>
+                            <input type="number" step="0.01" name="price"
+                                class="form-control <?php echo (!empty($data['price_err'])) ? 'is-invalid' : ''; ?>"
+                                value="<?php echo $data['price']; ?>">
                             <span class="invalid-feedback"><?php echo $data['price_err']; ?></span>
                         </div>
 
-                        <!-- Quantity -->
                         <div class="form-group">
-                            <label for="quantity">Quantity <span class="required">*</span></label>
-                            <input type="number" id="quantity" name="quantity" class="form-control <?php echo (!empty($data['quantity_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['quantity']; ?>" required>
+                            <label>Quantity <span class="required">*</span></label>
+                            <input type="number" name="quantity"
+                                class="form-control <?php echo (!empty($data['quantity_err'])) ? 'is-invalid' : ''; ?>"
+                                value="<?php echo $data['quantity']; ?>">
                             <span class="invalid-feedback"><?php echo $data['quantity_err']; ?></span>
                         </div>
 
-                        <!-- Blog Link -->
                         <div class="form-group">
-                            <label for="blog_link">Blog Link <span class="required">*</span></label>
-                            <input type="url" id="blog_link" name="blog_link" class="form-control <?php echo (!empty($data['blog_link_err'])) ? 'is-invalid' : ''; ?>" value="<?php echo $data['blog_link']; ?>" required>
+                            <label>Blog Link <span class="required">*</span></label>
+                            <input type="url" name="blog_link"
+                                class="form-control <?php echo (!empty($data['blog_link_err'])) ? 'is-invalid' : ''; ?>"
+                                value="<?php echo $data['blog_link']; ?>">
                             <span class="invalid-feedback"><?php echo $data['blog_link_err']; ?></span>
                         </div>
 
-                        <!-- Description -->
-                        <div class="form-group full-width">
-                            <label for="description">Description <span class="required">*</span></label>
-                            <textarea id="description" name="description" rows="4" class="form-control <?php echo (!empty($data['description_err'])) ? 'is-invalid' : ''; ?>" required><?php echo $data['description']; ?></textarea>
+                        <div class="form-group">
+                            <label>Description <span class="required">*</span></label>
+                            <textarea name="description" rows="2"
+                                class="form-control <?php echo (!empty($data['description_err'])) ? 'is-invalid' : ''; ?>"><?php echo $data['description']; ?></textarea>
                             <span class="invalid-feedback"><?php echo $data['description_err']; ?></span>
                         </div>
 
-                        <input type="hidden" name="id" value="<?php echo $data['id']; ?>">
-
                         <div class="form-actions">
-                            <button type="reset" class="btn reset-btn">
-                                <i class="fas fa-undo"></i> Reset
+                            <button type="submit" class="btn btn-primary">
+
+                                Save Changes
                             </button>
-                            <button type="submit" class="btn submit-btn">
-                                <i class="fas fa-save"></i> Update Product
-                            </button>
+                            <a href="<?php echo URLROOT; ?>/supplierCoordinator/inventory" class="btn btn-secondary">
+
+                                Cancel
+                            </a>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
-
-    </div>
     </div>
 
     <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/edit_inventory.js"></script>

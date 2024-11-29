@@ -17,27 +17,23 @@
                 src="<?php echo URLROOT; ?>/public/assets/profile.png"
                 alt="manager profile-picture"
                 class="profile-picture" />
-            <a href="<?php echo APPROOT; ?>/views/supplierCoordinator/v_dashboard">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/shop">
                 <span class="material-icons-sharp">person</span>
                 <h3>Shop</h3>
             </a>
-            <a href="#" class="active">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/suppliers" class="active">
                 <span class="material-icons-sharp">receipt_long</span>
                 <h3>Suppliers</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/inventory">
                 <span class="material-icons-sharp">inventory</span>
                 <h3>Inventory</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">group</span>
-                <h3>Employees</h3>
-            </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>

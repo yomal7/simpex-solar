@@ -88,6 +88,18 @@
   justify-content: center;
 }
 
+.back-btn {
+  margin-bottom: 2rem;
+  background: #74dd9a;
+  color: #212529;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.back-btn:hover {
+  background: #0dd162;
+}
+
 .view-btn {
   background-color: #3498db;
   color: white;
@@ -501,11 +513,8 @@
 
 /* Inventory Container */
 .inventory-container {
-  background: white;
   border-radius: 10px;
-  padding: 20px;
   margin: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Inventory Table */
@@ -575,24 +584,192 @@
 }
 
 .status {
-  font-weight: bold;
-  text-align: center;
-  padding: 5px 10px;
-  border-radius: 15px;
-  font-size: 12px;
+  padding: 2rem 4rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: capitalize;
 }
 
 .status.out-of-stock {
-  background-color: #dc3545;
-  color: white;
+  background: #fff3cd;
+  color: #664d03;
 }
 
 .status.low-stock {
-  background-color: #ffc107;
-  color: #000;
+  background: #fef2f2;
+  color: #dc2626;
 }
 
 .status.in-stock {
-  background-color: #6fd649;
-  color: white;
+  background: #d4edda;
+  color: #155724;
+}
+
+/* Add these styles to your existing inventory.css file */
+
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0 20px;
+}
+
+.search-filter {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+#searchInput,
+#filterDropdown {
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+#searchInput {
+  flex-grow: 1;
+  max-width: 300px;
+  transition: border-color 0.3s ease;
+}
+
+#searchInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 5px rgba(46, 204, 113, 0.2);
+}
+
+#filterDropdown {
+  width: 150px;
+  background-color: white;
+  color: var(--text-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .search-filter {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  #searchInput,
+  #filterDropdown {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/*product details css*/
+.product-details-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.product-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  margin-top: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.product-image-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.product-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.no-image {
+  text-align: center;
+  color: #6c757d;
+  padding: 2rem;
+}
+
+.no-image .material-icons-sharp {
+  font-size: 48px;
+  margin-bottom: 1rem;
+}
+
+.info-group {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.label {
+  font-weight: 600;
+  min-width: 150px;
+  color: #495057;
+}
+
+.value {
+  color: #212529;
+}
+
+.status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+}
+
+.in-stock {
+  background: #d4edda;
+  color: #155724;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+}
+.low-stock {
+  background: #fff3cd;
+  color: #856404;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+}
+.out-of-stock {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+}
+
+.blog-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.blog-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .product-info-grid {
+    grid-template-columns: 1fr;
+  }
 }
