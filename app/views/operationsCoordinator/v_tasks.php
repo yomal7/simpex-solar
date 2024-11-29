@@ -74,7 +74,7 @@
                                 <tr>
                                     <td><?php echo $task->id; ?></td>
                                     <td><?php echo $task->title; ?></td>
-                                    <td><?php echo $task->employee_id; ?></td>
+                                    <td><?php echo $task->employee_name; ?></td>
                                     <td><?php echo $task->start_date; ?></td>
                                     <td><?php echo $task->end_date; ?></td>
                                     <td><span class="task-status <?php echo strtolower($task->status); ?>"><?php echo $task->status; ?></span></td>
