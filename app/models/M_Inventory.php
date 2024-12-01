@@ -235,7 +235,7 @@ class M_Inventory
                 Inventory.supplier_id = Suppliers.id
             WHERE Inventory.id = :itemId');
         $this->db->bind(':itemId', $itemId);
-
+    }
     public function getInventoryById($id)
     {
         $this->db->query('SELECT i.*, s.name as supplier_name 
