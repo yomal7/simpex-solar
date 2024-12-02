@@ -67,6 +67,16 @@ class M_Shop
         return $this->db->resultSet();
     }
 
+    public function getProductsByCategory($category)
+    {
+        $this->db->query('SELECT p.*, s.name as supplier_name 
+                         FROM products p 
+                         LEFT JOIN suppliers s ON p.supplier_id = s.id 
+                         WHERE p.deleted_at IS NULL And p.category = :category
+                         ORDER BY p.created_at DESC');
+        return $this->db->resultSet();
+    }
+
     public function getProductById($id)
     {
         $this->db->query('SELECT p.*, s.name as supplier_name,
