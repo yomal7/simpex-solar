@@ -11,14 +11,42 @@ class M_Packages {
         return $this->db->resultSet();
     }
 
+    public function createSlug($title) {
+        // Convert the title to lowercase and replace spaces with hyphens
+        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
+        
+        // Remove multiple hyphens
+        $slug = preg_replace('/-+/', '-', $slug);
+        
+        // Check if slug already exists
+        $this->db->query('SELECT slug FROM package WHERE slug = :slug');
+        $this->db->bind(':slug', $slug);
+        
+        if ($this->db->single()) {
+            // If exists, append a number
+            $i = 1;
+            do {
+                $new_slug = $slug . '-' . $i;
+                $this->db->query('SELECT slug FROM package WHERE slug = :slug');
+                $this->db->bind(':slug', $new_slug);
+                $i++;
+            } while ($this->db->single());
+            $slug = $new_slug;
+        }
+        
+        return $slug;
+    }
+
     public function createPackage($data) {
         try {
+            $data['slug'] = $this->createSlug($data['title']);
             // Calculate the total price from equipment
             $equipmentPrice = $this->calculateFinalPrice($data['equipment'], $data['service_charge']);
             $finalPrice = $equipmentPrice + floatval($data['service_charge']);
     
             $this->db->query('INSERT INTO package (
                 title, 
+                slug,
                 description, 
                 price, 
                 warranty_years, 
@@ -27,7 +55,8 @@ class M_Packages {
                 service_charge, 
                 final_price
             ) VALUES (
-                :title, 
+                :title,
+                :slug, 
                 :description, 
                 :price, 
                 :warranty_years, 
@@ -38,6 +67,7 @@ class M_Packages {
             )');
            
             $this->db->bind(':title', $data['title']);
+            $this->db->bind(':slug', $data['slug']);
             $this->db->bind(':description', $data['description']);
             $this->db->bind(':price', $equipmentPrice);
             $this->db->bind(':warranty_years', $data['warranty_years']);
@@ -71,6 +101,16 @@ class M_Packages {
             error_log("Error creating package: " . $e->getMessage());
             return false;
         }
+    }
+
+    public function getPackageBySlug($slug) {
+        $this->db->query('SELECT p.*, GROUP_CONCAT(pf.feature_name) as features 
+                         FROM package p 
+                         LEFT JOIN packagefeature pf ON p.package_id = pf.package_id 
+                         WHERE p.slug = :slug AND p.deleted_at IS NULL 
+                         GROUP BY p.package_id');
+        $this->db->bind(':slug', $slug);
+        return $this->db->single();
     }
     
     public function calculateFinalPrice($equipment, $serviceCharge) {
@@ -253,6 +293,65 @@ class M_Packages {
             error_log("Error getting package features: " . $e->getMessage());
             return [];
         }
+        
+    }
+
+    //To package showcase
+
+    public function getPackagesByType($type) {
+        $this->db->query('SELECT p.*, GROUP_CONCAT(pf.feature_name) as features 
+                         FROM package p 
+                         LEFT JOIN packagefeature pf ON p.package_id = pf.package_id 
+                         WHERE p.type = :type AND p.deleted_at IS NULL 
+                         GROUP BY p.package_id');
+        $this->db->bind(':type', $type);
+        return $this->db->resultSet();
+    }
+
+    public function getAllPackagesWithFeatures() {
+        $this->db->query('SELECT p.*, GROUP_CONCAT(pf.feature_name) as features 
+                         FROM package p 
+                         LEFT JOIN packagefeature pf ON p.package_id = pf.package_id 
+                         WHERE p.deleted_at IS NULL 
+                         GROUP BY p.package_id');
+        return $this->db->resultSet();
+    }
+
+    public function getPackageEquipmentDetails($package_id) {
+        $this->db->query('SELECT pe.*, i.name as item_name, i.description as item_description, 
+                          i.price as item_price, i.blog_link, i.image as item_image
+                          FROM packageequipment pe 
+                          JOIN inventory i ON pe.item_id = i.id 
+                          WHERE pe.package_id = :package_id AND i.deleted_at IS NULL');
+        $this->db->bind(':package_id', $package_id);
+        return $this->db->resultSet();
+    }
+
+    public function submitQuotation($data) {
+        $this->db->query('INSERT INTO customerquotation (
+            user_id, 
+            package_id, 
+            address, 
+            monthly_consumption, 
+            nearest_city, 
+            customizations
+        ) VALUES (
+            :user_id, 
+            :package_id, 
+            :address, 
+            :monthly_consumption, 
+            :nearest_city, 
+            :customizations
+        )');
+    
+        $this->db->bind(':user_id', $data['user_id']);
+        $this->db->bind(':package_id', $data['package_id']);
+        $this->db->bind(':address', $data['address']);
+        $this->db->bind(':monthly_consumption', $data['monthly_consumption']);
+        $this->db->bind(':nearest_city', $data['nearest_city']);
+        $this->db->bind(':customizations', $data['customizations']);
+    
+        return $this->db->execute();
     }
 
 }
