@@ -8,7 +8,9 @@
         }
 
         public function getHolidayRecords($employee_id) {
-            $this->db->query('SELECT * FROM holidayrecords WHERE employee_id = :employee_id');
+        
+
+            $this->db->query('SELECT * FROM holidayrecords WHERE employee_id = :employee_id ORDER BY created_at DESC');
             $this->db->bind(':employee_id', $employee_id);
 
             return $this->db->resultSet();

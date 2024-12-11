@@ -89,16 +89,16 @@
                             </tr>
                         </thead>
                         <tbody id="holidayRecordsTableBody">
-                            <?php //foreach ($data['holidayRecords'] as $record) : ?>
+                            <?php foreach ($data['holidayRecords'] as $record) : ?>
                                 <tr>
-                                    <td><?php //echo $record->leave_type; ?></td> 
-                                    <td><?php //echo $record->start_date; ?></td>
-                                    <td><?php //echo $record->end_date; ?></td>
-                                    <td><?php //echo $record->number_of_days; ?></td>
-                                    <td><?php //echo $record->reason; ?></td>
-                                    <td class="<?php //echo strtolower($record->status); ?>"><?php //echo ucfirst($record->status); ?></td>
+                                    <td><?php echo $record->leave_type; ?></td> 
+                                    <td><?php echo $record->start_date; ?></td>
+                                    <td><?php echo $record->end_date; ?></td>
+                                    <td><?php echo $record->number_of_days; ?></td>
+                                    <td><?php echo $record->reason; ?></td>
+                                    <td class="<?php echo strtolower($record->status); ?>"><?php echo ucfirst($record->status); ?></td>
                                 </tr>
-                            <?php //endforeach; ?>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
