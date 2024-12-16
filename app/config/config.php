@@ -10,5 +10,5 @@ define("DB_NAME", "simpex_db");
 
 //Addresses
 define('APPROOT', dirname(dirname(__FILE__)));
-define('URLROOT', 'http://localhost/simplex');
+define('URLROOT', 'http://localhost/simpex-solar');
 define('SITENAME', 'simpex ');

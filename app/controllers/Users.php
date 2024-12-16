@@ -161,6 +161,10 @@ class Users extends Controller {
                     case 'supplierCoordinator':
                         redirect('supplierCoordinator/index');
                         break;
+                    case 'employee':
+                        redirect('employee/index');
+                        break;
+
                     default:
                         redirect('');
                         break;
