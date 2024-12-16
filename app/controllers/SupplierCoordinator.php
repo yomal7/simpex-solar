@@ -736,14 +736,32 @@ class SupplierCoordinator extends Controller
 
     private function handleUpload($file)
     {
-        $targetDir = "public/uploads/shop/";
+        // Create target directory if it doesn't exist
+        $targetDir = APPROOT . "/../public/uploads/store/";
+        if (!file_exists($targetDir)) {
+            mkdir($targetDir, 0777, true);
+        }
+
+        // Generate unique filename
         $fileName = time() . '_' . basename($file['name']);
         $targetFilePath = $targetDir . $fileName;
 
-        if (move_uploaded_file($file['tmp_name'], $targetFilePath)) {
-            return $fileName;
+        // Check file type
+        $imageFileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
+        $allowTypes = array('jpg', 'jpeg', 'png', 'gif');
+
+        if (in_array($imageFileType, $allowTypes)) {
+            // Upload file
+            if (move_uploaded_file($file["tmp_name"], $targetFilePath)) {
+                return $fileName; // Return only filename for database storage
+            } else {
+                error_log("Failed to upload file: " . $file['name']);
+                return null;
+            }
+        } else {
+            error_log("Invalid file type: " . $imageFileType);
+            return null;
         }
-        return null;
     }
 
     public function editShopProduct($id)
@@ -794,7 +812,12 @@ class SupplierCoordinator extends Controller
                 'supplier_id' => trim($_POST['supplier_id']),
                 'blog_link' => trim($_POST['blog_link']),
                 'features' => $_POST['features'],
+                // Keep current images
+                'image1' => $_POST['current_image1'],
+                'image2' => $_POST['current_image2'],
+                'image3' => $_POST['current_image3'],
                 'suppliers' => $this->supplierModel->getSuppliers(),
+                // Error fields
                 'name_err' => '',
                 'price_err' => '',
                 'description_err' => '',
@@ -805,23 +828,70 @@ class SupplierCoordinator extends Controller
 
             // Validation
             if (empty($data['name'])) {
-                $data['name_err'] = 'Please enter name';
+                $data['name_err'] = 'Please enter product name';
             }
+
             if (empty($data['price'])) {
                 $data['price_err'] = 'Please enter price';
+            } elseif (!is_numeric($data['price']) || $data['price'] <= 0) {
+                $data['price_err'] = 'Please enter a valid price';
             }
-            // Add other validation as needed
 
-            if (empty($data['name_err']) && empty($data['price_err'])) {
+            if (empty($data['description'])) {
+                $data['description_err'] = 'Please enter description';
+            }
+
+            if (empty($data['category'])) {
+                $data['category_err'] = 'Please select a category';
+            }
+
+            if (empty($data['supplier_id'])) {
+                $data['supplier_err'] = 'Please select a supplier';
+            }
+
+            // Features validation - At least 2 required
+            if (empty($data['features'][0]) || empty($data['features'][1])) {
+                $data['features_err'] = 'First two features are required';
+            }
+
+            // Handle new image uploads if provided
+            for ($i = 1; $i <= 3; $i++) {
+                if (!empty($_FILES['image' . $i]['name'])) {
+                    $newImage = $this->handleUpload($_FILES['image' . $i]);
+                    if ($newImage) {
+                        $data['image' . $i] = $newImage;
+                    }
+                }
+            }
+
+            // Check for validation errors
+            if (
+                empty($data['name_err']) && empty($data['price_err']) &&
+                empty($data['description_err']) && empty($data['category_err']) &&
+                empty($data['supplier_err']) && empty($data['features_err'])
+            ) {
+
+                // Update product
                 if ($this->shopModel->updateProduct($data['id'], $data)) {
-                    flash('product_message', 'Product Updated');
+                    // Update features
+                    $this->shopModel->deleteProductFeatures($data['id']);
+                    foreach ($data['features'] as $feature) {
+                        if (!empty($feature)) {
+                            $this->shopModel->addProductFeature($data['id'], $feature);
+                        }
+                    }
+                    flash('product_message', 'Product Updated Successfully');
                     redirect('supplierCoordinator/shop');
                 } else {
-                    die('Something went wrong');
+                    flash('product_message', 'Error updating product', 'alert alert-danger');
+                    $this->view('supplierCoordinator/v_editshop', $data);
                 }
             } else {
+                // Load view with errors
                 $this->view('supplierCoordinator/v_editshop', $data);
             }
+        } else {
+            redirect('supplierCoordinator/shop');
         }
     }
 

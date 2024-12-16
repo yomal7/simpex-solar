@@ -51,32 +51,43 @@
         </div>
     </section>
 
-    <!-- Category Navigation -->
-    <nav class="category-nav">
-        <ul>
-            <li><button class="category-btn active" data-category="all">All Products</button></li>
-            <li><button class="category-btn" data-category="Solar Panel">Solar Panels</button></li>
-            <li><button class="category-btn" data-category="Inverters">Inverters</button></li>
-            <li><button class="category-btn" data-category="Components">Components</button></li>
-        </ul>
-    </nav>
+    <!--Update v_home.php category section -->
+    <section class="category-section">
+        <nav class="category-nav">
+            <ul>
+                <li><button class="category-btn active" data-category="all">
+                        <i class='bx bx-category'></i>All Products
+                    </button></li>
+                <li><button class="category-btn" data-category="Solar Panel">
+                        <i class='bx bx-sun'></i>Solar Panels
+                    </button></li>
+                <li><button class="category-btn" data-category="Inverters">
+                        <i class='bx bx-bolt'></i>Inverters
+                    </button></li>
+                <li><button class="category-btn" data-category="Components">
+                        <i class='bx bx-chip'></i>Components
+                    </button></li>
+            </ul>
+        </nav>
+    </section>
 
-    <!-- Products Section -->
     <section class="products-section">
-        <div class="products-grid">
+        <div class="products-grid" id="productsGrid">
             <?php if (!empty($data['products'])): ?>
                 <?php foreach ($data['products'] as $product): ?>
                     <div class="product-card" data-category="<?php echo htmlspecialchars($product->category); ?>">
-                        <div class="product-image" style="background-image: url('<?php echo !empty($product->image1) ? URLROOT . '/public/uploads/images/' . $product->image1 : URLROOT . '/public/assets/default-product.png'; ?>')">
+                        <div class="product-image">
+                            <img src="<?php echo !empty($product->image1) ? URLROOT . '/public/uploads/store/' . $product->image1 : URLROOT . '/public/assets/default-product.png'; ?>"
+                                alt="<?php echo htmlspecialchars($product->name); ?>">
+                            <div class="product-overlay"></div>
                             <span class="product-label"><?php echo htmlspecialchars($product->category); ?></span>
                         </div>
                         <div class="product-details">
                             <h3 class="product-title"><?php echo htmlspecialchars($product->name); ?></h3>
-                            <p class="product-description"><?php echo htmlspecialchars($product->description); ?></p>
                             <div class="product-price">Rs. <?php echo number_format($product->price, 2); ?></div>
                             <div class="product-actions">
                                 <a href="<?php echo URLROOT; ?>/shop/product/<?php echo $product->id; ?>" class="view-details">
-                                    View Details
+                                    View Details <i class='bx bx-right-arrow-alt'></i>
                                 </a>
                             </div>
                         </div>
@@ -84,6 +95,7 @@
                 <?php endforeach; ?>
             <?php else: ?>
                 <div class="no-products">
+                    <i class='bx bx-package'></i>
                     <p>No products available in this category.</p>
                 </div>
             <?php endif; ?>
@@ -91,8 +103,10 @@
     </section>
 
     <script>
+        // Add to home.js
         document.addEventListener('DOMContentLoaded', function() {
             const categoryBtns = document.querySelectorAll('.category-btn');
+            const productsGrid = document.getElementById('productsGrid');
             const productCards = document.querySelectorAll('.product-card');
 
             categoryBtns.forEach(btn => {
@@ -103,14 +117,22 @@
                     categoryBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
 
-                    // Filter products
-                    productCards.forEach(card => {
-                        if (category === 'all' || card.dataset.category === category) {
-                            card.style.display = 'block';
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    });
+                    // Add filtering class for animation
+                    productsGrid.classList.add('filtering');
+
+                    setTimeout(() => {
+                        // Filter products
+                        productCards.forEach(card => {
+                            if (category === 'all' || card.dataset.category === category) {
+                                card.style.display = 'block';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+
+                        // Remove filtering class
+                        productsGrid.classList.remove('filtering');
+                    }, 300);
                 });
             });
         });
