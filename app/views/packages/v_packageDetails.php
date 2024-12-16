@@ -1,26 +1,52 @@
 <?php require APPROOT.'/views/packages/header.php';?>
     <?php require APPROOT.'/views/inc/components/topnavbar.php'; ?>
-
         
     <div class="wrapper">
         <div class="container">
             <main class="main-content">
                 <div class="product-details">
                     <div class="product-image">
-                        <img src="../assets/product_poster.png" alt="40kW 3 Phase Ongrid Solution">
+                        <img 
+                            src="<?php echo URLROOT; ?>/public//<?php echo $data['package']->image ?: 'default-package.jpg'; ?>"
+                            alt="<?php echo $data['package']->title; ?>"
+                            class="main-image"
+                            onerror="this.src='<?php echo URLROOT; ?>/public/assets/product_poster.png'"
+                        >
                     </div>
                     <div class="product-info">
-                        <h1>40kW 3 Phase Ongrid Solution</h1>
+                        <h1><?php echo $data['package']->title; ?></h1>
                         <div class="product-description">
-                            <p>This package includes 73 JA 550W P Type Panels and a Huawei 40kW Inverter, both with 10-year warranties. Enjoy free insurance for 1 year, 2 complimentary services, and CEB charges included for a seamless solar experience.
-
-                                Save on electricity with this powerful solar solution!</p>
+                            <p><?php echo $data['package']->description; ?></p>
                         </div>
-                        <p class="price">Rs 5,463,000.00</p>
-                        <p class="warrenty">5 years warrenty</p>
+                        <p class="price">Rs <?php echo $data['package']->price; ?></p>
+                        <p class="warrenty">
+                            <svg class="warranty-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                            <?php echo $data['package']->warranty_years; ?> Year Warranty
+                        </p>
+                        <div class="features-section">
+                            <ul class="features-list">
+                                <?php 
+                                if($data['package']->features) {
+                                    $features = explode(',', $data['package']->features);
+                                    foreach($features as $feature): 
+                                ?>
+                                    <li class="feature-item">
+                                        <span><?php echo htmlspecialchars(trim($feature)); ?></span>
+                                    </li>
+                                <?php 
+                                    endforeach;
+                                } else {
+                                    echo '<li class="no-features">Features information not available</li>';
+                                }
+                                ?>
+                            </ul>
+                        </div>
                         <div class="get-quote-btn-wrapper">
                             <!-- <button class="get-quote-btn" onclick="window.location.href='packageComformation.html'"> -->
-                            <button class="get-quote-btn" onclick="window.location.href='<?= URLROOT; ?>/packages/packageConformation'">
+                            <!-- <button class="get-quote-btn" onclick="window.location.href='<= URLROOT; ?>/packages/packageConformation'"> -->
+                            <button class="get-quote-btn" onclick="handleQuoteClick('<?php echo $data['package']->slug; ?>')">
                                 Get quote
                                 <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
                                     <path
@@ -29,7 +55,7 @@
                                     clip-rule="evenodd"
                                     ></path>
                                 </svg>
-                                </button>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -38,43 +64,56 @@
                         <button class="tab-button active" data-tab="description">Description</button>
                         <button class="tab-button" data-tab="reviews">Reviews</button>
                     </div>
-                    <div id="description" class="tab-content active">
-                        <table class="equipment-table">
-                            <thead>
-                                <tr>
-                                    <th>Equipment</th>
-                                    <th>Details</th>
-                                    <th>Link</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>JA 550W P Type Panels</td>
-                                    <td>73 Panels - 10 Years Warranty</td>
-                                    <td><a href="https://example.com/ja-550w-panels" target="_blank">Learn More</a></td>
-                                </tr>
-                                <tr>
-                                    <td>Huawei 40kW Inverter</td>
-                                    <td>10 Years Warranty</td>
-                                    <td><a href="https://example.com/huawei-40kw-inverter" target="_blank">Learn More</a></td>
-                                </tr>
-                                <tr>
-                                    <td>Insurance</td>
-                                    <td>Free for 1 year</td>
-                                    <td><a href="https://example.com/insurance" target="_blank">Learn More</a></td>
-                                </tr>
-                                <tr>
-                                    <td>Service</td>
-                                    <td>Free 2 Services</td>
-                                    <td><a href="https://example.com/free-service" target="_blank">Learn More</a></td>
-                                </tr>
-                                <tr>
-                                    <td>CEB Charges</td>
-                                    <td>Included</td>
-                                    <td><a href="https://example.com/ceb-charges" target="_blank">Learn More</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="table-wrapper">
+                        <div id="description" class="tab-content active">
+                            <table class="equipment-table">
+                                <thead>
+                                    <tr>
+                                        <th>Equipment</th>
+                                        <th>Details</th>
+                                        <th>Quantity</th>
+                                        <th>More Info</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if(isset($data['equipment']) && !empty($data['equipment'])): ?>
+                                        <?php foreach($data['equipment'] as $item): ?>
+                                            <tr>
+                                                <td class="equipment-name">
+                                                    <?php if($item->item_image): ?>
+                                                        <img src="<?php echo URLROOT; ?>/public/<?php echo $item->item_image; ?>" 
+                                                            alt="<?php echo $item->item_name; ?>" 
+                                                            class="equipment-thumb"
+                                                            onerror="this.style.display='none'">
+                                                    <?php endif; ?>
+                                                    <?php echo $item->item_name; ?>
+                                                </td>
+                                                <td><?php echo $item->item_description ?: 'Details not available'; ?></td>
+                                                <td class="text-center"><?php echo $item->quantity; ?></td>
+                                                <td class="text-center">
+                                                    <?php if(!empty($item->blog_link)): ?>
+                                                        <a href="<?php echo $item->blog_link; ?>" target="_blank" class="learn-more-link">
+                                                            Learn More
+                                                            <svg class="icon" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                                                                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                                                            </svg>
+                                                        </a>
+                                                    <?php else: ?>
+                                                        <span class="no-link">Details on request</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="6" class="text-center">No equipment details available</td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+
+
                     </div>
                     
                     <div id="reviews" class="tab-content">
@@ -88,6 +127,25 @@
 
     </main>
     </div>
-    
+    <script>
+        function handleQuoteClick(packageSlug) {
+            fetch('<?php echo URLROOT; ?>/users/checkLogin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.isLoggedIn) {
+                    window.location.href = '<?php echo URLROOT; ?>/packages/packageConformation/' + packageSlug;
+                } else {
+                    // Store the redirect URL in session storage using slug
+                    sessionStorage.setItem('redirectAfterLogin', '/packages/packageConformation/' + packageSlug);
+                    window.location.href = '<?php echo URLROOT; ?>/users/index';
+                }
+            });
+        }
+    </script>
     <?php require APPROOT.'/views/inc/components/bottomfooter.php'; ?>
 <?php require APPROOT.'/views/packages/footer.php';?>

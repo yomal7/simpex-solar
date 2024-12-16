@@ -6,6 +6,7 @@ class Shop extends Controller
 
     public function __construct()
     {
+        $this->shopModel = $this->model('M_Shop');
         // $this->blogModel = $this->model('M_Blog');
         // require_once '../app/services/BlogService.php';
         // $this->blogService = new BlogService($this->blogModel);
@@ -13,7 +14,12 @@ class Shop extends Controller
 
     public function index()
     {
-        $data = [];
+        $products = $this->shopModel->getProducts();
+
+        $data = [
+            'title' => 'Welcome to Solar Store',
+            'products' => $products
+        ];
 
         $this->view('shop/v_home', $data);
     }
