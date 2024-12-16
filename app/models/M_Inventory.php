@@ -14,19 +14,19 @@ class M_Inventory
     {
         $this->db->query('
         SELECT 
-            Inventory.id AS item_id,
-            Inventory.name AS product_name, 
-            Suppliers.name AS supplier_name, 
-            Inventory.price, 
-            Inventory.quantity
+            inventory.id AS item_id,
+            inventory.name AS product_name, 
+            suppliers.name AS supplier_name, 
+            inventory.price, 
+            inventory.quantity
         FROM 
-            Inventory
+            inventory
         INNER JOIN 
-            Suppliers 
+            suppliers 
         ON 
-            Inventory.supplier_id = Suppliers.id
+            inventory.supplier_id = suppliers.id
         WHERE 
-            Inventory.deleted_at IS NULL
+            inventory.deleted_at IS NULL
     ');
         return $this->db->resultSet();
     }
@@ -36,18 +36,18 @@ class M_Inventory
     {
         $this->db->query('
         SELECT 
-            Inventory.id AS item_id,
-            Inventory.name AS product_name, 
-            Suppliers.name AS supplier_name, 
-            Inventory.price, 
-            Inventory.quantity,
-            Inventory.deleted_at
+            inventory.id AS item_id,
+            inventory.name AS product_name, 
+            suppliers.name AS supplier_name, 
+            inventory.price, 
+            inventory.quantity,
+            inventory.deleted_at
         FROM 
-            Inventory
+            inventory
         INNER JOIN 
-            Suppliers 
+            suppliers 
         ON 
-            Inventory.supplier_id = Suppliers.id
+            inventory.supplier_id = suppliers.id
     ');
         return $this->db->resultSet();
     }
@@ -83,7 +83,7 @@ class M_Inventory
     // Create new inventory item
     public function createItem($data)
     {
-        $this->db->query('INSERT INTO Inventory 
+        $this->db->query('INSERT INTO inventory 
             (name, supplier_id, description, price, quantity, blog_link, image) 
             VALUES (:name, :supplier_id, :description, :price, :quantity, :blog_link, :image_path)');
 
@@ -158,7 +158,7 @@ class M_Inventory
     {
         try {
             // Prepare the soft delete query
-            $this->db->query('UPDATE Inventory SET deleted_at = CURRENT_TIMESTAMP WHERE id = :item_id AND deleted_at IS NULL');
+            $this->db->query('UPDATE inventory SET deleted_at = CURRENT_TIMESTAMP WHERE id = :item_id AND deleted_at IS NULL');
             $this->db->bind(':item_id', $itemId);
 
             // Execute and check if rows were affected
@@ -176,7 +176,7 @@ class M_Inventory
     // Decrease item quantity when used in a package
     public function decreaseItemQuantity($itemId, $quantity)
     {
-        $this->db->query('UPDATE Inventory 
+        $this->db->query('UPDATE inventory 
             SET quantity = quantity - :quantity 
             WHERE item_id = :item_id AND quantity >= :quantity');
 
@@ -216,7 +216,8 @@ class M_Inventory
         return $this->db->resultSet();
     }
 
-    public function viewItem($itemId) {
+    public function viewItem($itemId)
+    {
         $this->db->query('SELECT 
                 Inventory.id,
                 Inventory.image,
