@@ -179,7 +179,8 @@ class Users extends Controller {
             'customer' => 'client/index',
             'operationsCoordinator' => 'operationsCoordinator/index',
             'hRAdministrator' => 'hRAdministrator/index',
-            'supplierCoordinator' => 'supplierCoordinator/index'
+            'supplierCoordinator' => 'supplierCoordinator/index',
+            'employee' => 'employee/index'
         ];
         
         return $redirects[$role] ?? '';
