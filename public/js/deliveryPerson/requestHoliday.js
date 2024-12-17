@@ -57,7 +57,7 @@ function handleSubmit(event) {
     const data = Object.fromEntries(formData.entries());
     
     // Use AJAX to send the data to the server
-    fetch('<?php echo URLROOT; ?>/holidayRequest/requestHoliday', {
+    fetch('<?php echo URLROOT; ?>/deliveryPerson/addRequest', {
         method: 'POST',
         body: new URLSearchParams(data),
     })
