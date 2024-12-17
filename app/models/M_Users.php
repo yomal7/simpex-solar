@@ -42,6 +42,12 @@ class M_Users {
         return $this->db->single();
     }
 
+    public function getUserById($userId) {
+        $this->db->query('SELECT * FROM users WHERE user_id = :user_id');
+        $this->db->bind(':user_id', $userId);
+        return $this->db->single();
+    }
+
     public function findUserByEmail($email) {
         $this->db->query('SELECT user_id FROM users WHERE email = :email');
         $this->db->bind(':email', $email);
@@ -75,6 +81,13 @@ class M_Users {
 
     public function deleteUser($userId) {
         $this->db->query('DELETE FROM users WHERE user_id = :user_id');
+        $this->db->bind(':user_id', $userId);
+        return $this->db->execute();
+    }
+
+    public function updatePhone($userId, $phone) {
+        $this->db->query('UPDATE users SET phone = :phone WHERE user_id = :user_id');
+        $this->db->bind(':phone', $phone);
         $this->db->bind(':user_id', $userId);
         return $this->db->execute();
     }

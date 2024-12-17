@@ -111,6 +111,17 @@ class Users extends Controller {
         error_log("Session created with: " . print_r($_SESSION, true));
     }
 
+    public function checkLogin() {
+        header('Content-Type: application/json');
+        if(isset($_SESSION['user_id'])) {
+            echo json_encode(['isLoggedIn' => true]);
+        } else {
+            echo json_encode(['isLoggedIn' => false]);
+        }
+        exit;
+    }
+
+
     private function handleLogin($postData) {
         $data = [
             'email' => trim($postData['email']),
@@ -120,7 +131,7 @@ class Users extends Controller {
             'action' => 'login',
             'mode' => 'signin'
         ];
-
+    
         if (empty($data['email'])) {
             $data['email_err'] = 'Please enter email';
         }
@@ -135,36 +146,24 @@ class Users extends Controller {
                 $data['email_err'] = 'No user found';
             }
         }
-        
+
         if (empty($data['email_err']) && empty($data['password_err'])) {
             $user = $this->userModel->login($data['email'], $data['password']);
             
             if ($user) {
-                // Add debug logging
-                error_log("Login successful. User data: " . print_r($user, true));
-                
                 $this->createUserSession($user);
                 
-                switch ($user->role) {
-                    case 'admin':
-                        redirect('admin/index');
-                        break;
-                    case 'customer':
-                        redirect('client/index');
-                        break;
-                    case 'operationsCoordinator':
-                        redirect('operationsCoordinator/index');
-                        break;
-                    case 'hRAdministrator':
-                        redirect('hRAdministrator/index');
-                        break;
-                    case 'supplierCoordinator':
-                        redirect('supplierCoordinator/index');
-                        break;
-                    default:
-                        redirect('');
-                        break;
-                }
+                // Handle redirect after login
+                echo "<script>
+                    if (sessionStorage.getItem('redirectAfterLogin')) {
+                        let redirect = sessionStorage.getItem('redirectAfterLogin');
+                        sessionStorage.removeItem('redirectAfterLogin');
+                        window.location.href = '" . URLROOT . "' + redirect;
+                    } else {
+                        window.location.href = '" . URLROOT . "/" . $this->getRoleRedirect($user->role) . "';
+                    }
+                </script>";
+                exit;
             } else {
                 $data['password_err'] = 'Invalid password';
                 $this->view('users/v_auth', $data);
@@ -172,6 +171,19 @@ class Users extends Controller {
         } else {
             $this->view('users/v_auth', $data);
         }
+    }
+
+    private function getRoleRedirect($role) {
+        $redirects = [
+            'admin' => 'admin/index',
+            'customer' => 'client/index',
+            'operationsCoordinator' => 'operationsCoordinator/index',
+            'hRAdministrator' => 'hRAdministrator/index',
+            'supplierCoordinator' => 'supplierCoordinator/index',
+            'employee' => 'employee/index'
+        ];
+        
+        return $redirects[$role] ?? '';
     }
 
 
@@ -187,5 +199,27 @@ class Users extends Controller {
     public function isLoggedIn() {
         return isset($_SESSION['user_id']);
     }
+
+    public function updatePhone() {
+        // Check if user is logged in
+        if (!isLoggedIn()) {
+            redirect('users/index');
+            return;
+        }
+    
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $phone = $_POST['phone'];
+           
+            if ($this->userModel->updatePhone($_SESSION['user_id'], $phone)) {
+                flash('phone_update', 'Phone number updated successfully');
+                // Don't redirect here since it's part of the quotation submission
+                return true;
+            } else {
+                flash('phone_update', 'Failed to update phone number', 'alert alert-danger');
+                return false;
+            }
+        }
+    }
 }
+
 ?>
