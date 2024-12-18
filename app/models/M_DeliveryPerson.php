@@ -26,9 +26,10 @@
             $this->db->bind(':reason', $data['reason']);
             $this->db->bind(':status', 'pending'); // Default status is 'pending'
             $this->db->bind(':leave_type', $data['leave_type']);
-    
+        
             return $this->db->execute();
-        } 
+        }
+        
 
         public function getTasks($employee_id) {
             $this->db->query('SELECT * FROM tasks WHERE employee_id = :employee_id');

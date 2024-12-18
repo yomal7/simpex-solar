@@ -6,8 +6,8 @@ class DeliveryPerson extends Controller {
 
     public function __construct() {
         
-        $_SESSION['user_id'] = 1; // Replace 1 with a valid user_id for testing
-        $_SESSION['role'] = 'deliveryPerson';
+        // $_SESSION['user_id'] = 1; // Replace 1 with a valid user_id for testing
+        // $_SESSION['role'] = 'deliveryPerson';
 
         if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'deliveryPerson') {
             flash('error_msg', 'Unauthorized access');
@@ -31,22 +31,14 @@ class DeliveryPerson extends Controller {
 
     public function requestHoliday() {
 
-        //$_SESSION['user_id'] = 1; // Replace 1 with a valid user_id for testing
-        //$_SESSION['role'] = 'deliveryPerson';
-
-        // $holidayRecords = $this->deliveryPersonModel->getHolidayRecords($_SESSION['user_id']);
-        // $data = [
-        //     'holidayRecords' => $holidayRecords
-        // ];
-        // $this->view('deliveryPerson/v_deliveryPersonRequestHoliday', $data);
-
-        $employee = $this->employeeModel->getEmployeeIdByUserId($_SESSION['user_id']);
+        $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
         
         if ($employee) {
             // Fetch the holiday records for the employee
             $holidayRecords = $this->deliveryPersonModel->getHolidayRecords($employee->employee_id);
 
             $data = [
+                'employee' => $employee,
                 'holidayRecords' => $holidayRecords
             ];
 
@@ -55,7 +47,6 @@ class DeliveryPerson extends Controller {
             flash('error_msg', 'Employee not found');
             redirect('users/login');
         }
-
 
     }
 
@@ -78,56 +69,126 @@ class DeliveryPerson extends Controller {
     //     }
     // }
 
-    public function addRequests() {
+    // public function addRequests() {
         
 
+    //     if (!isset($_SESSION['user_id'])) {
+    //         redirect('users/login');
+    //     }
+
+    //     // Fetch the employee ID
+    //     $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+
+    //     if (!$employee) {
+    //         flash('error_msg', 'Employee not found');
+    //         redirect('users/login');
+    //     }
+
+
+    //     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    //         // Sanitize POST data
+    //         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+    //         // Init data
+    //         $data = [
+    //             'start_date' => trim($_POST['startDate']),
+    //             'end_date' => trim($_POST['endDate']),
+    //             'number_of_days' => trim($_POST['numberOfDays']),
+    //             'reason' => trim($_POST['reason']),
+    //             'leave_type' => trim($_POST['leaveType']),
+    //             'employee_id' => $employee->employee_id,
+    //             'start_date_err' => '',
+    //             'end_date_err' => '',
+    //             'number_of_days_err' => '',
+    //             'reason_err' => '',
+    //             'leave_type_err' => ''
+                
+    //         ];
+
+    //         // Validate inputs
+    //         $this->validateRequestData($data);
+
+    //         // Check if there are no errors
+    //         if (
+    //             empty($data['start_date_err']) && empty($data['end_date_err']) && empty($data['number_of_days_err']) && empty($data['reason_err']) && empty($data['leave_type_err'])
+    //         ) {
+    //             // Add holiday request
+    //             if ($this->deliveryPersonModel->addHolidayRecords($data)) {
+    //                 // Redirect to the list of holiday requests with a success message
+    //                 flash('request_success', 'Holiday request added successfully');
+    //                 redirect('holidayRequests/index');
+    //             } else {
+    //                 error_log('Failed to add holiday records:' . print_r($data, true));
+    //                 die('Something went wrong while adding the request');
+    //             }
+    //         } else {
+    //             // Load view with errors
+    //             $this->view('deliveryPerson/v_deliveryPersonRequestHoliday', $data);
+    //         }
+    //     } else {
+    //         // Init data for GET request
+    //         $data = [
+    //             'start_date' => '',
+    //             'end_date' => '',
+    //             'numuber_of_days' => '',
+    //             'reason' => '',
+    //             'leave_type' => '',
+    //             'start_date_err' => '',
+    //             'end_date_err' => '',
+    //             'number_of_days_err' => '',
+    //             'reason_err' => '',
+    //             'leave_type_err' => ''
+    //         ];
+
+    //         // Load view
+    //         $this->view('deliveryPerson/v_deliveryPersonRequestHoliday', $data);
+    //     }
+    // }
+
+    public function addRequests() {
         if (!isset($_SESSION['user_id'])) {
             redirect('users/login');
         }
-
+    
         // Fetch the employee ID
         $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
-
-
-
+    
+        if (!$employee) {
+            flash('error_msg', 'Employee not found');
+            redirect('users/login');
+        }
+    
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Sanitize POST data
-            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-
+            // Read raw POST data as JSON
+            $data = json_decode(file_get_contents("php://input"), true);
+    
+            // Validate the data
+            $data = filter_var_array($data, FILTER_SANITIZE_STRING);
+    
             // Init data
-            $data = [
-                'start_date' => trim($_POST['startDate']),
-                'end_date' => trim($_POST['endDate']),
-                'number_of_days' => trim($_POST['numberOfDays']),
-                'reason' => trim($_POST['reason']),
-                'leave_type' => trim($_POST['leaveType']),
-                'employee_id' => $_SESSION['employee_id'],
-                'start_date_err' => '',
-                'end_date_err' => '',
-                'number_of_days_err' => '',
-                'reason_err' => '',
-                'leave_type_err' => ''
-                
+            $holidayData = [
+                'start_date' => $data['startDate'],
+                'end_date' => $data['endDate'],
+                'number_of_days' => $data['numberOfDays'],
+                'reason' => $data['reason'],
+                'leave_type' => $data['leaveType'],
+                'employee_id' => $employee->employee_id
             ];
-
+    
             // Validate inputs
-            $this->validateRequestData($data);
-
+            $this->validateRequestData($holidayData);
+    
             // Check if there are no errors
-            if (
-                empty($data['start_date_err']) && empty($data['end_date_err']) && empty($data['number_of_days_err']) && empty($data['reason_err']) && empty($data['leave_type_err'])
-            ) {
+            if (empty($holidayData['start_date_err']) && empty($holidayData['end_date_err']) && empty($holidayData['number_of_days_err']) && empty($holidayData['reason_err']) && empty($holidayData['leave_type_err'])) {
                 // Add holiday request
-                if ($this->deliveryPersonModel->addHolidayRecords($data)) {
-                    // Redirect to the list of holiday requests with a success message
-                    flash('request_success', 'Holiday request added successfully');
-                    redirect('holidayRequests/index');
+                if ($this->deliveryPersonModel->addHolidayRecords($holidayData)) {
+                    echo json_encode(['success' => true]);
                 } else {
-                    die('Something went wrong while adding the request');
+                    echo json_encode(['success' => false, 'message' => 'Failed to add holiday records']);
                 }
             } else {
-                // Load view with errors
-                $this->view('delveryPerson/v_deliveryPersonRequestHoliday', $data);
+                // Send errors back
+                echo json_encode(['success' => false, 'errors' => $holidayData]);
             }
         } else {
             // Init data for GET request
@@ -148,6 +209,8 @@ class DeliveryPerson extends Controller {
             $this->view('deliveryPerson/v_deliveryPersonRequestHoliday', $data);
         }
     }
+    
+    
 
     //private function validateRequestData(&$data)
     //{

@@ -27,6 +27,16 @@ class M_Employee
         return $this->db->single();
     }
 
+    public function getEmployeeByUserId($userId)
+    {
+        $this->db->query('SELECT e.*, u.name, u.email, u.phone
+                        FROM employees e
+                        LEFT JOIN users u ON e.user_id= u.user_id 
+                        WHERE e.user_id = :id');
+        $this->db->bind(':id', $userId);
+        return $this->db->single();
+    }
+    
     public function create($data)
     {
         // Insert user data into the users table
