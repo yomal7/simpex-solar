@@ -23,11 +23,20 @@ class Shop extends Controller
 
         $this->view('shop/v_home', $data);
     }
-    public function productDetail()
+    public function product($id)
     {
+        $product = $this->shopModel->getProductById($id);
+        $features = $this->shopModel->getProductFeatures($id);
+
+        if (!$product) {
+            redirect('shop');
+        }
+
         $data = [
-            // 'product' => $this->shopModel->getProductById($productId)
+            'product' => $product,
+            'features' => $features
         ];
+
         $this->view('shop/v_productDetails', $data);
     }
     public function purchaseRequest()

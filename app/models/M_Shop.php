@@ -79,20 +79,18 @@ class M_Shop
 
     public function getProductById($id)
     {
-        $this->db->query('SELECT p.*, s.name as supplier_name,
-                         GROUP_CONCAT(pf.feature) as features 
+        $this->db->query('SELECT p.*, s.name as supplier_name 
                          FROM products p 
                          LEFT JOIN suppliers s ON p.supplier_id = s.id 
-                         LEFT JOIN product_features pf ON p.id = pf.product_id 
-                         WHERE p.id = :id AND p.deleted_at IS NULL 
-                         GROUP BY p.id');
+                         WHERE p.id = :id AND p.deleted_at IS NULL');
         $this->db->bind(':id', $id);
         return $this->db->single();
     }
 
     public function getProductFeatures($productId)
     {
-        $this->db->query('SELECT feature FROM product_features WHERE product_id = :product_id');
+        $this->db->query('SELECT feature FROM product_features 
+                         WHERE product_id = :product_id');
         $this->db->bind(':product_id', $productId);
         return $this->db->resultSet();
     }
