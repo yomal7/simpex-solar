@@ -39,11 +39,27 @@ class Shop extends Controller
 
         $this->view('shop/v_productDetails', $data);
     }
-    public function purchaseRequest()
+
+    public function requestPurchase($productId)
     {
+        // Check if user is logged in
+        if (!isLoggedIn()) {
+            flash('login_required', 'Please login to submit a purchase request');
+            redirect('users/login');
+        }
+
+        // Get product details
+        $product = $this->shopModel->getProductById($productId);
+
+        if (!$product) {
+            redirect('shop');
+        }
+
         $data = [
-            // 'product' => $this->shopModel->getProductById($productId)
+            'product' => $product,
+            'title' => 'Purchase Request - ' . $product->name
         ];
+
         $this->view('shop/v_purchaseRequest', $data);
     }
 }

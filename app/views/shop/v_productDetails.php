@@ -108,10 +108,10 @@
                 </div>
             </div>
 
-            <button class="purchase-request" id="purchaseRequest">
+            <a href="<?php echo URLROOT; ?>/shop/requestPurchase/<?php echo $data['product']->id; ?>" class="purchase-request" id="purchaseRequest">
                 <i class="fas fa-paper-plane"></i>
                 Request to Purchase
-            </button>
+            </a>
         </div>
     </div>
 

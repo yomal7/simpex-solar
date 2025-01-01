@@ -1,13 +1,14 @@
-<?php require APPROOT.'/views/blog/header.php';?>
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/shop/navbarfooter.css">
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/shop/purchaseRequest.css">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<?php require APPROOT . '/views/blog/header.php'; ?>
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/shop/navbarfooter.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/shop/purchaseRequest.css">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
 </head>
+
 <body>
 
-    <?php require APPROOT.'/views/inc/components/topnavbar.php'; ?>
+    <?php require APPROOT . '/views/inc/components/topnavbar.php'; ?>
     <div class="container">
         <div class="request-header">
             <h1>Purchase Request Submission</h1>
@@ -33,34 +34,36 @@
 
             <form class="form-section" id="purchaseRequestForm">
 
-                            <!-- Order Summary -->
+                <!-- Order Summary -->
                 <div class="order-summary">
                     <h3>Order Summary</h3>
                     <ul class="product-list">
                         <li class="product-item">
                             <div class="product-info">
-                                <img src="/api/placeholder/60/60" alt="Solar Panel" class="product-image">
+                                <img src="<?php echo URLROOT . '/public/uploads/store/' . $data['product']->image1; ?>"
+                                    alt="<?php echo $data['product']->name; ?>" class="product-image">
                                 <div class="product-details">
-                                    <h4>Premium Solar Panel 400W</h4>
+                                    <h4>"<?php echo $data['product']->name; ?>"</h4>
                                     <p>Quantity: 2</p>
                                 </div>
                             </div>
-                            <div class="product-price">$599.98</div>
+                            <div class="product-price">Rs. <?php echo number_format($data['product']->price, 2); ?></div>
                         </li>
                         <!-- Add more products as needed -->
                     </ul>
                     <div class="total-section">
                         <div class="total-row">
                             <span>Subtotal</span>
-                            <span>$599.98</span>
+                            <span>Rs. <?php echo number_format($data['product']->price, 2); ?></span>
                         </div>
                         <div class="total-row">
                             <span>Delivery Fee</span>
-                            <span>$50.00</span>
+                            <span>Rs. 450.00</span>
                         </div>
                         <div class="total-row final">
                             <span>Total</span>
-                            <span>$649.98</span>
+                            <span>Rs. <?php echo number_format($data['product']->price, 2);
+                                        +450.00 ?></span>
                         </div>
                     </div>
                 </div>
@@ -135,13 +138,13 @@
 
                     <div class="form-group full-width">
                         <label for="addressNotes">Address Notes (Optional)</label>
-                        <textarea class="form-control" id="addressNotes" name="addressNotes" rows="2" 
-                                placeholder="Provide any additional details about your address (e.g., landmarks, access instructions)"></textarea>
+                        <textarea class="form-control" id="addressNotes" name="addressNotes" rows="2"
+                            placeholder="Provide any additional details about your address (e.g., landmarks, access instructions)"></textarea>
                     </div>
                 </div>
 
                 <!-- Installation Information -->
-            
+
                 <!-- Additional Requirements -->
                 <div class="form-section-title">
                     <h3><i class="fas fa-clipboard-list"></i> Additional Requirements</h3>
@@ -187,7 +190,7 @@
         </div>
     </div>
 
-    <?php require APPROOT.'/views/inc/components/bottomfooter.php';?>
+    <?php require APPROOT . '/views/inc/components/bottomfooter.php'; ?>
 
-<script src="<?php echo URLROOT; ?>/js/shop/purchaseRequest.js"></script>
-<?php require APPROOT.'/views/shop/footer.php';?>
+    <script src="<?php echo URLROOT; ?>/js/shop/purchaseRequest.js"></script>
+    <?php require APPROOT . '/views/shop/footer.php'; ?>
