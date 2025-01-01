@@ -1,0 +1,225 @@
+.progress-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 30px;
+    position: relative;
+}
+
+.progress-list {
+    position: relative;
+    padding-left: 40px;
+}
+
+/* Vertical Line */
+.progress-list::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #e0e0e0;
+    z-index: 0;
+}
+
+/* Progress Line Fill Animation */
+.progress-list::after {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    width: 3px;
+    background: #00b894;
+    z-index: 1;
+    transition: height 0.5s ease;
+    animation: progressLine 1s ease forwards;
+}
+
+/* Individual Item Styling */
+.progress-item {
+    position: relative;
+    margin-bottom: 30px;
+    opacity: 0;
+    transform: translateX(-20px);
+    animation: slideIn 0.5s ease forwards;
+}
+
+/* Timeline Dot */
+.progress-dot {
+    position: absolute;
+    left: -40px;
+    top: 0;
+    width: 28px;
+    height: 28px;
+    background: #fff;
+    border: 3px solid #e0e0e0;
+    border-radius: 50%;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+/* Card Styling */
+.progress-info {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    margin-left: 20px;
+    transition: all 0.3s ease;
+}
+
+.progress-info h3 {
+    margin: 0 0 10px;
+    color: #2d3436;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.progress-info p {
+    margin: 0;
+    color: #636e72;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Active State */
+.progress-item.active .progress-info {
+    border: 2px solid #00b894;
+    transform: translateX(5px);
+}
+
+.progress-item.active .progress-dot {
+    background: #00b894;
+    border-color: #00b894;
+    box-shadow: 0 0 0 4px rgba(0, 184, 148, 0.2);
+    animation: pulseDot 2s infinite;
+}
+
+/* Completed State */
+.progress-item.completed .progress-dot {
+    background: #00b894;
+    border-color: #00b894;
+}
+
+.progress-item.completed .progress-info {
+    position: relative;
+}
+
+.check-mark {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #00b894;
+    font-size: 20px;
+}
+
+/* Locked State */
+.progress-item.locked .progress-dot {
+    background: #f5f5f5;
+    border-color: #e0e0e0;
+}
+
+.lock-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #b2bec3;
+    font-size: 16px;
+}
+
+/* Button Styles */
+.btn-proceed, .btn-view {
+    display: inline-block;
+    padding: 12px 25px;
+    margin-top: 15px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-proceed {
+    background: #00b894;
+    color: #fff;
+}
+
+.btn-proceed:hover {
+    background: #00a383;
+    transform: translateY(-2px);
+}
+
+.btn-view {
+    background: #f5f5f5;
+    color: #2d3436;
+}
+
+.btn-view:hover {
+    background: #e8e8e8;
+    transform: translateY(-2px);
+}
+
+/* Animations */
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes progressLine {
+    from {
+        height: 0;
+    }
+    to {
+        height: 100%;
+    }
+}
+
+@keyframes pulseDot {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 184, 148, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 184, 148, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 184, 148, 0);
+    }
+}
+
+/* Add animation delays for cascading effect */
+.progress-item:nth-child(1) { animation-delay: 0.2s; }
+.progress-item:nth-child(2) { animation-delay: 0.4s; }
+.progress-item:nth-child(3) { animation-delay: 0.6s; }
+.progress-item:nth-child(4) { animation-delay: 0.8s; }
+.progress-item:nth-child(5) { animation-delay: 1s; }
+.progress-item:nth-child(6) { animation-delay: 1.2s; }
+.progress-item:nth-child(7) { animation-delay: 1.4s; }
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .progress-container {
+        padding: 0 15px;
+    }
+
+    .progress-info {
+        padding: 15px;
+    }
+
+    .progress-info h3 {
+        font-size: 16px;
+        padding-right: 30px; /* Space for icons */
+    }
+
+    .btn-proceed, .btn-view {
+        width: 100%;
+        text-align: center;
+    }
+
+    .check-mark, .lock-icon {
+        top: 15px;
+        right: 15px;
+    }
+}
+

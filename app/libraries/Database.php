@@ -55,7 +55,12 @@
         }
         //Execute the prepared statement
         public function execute(){
-            return $this->statement->execute();
+            try {
+                return $this->statement->execute();
+            } catch (PDOException $e) {
+                error_log("Database error: " . $e->getMessage());
+                return false;
+            }
         }
 
         //Get multiple records as the result

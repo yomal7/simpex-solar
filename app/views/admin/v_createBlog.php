@@ -2,6 +2,8 @@
     <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/admin/dashboard.css">
 </head>
 <body>
+
+
     <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
@@ -46,7 +48,8 @@
             </a>
         </div>
         <div class="main-content">
-        <div class="container">
+            <div class="container">
+                <?php require APPROOT . '/views/inc/components/flash.php'; ?>
                 <div class="content-wrapper">
                     <div class="page-header">
                         <h1>Create New Blog Post</h1>
@@ -110,6 +113,16 @@
         </div>    
         </div>
     </div>
-
+    <script src="<?php echo URLROOT; ?>/public/js/flash.js"></script>
+    <?php
+    // Add this code to handle flash messages
+    if($flashMessage = flash('flash_message')): ?>
+        <script>
+            showFlash(
+                <?php echo json_encode($flashMessage['message']); ?>,
+                <?php echo json_encode($flashMessage['type']); ?>
+            );
+        </script>
+    <?php endif; ?>
     <script src="<?php echo URLROOT; ?>/js/admin/dashboard.js"></script>
 <?php require APPROOT.'/views/admin/footer.php';?>
