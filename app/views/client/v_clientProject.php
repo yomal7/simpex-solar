@@ -42,51 +42,127 @@
         <!-- End of Navbar -->
          
         <main>
-        <div class="container">
-            <div class="timeline-container">
-                <div class="timeline-progress-bar">
-                    <div class="timeline-progress-fill"></div>
-                </div>
+        <div class="progress-container container">
+            <!-- Pre-project Phases -->
+            <?php 
+            $preProjectPhases = [
+                'quotation' => [
+                    'title' => 'Quotation Phase',
+                    'description' => 'Review and accept project quotation'
+                ],
+                'site_visit' => [
+                    'title' => 'Site Visit Phase',
+                    'description' => 'Schedule a date for site visit'
+                ],
+                'agreement' => [
+                    'title' => 'Agreement Phase',
+                    'description' => 'Agreement approving and signing'
+                ]
+            ];
 
-                <div class="timeline-item completed" style="animation-delay: 0.2s;">
-                    <div class="timeline-card">
-                        <h3>Agreement Phase</h3>
-                        <p>Agreement approving and signing</p>
-                        <a href="<?php echo URLROOT; ?>/client/agreement" class="proceed-button">View Details</a>
-                    </div>
-                </div>
+            $projectPhases = [
+                'document_submission' => [
+                    'title' => 'Document Submission',
+                    'description' => 'Submit required documents'
+                ],
+                'first_payment' => [
+                    'title' => 'First Payment Phase',
+                    'description' => 'Pay the 25% of total project cost'
+                ],
+                'installation' => [
+                    'title' => 'Installation Phase',
+                    'description' => 'Schedule the date for installation'
+                ],
+                'final_payment' => [
+                    'title' => 'Final Payment Phase',
+                    'description' => 'Pay the remaining 75% of total project cost'
+                ]
+            ];
 
-                <div class="timeline-item completed" style="animation-delay: 0.4s;">
-                    <div class="timeline-card">
-                        <h3>Site Visit Phase</h3>
-                        <p>Schedule a date for site visit</p>
-                        <a href="<?php echo URLROOT; ?>/client/sitevisit" class="proceed-button">View Details</a>
-                    </div>
-                </div>
+            $currentPhase = $data['progress']['project'] ? 
+                $data['progress']['project']->current_phase : 
+                $data['progress']['pre_project']->current_phase;
+            ?>
 
-                <div class="timeline-item active" style="animation-delay: 0.6s;">
-                    <div class="timeline-card">
-                        <h3>First Payment Phase</h3>
-                        <p>Pay the 25% of total project cost</p>
-                        <a href="<?php echo URLROOT; ?>/client/firstpayment" class="proceed-button">Proceed Now</a>
+            <div class="progress-list">
+                <?php foreach($preProjectPhases as $phase => $info): ?>
+                    <?php
+                    $status = 'locked';
+                    if ($phase === $currentPhase) {
+                        $status = 'active';
+                    } elseif ($data['progress']['project'] || 
+                            array_search($phase, array_keys($preProjectPhases)) < 
+                            array_search($currentPhase, array_keys($preProjectPhases))) {
+                        $status = 'completed';
+                    }
+                    ?>
+                    <div class="progress-item <?php echo $status; ?>">
+                        <div class="progress-dot"></div>
+                        <div class="progress-info">
+                            <h3><?php echo $info['title']; ?></h3>
+                            <p><?php echo $info['description']; ?></p>
+                            <?php if($status === 'active'): ?>
+                                <?php if($phase === 'site_visit'): ?>
+                                    <a href="<?php echo URLROOT . '/client/siteVisit/' . $data['pre_project_id']; ?>" class="btn-proceed">
+                                        Proceed Now
+                                    </a>
+                                <?php elseif($phase === 'agreement'): ?>
+                                    <a href="<?php echo URLROOT . '/client/agreement/' . $data['pre_project_id']; ?>" class="btn-proceed">
+                                        Proceed Now
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?php echo URLROOT . '/client/project/' . $data['pre_project_id'] . '/' . $phase; ?>" class="btn-proceed">
+                                        Proceed Now
+                                    </a>
+                                <?php endif; ?>
+                            <?php elseif($status === 'completed'): ?>
+                                <?php if($phase === 'site_visit'): ?>
+                                    <a href="<?php echo URLROOT . '/client/siteVisit/' . $data['pre_project_id']; ?>" class="btn-view">
+                                        View Details
+                                    </a>
+                                <?php elseif($phase === 'agreement'): ?>
+                                    <a href="<?php echo URLROOT . '/client/agreement/' . $data['pre_project_id']; ?>" class="btn-view">
+                                        View Details
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?php echo URLROOT . '/client/project/' . $data['pre_project_id'] . '/' . $phase; ?>" class="btn-view">
+                                        View Details
+                                    </a>
+                                <?php endif; ?>
+                                <span class="check-mark">✓</span>
+                            <?php else: ?>
+                                <span class="lock-icon">🔒</span>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                </div>
+                <?php endforeach; ?>
 
-                <div class="timeline-item future" style="animation-delay: 0.8s;">
-                    <div class="timeline-card">
-                        <h3>Installation Phase</h3>
-                        <p>Schedule the date for installation</p>
-                        <a href="<?php echo URLROOT; ?>/client/installation" class="proceed-button">View Phase</a>
-                    </div>
-                </div>
-
-                <div class="timeline-item future" style="animation-delay: 1s;">
-                    <div class="timeline-card">
-                        <h3>Final Payment Phase</h3>
-                        <p>Pay the remaining 75% of total project cost</p>
-                        <a href="<?php echo URLROOT; ?>/client/finalpayment" class="proceed-button">View Phase</a>
-                    </div>
-                </div>
+                <?php if($data['progress']['project']): ?>
+                    <?php foreach($projectPhases as $phase => $info): ?>
+                        <?php
+                        $status = 'locked';
+                        if ($phase === $currentPhase) {
+                            $status = 'active';
+                        } elseif (array_search($phase, array_keys($projectPhases)) < 
+                                array_search($currentPhase, array_keys($projectPhases))) {
+                            $status = 'completed';
+                        }
+                        ?>
+                        <div class="progress-item <?php echo $status; ?>">
+                            <div class="progress-dot"></div>
+                            <div class="progress-info">
+                                <h3><?php echo $info['title']; ?></h3>
+                                <p><?php echo $info['description']; ?></p>
+                                <?php if($status === 'active'): ?>
+                                    <a href="<?php echo URLROOT; ?>/client/project/<?php echo $phase; ?>" 
+                                    class="btn-proceed">
+                                        Proceed Now
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
         </main>

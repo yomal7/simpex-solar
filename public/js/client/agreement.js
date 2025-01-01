@@ -1,131 +1,151 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        let pdfDoc = null;
-        const pdfContainer = document.getElementById('pdfContainer');
-        const canvasContainer = document.getElementById('canvasContainer');
+document.addEventListener('DOMContentLoaded', function() {
+    // Popup handling
+    function openPopup(popupId) {
+        document.getElementById(popupId).classList.add('open-popup');
+        document.getElementById('overlay').style.visibility = 'visible';
+        document.getElementById('overlay').style.opacity = '1';
+    }
 
-        // Load local PDF file
-        async function loadPDF() {
-            try {
-                // Replace with your local PDF path
-                const loadingTask = pdfjsLib.getDocument('../assets/quatation.pdf');
-                const pdfDoc = await loadingTask.promise;
-                renderAllPages(pdfDoc);
-            } catch (error) {
-                console.error(error);
-                showToast('Error loading PDF', 'error');
-            }
-        }
+    function closePopup(popupId) {
+        document.getElementById(popupId).classList.remove('open-popup');
+        document.getElementById('overlay').style.visibility = 'hidden';
+        document.getElementById('overlay').style.opacity = '0';
+    }
 
-        async function renderAllPages(pdfDoc) {
-            const numPages = pdfDoc.numPages;
-            const canvasContainer = document.getElementById('canvasContainer');  // Ensure this element exists in HTML
-            for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-                const page = await pdfDoc.getPage(pageNum);
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
+    window.openApprovePopup = function() {
+        openPopup('approvePopup');
+    }
 
-                const viewport = page.getViewport({ scale: 1.5 });
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
+    window.openSubmitAgainPopup = function() {
+        openPopup('submitAgainPopup');
+    }
 
-                await page.render({
-                    canvasContext: context,
-                    viewport: viewport
-                }).promise;
+    window.openCancelPopup = function() {
+        openPopup('cancelPopup');
+    }
 
-                canvasContainer.appendChild(canvas);
-            }
-        }
+    window.closePopup = closePopup;
 
-        // Popup handling
-        function openPopup(popupId) {
-            document.getElementById(popupId).classList.add('open-popup');
-            document.getElementById('overlay').style.visibility = 'visible';
-            document.getElementById('overlay').style.opacity = '1';
-        }
+    // Handle signature upload preview
+    const signatureBox = document.getElementById('signatureBox');
+    const signatureInput = document.getElementById('signatureInput');
 
-        function closePopup(popupId) {
-            document.getElementById(popupId).classList.remove('open-popup');
-            document.getElementById('overlay').style.visibility = 'hidden';
-            document.getElementById('overlay').style.opacity = '0';
-        }
-
-        function openApprovePopup() {
-            openPopup('approvePopup');
-        }
-
-        function openSubmitAgainPopup() {
-            openPopup('submitAgainPopup');
-        }
-
-        function openCancelPopup() {
-            openPopup('cancelPopup');
-        }
-
-        // Signature handling
-        document.getElementById('signatureBox').addEventListener('click', function() {
-            document.getElementById('signatureInput').click();
-        });
-
-        document.getElementById('signatureInput').addEventListener('change', function(e) {
+    if (signatureBox && signatureInput) {
+        signatureBox.addEventListener('click', () => signatureInput.click());
+        signatureInput.addEventListener('change', function(e) {
             if (e.target.files && e.target.files[0]) {
-                let reader = new FileReader();
+                const reader = new FileReader();
                 reader.onload = function(event) {
-                    document.getElementById('signatureBox').innerHTML = '<img src="' + event.target.result + '" style="max-width: 100%; max-height: 200px;">';
+                    signatureBox.innerHTML = `<img src="${event.target.result}" style="max-width: 100%; max-height: 200px;">`;
                 }
                 reader.readAsDataURL(e.target.files[0]);
             }
         });
+    }
 
-        // Toast notification function
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+    // Toast notification function
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : type === 'warning' ? '⚠' : 'ℹ';
+        toast.innerHTML = `
+            <span class="toast-icon">${icon}</span>
+            <span class="toast-message">${message}</span>
+            <div class="toast-progress"><div class="toast-progress-bar"></div></div>
+        `;
+        document.getElementById('toastContainer').appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Submit handlers
+    window.submitSignature = async function() {
+        const signatureFile = signatureInput.files[0];
+        if (!signatureFile) {
+            showToast('Please select a signature', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('signature', signatureFile);
+        formData.append('agreement_id', document.querySelector('[name="agreement_id"]').value);
+
+        try {
+            const response = await fetch(`${URLROOT}/client/submitSignature`, {
+                method: 'POST',
+                body: formData
+            });
             
-            const icon = type === 'success' ? '✓' :
-                        type === 'error' ? '✕' :
-                        type === 'warning' ? '⚠' : 'ℹ';
+            const result = await response.json();
             
-            toast.innerHTML = `
-                <span class="toast-icon">${icon}</span>
-                <span class="toast-message">${message}</span>
-                <div class="toast-progress">
-                    <div class="toast-progress-bar"></div>
-                </div>
-            `;
+            if (result.success) {
+                showToast('Signature uploaded successfully', 'success');
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                showToast(result.message || 'Upload failed', 'error');
+            }
+        } catch (error) {
+            console.error('Signature upload error:', error);
+            showToast('Error uploading signature', 'error');
+        }
+        
+        closePopup('approvePopup');
+    };
+
+    window.submitReview = async function() {
+        const revisionNote = document.querySelector('.comment-box').value;
+        if (!revisionNote.trim()) {
+            showToast('Please enter revision details', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('revision_note', revisionNote);
+        formData.append('agreement_id', document.querySelector('[name="agreement_id"]').value);
+
+        try {
+            const response = await fetch(URLROOT + '/client/requestRevision', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
             
-            document.getElementById('toastContainer').appendChild(toast);
+            if (result.success) {
+                showToast(result.message, 'success');
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                showToast(result.message, 'error');
+            }
+        } catch (error) {
+            showToast('Error submitting revision request', 'error');
+        }
+        closePopup('submitAgainPopup');
+    }
+
+    window.confirmCancel = async function() {
+        try {
+            const response = await fetch(URLROOT + '/client/cancelProject', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'pre_project_id=' + document.querySelector('[name="pre_project_id"]').value
+            });
+            const result = await response.json();
             
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
+            if (result.success) {
+                showToast(result.message, 'success');
+                setTimeout(() => window.location.href = URLROOT + '/client/project', 1500);
+            } else {
+                showToast(result.message, 'error');
+            }
+        } catch (error) {
+            showToast('Error cancelling project', 'error');
         }
+        closePopup('cancelPopup');
 
-        // Button click handlers
-        function downloadPDF() {
-            showToast('PDF downloaded successfully', 'success');
-        }
 
-        function submitSignature() {
-            showToast('Signature submitted successfully', 'success');
-            closePopup('approvePopup');
-        }
-
-        function submitReview() {
-            showToast('Review submitted for changes', 'info');
-            closePopup('submitAgainPopup');
-        }
-
-        function confirmCancel() {
-            showToast('Equation cancelled', 'warning');
-            closePopup('cancelPopup');
-        }
-
-        // Initialize PDF viewer
-        loadPDF();
-
-        // back button functionality
-        document.querySelector('.back-buttons').addEventListener('click', () => {
-            window.history.back();
-        });
+        
+    }
+});

@@ -12,5 +12,8 @@
     require_once "libraries/Controller.php";
     require_once "libraries/Database.php";
 
+    // Load PDF related libraries
+    require_once 'libraries/dompdf/vendor/autoload.php';
+    require_once 'libraries/PdfGenerator.php';
 
 ?>

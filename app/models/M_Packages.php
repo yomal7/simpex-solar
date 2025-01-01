@@ -327,31 +327,58 @@ class M_Packages {
         return $this->db->resultSet();
     }
 
+    
     public function submitQuotation($data) {
+        // Log the incoming data
+        error_log("Attempting to submit quotation with data: " . print_r($data, true));
+        
         $this->db->query('INSERT INTO customerquotation (
-            user_id, 
-            package_id, 
-            address, 
-            monthly_consumption, 
-            nearest_city, 
-            customizations
+            user_id,
+            package_id,
+            address,
+            monthly_consumption,
+            nearest_city,
+            customizations,
+            package_type,
+            status
         ) VALUES (
-            :user_id, 
-            :package_id, 
-            :address, 
-            :monthly_consumption, 
-            :nearest_city, 
-            :customizations
+            :user_id,
+            :package_id,
+            :address,
+            :monthly_consumption,
+            :nearest_city,
+            :customizations,
+            :package_type,
+            "pending"
         )');
-    
-        $this->db->bind(':user_id', $data['user_id']);
-        $this->db->bind(':package_id', $data['package_id']);
-        $this->db->bind(':address', $data['address']);
-        $this->db->bind(':monthly_consumption', $data['monthly_consumption']);
-        $this->db->bind(':nearest_city', $data['nearest_city']);
-        $this->db->bind(':customizations', $data['customizations']);
-    
-        return $this->db->execute();
+
+        // Log the SQL query for debugging
+        error_log("SQL Query prepared");
+
+        try {
+            $this->db->bind(':user_id', $data['user_id']);
+            $this->db->bind(':package_id', $data['package_id']);
+            $this->db->bind(':address', $data['address']);
+            $this->db->bind(':monthly_consumption', $data['monthly_consumption']);
+            $this->db->bind(':nearest_city', $data['nearest_city']);
+            $this->db->bind(':customizations', $data['customizations']);
+            $this->db->bind(':package_type', $data['package_type']);
+            
+            // Log before execution
+            error_log("All parameters bound, attempting execution");
+            
+            if($this->db->execute()) {
+                error_log("Query executed successfully");
+                return true;
+            } else {
+                error_log("Query execution failed");
+                return false;
+            }
+            
+        } catch (Exception $e) {
+            error_log("Error in submitQuotation: " . $e->getMessage());
+            return false;
+        }
     }
 
 }

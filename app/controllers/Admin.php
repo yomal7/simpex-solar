@@ -86,7 +86,7 @@ class Admin extends Controller {
                 
                 if ($this->blogModel->createPost($data)) {
                     flash('blog_message', 'Post created successfully');
-                    redirect('admin/blogs');
+                    redirect('admin/published');
                 } else {
                     flash('blog_message', 'Something went wrong', 'alert alert-danger');
                     $this->view('admin/v_createBlog', $data);
@@ -125,35 +125,35 @@ class Admin extends Controller {
     }
     
     public function publishDraft($id) {
-        // Check if it's an AJAX request
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        // // Check if it's an AJAX request
+        // if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+        //     strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
             
-            header('Content-Type: application/json');
+        //     header('Content-Type: application/json');
             
-            if (!$this->blogModel->getPostById($id)) {
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Draft not found'
-                ]);
-                return;
-            }
+        //     if (!$this->blogModel->getPostById($id)) {
+        //         echo json_encode([
+        //             'success' => false,
+        //             'message' => 'Draft not found'
+        //         ]);
+        //         return;
+        //     }
             
-            if ($this->blogModel->publishDraft($id)) {
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Post published successfully'
-                ]);
-            } else {
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Failed to publish post'
-                ]);
-            }
-            return;
-        }
+        //     if ($this->blogModel->publishDraft($id)) {
+        //         echo json_encode([
+        //             'success' => true,
+        //             'message' => 'Post published successfully'
+        //         ]);
+        //     } else {
+        //         echo json_encode([
+        //             'success' => false,
+        //             'message' => 'Failed to publish post'
+        //         ]);
+        //     }
+        //     return;
+        // }
         
-        // Handle regular POST request
+        // // Handle regular POST request
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($this->blogModel->publishDraft($id)) {
                 flash('draft_message', 'Post published successfully');
