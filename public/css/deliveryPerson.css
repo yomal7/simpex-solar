@@ -436,6 +436,7 @@ body {
 }
 
 .sidebar a {
+    position: fixed;
     display: flex;
     align-items: center;
     color: var(--sidebar-link-color);
@@ -710,7 +711,6 @@ tr:hover {
 
 .request-holiday-form-group textarea {
     resize: vertical;
-    min-height: 100px;
 }
 
 .request-holiday-form-submit {

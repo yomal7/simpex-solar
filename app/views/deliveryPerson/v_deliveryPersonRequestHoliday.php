@@ -1,8 +1,8 @@
-<?php require APPROOT . '/views/deliveryPerson/header.php';?>
+<?php require APPROOT . '/views/deliveryPerson/header.php'; ?>
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/deliveryPerson/dashboard.css">
+<link rel="stylesheet" href="<//?php echo URLROOT; ?>/css/deliveryPerson/requestHoliday.css">
 
 </head>
 
@@ -43,7 +43,7 @@
 
                 <section class="request-holiday-form-container">
                     <h2 class="request-holiday-form-title">Request Holiday Form</h2>
-                    <form id="requestHolidayForm" onsubmit="handleSubmit(event)">
+                    <form id="requestHolidayForm">
                         <div class="request-form-grid">
                             <div class="request-holiday-form-group">
                                 <label for="requestHolidayFormStartDate">Start Date</label>
@@ -57,16 +57,16 @@
                                 <label for="requestHolidayFormLeaveType">Leave Type</label>
                                 <select id="requestHolidayFormLeaveType" name="leaveType" required>
                                     <option value="">Select type</option>
-                                    <option value="sickLeave">Sick Leave</option>
-                                    <option value="casualLeave">Casual Leave</option>
-                                    <option value="maternityLeave">Maternity Leave</option>
-                                    <option value="paternityLeave">Paternity Leave</option>
+                                    <option value="Sick Leave">Sick Leave</option>
+                                    <option value="Casual Leave">Casual Leave</option>
+                                    <option value="Annual Leave">Annual Leave</option>
+                                    <option value="Other">Other</option>
                                 </select>
                             </div>
                         </div>
                         <div class="request-holiday-form-group">
                             <label for="requestHolidayFormReason">Reason</label>
-                            <textarea id="requestHolidayFormReason" name="reason" required></textarea>
+                            <textarea id="requestHolidayFormReason" name="reason" rows = "1" required></textarea>
                         </div>
                         <button type="submit" class="request-holiday-form-submit">Submit</button>
                     </form>
@@ -88,16 +88,22 @@
                             </tr>
                         </thead>
                         <tbody id="holidayRecordsTableBody">
-                            <?php foreach ($data['holidayRecords'] as $record): ?>
+                            <?php if (!empty($data['holidayRecords'])): ?>
+                                <?php foreach ($data['holidayRecords'] as $record): ?>
+                                    <tr>
+                                        <td><?php echo $record->leave_type; ?></td>
+                                        <td><?php echo $record->start_date; ?></td>
+                                        <td><?php echo $record->end_date; ?></td>
+                                        <td><?php echo $record->number_of_days; ?></td>
+                                        <td><?php echo $record->reason; ?></td>
+                                        <td class="<?php echo strtolower($record->status); ?>"><?php echo ucfirst($record->status); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
                                 <tr>
-                                    <td><?php echo $record->leave_type; ?></td>
-                                    <td><?php echo $record->start_date; ?></td>
-                                    <td><?php echo $record->end_date; ?></td>
-                                    <td><?php echo $record->number_of_days; ?></td>
-                                    <td><?php echo $record->reason; ?></td>
-                                    <td class="<?php echo strtolower($record->status); ?>"><?php echo ucfirst($record->status); ?></td>
+                                    <td colspan="6">No holiday records found.</td>
                                 </tr>
-                            <?php endforeach;?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>

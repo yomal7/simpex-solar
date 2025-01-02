@@ -1,74 +1,110 @@
-// Form submission handler
-function handleSubmit(event) {
-    event.preventDefault();
+const URLROOT = 'http://localhost/simpex-solar'
 
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData.entries());
-
-    // Add employee_id from the PHP session data
-    data.employee_id = employeeId;  // Using the employeeId that was made available from PHP
-
-    // Make the POST request to the PHP backend
-    fetch('http://localhost/simpex-solar/deliveryPerson/addRequest', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-    })
-    .then(response => response.json())
-    .then(responseData => {
-        if (responseData.success) {
-            alert('Holiday request submitted successfully!');
-            event.target.reset(); // Reset the form
-
-            // Optionally update the table or UI with the new request
-            addRecordToTable({
-                leave_type: data.leaveType,
-                start_date: data.startDate,
-                end_date: data.endDate,
-                number_of_days: calculateDays(data.startDate, data.endDate),
-                reason: data.reason,
-                status: 'pending', // Default status for new submissions
-            });
-        } else {
-            alert(responseData.message || 'Error submitting the holiday request.');
-        }
-    })
-    .catch(error => {
-        console.error('Error occurred:', error);
-        alert('An error occurred. Please try again later.');
-    });
-}
-
-// Calculate number of days between start and end date
 function calculateDays(startDate, endDate) {
     const start = new Date(startDate);
     const end = new Date(endDate);
     return Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1; // Add 1 to include the start day
 }
 
-// Function to add a new record to the table (optional for UI update)
-function addRecordToTable(record) {
-    const holidayRecordsTableBody = document.getElementById("holidayRecordsTableBody");
+function handleSubmit(event) {
+    event.preventDefault();
 
-    const row = document.createElement("tr");
-    row.innerHTML = `
-        <td>${record.leave_type}</td>
-        <td>${record.start_date}</td>
-        <td>${record.end_date}</td>
-        <td>${record.number_of_days}</td>
-        <td>${record.reason}</td>
-        <td class="${record.status}">${getStatusLabel(record.status)}</td>
-    `;
-    holidayRecordsTableBody.appendChild(row);
+    
+    isSubmitting = true;
+    console.log('handle submit');
+
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+    console.log('3.........Form data:', data);
+
+    // Calculate number of days
+    data.employee_id = employeeId;
+    console.log('Employee ID:', employeeId); 
+    
+    const numberOfDays = calculateDays(formData.get('startDate'), formData.get('endDate'));
+    formData.append('numberOfDays', numberOfDays);
+    console.log('Number of days:', numberOfDays);
+    
+    console.log('Submitting data:', {
+        employee_id: employeeId,
+        startDate: formData.get('startDate'),
+        endDate: formData.get('endDate'),
+        numberOfDays: formData.get('numberOfDays'),
+        leaveType: formData.get('leaveType'),
+        reason: formData.get('reason')
+    });
+    
+    console.log('starting fetch');
+    
+    fetch(`${URLROOT}/deliveryPerson/requestHoliday`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+    })
+    .then(response => {
+        console.log('response:', response);
+        if (response.ok) {
+            alert('Holiday request submitted successfully!');
+            window.location.reload(); // Reload to show the updated table
+        } else {
+            throw new Error('Request failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again later.');
+    });
 }
 
-function getStatusLabel(status) {
-    switch (status) {
-        case "approved": return "Approved";
-        case "pending": return "Pending";
-        case "not-approved": return "Not Approved";
-        default: return "";
+// Date validation setup
+function setMinimumDate() {
+    const today = new Date().toISOString().split('T')[0];
+    const startDateInput = document.getElementById('requestHolidayFormStartDate');
+    const endDateInput = document.getElementById('requestHolidayFormEndDate');
+
+    startDateInput.min = today;
+    endDateInput.min = today;
+    
+
+    startDateInput.addEventListener('change', function() {
+        endDateInput.min = this.value;
+    });
+}
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('requestHolidayForm');
+    if (form) {
+        console.log('Form found and event listener attached');
+        form.addEventListener('submit', handleSubmit);
+    } else {
+        console.error('Form not found');
     }
-}
+});
+
+document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.querySelector('.menu-toggle');
+    if (window.innerWidth <= 768 && sidebar.classList.contains('active') && 
+        !sidebar.contains(event.target) && event.target !== menuToggle) {
+        sidebar.classList.remove('active');
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const overlay = document.getElementById('overlay');
+    
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            closePopup('requestFormPopup');
+        }
+    });
+});
+
+
+
+// Initialize on page load
+window.onload = setMinimumDate;
