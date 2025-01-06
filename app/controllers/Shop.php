@@ -42,21 +42,32 @@ class Shop extends Controller
 
     public function requestPurchase($productId)
     {
-        // Check if user is logged in
         if (!isLoggedIn()) {
+            $_SESSION['intended_product_id'] = $productId;
             flash('login_required', 'Please login to submit a purchase request');
             redirect('users/login');
         }
 
-        // Get product details
         $product = $this->shopModel->getProductById($productId);
 
         if (!$product) {
             redirect('shop');
         }
 
+        $quantity = isset($_GET['quantity']) ? (int)$_GET['quantity'] : 1;
+        $deliveryOption = isset($_GET['delivery']) ? $_GET['delivery'] : 'deliver';
+
+        $subtotal = $product->price * $quantity;
+        $deliveryFee = ($deliveryOption === 'deliver') ? 450.00 : 0;
+        $total = $subtotal + $deliveryFee;
+
         $data = [
             'product' => $product,
+            'quantity' => $quantity,
+            'delivery_option' => $deliveryOption,
+            'subtotal' => $subtotal,
+            'delivery_fee' => $deliveryFee,
+            'total' => $total,
             'title' => 'Purchase Request - ' . $product->name
         ];
 

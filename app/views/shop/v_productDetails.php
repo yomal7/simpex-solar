@@ -84,14 +84,14 @@
             <div class="delivery-options">
                 <h3>Select Delivery Option</h3>
                 <div class="delivery-option" data-option="deliver">
-                    <input type="radio" name="delivery" id="deliverOnly">
+                    <input type="radio" name="delivery" id="deliverOnly" value="deliver" checked>
                     <label for="deliverOnly">
                         <strong>Delivery Included</strong>
                         <p>Standard delivery to your location</p>
                     </label>
                 </div>
-                <div class="delivery-option" data-option="install">
-                    <input type="radio" name="delivery" id="deliverInstall">
+                <div class="delivery-option" data-option="pickup">
+                    <input type="radio" name="delivery" id="deliverInstall" value="pickup">
                     <label for="deliverInstall">
                         <strong>Delivery not included</strong>
                         <p>Pickup from the store</p>
@@ -99,19 +99,27 @@
                 </div>
             </div>
 
-            <div class="quantity-selector">
-                <span>Quantity:</span>
-                <div class="quantity-control">
-                    <i class="fas fa-minus" id="decreaseQuantity"></i>
-                    <input type="number" value="1" min="1" id="quantity">
-                    <i class="fas fa-plus" id="increaseQuantity"></i>
+            <form id="purchaseForm" class="purchase-form" data-product-id="<?php echo $data['product']->id; ?>">
+                <div class="quantity-selector">
+                    <span>Quantity:</span>
+                    <div class="quantity-control">
+                        <i class="fas fa-minus" id="decreaseQuantity"></i>
+                        <input type="number" value="1" min="1" id="quantity" name="quantity">
+                        <i class="fas fa-plus" id="increaseQuantity"></i>
+                    </div>
                 </div>
-            </div>
 
-            <a href="<?php echo URLROOT; ?>/shop/requestPurchase/<?php echo $data['product']->id; ?>" class="purchase-request" id="purchaseRequest">
+                <input type="hidden" name="delivery_option" id="deliveryOption" value="deliver">
+                <button type="submit" class="purchase-request" id="purchaseRequest">
+                    <i class="fas fa-paper-plane"></i>
+                    Request to Purchase
+                </button>
+            </form>
+
+            <!-- <a href="<?php echo URLROOT; ?>/shop/requestPurchase/<?php echo $data['product']->id; ?>" class="purchase-request" id="purchaseRequest">
                 <i class="fas fa-paper-plane"></i>
                 Request to Purchase
-            </a>
+            </a> -->
         </div>
     </div>
 
@@ -132,26 +140,16 @@
     </div>
     </div>
 
-    <!-- Success Message -->
+    <!-- Success Message
     <div class="success-message" id="successMessage">
         <i class="fas fa-check-circle"></i>
         Purchase request submitted successfully!
-    </div>
+    </div> -->
+
+
     <script>
-        function changeImage(src) {
-            document.getElementById('mainImage').src = src;
-
-            // Update active thumbnail
-            document.querySelectorAll('.thumbnail').forEach(thumb => {
-                thumb.classList.remove('active');
-                if (thumb.src === src) {
-                    thumb.classList.add('active');
-                }
-            });
-        }
+        const URLROOT = '<?php echo URLROOT; ?>';
     </script>
-
-    <?php require APPROOT . '/views/inc/components/bottomfooter.php'; ?>
-
     <script src="<?php echo URLROOT; ?>/js/shop/productDetails.js"></script>
+    <?php require APPROOT . '/views/inc/components/bottomfooter.php'; ?>
     <?php require APPROOT . '/views/shop/footer.php'; ?>

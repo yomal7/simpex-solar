@@ -1,10 +1,13 @@
 <?php
-class Users extends Controller {
-    public function __construct() {
+class Users extends Controller
+{
+    public function __construct()
+    {
         $this->userModel = $this->model("M_Users");
     }
 
-    public function index() {
+    public function index()
+    {
         $data = [
             'name' => '',
             'email' => '',
@@ -18,18 +21,19 @@ class Users extends Controller {
             'action' => 'login',
             'mode' => 'signin'
         ];
-        
+
         $this->view('users/v_auth', $data);
     }
 
-    public function auth() {
+    public function auth()
+    {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Sanitize POST data
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-            
+
             // Check which form was submitted based on the mode field
             $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
-            
+
             if ($mode === 'signup') {
                 $this->handleRegistration($_POST);
             } elseif ($mode === 'signin') {
@@ -42,7 +46,8 @@ class Users extends Controller {
         }
     }
 
-    private function handleRegistration($postData) {
+    private function handleRegistration($postData)
+    {
         $data = [
             'name' => trim($postData['name']),
             'email' => trim($postData['email']),
@@ -54,7 +59,7 @@ class Users extends Controller {
             'password_err' => '',
             'confirm_password_err' => '',
             'action' => 'register',
-            'mode' => 'signup' 
+            'mode' => 'signup'
         ];
 
         // Validation
@@ -82,9 +87,11 @@ class Users extends Controller {
             $data['confirm_password_err'] = 'Passwords do not match';
         }
 
-        if (empty($data['email_err']) && empty($data['name_err']) && 
-            empty($data['password_err']) && empty($data['confirm_password_err'])) {
-            
+        if (
+            empty($data['email_err']) && empty($data['name_err']) &&
+            empty($data['password_err']) && empty($data['confirm_password_err'])
+        ) {
+
             $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
 
             if ($this->userModel->register($data)) {
@@ -99,21 +106,23 @@ class Users extends Controller {
     }
 
 
-    public function createUserSession($user) {
+    public function createUserSession($user)
+    {
         error_log("Creating session with user data: " . print_r($user, true));
-        
+
         // Use user_id instead of id
         $_SESSION['user_id'] = $user->user_id;
         $_SESSION['user_email'] = $user->email;
         $_SESSION['user_name'] = $user->name;
         $_SESSION['role'] = $user->role;
-        
+
         error_log("Session created with: " . print_r($_SESSION, true));
     }
 
-    public function checkLogin() {
+    public function checkLogin()
+    {
         header('Content-Type: application/json');
-        if(isset($_SESSION['user_id'])) {
+        if (isset($_SESSION['user_id'])) {
             echo json_encode(['isLoggedIn' => true]);
         } else {
             echo json_encode(['isLoggedIn' => false]);
@@ -122,7 +131,8 @@ class Users extends Controller {
     }
 
 
-    private function handleLogin($postData) {
+    private function handleLogin($postData)
+    {
         $data = [
             'email' => trim($postData['email']),
             'password' => trim($postData['password']),
@@ -131,15 +141,15 @@ class Users extends Controller {
             'action' => 'login',
             'mode' => 'signin'
         ];
-    
+
         if (empty($data['email'])) {
             $data['email_err'] = 'Please enter email';
         }
-        
+
         if (empty($data['password'])) {
             $data['password_err'] = 'Please enter password';
         }
-        
+
         if (!empty($data['email'])) {
             $user = $this->userModel->getUserByEmail($data['email']);
             if (!$user) {
@@ -149,10 +159,10 @@ class Users extends Controller {
 
         if (empty($data['email_err']) && empty($data['password_err'])) {
             $user = $this->userModel->login($data['email'], $data['password']);
-            
+
             if ($user) {
                 $this->createUserSession($user);
-                
+
                 // Handle redirect after login
                 echo "<script>
                     if (sessionStorage.getItem('redirectAfterLogin')) {
@@ -173,7 +183,8 @@ class Users extends Controller {
         }
     }
 
-    private function getRoleRedirect($role) {
+    private function getRoleRedirect($role)
+    {
         $redirects = [
             'admin' => 'admin/index',
             'customer' => 'client/index',
@@ -181,12 +192,13 @@ class Users extends Controller {
             'hRAdministrator' => 'hRAdministrator/index',
             'supplierCoordinator' => 'supplierCoordinator/index'
         ];
-        
+
         return $redirects[$role] ?? '';
     }
 
 
-    public function logout() {
+    public function logout()
+    {
         unset($_SESSION['user_id']);
         unset($_SESSION['user_email']);
         unset($_SESSION['user_name']);
@@ -195,20 +207,22 @@ class Users extends Controller {
         redirect('users/index');
     }
 
-    public function isLoggedIn() {
+    public function isLoggedIn()
+    {
         return isset($_SESSION['user_id']);
     }
 
-    public function updatePhone() {
+    public function updatePhone()
+    {
         // Check if user is logged in
         if (!isLoggedIn()) {
             redirect('users/index');
             return;
         }
-    
+
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $phone = $_POST['phone'];
-           
+
             if ($this->userModel->updatePhone($_SESSION['user_id'], $phone)) {
                 flash('phone_update', 'Phone number updated successfully');
                 // Don't redirect here since it's part of the quotation submission
@@ -220,5 +234,3 @@ class Users extends Controller {
         }
     }
 }
-
-?>

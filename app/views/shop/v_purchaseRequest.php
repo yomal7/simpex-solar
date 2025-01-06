@@ -1,4 +1,5 @@
 <?php require APPROOT . '/views/blog/header.php'; ?>
+
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/shop/navbarfooter.css">
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/shop/purchaseRequest.css">
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -43,27 +44,27 @@
                                 <img src="<?php echo URLROOT . '/public/uploads/store/' . $data['product']->image1; ?>"
                                     alt="<?php echo $data['product']->name; ?>" class="product-image">
                                 <div class="product-details">
-                                    <h4>"<?php echo $data['product']->name; ?>"</h4>
-                                    <p>Quantity: 2</p>
+                                    <h4><?php echo htmlspecialchars($data['product']->name); ?></h4>
+                                    <p>Quantity: <?php echo $data['quantity']; ?></p>
                                 </div>
                             </div>
                             <div class="product-price">Rs. <?php echo number_format($data['product']->price, 2); ?></div>
                         </li>
-                        <!-- Add more products as needed -->
                     </ul>
                     <div class="total-section">
                         <div class="total-row">
                             <span>Subtotal</span>
-                            <span>Rs. <?php echo number_format($data['product']->price, 2); ?></span>
+                            <span>Rs. <?php echo number_format($data['subtotal'], 2); ?></span>
                         </div>
-                        <div class="total-row">
-                            <span>Delivery Fee</span>
-                            <span>Rs. 450.00</span>
-                        </div>
+                        <?php if ($data['delivery_option'] === 'deliver'): ?>
+                            <div class="total-row">
+                                <span>Delivery Fee</span>
+                                <span>Rs. <?php echo number_format($data['delivery_fee'], 2); ?></span>
+                            </div>
+                        <?php endif; ?>
                         <div class="total-row final">
                             <span>Total</span>
-                            <span>Rs. <?php echo number_format($data['product']->price, 2);
-                                        +450.00 ?></span>
+                            <span>Rs. <?php echo number_format($data['total'], 2); ?></span>
                         </div>
                     </div>
                 </div>
@@ -72,18 +73,29 @@
                 <div class="collection-info">
                     <h3>Collection Method</h3>
                     <div class="info-grid">
-                        <div class="info-item">
-                            <i class="fas fa-truck"></i>
-                            <div>
-                                <strong>Delivery</strong>
-                                <p>123 Solar Street, Green City, 12345</p>
+                        <?php if ($data['delivery_option'] === 'deliver'): ?>
+                            <div class="info-item">
+                                <i class="fas fa-truck"></i>
+                                <div>
+                                    <strong>Delivery</strong>
+                                    <p>123 Solar Street, Green City, 12345</p>
+                                </div>
                             </div>
-                        </div>
+                        <?php else: ?>
+                            <div class="info-item">
+                                <i class="fas fa-warehouse"></i>
+                                <div>
+                                    <strong>Pick Up</strong>
+                                    <p><?php echo address ?></p>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
                         <div class="info-item">
                             <i class="fas fa-calendar"></i>
                             <div>
                                 <strong>Preferred Date</strong>
-                                <p>September 15, 2024</p>
+                                <p><?php echo date('F d, Y', strtotime('+7 days')); ?></p>
                             </div>
                         </div>
                     </div>
@@ -145,23 +157,7 @@
 
                 <!-- Installation Information -->
 
-                <!-- Additional Requirements -->
-                <div class="form-section-title">
-                    <h3><i class="fas fa-clipboard-list"></i> Additional Requirements</h3>
-                </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="timeline">Expected Timeline*</label>
-                        <select class="form-control" id="timeline" name="timeline" required>
-                            <option value="">Select timeline</option>
-                            <option value="immediate">Immediate</option>
-                            <option value="1month">Within 1 Month</option>
-                            <option value="3months">Within 3 Months</option>
-                            <option value="flexible">Flexible</option>
-                        </select>
-                    </div>
 
-                </div>
 
                 <!-- Terms and Conditions -->
                 <div class="form-section-title">
@@ -190,7 +186,7 @@
         </div>
     </div>
 
-    <?php require APPROOT . '/views/inc/components/bottomfooter.php'; ?>
 
     <script src="<?php echo URLROOT; ?>/js/shop/purchaseRequest.js"></script>
+    <?php require APPROOT . '/views/inc/components/bottomfooter.php'; ?>
     <?php require APPROOT . '/views/shop/footer.php'; ?>
