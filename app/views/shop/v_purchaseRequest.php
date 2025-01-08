@@ -33,7 +33,10 @@
                 </div>
             </div>
 
-            <form class="form-section" id="purchaseRequestForm">
+            <form class="form-section" id="purchaseRequestForm" action="<?php echo URLROOT; ?>/shop/submitPurchaseRequest" method="POST">
+                <input type="hidden" name="product_id" value="<?php echo $data['product']->id; ?>">
+                <input type="hidden" name="delivery_option" value="<?php echo $data['delivery_option']; ?>">
+                <input type="hidden" name="quantity" value="<?php echo $data['quantity']; ?>">
 
                 <!-- Order Summary -->
                 <div class="order-summary">
@@ -101,26 +104,23 @@
                     </div>
                 </div>
 
+                <!-- Personal Information -->
                 <div class="form-section-title">
                     <h3><i class="fas fa-user"></i> Personal Information</h3>
                 </div>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="fullName">Full Name*</label>
-                        <input type="text" class="form-control" id="fullName" name="fullName" value="<?php echo $_SESSION['user_name']; ?>" required>
+                        <label for="full_name">Full Name*</label>
+                        <input type="text" class="form-control" id="full_name" name="full_name" value="<?php echo $_SESSION['user_name']; ?>" required>
                     </div>
-
                     <div class="form-group">
-                        <label for="email">Email Address*</label>
+                        <label for="email">Email*</label>
                         <input type="email" class="form-control" id="email" name="email" value="<?php echo $_SESSION['user_email']; ?>" required>
                     </div>
-
                     <div class="form-group">
-                        <label for="phone">Phone Number*</label>
-                        <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter your phone number" required>
-                        <small class="form-text">Please provide a number where we can reach you</small>
+                        <label for="phone_number">Phone Number*</label>
+                        <input type="text" class="form-control" id="phone_number" name="phone_number" required>
                     </div>
-
                 </div>
 
                 <!-- Address Information -->
@@ -129,8 +129,8 @@
                 </div>
                 <div class="form-grid">
                     <div class="form-group full-width">
-                        <label for="streetAddress">Street Address*</label>
-                        <input type="text" class="form-control" id="streetAddress" name="streetAddress" placeholder="Enter your street address" required>
+                        <label for="street_address">Street Address*</label>
+                        <input type="text" class="form-control" id="street_address" name="street_address" required>
                     </div>
 
                     <div class="form-group">
@@ -139,18 +139,18 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="state">State/Province*</label>
-                        <input type="text" class="form-control" id="state" name="state" required>
+                        <label for="province">Province*</label>
+                        <input type="text" class="form-control" id="province" name="province" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="postalCode">Postal Code*</label>
-                        <input type="text" class="form-control" id="postalCode" name="postalCode" required>
+                        <label for="postal_code">Postal Code*</label>
+                        <input type="text" class="form-control" id="postal_code" name="postal_code" required>
                     </div>
 
                     <div class="form-group full-width">
-                        <label for="addressNotes">Address Notes (Optional)</label>
-                        <textarea class="form-control" id="addressNotes" name="addressNotes" rows="2"
+                        <label for="address_notes">Address Notes (Optional)</label>
+                        <textarea class="form-control" id="address_notes" name="address_notes" rows="2"
                             placeholder="Provide any additional details about your address (e.g., landmarks, access instructions)"></textarea>
                     </div>
                 </div>

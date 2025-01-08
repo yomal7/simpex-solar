@@ -73,4 +73,52 @@ class Shop extends Controller
 
         $this->view('shop/v_purchaseRequest', $data);
     }
+
+    public function submitPurchaseRequest()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Debug: Check if form data is received
+            var_dump($_POST);
+
+            // Sanitize POST data
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+            $data = [
+                'product_id' => trim($_POST['product_id']),
+                'user_id' => $_SESSION['user_id'],
+                'delivery_option' => trim($_POST['delivery_option']),
+                'full_name' => trim($_POST['full_name']),
+                'email' => trim($_POST['email']),
+                'phone_number' => trim($_POST['phone_number']),
+                'street_address' => trim($_POST['street_address']),
+                'city' => trim($_POST['city']),
+                'province' => trim($_POST['province']),
+                'postal_code' => trim($_POST['postal_code']),
+                'address_notes' => trim($_POST['address_notes']),
+                'quantity' => trim($_POST['quantity']),
+                'status' => 'pending'
+            ];
+
+            // Debug: Check processed data
+            error_log('Purchase request data: ' . print_r($data, true));
+
+            // Validate required fields
+            if (empty($data['product_id']) || empty($data['full_name']) || empty($data['email'])) {
+                flash('purchase_error', 'Please fill all required fields');
+                redirect('shop/purchaseRequest/' . $data['product_id']);
+                return;
+            }
+
+            // Save to database
+            if ($this->shopModel->addPreOrder($data)) {
+                flash('purchase_success', 'Your purchase request has been submitted successfully');
+                redirect('client/shop');
+            } else {
+                flash('purchase_error', 'Something went wrong, please try again');
+                redirect('shop/purchaseRequest/' . $data['product_id']);
+            }
+        } else {
+            redirect('shop');
+        }
+    }
 }

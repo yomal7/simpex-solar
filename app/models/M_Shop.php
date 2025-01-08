@@ -179,4 +179,62 @@ class M_Shop
         $this->db->bind(':product_id', $productId);
         return $this->db->execute();
     }
+
+    public function addPreOrder($data)
+    {
+        // Debug: Log SQL query
+        error_log('Executing addPreOrder with data: ' . print_r($data, true));
+
+        $this->db->query('INSERT INTO pre_orders (
+            product_id, 
+            user_id,
+            delivery_option,
+            full_name,
+            email, 
+            phone_number,
+            street_address,
+            city,
+            province,
+            postal_code,
+            address_notes,
+            quantity,
+            status
+        ) VALUES (
+            :product_id,
+            :user_id,
+            :delivery_option,
+            :full_name, 
+            :email,
+            :phone_number,
+            :street_address,
+            :city,
+            :province,
+            :postal_code,
+            :address_notes,
+            :quantity,
+            :status
+        )');
+
+        // Bind values
+        $this->db->bind(':product_id', $data['product_id']);
+        $this->db->bind(':user_id', $data['user_id']);
+        $this->db->bind(':delivery_option', $data['delivery_option']);
+        $this->db->bind(':full_name', $data['full_name']);
+        $this->db->bind(':email', $data['email']);
+        $this->db->bind(':phone_number', $data['phone_number']);
+        $this->db->bind(':street_address', $data['street_address']);
+        $this->db->bind(':city', $data['city']);
+        $this->db->bind(':province', $data['province']);
+        $this->db->bind(':postal_code', $data['postal_code']);
+        $this->db->bind(':address_notes', $data['address_notes']);
+        $this->db->bind(':quantity', $data['quantity']);
+        $this->db->bind(':status', $data['status']);
+
+        try {
+            return $this->db->execute();
+        } catch (PDOException $e) {
+            error_log('Database error: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
