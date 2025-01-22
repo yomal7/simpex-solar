@@ -2,7 +2,7 @@
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-<link rel="stylesheet" href="<//?php echo URLROOT; ?>/css/deliveryPerson/requestHoliday.css">
+<!-- <link rel="stylesheet" href="<//?php echo URLROOT; ?>/css/deliveryPerson/requestHoliday.css"> -->
 
 </head>
 
@@ -42,7 +42,7 @@
             <div class="container">
 
                 <section class="request-holiday-form-container">
-                    <h2 class="request-holiday-form-title">Request Holiday Form</h2>
+                    <h2 class="request-holiday-form-title">Request Leave Form</h2>
                     <form id="requestHolidayForm">
                         <div class="request-form-grid">
                             <div class="request-holiday-form-group">
@@ -66,17 +66,26 @@
                         </div>
                         <div class="request-holiday-form-group">
                             <label for="requestHolidayFormReason">Reason</label>
-                            <textarea id="requestHolidayFormReason" name="reason" rows = "1" required></textarea>
+                            <textarea id="requestHolidayFormReason" name="reason" rows="1" maxlength="75" required></textarea>
                         </div>
+                        <button type="reset" class="request-holiday-form-cancel">Cancel</button>
                         <button type="submit" class="request-holiday-form-submit">Submit</button>
                     </form>
                 </section>
 
                 <div class="request-holiday-table-container">
                     <div class="request-holiday-table-header">
-                        <h2>Holiday Records</h2>
+                        <h2>Leave Records</h2>
                     </div>
                     <table>
+                        <colgroup>
+                            <col style="width: 12%;"> <!-- leave_type -->
+                            <col style="width: 12%;"> <!-- start_date -->
+                            <col style="width: 12%;"> <!-- end_date -->
+                            <col style="width: 10%;"> <!-- number_of_days -->
+                            <col style="width: 40%;"> <!-- reason -->
+                            <col style="width: 14%;"> <!-- status -->
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>Leave Type</th>
@@ -91,12 +100,12 @@
                             <?php if (!empty($data['holidayRecords'])): ?>
                                 <?php foreach ($data['holidayRecords'] as $record): ?>
                                     <tr>
-                                        <td><?php echo $record->leave_type; ?></td>
+                                        <td class="leave-type"><?php echo $record->leave_type; ?></td>
                                         <td><?php echo $record->start_date; ?></td>
                                         <td><?php echo $record->end_date; ?></td>
-                                        <td><?php echo $record->number_of_days; ?></td>
-                                        <td><?php echo $record->reason; ?></td>
-                                        <td class="<?php echo strtolower($record->status); ?>"><?php echo ucfirst($record->status); ?></td>
+                                        <td class="number-of-days"><?php echo $record->number_of_days; ?></td>
+                                        <td class="reason"><?php echo $record->reason; ?></td>
+                                        <td><span class="<?php echo strtolower($record->status); ?>"><?php echo ucfirst($record->status); ?></span></td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
@@ -106,6 +115,26 @@
                             <?php endif; ?>
                         </tbody>
                     </table>
+
+                    <?php if ($data['totalRecords'] > 1): ?>
+                        <div class="pagination">
+                            <?php if ($data['currentPage'] > 1): ?>
+                                <a href="?page=<?php echo $data['currentPage'] - 1 ?>" class="page-link">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            <?php endif; ?>
+
+                            <button class="page-info">
+                                <?php echo $data['currentPage'] ?>
+                            </button>
+
+                            <?php if ($data['currentPage'] < $data['totalPages']): ?>
+                                <a href="?page=<?php echo $data['currentPage'] + 1 ?>" class="page-link">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
             </div>

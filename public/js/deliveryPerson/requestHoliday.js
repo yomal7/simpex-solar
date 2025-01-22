@@ -56,6 +56,25 @@ function handleSubmit(event) {
     });
 }
 
+// Add this function
+function resetForm() {
+    const form = document.getElementById('requestHolidayForm');
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Reset form
+    form.reset();
+    
+    // Reset date inputs to today
+    document.getElementById('requestHolidayFormStartDate').value = '';
+    document.getElementById('requestHolidayFormEndDate').value = '';
+    
+    // Reset leave type to default
+    document.getElementById('requestHolidayFormLeaveType').selectedIndex = 0;
+    
+    // Clear reason
+    document.getElementById('requestHolidayFormReason').value = '';
+}
+
 // Date validation setup
 function setMinimumDate() {
     const today = new Date().toISOString().split('T')[0];
@@ -77,11 +96,16 @@ function toggleSidebar() {
 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('requestHolidayForm');
+    const cancelButton = document.querySelector('.request-holiday-form-cancel');
     if (form) {
         console.log('Form found and event listener attached');
         form.addEventListener('submit', handleSubmit);
-    } else {
-        console.error('Form not found');
+    } 
+    if (cancelButton) {
+        cancelButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            resetForm();
+        });
     }
 });
 
@@ -103,8 +127,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
-
 
 // Initialize on page load
 window.onload = setMinimumDate;

@@ -35,6 +35,9 @@ class DeliveryPerson extends Controller
     {
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $limit = 5;
+            $offset = ($page - 1) * $limit;
 
             if (!$employee) {
                 flash('error_msg', 'Employee not found');
@@ -43,7 +46,10 @@ class DeliveryPerson extends Controller
 
             $data = [
                 'employee' => $employee,
-                'holidayRecords' => $this->deliveryPersonModel->getHolidayRecords($employee->employee_id),
+                'holidayRecords' => $this->deliveryPersonModel->getHolidayRecords($employee->employee_id, $limit, $offset),
+                'totalRecords' => $this->deliveryPersonModel->getTotalHolidayRecords($employee->employee_id),
+                'currentPage' => $page,
+                'totalPages' => ceil($this->deliveryPersonModel->getTotalHolidayRecords($employee->employee_id) / $limit),
                 'start_date' => '',
                 'end_date' => '',
                 'number_of_days' => '',
@@ -96,6 +102,10 @@ class DeliveryPerson extends Controller
 
             if (empty($data['reason'])) {
                 $data['reason_err'] = 'Please enter reason for leave';
+            } else {
+                if (strlen($data['reason']) > 75) {
+                    $data['reason_err'] = 'Reason must be less than 75 characters';
+                }
             }
 
             if (empty($data['leave_type'])) {

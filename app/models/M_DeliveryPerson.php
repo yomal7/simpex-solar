@@ -9,12 +9,25 @@ class M_DeliveryPerson
         $this->db = new Database;
     }
 
-    public function getHolidayRecords($employee_id)
+    public function getHolidayRecords($employee_id, $limit = 5, $offset = 0)
     {
-        $this->db->query('SELECT * FROM holidayrecords WHERE employee_id = :employee_id ORDER BY created_at DESC');
+        $this->db->query('SELECT * FROM holidayrecords 
+        WHERE employee_id = :employee_id 
+        ORDER BY created_at DESC 
+        LIMIT :limit OFFSET :offset');
+
         $this->db->bind(':employee_id', $employee_id);
+        $this->db->bind(':limit', $limit);
+        $this->db->bind('offset', $offset);
 
         return $this->db->resultSet();
+    }
+
+    public function getTotalHolidayRecords($employee_id)
+    {
+        $this->db->query('SELECT COUNT(*) AS total FROM holidayrecords WHERE employee_id = :employee_id');
+        $this->db->bind(':employee_id', $employee_id);
+        return $this->db->single()->total;
     }
 
     public function addHolidayRecords($data)
