@@ -305,7 +305,9 @@ class M_Packages {
                          WHERE p.type = :type AND p.deleted_at IS NULL 
                          GROUP BY p.package_id');
         $this->db->bind(':type', $type);
+        
         return $this->db->resultSet();
+        // error_log("Packages Retrieved for Type '$type': " . json_encode($result, JSON_PRETTY_PRINT));
     }
 
     public function getAllPackagesWithFeatures() {

@@ -213,31 +213,6 @@ class OperationsCoordinator extends Controller
 
         
     }
-
-    // public function manageQuotation($preProjectId = null) {
-    //     if ($preProjectId === null) {
-    //         redirect('operationsCoordinator/preProjects');
-    //     }
-    
-    //     // Get project and quotation details
-    //     $project = $this->preProjectModel->getPreProjectById($preProjectId);
-        
-    //     if (!$project) {
-    //         flash('project_message', 'Project not found', 'alert alert-danger');
-    //         redirect('operationsCoordinator/preProjects');
-    //     }
-    
-    //     // Get additional quotation details if needed
-    //     $quotation = $this->preProjectModel->getQuotationByPreProjectId($preProjectId);
-    
-    //     $data = [
-    //         'project' => $project,
-    //         'quotation' => $quotation,
-    //         'title' => 'Manage Quotation'
-    //     ];
-    
-    //     $this->view('operationsCoordinator/v_manageQuotation', $data);
-    // }
 //-------------------------------------------------------------------------------------------
     //Review Quotation
     
@@ -296,13 +271,6 @@ class OperationsCoordinator extends Controller
         echo json_encode($equipment);
     }
 
-    
-    // public function getInventory() {
-    //     $inventory = $this->preProjectModel->getAvailableInventory();
-        
-    //     header('Content-Type: application/json');
-    //     echo json_encode($inventory);
-    // }
 
     public function saveReviewedQuotation() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

@@ -18,9 +18,9 @@
             <div class="package-card" data-type="<?php echo $package->type; ?>">
                 <h2 class="package-name"><?php echo $package->title; ?></h2>
                 <img src="<?php echo URLROOT; ?>/public/<?php echo $package->image ?: 'default-package.jpg'; ?>"
-                     alt="<?php echo $package->title; ?>"
-                     class="package-image"
-                     onerror="this.src='<?php echo URLROOT; ?>/public/assets/product_poster.png'">
+                alt="<?php echo $package->title; ?>"
+                class="package-image"
+                onerror="this.src='<?php echo URLROOT; ?>/public/assets/product_poster.png'">
                 <div class="package-price">Rs <?php echo number_format($package->final_price, 2); ?></div>
                 <ul class="features-list">
                     <?php
