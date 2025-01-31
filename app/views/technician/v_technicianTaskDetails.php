@@ -1,0 +1,136 @@
+<?php require APPROOT . '/views/technician/header.php'; ?>
+
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<!-- <link rel="stylesheet" href="</?php echo URLROOT; ?>/css/technician/dashboard.css"> -->
+ 
+
+</head>
+
+<body>
+    <div class="projectTasks-container">
+
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="sidebar" id="sidebar">
+            <img
+                src="<?php echo URLROOT ?>/assets/profile.png"
+                alt="technician profile-picture"
+                class="profile-picture" />
+            <a href="<?php echo URLROOT ?>/technician/dashboard">
+                <span class="material-icons-sharp">dashboard</span>
+                <h3>Dashboard</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/technician/tasks" class="active">
+                <span class="material-icons-sharp">task</span>
+                <h3>Tasks</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/technician/requestHoliday">
+                <span class="material-icons-sharp">event</span>
+                <h3>Request Holiday</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/technician/settings">
+                <span class="material-icons-sharp">settings</span>
+                <h3>Settings</h3>
+            </a>
+            <a href="<?php echo URLROOT; ?>/users/logout" class="logout">
+                <span class="material-icons-sharp">logout</span>
+                <h3>Logout</h3>
+            </a>
+        </div>
+
+        <div class="main-content">
+            <div class="container">
+
+                <div class="task-details-container">
+                    <div class="actions">
+                        <button class="back-button" onclick="window.location.href='<?php echo URLROOT; ?>/technician/tasks'" class="back-btn">
+                            Back to Tasks
+                        </button>
+                    </div>
+                    <div class="details">
+                        <h2>Task Details</h2>
+                        <?php if (isset($data['task']) && $data['task']): ?>
+                            <div class="task-info">
+                                <div class="info-group">
+                                    <label class="fut">Task ID:</label>
+                                    <span><?php echo $data['task']->id; ?></span>
+                                </div>
+
+                                <div class="info-group">
+                                    <label>Project ID:</label>
+                                    <span><?php echo $data['task']->project_id; ?></span>
+                                </div>
+
+                                <div class="info-group">
+                                    <label>Title:</label>
+                                    <span><?php echo $data['task']->title; ?></span>
+                                </div>
+
+                                <div class="info-group">
+                                    <label>Description:</label>
+                                    <span><?php echo $data['task']->description; ?></span>
+                                </div>
+
+                                <div class="info-group">
+                                    <label>Start Date:</label>
+                                    <span><?php echo $data['task']->start_date; ?></span>
+                                </div>
+
+                                <div class="info-group">
+                                    <label>End Date:</label>
+                                    <span><?php echo $data['task']->end_date; ?></span>
+                                </div>
+
+                                <div class="info-group">
+                                    <label>Status:</label>
+                                    <span class="status-badge <?php echo strtolower($data['task']->status); ?>">
+                                        <?php echo str_replace('_', ' ', ucfirst($data['task']->status)); ?>
+                                    </span>
+                                </div>
+                            </div>
+
+                    </div>
+                    <div class="comments">
+
+                        <div class="comments-section">
+                            <h3>Comments</h3>
+                            <div id="commentsList">
+                                <?php if (!empty($data['task']->comment)): ?>
+                                    <div class="comment">
+                                        <p><?php echo $data['task']->comment; ?></p>
+                                        <div class="comment-actions">                          
+                                            <button class="comment-action-button"onclick="deleteComment(<?php echo $data['task']->id; ?>)">
+                                            <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                <?php endif; ?>
+                            </div>
+                            <?php if (empty($data['task']->comment)): ?>
+                            <div class="add-comment">
+                                <textarea id="newComment" maxlength="255" placeholder="Add a comment..."></textarea>
+                            <div class="comment-actions">
+                                <button class="comment-action-button"onclick="addComment(<?php echo $data['task']->id; ?>)">
+                                            <i class="fas fa-paper-plane"></i>
+                                            </button>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+
+
+                    <?php else: ?>
+                        <div class="alert alert-danger">
+                            Task not found
+                        </div>
+                    <?php endif; ?>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="overlay" id="overlay"></div>
+
+</body>
+<script src="<?php echo URLROOT; ?>/js/technician/tasks.js"></script>

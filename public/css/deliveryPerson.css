@@ -932,7 +932,7 @@ span.approved {
 
 span.pending {
     background-color: var(--warning-color);
-    color: #000;
+    color: var(--white);
 }
 
 span.not.approved {

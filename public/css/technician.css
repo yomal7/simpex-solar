@@ -482,7 +482,7 @@ span.approved {
 
 span.pending {
     background-color: var(--warning-color);
-    color: #000;
+    color: var(--white);
 }
 
 span.not.approved {
@@ -964,20 +964,27 @@ tr:hover {
     object-fit: cover;
 }
 
-.completion {
+.status-button {
     padding: 5px 10px;
     border-radius: 15px;
     font-size: 12px;
     font-weight: bold;
+    border: none;
+    box-shadow: none;
 }
 
-.completed {
+.status-button.completed {
     background-color: var(--success-color);
     color: var(--white);
 }
 
-.not-completed {
+.status-button.incomplete {
     background-color: var(--danger-color);
+    color: var(--white);
+}
+
+.status-button.in_progress {
+    background-color: var(--warning-color);
     color: var(--white);
 }
 
@@ -1058,8 +1065,8 @@ tr:hover {
     width: 100%;
     margin-top: 50px;
     padding: 10px 0;
-    background: var(--success-color);
-    color: var(--white);
+    /* background: var(--success-color); */
+    /* color: var(--white); */
     border: 0;
     outline: none;
     font-size: 18px;
@@ -1160,3 +1167,290 @@ textarea {
     border: 1px solid #ccc;
     border-radius: 5px;
 }
+
+.close-icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0px;
+}
+
+.close-icon:hover {
+    color: #d6cdcd;
+    transform: scale(1.1);
+}
+
+.popup-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.cancel-btn {
+    background-color: #f2f2f2;
+    color: gray;
+}
+
+.add-btn {
+    background-color: var(--success-color);
+    color: var(--white);
+}
+
+.icon-button {
+    background: var(--theme-color);
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin: 0 5px;
+    transition: transform 0.2s;
+}
+
+.icon-button:hover {
+    transform: scale(1.2);
+}
+
+.icon-button i {
+    font-size: 1.2rem;
+}
+
+.popup-icon {
+    font-size: 24px;
+    color: #28a745;
+    margin-bottom: 15px;
+    display: block;
+    text-align: center;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;  /* Removed padding */
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    display: flex;  /* Added flex */
+    align-items: center;
+    justify-content: right;
+    width: 24px;  /* Width to match icon size */
+    height: 24px; /* Height to match icon size */
+
+
+
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.close-button:hover {
+    opacity: 0.7;
+}
+
+.material-icons {
+    justify-content: right;
+    font-size: 24px;  /* Icon size */
+    color: #333;
+
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;  /* Removed padding */
+    position: absolute;
+    
+    display: flex;  /* Added flex */
+    align-items: center;
+    justify-content: right;
+    width: 24px;  /* Width to match icon size */
+    height: 24px; /* Height to match icon size */
+
+
+
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+
+.close-icon {
+    right: 10px;
+    top: 10px;
+}
+
+
+.fa-eye {
+    color: white;
+}
+
+.update-btn {
+    background-color: var(--success-color);
+    color: var(--white);
+}
+
+.comment-container {
+    background: #f8f8f8;
+    border-radius: 6px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.comment-text {
+    color: #333;
+    line-height: 1.5;
+    word-wrap: break-word;
+    font-size: 14px;
+}
+
+.center-align {
+    text-align: center; /* Horizontally center-align text */
+    vertical-align: top; 
+  }
+
+  
+.projectTasks-table-container th {
+    text-align: center;
+}
+
+.left-align {
+    text-align: left;
+    vertical-align: middle;
+}
+
+.task-info{
+
+    width: 100%;
+
+}
+
+.info-group{
+    padding: 12px;
+    width: 100%;
+    display: flex;
+    border-bottom: #a19e9e solid 1px;
+    border-width: 2px;
+
+} 
+
+.info-group label{
+    min-width: 120px;
+    width: 120px;
+    display: flex;
+    font-weight: 600;
+}
+
+
+.details {
+    background-color: rgb(233, 233, 233);
+    padding: 20px;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.back-button {
+    background-color: #7AB87A;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.comments {
+    background-color: rgb(226, 226, 226);
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+
+.task-details-container {
+    
+    border-radius: 10px;
+   
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.comments-section {
+    padding: 10px;
+}
+
+.comment {
+    padding: 12px;
+    
+}
+
+.comment-actions {
+    margin-top: 10px;
+}
+
+.add-comment {
+    padding: 12px;;
+}
+
+.comment p {
+    white-space: pre-wrap;    /* Preserves whitespace and wraps */
+    word-wrap: break-word;    /* Breaks long words */
+    overflow-wrap: break-word; /* Modern version of word-wrap */
+    background-color: #f0ebeb;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.fa-paper-plane {
+    color: white;
+    font-size: 20px;
+}
+
+.fa-trash-alt {
+    color: white;
+    font-size: 20px;
+}
+
+.comment-action-button {
+    border: none;
+    padding: 5px;
+    background-color: var(--theme-color);
+    color: var(--white);
+    border-radius: 5px;
+}
+
+.add-comment textarea {
+    border: 1px solid #ccc;  /* Add default border */
+}
+
+.add-comment textarea:focus {
+    outline: none;
+    border: 1px var(--theme-color) solid;
+}
+
+#statusSelect {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    width: 50%;
+}
+
+#statusSelect option:hover {
+    background-color: var(--theme-color);
+    color: var(--white);
+}
+
+#statusSelect:focus {
+    outline: none;
+    border: 1px var(--theme-color) solid;
+    background-color: var (--theme-color);
+}
+

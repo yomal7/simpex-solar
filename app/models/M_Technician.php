@@ -9,13 +9,6 @@ class M_Technician
         $this->db = new Database;
     }
 
-    // public function getTasks($employee_id) {
-    //     $this->db->query('SELECT * FROM tasks WHERE employee_id = :employee_id');
-    //     $this->db->bind(':employee_id', $employee_id);
-
-    //     return $this->db->resultSet();
-    // }
-
     public function getHolidayRecords($employee_id, $limit = 5, $offset = 0)
     {
         $this->db->query('SELECT * FROM holidayrecords 
@@ -53,48 +46,54 @@ class M_Technician
         return $this->db->execute();
     }
 
-    public function getTasks($employee_id)
-    {
-        $this->db->query('SELECT * FROM tasks WHERE employee_id = :employee_id');
-        $this->db->bind('employee_id', $employee_id);
+    public function getProjectTasks($employee_id, $limit = 10, $offset = 0)
+{
+    $this->db->query('SELECT id, project_id, title, description, start_date, end_date, status, comment 
+    FROM taskss 
+    WHERE employee_id = :employee_id
+    ORDER BY end_date ASC
+    LIMIT :limit OFFSET :offset');
+    
+    $this->db->bind(':employee_id', $employee_id);
+    $this->db->bind(':limit', $limit);
+    $this->db->bind(':offset', $offset);
 
-        return $this->db->resultSet();
+    return $this->db->resultSet();
+}
+
+public function getProjectTasksById($taskId) {
+    $this->db->query('SELECT * FROM taskss WHERE id = :id');
+    $this->db->bind(':id', $taskId);
+    
+    return $this->db->single();
+}
+
+
+    public function getTotalProjectTasks($employee_id)
+    {
+        $this->db->query('SELECT COUNT(*) AS total FROM taskss WHERE employee_id = :employee_id');
+        $this->db->bind(':employee_id', $employee_id);
+        return $this->db->single()->total;
     }
 
+    
+    public function updateTaskComment($id, $comment) {
+        $this->db->query('UPDATE taskss SET comment = :comment WHERE id = :id');
+        $this->db->bind(':comment', $comment);
+        $this->db->bind(':id', $id);
+        return $this->db->execute();
+    }
 
+    public function updateTaskStatus($id, $status) {
+        $this->db->query('UPDATE taskss SET status = :status WHERE id = :id');
+        $this->db->bind(':status', $status);
+        $this->db->bind(':id', $id);
+        return $this->db->execute();
+    }
 
-
-
-
-
-
-
-
-    // public function getDeliveryPersonByUserId($userId) {
-    //     $this->db->query('SELECT * FROM clients WHERE user_id = :user_id');
-    //     $this->db->bind(':user_id', $userId);
-
-    //     return $this->db->single();
-    // }
-
-    // public function getRecentTasks($clientId) {
-    //     $this->db->query('SELECT * FROM tasks WHERE client_id = :client_id ORDER BY created_at DESC LIMIT 5');
-    //     $this->db->bind(':client_id', $clientId);
-
-    //     return $this->db->resultSet();
-    // }
-
-    // public function getAllTasks($clientId) {
-    //     $this->db->query('SELECT * FROM tasks WHERE client_id = :client_id ORDER BY created_at DESC');
-    //     $this->db->bind(':client_id', $clientId);
-
-    //     return $this->db->resultSet();
-    // }
-
-    // public function getProjectById($projectId) {
-    //     $this->db->query('SELECT * FROM projects WHERE id = :id');
-    //     $this->db->bind(':id', $projectId);
-
-    //     return $this->db->single();
-    // }
+    public function deleteTaskComment($taskId) {
+        $this->db->query('UPDATE taskss SET comment = NULL WHERE id = :id');
+        $this->db->bind(':id', $taskId);
+        return $this->db->execute();
+    }
 }
