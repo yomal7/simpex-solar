@@ -237,4 +237,36 @@ class M_Shop
             return false;
         }
     }
+
+    public function getUserOrders($userId)
+    {
+        // Get pre-orders that are pending, rejected, or cancelled
+        $preOrders = $this->db->query("
+            SELECT 
+                po.*, p.name AS product_name, p.price AS product_price
+            FROM pre_orders po
+            JOIN products p ON po.product_id = p.id
+            WHERE po.user_id = :user_id 
+            AND po.status IN ('pending', 'rejected', 'cancelled')
+            AND po.deleted_at IS NULL
+        ");
+        $this->db->bind(':user_id', $userId);
+        $preOrders = $this->db->resultSet();
+
+        // Get orders from orders table
+        $orders = $this->db->query("
+            SELECT 
+                o.*, po.product_id, po.quantity, po.delivery_option,
+                p.name AS product_name
+            FROM orders o
+            JOIN pre_orders po ON o.preorder_id = po.id
+            JOIN products p ON po.product_id = p.id
+            WHERE po.user_id = :user_id
+            AND po.deleted_at IS NULL
+        ");
+        $this->db->bind(':user_id', $userId);
+        $orders = $this->db->resultSet();
+
+        return ['pre_orders' => $preOrders, 'orders' => $orders];
+    }
 }

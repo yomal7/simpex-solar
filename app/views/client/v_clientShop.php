@@ -65,11 +65,12 @@
                         <input type="text" class="filter-input" placeholder="Search orders..." id="orderSearch">
                         <select class="filter-input" id="statusFilter">
                             <option value="">All Statuses</option>
-                            <option value="pending_approval">Pending Approval</option>
+                            <option value="pending_approval">Pending</option>
                             <option value="approved">Approved</option>
                             <option value="rejected">Rejected</option>
                             <option value="processing">Processing</option>
-                            <option value="completed">Completed</option>
+                            <option value="completed">Ready for Pickup</option>
+                            <option value="cancelled">Out for Delivery</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
                         <select class="filter-input" id="dateFilter">
@@ -86,95 +87,128 @@
                         <table class="orders-table">
                             <thead>
                                 <tr>
-                                    <th>Order ID</th>
-                                    <th>Date</th>
                                     <th>Products</th>
+                                    <th>Preferred Date</th>
                                     <th>Total</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Pending Approval Order -->
-                                <tr>
-                                    <td class="order-id">#ORD-2024-001</td>
-                                    <td>Feb 25, 2024</td>
-                                    <td>
-                                        <div class="order-products">
-                                            Premium Solar Panel 400W (x2)<br>
-                                            Solar Inverter 5kW
-                                        </div>
-                                    </td>
-                                    <td>Rs2,499.99</td>
-                                    <td>
-                                        <span class="status-badge status-pending">Pending Approval</span>
-                                    </td>
-                                    <td>
-                                        <div class="order-actions">
-                                            <button class="action-button action-view" onclick="viewOrder('ORD-2024-001')">
-                                                <i class="fas fa-eye"></i> View
-                                            </button>
-                                            <button class="action-button action-cancel" onclick="cancelOrder('ORD-2024-001')">
-                                                <i class="fas fa-times"></i> Cancel
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                <?php
+                                // Display pre-orders
+                                foreach ($data['orders']['pre_orders'] as $order):
+                                    $total = $order->product_price * $order->quantity;
+                                    if ($order->delivery_option === 'deliver') {
+                                        $total += 450.00;
+                                    }
 
-                                <!-- Approved Order -->
-                                <tr>
-                                    <td class="order-id">#ORD-2024-002</td>
-                                    <td>Feb 24, 2024</td>
-                                    <td>
-                                        <div class="order-products">
-                                            Solar Panel Kit 600W<br>
-                                            Mounting System
-                                        </div>
-                                    </td>
-                                    <td>Rs. 3,299.99</td>
-                                    <td>
-                                        <span class="status-badge status-approved">Approved</span>
-                                    </td>
-                                    <td>
-                                        <div class="order-actions">
-                                            <button class="action-button action-pay" onclick="processPayment('ORD-2024-002')">
-                                                <i class="fas fa-credit-card"></i> Pay Now
-                                            </button>
-                                            <button class="action-button action-view" onclick="viewOrder('ORD-2024-002')">
-                                                <i class="fas fa-eye"></i> View
-                                            </button>
-                                            <button class="action-button action-download" onclick="downloadQuotation('ORD-2024-002')">
-                                                <i class="fas fa-download"></i> Quotation
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                    // Calculate preferred date based on status
+                                    $date = new DateTime($order->updated_at);
+                                    switch ($order->status) {
+                                        case 'pending':
+                                            $date->modify('+10 days');
+                                            break;
+                                        case 'rejected':
+                                        case 'cancelled':
+                                            // Keep updated_at date
+                                            break;
+                                    }
+                                ?>
+                                    <tr>
+                                        <td>
+                                            <div class="order-products">
+                                                <?php echo $order->product_name . " (x" . $order->quantity . ")"; ?>
+                                            </div>
+                                        </td>
+                                        <td><?php echo $date->format('M d, Y'); ?></td>
+                                        <td>Rs. <?php echo number_format($total, 2); ?></td>
+                                        <td>
+                                            <span class="status-badge status-<?php echo strtolower($order->status); ?>">
+                                                <?php echo ucfirst($order->status); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="order-actions">
+                                                <button class="action-button action-view" onclick="viewOrder(<?php echo $order->id; ?>)">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                                <?php if ($order->status === 'pending'): ?>
+                                                    <button class="action-button action-edit" onclick="editOrder(<?php echo $order->id; ?>)">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </button>
+                                                    <button class="action-button action-cancel" onclick="cancelOrder(<?php echo $order->id; ?>)">
+                                                        <i class="fas fa-times"></i> Cancel
+                                                    </button>
+                                                <?php elseif (in_array($order->status, ['rejected', 'cancelled'])): ?>
+                                                    <button class="action-button action-delete" onclick="deleteOrder(<?php echo $order->id; ?>)">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </button>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
 
-                                <!-- Completed Order -->
-                                <tr>
-                                    <td class="order-id">#ORD-2024-003</td>
-                                    <td>Feb 20, 2024</td>
-                                    <td>
-                                        <div class="order-products">
-                                            Solar Inverter 3kW<br>
-                                            Battery System
-                                        </div>
-                                    </td>
-                                    <td>Rs. 4,199.99</td>
-                                    <td>
-                                        <span class="status-badge status-completed">Completed</span>
-                                    </td>
-                                    <td>
-                                        <div class="order-actions">
-                                            <button class="action-button action-view" onclick="viewOrder('ORD-2024-003')">
-                                                <i class="fas fa-eye"></i> View
-                                            </button>
-                                            <button class="action-button action-download" onclick="downloadInvoice('ORD-2024-003')">
-                                                <i class="fas fa-file-invoice"></i> Invoice
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                <?php
+                                // Display orders
+                                foreach ($data['orders']['orders'] as $order):
+                                    $total = $order->price * $order->quantity;
+                                    if ($order->delivery_fee > 0) {
+                                        $total += $order->delivery_fee;
+                                    }
+                                    if ($order->discount > 0) {
+                                        $total -= $order->discount;
+                                    }
+
+                                    // Calculate preferred date based on status
+                                    $date = new DateTime($order->updated_at);
+                                    switch ($order->status) {
+                                        case 'approved':
+                                            $date->modify('+7 days');
+                                            break;
+                                        case 'processing':
+                                            $date->modify('+5 days');
+                                            break;
+                                        case 'ready for pickup':
+                                        case 'out for delivery':
+                                            $date = new DateTime(); // Today
+                                            break;
+                                        case 'delivered':
+                                            // Keep updated_at date
+                                            break;
+                                    }
+                                ?>
+                                    <tr>
+                                        <td>
+                                            <div class="order-products">
+                                                <?php echo $order->product_name . " (x" . $order->quantity . ")"; ?>
+                                            </div>
+                                        </td>
+                                        <td><?php echo $date->format('M d, Y'); ?></td>
+                                        <td>Rs. <?php echo number_format($total, 2); ?></td>
+                                        <td>
+                                            <span class="status-badge status-<?php echo str_replace(' ', '-', strtolower($order->status)); ?>">
+                                                <?php echo ucfirst($order->status); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="order-actions">
+                                                <button class="action-button action-view" onclick="viewOrder(<?php echo $order->id; ?>)">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                                <?php if ($order->status === 'approved'): ?>
+                                                    <button class="action-button action-confirm" onclick="confirmOrder(<?php echo $order->id; ?>)">
+                                                        <i class="fas fa-check"></i> Confirm
+                                                    </button>
+                                                    <button class="action-button action-cancel" onclick="cancelOrder(<?php echo $order->id; ?>)">
+                                                        <i class="fas fa-times"></i> Cancel
+                                                    </button>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
                             </tbody>
                         </table>
 
