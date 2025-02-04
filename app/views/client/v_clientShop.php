@@ -122,7 +122,7 @@
                                             </div>
                                         </td>
                                         <td><?php echo $date->format('M d, Y'); ?></td>
-                                        <td>Rs. <?php echo number_format($total, 2); ?></td>
+                                        <td class="total-price">Rs. <?php echo number_format($total, 2); ?></td>
                                         <td>
                                             <span class="status-badge status-<?php echo strtolower($order->status); ?>">
                                                 <?php echo ucfirst($order->status); ?>
