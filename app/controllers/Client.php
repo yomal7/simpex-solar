@@ -206,4 +206,82 @@ class Client extends Controller
             }
         }
     }
+
+    public function processOrder()
+    {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            try {
+                $data = json_decode(file_get_contents("php://input"));
+
+                if (!isset($data->orderId) || !isset($data->paymentMethod)) {
+                    throw new Exception("Invalid request data");
+                }
+
+                switch ($data->paymentMethod) {
+                    case 'cash':
+                        if ($this->shopModel->processPayment($data->orderId, 'cash')) {
+                            echo json_encode([
+                                'success' => true,
+                                'redirect' => 'shop'
+                            ]);
+                        } else {
+                            throw new Exception('Failed to process payment');
+                        }
+                        break;
+
+                    case 'online':
+                        echo json_encode([
+                            'success' => true,
+                            'redirect' => 'checkout/' . $data->orderId
+                        ]);
+                        break;
+
+                    case 'bank':
+                        echo json_encode([
+                            'success' => true,
+                            'redirect' => 'bankDeposit/' . $data->orderId
+                        ]);
+                        break;
+
+                    default:
+                        throw new Exception('Invalid payment method');
+                }
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]);
+            }
+            exit;
+        }
+    }
+
+    public function checkout($orderId)
+    {
+        $order = $this->shopModel->getOrderDetailsByID($orderId);
+        if ($order) {
+            $data = [
+                'order' => $order
+            ];
+            $this->view('client/v_clientCheckout', $data);
+        } else {
+            redirect('client/shop');
+        }
+    }
+
+    public function bankDeposit($orderId)
+    {
+        $order = $this->shopModel->getOrderDetailsByID($orderId);
+        if ($order) {
+            $data = [
+                'order' => $order
+            ];
+            $this->view('client/v_clientBankDeposit', $data);
+        } else {
+            redirect('client/shop');
+        }
+    }
 }

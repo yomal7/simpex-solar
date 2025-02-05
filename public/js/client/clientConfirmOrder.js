@@ -1,3 +1,22 @@
+document.addEventListener("DOMContentLoaded", function () {
+  const sideLinks = document.querySelectorAll(
+    ".sidebar .side-menu li a:not(.logout)"
+  );
+  if (sideLinks.length) {
+    sideLinks.forEach((item) => {
+      const li = item.parentElement;
+      item.addEventListener("click", () => {
+        sideLinks.forEach((i) => {
+          i.parentElement.classList.remove("active");
+        });
+        li.classList.add("active");
+      });
+    });
+  }
+  calculateTotal();
+});
+
+// Move functions outside of DOMContentLoaded
 function confirmOrder(orderId) {
   const paymentMethod = document.querySelector(
     'input[name="payment_method"]:checked'
@@ -14,41 +33,11 @@ function confirmOrder(orderId) {
     return;
   }
 
-  // Submit order confirmation
-  fetch(`${URLROOT}/client/processOrder`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      orderId: orderId,
-      paymentMethod: paymentMethod.value,
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        window.location.href = `${URLROOT}/client/shop`;
-      }
-    });
+  showConfirmationModal(paymentMethod.value, orderId);
 }
 
 function downloadQuotation(orderId) {
   window.location.href = `${URLROOT}/client/downloadQuotation/${orderId}`;
-}
-
-function cancelOrder(orderId) {
-  if (confirm("Are you sure you want to cancel this order?")) {
-    fetch(`${URLROOT}/client/cancelOrder/${orderId}`, {
-      method: "POST",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.success) {
-          window.location.href = `${URLROOT}/client/shop`;
-        }
-      });
-  }
 }
 
 function cancelOrder(orderId) {
@@ -74,5 +63,51 @@ function confirmCancel(orderId) {
     .catch((error) => {
       console.error("Error:", error);
       alert("Something went wrong");
+    });
+}
+
+function showConfirmationModal(paymentMethod, orderId) {
+  const modal = document.getElementById("confirmModal");
+  const modalContent = document.querySelector("#confirmModal .modal-body");
+  if (!modal || !modalContent) {
+    console.error("Modal elements not found");
+    return;
+  }
+
+  modalContent.innerHTML = `Confirm payment method: ${paymentMethod}`;
+  modal.style.display = "block";
+
+  const confirmBtn = document.getElementById("confirmPaymentBtn");
+  if (confirmBtn) {
+    confirmBtn.onclick = () => processPayment(paymentMethod, orderId);
+  }
+}
+
+function processPayment(paymentMethod, orderId) {
+  fetch(`${URLROOT}/client/processOrder`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      orderId: orderId,
+      paymentMethod: paymentMethod,
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        if (data.redirect === "shop") {
+          window.location.href = `${URLROOT}/client/shop`;
+        } else {
+          window.location.href = `${URLROOT}/client/${data.redirect}`;
+        }
+      } else {
+        throw new Error(data.message);
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert(error.message || "Something went wrong. Please try again.");
     });
 }

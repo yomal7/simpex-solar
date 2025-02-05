@@ -45,7 +45,7 @@
 
             <div class="success-header">
                 <h1>Confirm Order</h1>
-                <p class="order-id">Order ID: <?php echo 'ORD-' . date('Y', strtotime($data['order']->created_at)) . '-' . str_pad($data['order']->id, 3, '0', STR_PAD_LEFT); ?></p>
+                <p class="order-id">Order ID: <?php echo 'ORD-' . date('Y', strtotime($data['order']->created_at)) . '-' . str_pad($data['order']->preorder_id, 3, '0', STR_PAD_LEFT); ?></p>
             </div>
 
             <div class="container">
@@ -175,6 +175,19 @@
             </div>
         </div>
     </div>
+
+    <!-- Add to v_clientConfirmOrder.php -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h3>Confirm Payment Method</h3>
+            <div class="modal-body"></div>
+            <div class="modal-actions">
+                <button class="btn-modal-cancel" onclick="closeModal('confirmModal')">Cancel</button>
+                <button class="btn-modal-confirm" id="confirmPaymentBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const URLROOT = '<?php echo URLROOT; ?>';
     </script>

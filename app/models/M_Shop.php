@@ -383,4 +383,39 @@ class M_Shop
         $this->db->bind(':id', $orderId);
         return $this->db->execute();
     }
+
+    public function processPayment($orderId, $paymentMethod)
+    {
+        try {
+            // First get the preorder_id from orders table
+            $this->db->query("SELECT preorder_id FROM orders WHERE id = :id");
+            $this->db->bind(':id', $orderId);
+            $order = $this->db->single();
+
+            if (!$order) {
+                return false;
+            }
+
+            // Update order status to processing
+            $this->db->query("UPDATE orders SET status = 'processing' WHERE id = :id");
+            $this->db->bind(':id', $order->preorder_id);
+
+            if (!$this->db->execute()) {
+                return false;
+            }
+
+            // Create payment record using preorder_id
+            $this->db->query("INSERT INTO store_payments (order_id, payment_method, payment_status) 
+                         VALUES (:order_id, :payment_method, :payment_status)");
+
+            $this->db->bind(':order_id', $order->preorder_id);
+            $this->db->bind(':payment_method', 'cash');
+            $this->db->bind(':payment_status', false);
+
+            return $this->db->execute();
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return false;
+        }
+    }
 }
