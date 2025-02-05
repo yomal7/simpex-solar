@@ -946,4 +946,43 @@ class SupplierCoordinator extends Controller
         }
         redirect('supplierCoordinator/shop');
     }
+
+    public function viewOrder($id)
+    {
+        $order = $this->shopModel->getOrderDetails($id);
+        if ($order) {
+            $data = [
+                'order' => $order
+            ];
+            $this->view('supplierCoordinator/v_requestOrders', $data);
+        } else {
+            redirect('supplierCoordinator/dashboard');
+        }
+    }
+
+    public function approveOrder()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $data = json_decode(file_get_contents("php://input"));
+
+            if ($this->shopModel->approveOrder($data)) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to approve order']);
+            }
+        }
+    }
+
+    public function rejectOrder()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $data = json_decode(file_get_contents('php://input'));
+
+            if ($this->shopModel->rejectOrder($data->orderId)) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false]);
+            }
+        }
+    }
 }

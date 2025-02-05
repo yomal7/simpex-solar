@@ -318,10 +318,49 @@ class M_Shop
         FROM orders o
         JOIN pre_orders po ON o.preorder_id = po.id
         JOIN products p ON po.product_id = p.id
-        WHERE o.status IN ('approved', 'processing', 'ready for pickup', 'out for delivery', 'delivered')
+        WHERE o.status IN ('approved', 'processing', 'ready for pickup', 'out for delivery')
         AND o.deleted_at IS NULL
         ORDER BY created_at DESC
     ");
         return $this->db->resultSet();
+    }
+
+    public function getOrderDetails($id)
+    {
+        $this->db->query("SELECT po.*, p.name as product_name, p.price as product_price, p.image1
+                          FROM pre_orders po 
+                          JOIN products p ON po.product_id = p.id
+                          WHERE po.id = :id");
+        $this->db->bind(':id', $id);
+        return $this->db->single();
+    }
+
+    public function approveOrder($data)
+    {
+        // First update pre_order status
+        $this->db->query("UPDATE pre_orders SET status = 'approved' WHERE id = :id");
+        $this->db->bind(':id', $data->orderId);
+
+        if (!$this->db->execute()) {
+            return false;
+        }
+
+        // Then create new order
+        $this->db->query("INSERT INTO orders (preorder_id, price, delivery_fee, discount, status)
+                         VALUES (:preorder_id, :price, :delivery_fee, :discount, 'approved')");
+
+        $this->db->bind(':preorder_id', $data->orderId);
+        $this->db->bind(':price', $data->price);
+        $this->db->bind(':delivery_fee', $data->delivery_fee);
+        $this->db->bind(':discount', $data->discount);
+
+        return $this->db->execute();
+    }
+
+    public function rejectOrder($orderId)
+    {
+        $this->db->query("UPDATE pre_orders SET status = 'rejected' WHERE id = :id");
+        $this->db->bind(':id', $orderId);
+        return $this->db->execute();
     }
 }

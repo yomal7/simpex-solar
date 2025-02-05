@@ -117,7 +117,7 @@
                                         </td>
                                     <?php endif; ?>
                                     <td>
-                                        <button class="btn-view" onclick="viewOrder(<?php echo $order->id; ?>)">
+                                        <button class="btn-view" onclick="window.location.href='<?php echo URLROOT; ?>/supplierCoordinator/viewOrder/<?php echo $order->id; ?>'">
                                             <i class="material-icons-sharp">visibility</i>
                                         </button>
                                     </td>
