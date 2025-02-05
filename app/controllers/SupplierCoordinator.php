@@ -20,18 +20,57 @@ class SupplierCoordinator extends Controller
 
     public function index()
     {
-        // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
-        $data = [];
+        // Get all required order data
+        $pendingOrders = $this->shopModel->getPendingOrders();
+        $processingOrders = $this->shopModel->getProcessingOrders();
+        $activeOrders = $this->shopModel->getActiveOrders();
+
+        $data = [
+            'pending_orders' => $pendingOrders,
+            'processing_orders' => $processingOrders,
+            'active_orders' => $activeOrders,
+            'orders' => $pendingOrders, // Default view shows pending orders
+            'show_status' => false
+        ];
+
         $this->view('supplierCoordinator/v_dashboard', $data);
     }
 
     public function dashboard()
     {
-        // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
-        $data = [];
+        $pendingOrders = $this->shopModel->getPendingOrders();
+        $processingOrders = $this->shopModel->getProcessingOrders();
+        $activeOrders = $this->shopModel->getActiveOrders();
+
+        $data = [
+            'pending_orders' => $pendingOrders,
+            'processing_orders' => $processingOrders,
+            'active_orders' => $activeOrders,
+            'orders' => $pendingOrders, // Default view
+            'show_status' => false
+        ];
+
         $this->view('supplierCoordinator/v_dashboard', $data);
     }
 
+    public function getOrders($type)
+    {
+        switch ($type) {
+            case 'pending':
+                $orders = $this->shopModel->getPendingOrders();
+                $show_status = false;
+                break;
+            case 'processing':
+                $orders = $this->shopModel->getProcessingOrders();
+                $show_status = false;
+                break;
+            case 'active':
+                $orders = $this->shopModel->getActiveOrders();
+                $show_status = true;
+                break;
+        }
+        echo json_encode(['orders' => $orders, 'show_status' => $show_status]);
+    }
     public function addSupplier()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {

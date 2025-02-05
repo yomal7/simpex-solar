@@ -269,4 +269,59 @@ class M_Shop
 
         return ['pre_orders' => $preOrders, 'orders' => $orders];
     }
+
+    public function getPendingOrders()
+    {
+        $this->db->query("
+        SELECT 
+            po.*, p.name AS product_name, p.price AS product_price 
+        FROM pre_orders po
+        JOIN products p ON po.product_id = p.id
+        WHERE po.status = 'pending'
+        AND po.deleted_at IS NULL
+        ORDER BY po.created_at DESC
+    ");
+        return $this->db->resultSet();
+    }
+
+    public function getProcessingOrders()
+    {
+        $this->db->query("
+        SELECT 
+            o.*, po.product_id, po.quantity, po.delivery_option,
+            p.name AS product_name
+        FROM orders o
+        JOIN pre_orders po ON o.preorder_id = po.id
+        JOIN products p ON po.product_id = p.id
+        WHERE o.status = 'processing'
+        AND o.deleted_at IS NULL
+        ORDER BY o.created_at DESC
+    ");
+        return $this->db->resultSet();
+    }
+
+    public function getActiveOrders()
+    {
+        // Get pending pre-orders
+        $this->db->query("
+        SELECT 
+            po.*, p.name AS product_name, p.price AS product_price,
+            'pending' as status
+        FROM pre_orders po
+        JOIN products p ON po.product_id = p.id
+        WHERE po.status = 'pending'
+        AND po.deleted_at IS NULL
+        UNION ALL
+        SELECT 
+            po.*, p.name AS product_name, p.price AS product_price,
+            o.status
+        FROM orders o
+        JOIN pre_orders po ON o.preorder_id = po.id
+        JOIN products p ON po.product_id = p.id
+        WHERE o.status IN ('approved', 'processing', 'ready for pickup', 'out for delivery', 'delivered')
+        AND o.deleted_at IS NULL
+        ORDER BY created_at DESC
+    ");
+        return $this->db->resultSet();
+    }
 }
