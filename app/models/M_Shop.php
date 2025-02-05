@@ -363,4 +363,24 @@ class M_Shop
         $this->db->bind(':id', $orderId);
         return $this->db->execute();
     }
+
+    public function getOrderDetailsByID($id)
+    {
+        $this->db->query("
+            SELECT o.*, po.*, p.name as product_name, p.image1
+            FROM orders o
+            JOIN pre_orders po ON o.preorder_id = po.id
+            JOIN products p ON po.product_id = p.id
+            WHERE o.id = :id
+        ");
+        $this->db->bind(':id', $id);
+        return $this->db->single();
+    }
+
+    public function cancelOrder($orderId)
+    {
+        $this->db->query("UPDATE orders SET status = 'cancelled' WHERE preorder_id = :id");
+        $this->db->bind(':id', $orderId);
+        return $this->db->execute();
+    }
 }

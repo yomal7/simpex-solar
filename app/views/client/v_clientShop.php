@@ -198,11 +198,12 @@
                                                     <i class="fas fa-eye"></i> View
                                                 </button>
                                                 <?php if ($order->status === 'approved'): ?>
-                                                    <button class="action-button action-confirm" onclick="confirmOrder(<?php echo $order->id; ?>)">
+                                                    <button class="btn-confirm" onclick="confirmOrder(<?php echo $order->id; ?>)">
                                                         <i class="fas fa-check"></i> Confirm
                                                     </button>
-                                                    <button class="action-button action-cancel" onclick="cancelOrder(<?php echo $order->id; ?>)">
-                                                        <i class="fas fa-times"></i> Cancel
+                                                <?php elseif ($order->status === 'cancelled'): ?>
+                                                    <button class="action-button action-delete" onclick="deleteOrder(<?php echo $order->id; ?>)">
+                                                        <i class="fas fa-trash"></i> Delete
                                                     </button>
                                                 <?php endif; ?>
                                             </div>
@@ -244,5 +245,8 @@
 
     </div>
 
+    <script>
+        const URLROOT = '<?php echo URLROOT; ?>';
+    </script>
     <script src="<?php echo URLROOT; ?>/js/client/clientShop.js"></script>
     <?php require APPROOT . '/views/client/footer.php'; ?>
