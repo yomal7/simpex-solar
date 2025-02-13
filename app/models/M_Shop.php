@@ -182,38 +182,28 @@ class M_Shop
 
     public function addPreOrder($data)
     {
-        // Debug: Log SQL query
-        error_log('Executing addPreOrder with data: ' . print_r($data, true));
+        // First get product price
+        $this->db->query("SELECT price FROM products WHERE id = :id");
+        $this->db->bind(':id', $data['product_id']);
+        $product = $this->db->single();
 
-        $this->db->query('INSERT INTO pre_orders (
-            product_id, 
-            user_id,
-            delivery_option,
-            full_name,
-            email, 
-            phone_number,
-            street_address,
-            city,
-            province,
-            postal_code,
-            address_notes,
-            quantity,
-            status
-        ) VALUES (
-            :product_id,
-            :user_id,
-            :delivery_option,
-            :full_name, 
-            :email,
-            :phone_number,
-            :street_address,
-            :city,
-            :province,
-            :postal_code,
-            :address_notes,
-            :quantity,
-            :status
-        )');
+        if (!$product) {
+            return false;
+        }
+
+        $this->db->query('INSERT INTO store_orders (
+        product_id, user_id, delivery_option, full_name, 
+        email, phone_number, street_address, city, 
+        province, postal_code, address_notes, quantity,
+        price, delivery_fee, status
+    ) VALUES (
+        :product_id, :user_id, :delivery_option, :full_name,
+        :email, :phone_number, :street_address, :city,
+        :province, :postal_code, :address_notes, :quantity,
+        :price, :delivery_fee, "pending"
+    )');
+
+        $delivery_fee = ($data['delivery_option'] === 'deliver') ? 450.00 : 0.00;
 
         // Bind values
         $this->db->bind(':product_id', $data['product_id']);
@@ -228,7 +218,8 @@ class M_Shop
         $this->db->bind(':postal_code', $data['postal_code']);
         $this->db->bind(':address_notes', $data['address_notes']);
         $this->db->bind(':quantity', $data['quantity']);
-        $this->db->bind(':status', $data['status']);
+        $this->db->bind(':price', $product->price);
+        $this->db->bind(':delivery_fee', $delivery_fee);
 
         try {
             return $this->db->execute();
@@ -240,34 +231,16 @@ class M_Shop
 
     public function getUserOrders($userId)
     {
-        // Get pre-orders that are pending, rejected, or cancelled
-        $preOrders = $this->db->query("
-            SELECT 
-                po.*, p.name AS product_name, p.price AS product_price
-            FROM pre_orders po
-            JOIN products p ON po.product_id = p.id
-            WHERE po.user_id = :user_id 
-            AND po.status IN ('pending', 'rejected', 'cancelled')
-            AND po.deleted_at IS NULL
-        ");
-        $this->db->bind(':user_id', $userId);
-        $preOrders = $this->db->resultSet();
+        $this->db->query("SELECT 
+        so.*, p.name AS product_name
+        FROM store_orders so
+        JOIN products p ON so.product_id = p.id
+        WHERE so.user_id = :user_id 
+        AND so.deleted_at IS NULL
+        ORDER BY so.created_at DESC");
 
-        // Get orders from orders table
-        $orders = $this->db->query("
-            SELECT 
-                o.*, po.product_id, po.quantity, po.delivery_option,
-                p.name AS product_name
-            FROM orders o
-            JOIN pre_orders po ON o.preorder_id = po.id
-            JOIN products p ON po.product_id = p.id
-            WHERE po.user_id = :user_id
-            AND po.deleted_at IS NULL
-        ");
         $this->db->bind(':user_id', $userId);
-        $orders = $this->db->resultSet();
-
-        return ['pre_orders' => $preOrders, 'orders' => $orders];
+        return $this->db->resultSet();
     }
 
     public function getPendingOrders()

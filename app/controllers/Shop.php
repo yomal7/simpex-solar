@@ -77,10 +77,6 @@ class Shop extends Controller
     public function submitPurchaseRequest()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Debug: Check if form data is received
-            var_dump($_POST);
-
-            // Sanitize POST data
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
             $data = [
@@ -94,22 +90,16 @@ class Shop extends Controller
                 'city' => trim($_POST['city']),
                 'province' => trim($_POST['province']),
                 'postal_code' => trim($_POST['postal_code']),
-                'address_notes' => trim($_POST['address_notes']),
-                'quantity' => trim($_POST['quantity']),
-                'status' => 'pending'
+                'address_notes' => !empty($_POST['address_notes']) ? trim($_POST['address_notes']) : null,
+                'quantity' => trim($_POST['quantity'])
             ];
 
-            // Debug: Check processed data
-            error_log('Purchase request data: ' . print_r($data, true));
-
-            // Validate required fields
             if (empty($data['product_id']) || empty($data['full_name']) || empty($data['email'])) {
                 flash('purchase_error', 'Please fill all required fields');
                 redirect('shop/purchaseRequest/' . $data['product_id']);
                 return;
             }
 
-            // Save to database
             if ($this->shopModel->addPreOrder($data)) {
                 flash('purchase_success', 'Your purchase request has been submitted successfully');
                 redirect('client/shop');

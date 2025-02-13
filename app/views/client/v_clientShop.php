@@ -87,6 +87,7 @@
                         <table class="orders-table">
                             <thead>
                                 <tr>
+                                    <th>Order ID</th>
                                     <th>Products</th>
                                     <th>Preferred Date</th>
                                     <th>Total</th>
@@ -94,37 +95,55 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
+                            <!-- In the orders table body -->
                             <tbody>
-                                <?php
-                                // Display pre-orders
-                                foreach ($data['orders']['pre_orders'] as $order):
-                                    $total = $order->product_price * $order->quantity;
-                                    if ($order->delivery_option === 'deliver') {
-                                        $total += 450.00;
+                                <?php foreach ($data['orders'] as $order):
+                                    $total = $order->price * $order->quantity;
+                                    if ($order->delivery_fee > 0) {
+                                        $total += $order->delivery_fee;
+                                    }
+                                    if ($order->discount > 0) {
+                                        $total -= $order->discount;
                                     }
 
-                                    // Calculate preferred date based on status
-                                    $date = new DateTime($order->updated_at);
+                                    $preferredDate = '';
                                     switch ($order->status) {
                                         case 'pending':
-                                            $date->modify('+10 days');
+                                            $preferredDate = date('M d, Y', strtotime($order->created_at . ' + 10 days'));
                                             break;
-                                        case 'rejected':
+                                        case 'approved':
+                                            $preferredDate = date('M d, Y', strtotime($order->updated_at . ' + 7 days'));
+                                            break;
+                                        case 'processing':
+                                            $preferredDate = date('M d, Y', strtotime($order->updated_at . ' + 5 days'));
+                                            break;
+                                        case 'out for delivery':
+                                        case 'ready for pickup':
+                                            $preferredDate = date('M d, Y');
+                                            break;
+                                        case 'delivered':
                                         case 'cancelled':
-                                            // Keep updated_at date
+                                        case 'rejected':
+                                            $preferredDate = date('M d, Y', strtotime($order->updated_at));
                                             break;
+                                        default:
+                                            $preferredDate = date('M d, Y', strtotime($order->created_at));
                                     }
+
+                                    $orderYear = date('Y', strtotime($order->created_at));
+                                    $orderId = 'ORD-' . $orderYear . '-' . str_pad($order->id, 3, '0', STR_PAD_LEFT);
                                 ?>
                                     <tr>
+                                        <td class="order-id"><?php echo $orderId; ?></td>
                                         <td>
                                             <div class="order-products">
                                                 <?php echo $order->product_name . " (x" . $order->quantity . ")"; ?>
                                             </div>
                                         </td>
-                                        <td><?php echo $date->format('M d, Y'); ?></td>
-                                        <td class="total-price">Rs. <?php echo number_format($total, 2); ?></td>
+                                        <td><?php echo $preferredDate; ?></td>
+                                        <td class="order-total">Rs. <?php echo number_format($total, 2); ?></td>
                                         <td>
-                                            <span class="status-badge status-<?php echo strtolower($order->status); ?>">
+                                            <span class="status-badge status-<?php echo str_replace(' ', '-', strtolower($order->status)); ?>">
                                                 <?php echo ucfirst($order->status); ?>
                                             </span>
                                         </td>
@@ -140,68 +159,11 @@
                                                     <button class="action-button action-cancel" onclick="cancelOrder(<?php echo $order->id; ?>)">
                                                         <i class="fas fa-times"></i> Cancel
                                                     </button>
-                                                <?php elseif (in_array($order->status, ['rejected', 'cancelled'])): ?>
-                                                    <button class="action-button action-delete" onclick="deleteOrder(<?php echo $order->id; ?>)">
-                                                        <i class="fas fa-trash"></i> Delete
-                                                    </button>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-
-                                <?php
-                                // Display orders
-                                foreach ($data['orders']['orders'] as $order):
-                                    $total = $order->price * $order->quantity;
-                                    if ($order->delivery_fee > 0) {
-                                        $total += $order->delivery_fee;
-                                    }
-                                    if ($order->discount > 0) {
-                                        $total -= $order->discount;
-                                    }
-
-                                    // Calculate preferred date based on status
-                                    $date = new DateTime($order->updated_at);
-                                    switch ($order->status) {
-                                        case 'approved':
-                                            $date->modify('+7 days');
-                                            break;
-                                        case 'processing':
-                                            $date->modify('+5 days');
-                                            break;
-                                        case 'ready for pickup':
-                                        case 'out for delivery':
-                                            $date = new DateTime(); // Today
-                                            break;
-                                        case 'delivered':
-                                            // Keep updated_at date
-                                            break;
-                                    }
-                                ?>
-                                    <tr>
-                                        <td>
-                                            <div class="order-products">
-                                                <?php echo $order->product_name . " (x" . $order->quantity . ")"; ?>
-                                            </div>
-                                        </td>
-                                        <td><?php echo $date->format('M d, Y'); ?></td>
-                                        <td>Rs. <?php echo number_format($total, 2); ?></td>
-                                        <td>
-                                            <span class="status-badge status-<?php echo str_replace(' ', '-', strtolower($order->status)); ?>">
-                                                <?php echo ucfirst($order->status); ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="order-actions">
-                                                <button class="action-button action-view" onclick="viewOrder(<?php echo $order->id; ?>)">
-                                                    <i class="fas fa-eye"></i> View
-                                                </button>
-                                                <?php if ($order->status === 'approved'): ?>
+                                                <?php elseif ($order->status === 'approved'): ?>
                                                     <button class="btn-confirm" onclick="confirmOrder(<?php echo $order->id; ?>)">
                                                         <i class="fas fa-check"></i> Confirm
                                                     </button>
-                                                <?php elseif ($order->status === 'cancelled'): ?>
+                                                <?php elseif (in_array($order->status, ['rejected', 'cancelled'])): ?>
                                                     <button class="action-button action-delete" onclick="deleteOrder(<?php echo $order->id; ?>)">
                                                         <i class="fas fa-trash"></i> Delete
                                                     </button>
