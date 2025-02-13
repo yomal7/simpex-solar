@@ -29,7 +29,7 @@ class SupplierCoordinator extends Controller
             'pending_orders' => $pendingOrders,
             'processing_orders' => $processingOrders,
             'active_orders' => $activeOrders,
-            'orders' => $pendingOrders, // Default view shows pending orders
+            'orders' => $pendingOrders, // Default view
             'show_status' => false
         ];
 

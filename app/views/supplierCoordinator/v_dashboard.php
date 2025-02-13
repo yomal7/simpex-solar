@@ -99,13 +99,9 @@
                                     <td><?php echo 'ORD-' . date('Y', strtotime($order->created_at)) . '-' . str_pad($order->id, 3, '0', STR_PAD_LEFT); ?></td>
                                     <td><?php echo $order->product_name; ?></td>
                                     <td class="price">Rs. <?php
-                                                            if ($order->status == 'pending') {
-                                                                $total = $order->product_price * $order->quantity;
-                                                            } else {
-                                                                $total = $order->price * $order->quantity;
-                                                                if ($order->delivery_fee > 0) $total += $order->delivery_fee;
-                                                                if ($order->discount > 0) $total -= $order->discount;
-                                                            }
+                                                            $total = $order->price * $order->quantity;
+                                                            if ($order->delivery_fee > 0) $total += $order->delivery_fee;
+                                                            if ($order->discount > 0) $total -= $order->discount;
                                                             echo number_format($total, 2);
                                                             ?></td>
                                     <td><?php echo date('Y-m-d', strtotime($order->created_at)); ?></td>
