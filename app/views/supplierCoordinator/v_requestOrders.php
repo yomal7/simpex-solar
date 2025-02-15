@@ -109,25 +109,25 @@
                     <!-- Order Finalization Form -->
                     <form id="finalizeOrderForm" class="finalize-section">
                         <h2>Finalize Order</h2>
-                        <input type="hidden" id="orderId" value="<?php echo $data['order']->id; ?>" data-quantity="<?php echo $data['order']->quantity; ?>">
+                        <input type="hidden" id="orderId" value="<?php echo $data['order']->id; ?>">
                         <input type="hidden" id="delivery_option" value="<?php echo $data['order']->delivery_option; ?>">
                         <input type="hidden" id="quantity" value="<?php echo $data['order']->quantity; ?>">
 
                         <div class="form-group">
                             <label for="price">Price (Rs.)</label>
-                            <input type="number" step="0.01" id="price" value="<?php echo $data['order']->product_price; ?>" class="form-control">
+                            <input type="number" step="0.01" id="price" value="<?php echo $data['order']->price ?? $data['order']->product_price; ?>" class="form-control">
                         </div>
 
                         <?php if ($data['order']->delivery_option === 'deliver'): ?>
                             <div class="form-group">
                                 <label for="deliveryFee">Delivery Fee (Rs.)</label>
-                                <input type="number" id="deliveryFee" value="450.00" class="form-control">
+                                <input type="number" id="deliveryFee" value="<?php echo $data['order']->delivery_fee ?? '450.00'; ?>" class="form-control">
                             </div>
                         <?php endif; ?>
 
                         <div class="form-group">
                             <label for="discount">Discount (Rs.)</label>
-                            <input type="number" step="0.01" id="discount" value="0.00" class="form-control">
+                            <input type="number" step="0.01" id="discount" value="<?php echo $data['order']->discount ?? '0.00'; ?>" class="form-control">
                         </div>
 
                         <div class="total-section">

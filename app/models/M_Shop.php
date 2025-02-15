@@ -287,29 +287,25 @@ class M_Shop
 
     public function getOrderDetails($id)
     {
-        $this->db->query("SELECT po.*, p.name as product_name, p.price as product_price, p.image1
-                          FROM pre_orders po 
-                          JOIN products p ON po.product_id = p.id
-                          WHERE po.id = :id");
+        $this->db->query("SELECT so.*, p.name as product_name, p.image1 
+                          FROM store_orders so
+                          JOIN products p ON so.product_id = p.id 
+                          WHERE so.id = :id");
         $this->db->bind(':id', $id);
         return $this->db->single();
     }
 
     public function approveOrder($data)
     {
-        // First update pre_order status
-        $this->db->query("UPDATE pre_orders SET status = 'approved' WHERE id = :id");
+        $this->db->query("UPDATE store_orders 
+                          SET status = 'approved',
+                              price = :price,
+                              delivery_fee = :delivery_fee,
+                              discount = :discount,
+                              updated_at = CURRENT_TIMESTAMP
+                          WHERE id = :id");
+
         $this->db->bind(':id', $data->orderId);
-
-        if (!$this->db->execute()) {
-            return false;
-        }
-
-        // Then create new order
-        $this->db->query("INSERT INTO orders (preorder_id, price, delivery_fee, discount, status)
-                         VALUES (:preorder_id, :price, :delivery_fee, :discount, 'approved')");
-
-        $this->db->bind(':preorder_id', $data->orderId);
         $this->db->bind(':price', $data->price);
         $this->db->bind(':delivery_fee', $data->delivery_fee);
         $this->db->bind(':discount', $data->discount);
@@ -319,7 +315,10 @@ class M_Shop
 
     public function rejectOrder($orderId)
     {
-        $this->db->query("UPDATE pre_orders SET status = 'rejected' WHERE id = :id");
+        $this->db->query("UPDATE store_orders 
+                          SET status = 'rejected',
+                              updated_at = CURRENT_TIMESTAMP 
+                          WHERE id = :id");
         $this->db->bind(':id', $orderId);
         return $this->db->execute();
     }

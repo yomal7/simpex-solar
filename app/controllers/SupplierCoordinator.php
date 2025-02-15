@@ -966,9 +966,15 @@ class SupplierCoordinator extends Controller
             $data = json_decode(file_get_contents("php://input"));
 
             if ($this->shopModel->approveOrder($data)) {
-                echo json_encode(['success' => true]);
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Order approved successfully'
+                ]);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Failed to approve order']);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Failed to approve order'
+                ]);
             }
         }
     }
@@ -976,12 +982,18 @@ class SupplierCoordinator extends Controller
     public function rejectOrder()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $data = json_decode(file_get_contents('php://input'));
+            $data = json_decode(file_get_contents("php://input"));
 
             if ($this->shopModel->rejectOrder($data->orderId)) {
-                echo json_encode(['success' => true]);
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Order rejected successfully'
+                ]);
             } else {
-                echo json_encode(['success' => false]);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Failed to reject order'
+                ]);
             }
         }
     }
