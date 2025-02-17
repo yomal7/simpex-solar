@@ -325,58 +325,47 @@ class M_Shop
 
     public function getOrderDetailsByID($id)
     {
-        $this->db->query("
-            SELECT o.*, po.*, p.name as product_name, p.image1
-            FROM orders o
-            JOIN pre_orders po ON o.preorder_id = po.id
-            JOIN products p ON po.product_id = p.id
-            WHERE o.id = :id
-        ");
+        $this->db->query("SELECT so.*, p.name as product_name, p.image1
+                      FROM store_orders so
+                      JOIN products p ON so.product_id = p.id
+                      WHERE so.id = :id");
         $this->db->bind(':id', $id);
         return $this->db->single();
     }
 
     public function cancelOrder($orderId)
     {
-        $this->db->query("UPDATE orders SET status = 'cancelled' WHERE preorder_id = :id");
+        $this->db->query("UPDATE store_orders SET status = 'cancelled' WHERE id = :id");
         $this->db->bind(':id', $orderId);
         return $this->db->execute();
     }
 
     public function processPayment($orderId, $paymentMethod)
     {
-        // Get the preorder_id from orders table
-        $this->db->query("SELECT preorder_id FROM orders WHERE id = :id");
-        $this->db->bind(':id', $orderId);
-        $order = $this->db->single();
+        try {
+            // Update order status to processing for cash payments
+            if ($paymentMethod === 'cash') {
+                $this->db->query("UPDATE store_orders SET status = 'processing' WHERE id = :id");
+                $this->db->bind(':id', $orderId);
 
-        if (!$order) {
-            error_log("Order not found: " . $orderId);
+                if (!$this->db->execute()) {
+                    return false;
+                }
+
+                // Create payment record
+                $this->db->query("INSERT INTO store_payments (order_id, payment_method, payment_status) 
+                             VALUES (:order_id, :payment_method, :payment_status)");
+
+                $this->db->bind(':order_id', $orderId);
+                $this->db->bind(':payment_method', 'cash');
+                $this->db->bind(':payment_status', false);
+
+                return $this->db->execute();
+            }
+            return true;
+        } catch (Exception $e) {
+            error_log($e->getMessage());
             return false;
         }
-
-        // Update order status to processing
-        $this->db->query("UPDATE orders SET status = 'processing' WHERE id = :id");
-        $this->db->bind(':id', $order->preorder_id);
-
-        if (!$this->db->execute()) {
-            error_log("Failed to update order status");
-            return false;
-        }
-
-        // Create payment record using preorder_id
-        $this->db->query("INSERT INTO store_payments (order_id, payment_method, payment_status) 
-                     VALUES (:order_id, :payment_method, :payment_status)");
-
-        $this->db->bind(':order_id', $order->preorder_id);
-        $this->db->bind(':payment_method', $paymentMethod);
-        $this->db->bind(':payment_status', false);
-
-        if (!$this->db->execute()) {
-            error_log("Failed to create payment record");
-            return false;
-        }
-
-        return true;
     }
 }

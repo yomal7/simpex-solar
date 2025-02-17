@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
-  calculateTotal();
 });
 
 // Move functions outside of DOMContentLoaded

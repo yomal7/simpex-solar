@@ -45,7 +45,10 @@
 
             <div class="success-header">
                 <h1>Confirm Order</h1>
-                <p class="order-id">Order ID: <?php echo 'ORD-' . date('Y', strtotime($data['order']->created_at)) . '-' . str_pad($data['order']->preorder_id, 3, '0', STR_PAD_LEFT); ?></p>
+                <p class="order-id">Order ID: <?php
+                                                echo 'ORD-' . date('Y', strtotime($data['order']->created_at)) . '-' .
+                                                    str_pad($data['order']->id, 3, '0', STR_PAD_LEFT);
+                                                ?></p>
             </div>
 
             <div class="container">
