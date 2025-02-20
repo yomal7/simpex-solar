@@ -17,6 +17,7 @@ function addEquipment() {
         </div>
         <button type="button" class="btn-remove" onclick="removeEquipment(this)">×</button>
     `;
+
     
     container.appendChild(newRow);
     updateTotalPrice();

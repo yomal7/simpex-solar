@@ -15,10 +15,19 @@
             <i class='bx bx-code-alt'></i>
             <div class="logo-name"><span>Asmr</span>Prog</div>
         </a> -->
-        <ul class="side-menu">
+        <!-- <ul class="side-menu">
             <li>
-                <a href="<?php echo URLROOT; ?>/client/project" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a></li>
+                <a href="<php echo URLROOT; ?>/client/project" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a></li>
             </li>
+        </ul> -->
+
+        <ul class="side-menu">
+            <li  ><a href="<?php echo URLROOT; ?>/client/dashboard"><i class='bx bxs-dashboard'></i>Dashboard</a></li>
+            <li class="active" ><a href="<?php echo URLROOT; ?>/client/operationDashboard"><i class='bx bx-analyse'></i>Quotations and Projects</a></li>
+            <li ><a href="<?php echo URLROOT; ?>/client/shop"><i class='bx bx-store-alt'></i>Shop</a></li>
+            <li><a href="#"><i class='bx bx-message-square-dots'></i>Chat</a></li>
+            <!-- <li><a href="#"><i class='bx bx-group'></i>Users</a></li> -->
+            <li ><a href="<?php echo URLROOT; ?>/client/settings"><i class='bx bx-cog'></i>Settings</a></li>
         </ul>
     </div>
     <!-- End of Sidebar -->
@@ -78,8 +87,8 @@
                                         <span><?php echo date('M d, Y', strtotime($quotation->created_at)); ?></span>
                                     </div>
                                     <div class="card-info">
-                                        <span class="card-info-label">System Type:</span>
-                                        <span><?php echo ucfirst($quotation->package_type); ?></span>
+                                        <span class="card-info-label">Monthly consumption:</span>
+                                        <span><?php echo ucfirst($quotation->monthly_consumption); ?> kW</span>
                                     </div>
                                 </div>
                                 <div class="card-actions">
@@ -91,87 +100,28 @@
                     </div>
                 <?php endif; ?>
 
-                <section class="pre-projects">
-                    <h2>Pre-Projects</h2>
+                <!-- Projects Section -->
+                <section class="ongoing-projects">
+                    <h2>Ongoing Projects</h2>
                     <div class="project-grid">
-                        <?php foreach ($data['quotations'] as $quotation): ?>
-                            <?php 
-                            $phase = '';
-                            $nextPage = '';
-                            $statusClass = '';
-                            
-                            if ($quotation->status === 'pending') {
-                                $phase = 'Quotation Phase';
-                                $nextPage = 'quotation';
-                                $statusClass = 'pending';
-                            } elseif ($quotation->status === 'site_visit') {
-                                $phase = 'Site Visit Phase';
-                                $nextPage = 'siteVisit';
-                                $statusClass = 'in-progress';
-                            } elseif ($quotation->status === 'agreement') {
-                                $phase = 'Agreement Phase';
-                                $nextPage = 'agreement';
-                                $statusClass = 'final';
-                            }
-                            ?>
-                            
-                            <div class="project-card <?php echo $statusClass; ?>" 
-                                onclick="navigateToPhase('<?php echo $nextPage; ?>', <?php echo $quotation->quotation_id; ?>)">
+                        <?php foreach ($data['ongoingProjects'] as $project): ?>
+                            <div class="project-card" 
+                                onclick="window.location.href='<?php echo URLROOT; ?>/client/project/<?php echo $project->pre_project_id; ?>'">
                                 <div class="card-header">
-                                    <span class="project-id">#<?php echo $quotation->quotation_id; ?></span>
-                                    <span class="phase-badge"><?php echo $phase; ?></span>
+                                    <span class="project-id">#<?php echo $project->pre_project_id; ?></span>
+                                    <span class="phase-badge">Active</span>
                                 </div>
                                 <div class="card-content">
-                                    <p class="package-type"><?php echo $quotation->package_type; ?></p>
-                                    <p class="date">Created: <?php echo date('M d, Y', strtotime($quotation->created_at)); ?></p>
-                                    <div class="progress-bar">
-                                        <div class="progress" style="width: 
-                                            <?php echo $quotation->status === 'pending' ? '33%' : 
-                                                ($quotation->status === 'site_visit' ? '66%' : '100%'); ?>">
-                                        </div>
+                                    <div class="project-info">
+                                        <p><strong>System Type:</strong> <?php echo ucfirst($project->package_type); ?></p>
+                                        <p><strong>Location:</strong> <?php echo $project->nearest_city; ?></p>
                                     </div>
+                                    <p class="date">Started: <?php echo date('M d, Y', strtotime($project->created_at)); ?></p>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
                 </section>
-
-                <!-- Projects Section -->
-                <?php if (!empty($data['projects'])): ?>
-                    <h2 class="section-title">My Projects</h2>
-                    <div class="projects-grid">
-                        <?php foreach($data['projects'] as $project): ?>
-                            <div class="card">
-                                <div class="card-header">
-                                    <div class="card-title">Solar Installation Project</div>
-                                    <span class="status-pill status-<?php echo $project->status; ?>">
-                                        <?php echo ucfirst($project->current_phase); ?>
-                                    </span>
-                                </div>
-                                <div class="card-content">
-                                    <div class="card-info">
-                                        <span class="card-info-label">Project ID:</span>
-                                        <span>PRJ<?php echo str_pad($project->project_id, 4, '0', STR_PAD_LEFT); ?></span>
-                                    </div>
-                                    <div class="card-info">
-                                        <span class="card-info-label">Started:</span>
-                                        <span><?php echo date('M d, Y', strtotime($project->created_at)); ?></span>
-                                    </div>
-                                    <div class="card-info">
-                                        <span class="card-info-label">Current Phase:</span>
-                                        <span><?php echo ucwords(str_replace('_', ' ', $project->current_phase)); ?></span>
-                                    </div>
-                                </div>
-                                <div class="card-actions">
-                                    <a href="<?php echo URLROOT; ?>/customer/viewProject/<?php echo $project->project_id; ?>" 
-                                    class="btn btn-primary">View Project</a>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-
-                        
-                    </div>
-                <?php endif; ?>
                 
             </div>
     </div>   

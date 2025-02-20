@@ -68,33 +68,60 @@ class Client extends Controller {
 
 
 
+        // public function operationDashboard() {
+        //     $userId = $_SESSION['user_id'];
+        
+        //     // Get all pre-projects and projects
+        //     $preProjects = $this->clientSidePreProjectModel->getPreProjectsByCustomerId($userId);
+        //     $projects = $this->customerProjectModel->getProjectsByCustomerId($userId);
+            
+        //     // Get active quotations - changed to plural
+        //     $activeQuotations = $this->clientSidePreProjectModel->getActiveQuotationsByCustomerId($userId);
+            
+        //     // Get stats
+        //     $stats = [
+        //         'total_projects' => count($projects),
+        //         'active_projects' => count(array_filter($projects, function($p) {
+        //             return $p->status === 'active';
+        //         })),
+        //         'pending_quotations' => count($activeQuotations)  // Updated to use actual count
+        //     ];
+        
+        //     $data = [
+        //         'title' => 'Dashboard',
+        //         'stats' => $stats,
+        //         'quotations' => $activeQuotations,  // Changed from quotation to quotations
+        //         'projects' => $projects
+        //     ];
+        
+        //     $this->view('client/v_operationsDashboard', $data);
+        // }
+
         public function operationDashboard() {
             $userId = $_SESSION['user_id'];
         
-            // Get all pre-projects and projects
-            $preProjects = $this->clientSidePreProjectModel->getPreProjectsByCustomerId($userId);
-            $projects = $this->customerProjectModel->getProjectsByCustomerId($userId);
-            
-            // Get active quotations - changed to plural
+            // Get active quotations
             $activeQuotations = $this->clientSidePreProjectModel->getActiveQuotationsByCustomerId($userId);
             
-            // Get stats
+            // Get ongoing projects (pre-projects with accepted quotations)
+            $ongoingProjects = $this->clientModel->getOngoingProjects($userId);
+        
+            // Calculate stats
             $stats = [
-                'total_projects' => count($projects),
-                'active_projects' => count(array_filter($projects, function($p) {
-                    return $p->status === 'active';
-                })),
-                'pending_quotations' => count($activeQuotations)  // Updated to use actual count
+                'active_projects' => count($ongoingProjects),
+                'pending_quotations' => count($activeQuotations),
+                'total_projects' => count($ongoingProjects)
             ];
         
             $data = [
                 'title' => 'Dashboard',
                 'stats' => $stats,
-                'quotations' => $activeQuotations,  // Changed from quotation to quotations
-                'projects' => $projects
+                'quotations' => $activeQuotations,
+                'ongoingProjects' => $ongoingProjects
             ];
         
             $this->view('client/v_operationsDashboard', $data);
+
         }
 
         public function viewQuotation($quotationId) {
@@ -102,7 +129,7 @@ class Client extends Controller {
             
             if (!$quotation || $quotation->user_id !== $_SESSION['user_id']) {
                 flash('quotation_message', 'Quotation not found', 'error');
-                redirect('client/operationDashboard');
+                redirect('client/operationDashboard/' . $_SESSION['user_id']);
             }
         
             // Get reviewed quotation details if exists
@@ -124,34 +151,88 @@ class Client extends Controller {
             $this->view('client/v_viewQuotation', $data);
         }
         
-        public function acceptQuotation($quotationId) {
-            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                if ($this->clientSidePreProjectModel->acceptQuotation($quotationId)) {
-                    flash('quotation_message', 'Quotation accepted successfully');
-                    redirect('client/sitevisit');
-                } else {
-                    flash('quotation_message', 'Failed to accept quotation', 'error');
-                    redirect('client/operationDashboard');
-                }
-            } else {
-                redirect('client/operationDashboard');
-            }
-        }
+        // public function acceptQuotation($quotationId) {
+        //     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        //         $quotation = $this->clientSidePreProjectModel->getQuotationById($quotationId);
+        //         error_log("Quotation data: " . print_r($quotation, true));
+        //         if ($this->clientSidePreProjectModel->acceptQuotation($quotationId)) {
+        //             flash('quotation_message', 'Quotation accepted successfully');
+        //             redirect('client/sitevisit');
+        //         } else {
+        //             flash('quotation_message', 'Failed to accept quotation', 'error');
+        //             redirect('client/sitevisit/' . $quotation->pre_project_id);
+        //         }
+        //     } else {
+        //         redirect('client/operationDashboard/' . $_SESSION['user_id']);
+        //     }
+        // }
     
-        public function rejectQuotation($quotationId) {
-            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                if ($this->clientSidePreProjectModel->rejectQuotation($quotationId)) {
-                    flash('quotation_message', 'Quotation rejected successfully');
-                    redirect('client/operationDashboard');
-                } else {
-                    flash('quotation_message', 'Failed to reject quotation', 'error');
-                    redirect('client/operationDashboard');
-                }
-            } else {
-                redirect('client/operationDashboard');
+
+        public function acceptQuotation($quotationId) {
+            if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+                redirect('client/operationDashboard/' . $_SESSION['user_id']);
             }
+            
+            $quotation = $this->clientSidePreProjectModel->getQuotationById($quotationId);
+            
+            if (!$quotation || !$quotation->pre_project_id) {
+                flash('quotation_message', 'Invalid quotation data');
+                redirect('client/operationDashboard/' . $_SESSION['user_id']);
+            }
+            
+            if ($this->clientSidePreProjectModel->acceptQuotation($quotationId)) {
+                flash('quotation_message', 'Quotation accepted successfully');
+                redirect('client/siteVisit/' . $quotation->pre_project_id);  // Note the capital V in siteVisit
+            }
+            
+            flash('quotation_message', 'Failed to accept quotation');
+            redirect('client/operationDashboard/' . $_SESSION['user_id']);
         }
 
+        // public function rejectQuotation($quotationId) {
+        //     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        //         if ($this->clientSidePreProjectModel->rejectQuotation($quotationId)) {
+        //             flash('quotation_message', 'Quotation rejected successfully');
+        //             redirect('client/operationDashboard/' . $_SESSION['user_id']);
+        //         } else {
+        //             flash('quotation_message', 'Failed to reject quotation', 'error');
+        //             redirect('client/operationDashboard/' . $_SESSION['user_id']);
+        //         }
+        //     } else {
+        //         redirect('client/operationDashboard/' . $_SESSION['user_id']);
+        //     }
+        // }
+
+
+        public function rejectQuotation($quotationId) {
+            // First verify user is logged in
+            if (!isset($_SESSION['user_id'])) {
+                flash('quotation_message', 'Please login first', 'error');
+                redirect('users/login');
+            }
+            
+            // Check request method
+            if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+                redirect('client/operationDashboard/' . $_SESSION['user_id']);
+            }
+            
+            // Verify the quotation belongs to this user before rejecting
+            $quotation = $this->clientSidePreProjectModel->getQuotationById($quotationId);
+            if (!$quotation || $quotation->user_id != $_SESSION['user_id']) {
+                flash('quotation_message', 'Invalid quotation', 'error');
+                redirect('client/operationDashboard/' . $_SESSION['user_id']);
+            }
+            
+            // Process rejection
+            if ($this->clientSidePreProjectModel->rejectQuotation($quotationId)) {
+                flash('quotation_message', 'Quotation rejected successfully');
+            } else {
+                flash('quotation_message', 'Failed to reject quotation', 'error');
+            }
+            
+            redirect('client/operationDashboard/' . $_SESSION['user_id']);
+        }
+        
         public function downloadQuotation($quotationId) {
 
             error_log("Attempting to download quotation ID: " . $quotationId);
@@ -207,9 +288,7 @@ class Client extends Controller {
         }
 
         public function project($preProjectId = null, $phase = null) {
-            // If no project ID provided, try to get from session
             if ($preProjectId === null) {
-                // Check if we have a project ID in session
                 if(isset($_SESSION['current_project_id'])) {
                     $preProjectId = $_SESSION['current_project_id'];
                 } else {
@@ -225,10 +304,8 @@ class Client extends Controller {
                 }
             }
         
-            // Store the current project ID in session
             $_SESSION['current_project_id'] = $preProjectId;
         
-            // Get project progress data
             $progress = $this->clientSidePreProjectModel->getProjectProgress($preProjectId);
             
             if (!$progress) {
@@ -236,13 +313,11 @@ class Client extends Controller {
                 redirect('client/dashboard');
             }
         
-            // Verify if the logged-in user owns this project
             if ($progress['pre_project']->customer_id != $_SESSION['user_id']) {
                 flash('project_message', 'Unauthorized access', 'error');
                 redirect('client/dashboard');
             }
         
-            // If phase is provided, load specific phase view
             if ($phase !== null) {
                 $data = [
                     'progress' => $progress,
@@ -250,7 +325,6 @@ class Client extends Controller {
                     'phase' => $phase
                 ];
                 
-                // Load phase specific view
                 $this->view('client/v_' . $phase, $data);
                 return;
             }
@@ -263,19 +337,7 @@ class Client extends Controller {
         
             $this->view('client/v_clientProject', $data);
         }
-
-        // public function project($action = '') {
-        //     $userId = $_SESSION['user_id'];
-        //     $progress = $this->clientSidePreProjectModel->getCustomerProjectProgress($userId);
-        
-        //     $data = [
-        //         'progress' => $progress
-        //     ];
-        
-        //     $this->view('client/v_clientProject', $data);
-        // }
-        
-
+ 
 
         //#############################################################################################
         //----------------------------------------- site visit-----------------------------------------

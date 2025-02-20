@@ -98,6 +98,8 @@
                                         value="<?php echo isset($data['quotation']->estimated_generation) ? $data['quotation']->estimated_generation : '0'; ?>" 
                                         required>
                                 </div>
+
+                                <h3>Site visit findings: <h3> <span><?php echo $data['siteVisit']-> site_notes; ?></span>
                             </section>
 
                             <!-- Equipment List -->
@@ -157,7 +159,7 @@
                                     <div class="existing-signature">
                                         <img src="<?php echo URLROOT . '/public/uploads/signatures/' . $data['coordinator_signature']->signature_image; ?>" 
                                              alt="Existing Signature">
-                                        <label>
+                                        <label for="use_existing_signature">
                                             <input type="checkbox" name="use_existing_signature" checked> 
                                             Use existing signature
                                         </label>

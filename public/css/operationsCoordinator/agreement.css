@@ -266,3 +266,12 @@
     color: #2ecc71;
     margin-bottom: 0.5rem;
 }
+
+label[for="use_existing_signature"] {
+    display: none;
+
+
+
+
+    
+}

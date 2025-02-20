@@ -237,35 +237,6 @@ class M_clientSidePreProject{
     }
 
 
-    // public function getCustomerProjectProgress($userId) {
-    //     // Get pre-project phases
-    //     $this->db->query('
-    //         SELECT pp.*, cq.quotation_id
-    //         FROM pre_projects pp
-    //         LEFT JOIN customerquotation cq 
-    //         ON pp.pre_project_id = cq.pre_project_id
-    //         WHERE pp.customer_id = :user_id 
-    //         AND pp.status = "active"
-    //     ');
-    //     $this->db->bind(':user_id', $userId);
-    //     $preProject = $this->db->single();
-    
-    //     // Get project if exists
-    //     $this->db->query('
-    //         SELECT * 
-    //         FROM project
-    //         WHERE customer_id = :user_id 
-    //         AND status = "active"
-    //     ');
-    //     $this->db->bind(':user_id', $userId);
-    //     $project = $this->db->single();
-    
-    //     return [
-    //         'pre_project' => $preProject,
-    //         'project' => $project
-    //     ];
-    // }
-
     public function getActiveProjects($userId) {
         try {
             $this->db->query('SELECT pre_project_id, current_phase, status
@@ -296,7 +267,7 @@ class M_clientSidePreProject{
             }
 
             // Get project data if exists
-            $this->db->query('SELECT * FROM project
+            $this->db->query('SELECT * FROM projects
                              WHERE pre_project_id = :pre_project_id
                              AND status = "active"');
             $this->db->bind(':pre_project_id', $pre_project_id);

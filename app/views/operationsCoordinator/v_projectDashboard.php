@@ -120,9 +120,11 @@
         </div>   
 
     <!-- </div> -->
-
+    <?php 
+        echo URLROOT . '/js/operationsCoordinator/projectDashboard.js';
+    ?>
     <div class="overlay" id="overlay"></div>
-
-    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/projectsDashboard.js"></script>
+    
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/projectDashboard.js"></script>
 
 <?php require APPROOT.'/views/operationsCoordinator/footer.php';?>

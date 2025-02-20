@@ -17,26 +17,10 @@
                 src="<?php echo URLROOT; ?>/public/assets/profile.png"
                 alt="manager profile-picture"
                 class="profile-picture"
-            />
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/dashboard">
-                <span class="material-icons-sharp">dashboard</span>
-                <h3>Dashboard</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/projects" class="active">
-                <span class="material-icons-sharp">receipt_long</span>
-                <h3>Projects</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/managePackages">
-                <span class="material-icons-sharp">solar_power</span>
-                <h3>Packages</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/tasks">
-                <span class="material-icons-sharp">task</span>
-                <h3>Tasks</h3>
-            </a>
-            <a href="#">
-                <span class="material-icons-sharp">settings</span>
-                <h3>Settings</h3>
+            />  
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/managePreProject/<?php echo $data['project']->pre_project_id; ?>" class="active">
+                <span class="material-icons-sharp">arrow_back</span>
+                <h3>back</h3>
             </a>
             <a href="<?php echo URLROOT; ?>/users/logout">
                 <span class="material-icons-sharp">logout</span>
@@ -181,6 +165,28 @@
                                             </button>
                                         </form>
                                     </div>
+
+                                    <?php elseif($data['site_visit']->status == 'completed'): ?>
+                                        <div class="completed-visit-details">
+                                            <div class="schedule-info">
+                                                <h4>Visit Details</h4>
+                                                <div class="detail-row">
+                                                    <i class="fas fa-calendar"></i>
+                                                    <span>Date: <?php echo date('F j, Y', strtotime($data['site_visit']->visit_date)); ?></span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <i class="fas fa-clock"></i>
+                                                    <span>Time: <?php echo date('h:i A', strtotime($data['site_visit']->visit_time)); ?></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="visit-notes">
+                                                <h4>Site Visit Notes</h4>
+                                                <div class="notes-content">
+                                                    <?php echo nl2br($data['site_visit']->site_notes); ?>
+                                                </div>
+                                            </div>
+                                        </div>
                             <?php endif; ?>
                         </div>
                     </div>
