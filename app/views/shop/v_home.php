@@ -1,13 +1,14 @@
-<?php require APPROOT.'/views/blog/header.php';?>
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/shop/navbarfooter.css">
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/shop/home.css">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<?php require APPROOT . '/views/blog/header.php'; ?>
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/shop/navbarfooter.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/shop/home.css">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
 </head>
+
 <body>
 
-    <?php require APPROOT.'/views/inc/components/topnavbar.php'; ?>
+    <?php require APPROOT . '/views/inc/components/topnavbar.php'; ?>
     <!-- Hero Section -->
     <section class="hero">
         <div class="slider">
@@ -38,10 +39,10 @@
                     </div>
                 </div>
             </div>
-            
+
             <button class="slider-btn prev">&#10094;</button>
             <button class="slider-btn next">&#10095;</button>
-            
+
             <div class="slider-dots">
                 <span class="dot active"></span>
                 <span class="dot"></span>
@@ -50,91 +51,94 @@
         </div>
     </section>
 
-    <!-- Category Navigation -->
-    <nav class="category-nav">
-        <ul class="category-list">
-            <li><button class="category-btn active" data-category="all">All Products</button></li>
-            <li><button class="category-btn" data-category="panels">Solar Panels</button></li>
-            <li><button class="category-btn" data-category="inverters">Inverters</button></li>
-            <li><button class="category-btn" data-category="components">Components</button></li>
-        </ul>
-    </nav>
+    <!--Update v_home.php category section -->
+    <section class="category-section">
+        <nav class="category-nav">
+            <ul>
+                <li><button class="category-btn active" data-category="all">
+                        <i class='bx bx-category'></i>All Products
+                    </button></li>
+                <li><button class="category-btn" data-category="Solar Panel">
+                        <i class='bx bx-sun'></i>Solar Panels
+                    </button></li>
+                <li><button class="category-btn" data-category="Inverters">
+                        <i class='bx bx-bolt'></i>Inverters
+                    </button></li>
+                <li><button class="category-btn" data-category="Components">
+                        <i class='bx bx-chip'></i>Components
+                    </button></li>
+            </ul>
+        </nav>
+    </section>
 
-    <!-- Products Section -->
     <section class="products-section">
-        <div class="products-grid">
-            <!-- Solar Panel Product -->
-            <div class="product-card" data-category="panels">
-                <div class="product-image" style="background-image: url('/api/placeholder/400/320')">
-                    <span class="product-label">Best Seller</span>
-                </div>
-                <div class="product-details">
-                    <h3 class="product-title">Premium Solar Panel 400W</h3>
-                    <p class="product-description">High-efficiency monocrystalline solar panel with 25-year warranty</p>
-                    <div class="product-price">$299.99</div>
-                    <div class="product-actions">
-                        <button class="add-to-cart">Add to Cart</button>
-                        <div class="product-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
+        <div class="products-grid" id="productsGrid">
+            <?php if (!empty($data['products'])): ?>
+                <?php foreach ($data['products'] as $product): ?>
+                    <div class="product-card" data-category="<?php echo htmlspecialchars($product->category); ?>">
+                        <div class="product-image">
+                            <img src="<?php echo !empty($product->image1) ? URLROOT . '/public/uploads/store/' . $product->image1 : URLROOT . '/public/assets/default-product.png'; ?>"
+                                alt="<?php echo htmlspecialchars($product->name); ?>">
+                            <div class="product-overlay"></div>
+                            <span class="product-label"><?php echo htmlspecialchars($product->category); ?></span>
+                        </div>
+                        <div class="product-details">
+                            <h3 class="product-title"><?php echo htmlspecialchars($product->name); ?></h3>
+                            <div class="product-price">Rs. <?php echo number_format($product->price, 2); ?></div>
+                            <div class="product-actions">
+                                <a href="<?php echo URLROOT; ?>/shop/product/<?php echo $product->id; ?>" class="view-details">
+                                    View Details <i class='bx bx-right-arrow-alt'></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="no-products">
+                    <i class='bx bx-package'></i>
+                    <p>No products available in this category.</p>
                 </div>
-            </div>
-
-            <!-- Inverter Product -->
-            <div class="product-card" data-category="inverters">
-                <div class="product-image" style="background-image: url('/api/placeholder/400/320')">
-                    <span class="product-label">New</span>
-                </div>
-                <div class="product-details">
-                    <h3 class="product-title">Smart Inverter 5kW</h3>
-                    <p class="product-description">Grid-tied inverter with smart monitoring capabilities</p>
-                    <div class="product-price">$799.99</div>
-                    <div class="product-actions">
-                        <button class="add-to-cart">Add to Cart</button>
-                        <div class="product-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Component Product -->
-            <div class="product-card" data-category="components">
-                <div class="product-image" style="background-image: url('/api/placeholder/400/320')">
-                    <span class="product-label">Popular</span>
-                </div>
-                <div class="product-details">
-                    <h3 class="product-title">Mounting System Kit</h3>
-                    <p class="product-description">Complete roof mounting system for residential installation</p>
-                    <div class="product-price">$149.99</div>
-                    <div class="product-actions">
-                        <button class="add-to-cart">Add to Cart</button>
-                        <div class="product-rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add more product cards here -->
+            <?php endif; ?>
         </div>
     </section>
 
+    <script>
+        // Add to home.js
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            const productsGrid = document.getElementById('productsGrid');
+            const productCards = document.querySelectorAll('.product-card');
+
+            categoryBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const category = btn.dataset.category;
+
+                    // Update active button
+                    categoryBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Add filtering class for animation
+                    productsGrid.classList.add('filtering');
+
+                    setTimeout(() => {
+                        // Filter products
+                        productCards.forEach(card => {
+                            if (category === 'all' || card.dataset.category === category) {
+                                card.style.display = 'block';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+
+                        // Remove filtering class
+                        productsGrid.classList.remove('filtering');
+                    }, 300);
+                });
+            });
+        });
+    </script>
 
 
-    <?php require APPROOT.'/views/inc/components/bottomfooter.php';?>
+    <?php require APPROOT . '/views/inc/components/bottomfooter.php'; ?>
     <script src="<?php echo URLROOT; ?>/js/shop/home.js"></script>
-<?php require APPROOT.'/views/shop/footer.php';?>
+    <?php require APPROOT . '/views/shop/footer.php'; ?>

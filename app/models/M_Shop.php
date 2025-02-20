@@ -67,22 +67,30 @@ class M_Shop
         return $this->db->resultSet();
     }
 
-    public function getProductById($id)
+    public function getProductsByCategory($category)
     {
-        $this->db->query('SELECT p.*, s.name as supplier_name,
-                         GROUP_CONCAT(pf.feature) as features 
+        $this->db->query('SELECT p.*, s.name as supplier_name 
                          FROM products p 
                          LEFT JOIN suppliers s ON p.supplier_id = s.id 
-                         LEFT JOIN product_features pf ON p.id = pf.product_id 
-                         WHERE p.id = :id AND p.deleted_at IS NULL 
-                         GROUP BY p.id');
+                         WHERE p.deleted_at IS NULL And p.category = :category
+                         ORDER BY p.created_at DESC');
+        return $this->db->resultSet();
+    }
+
+    public function getProductById($id)
+    {
+        $this->db->query('SELECT p.*, s.name as supplier_name 
+                         FROM products p 
+                         LEFT JOIN suppliers s ON p.supplier_id = s.id 
+                         WHERE p.id = :id AND p.deleted_at IS NULL');
         $this->db->bind(':id', $id);
         return $this->db->single();
     }
 
     public function getProductFeatures($productId)
     {
-        $this->db->query('SELECT feature FROM product_features WHERE product_id = :product_id');
+        $this->db->query('SELECT feature FROM product_features 
+                         WHERE product_id = :product_id');
         $this->db->bind(':product_id', $productId);
         return $this->db->resultSet();
     }
@@ -130,25 +138,19 @@ class M_Shop
 
     public function updateProduct($id, $data)
     {
-        // First verify supplier exists
-        $this->db->query('SELECT id FROM suppliers WHERE id = :supplier_id');
-        $this->db->bind(':supplier_id', $data['supplier_id']);
-
-        if (!$this->db->single()) {
-            return false;
-        }
-
         $this->db->query('UPDATE products SET 
-                         name = :name, 
-                         price = :price, 
+                         name = :name,
+                         price = :price,
                          description = :description,
                          category = :category,
                          supplier_id = :supplier_id,
                          blog_link = :blog_link,
+                         image1 = :image1,
+                         image2 = :image2,
+                         image3 = :image3,
                          updated_at = CURRENT_TIMESTAMP
                          WHERE id = :id');
 
-        // Bind values
         $this->db->bind(':id', $id);
         $this->db->bind(':name', $data['name']);
         $this->db->bind(':price', $data['price']);
@@ -156,24 +158,11 @@ class M_Shop
         $this->db->bind(':category', $data['category']);
         $this->db->bind(':supplier_id', $data['supplier_id']);
         $this->db->bind(':blog_link', $data['blog_link']);
+        $this->db->bind(':image1', $data['image1']);
+        $this->db->bind(':image2', $data['image2']);
+        $this->db->bind(':image3', $data['image3']);
 
-        try {
-            if ($this->db->execute()) {
-                // Update features
-                $this->deleteProductFeatures($id);
-                foreach ($data['features'] as $feature) {
-                    if (!empty($feature)) {
-                        $this->addProductFeature($id, $feature);
-                    }
-                }
-                return true;
-            }
-        } catch (PDOException $e) {
-            error_log('Error updating product: ' . $e->getMessage());
-            return false;
-        }
-
-        return false;
+        return $this->db->execute();
     }
 
     public function deleteProduct($id)

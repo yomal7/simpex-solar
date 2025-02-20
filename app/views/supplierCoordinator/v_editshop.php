@@ -50,7 +50,7 @@
                     <a href="<?php echo URLROOT; ?>/supplierCoordinator/shop" class="back-btn">
                         <span class="material-icons-sharp">arrow_back</span> Back to Shop
                     </a>
-                    <h2>Add New Product</h2>
+                    <h2>Edit Product Details</h2>
                 </div>
 
                 <?php flash('product_message'); ?>
@@ -76,9 +76,9 @@
                             <label>Category <span class="required">*</span></label>
                             <select name="category" class="form-control <?php echo (!empty($data['category_err'])) ? 'is-invalid' : ''; ?>">
                                 <option value="">Select Category</option>
-                                <option value="Solar Panel">Solar Panel</option>
-                                <option value="Inverters">Inverters</option>
-                                <option value="Components">Components</option>
+                                <option value="Solar Panel" <?php echo ($data['category'] == 'Solar Panel') ? 'selected' : ''; ?>>Solar Panel</option>
+                                <option value="Inverters" <?php echo ($data['category'] == 'Inverters') ? 'selected' : ''; ?>>Inverters</option>
+                                <option value="Components" <?php echo ($data['category'] == 'Components') ? 'selected' : ''; ?>>Components</option>
                             </select>
                             <span class="invalid-feedback"><?php echo $data['category_err']; ?></span>
                         </div>
@@ -88,7 +88,10 @@
                             <select name="supplier_id" class="form-control <?php echo (!empty($data['supplier_err'])) ? 'is-invalid' : ''; ?>">
                                 <option value="">Select Supplier</option>
                                 <?php foreach ($data['suppliers'] as $supplier): ?>
-                                    <option value="<?php echo $supplier->id; ?>"><?php echo $supplier->name; ?></option>
+                                    <option value="<?php echo $supplier->id; ?>"
+                                        <?php echo ($data['supplier_id'] == $supplier->id) ? 'selected' : ''; ?>>
+                                        <?php echo $supplier->name; ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                             <span class="invalid-feedback"><?php echo $data['supplier_err']; ?></span>
@@ -109,9 +112,22 @@
 
                         <div class="form-group">
                             <label>Product Images</label>
-                            <input type="file" name="image1" accept="image/*">
-                            <input type="file" name="image2" accept="image/*">
-                            <input type="file" name="image3" accept="image/*">
+                            <?php for ($i = 1; $i <= 3; $i++): ?>
+                                <div class="image-field">
+                                    <?php if (!empty($data['image' . $i])): ?>
+                                        <div class="current-image-preview">
+                                            <img src="<?php echo URLROOT . '/public/uploads/images/' . $data['image' . $i]; ?>"
+                                                alt="Current Image <?php echo $i; ?>"
+                                                class="preview-img">
+                                            <p>Current Image <?php echo $i; ?>: <?php echo $data['image' . $i]; ?></p>
+                                        </div>
+                                    <?php endif; ?>
+                                    <input type="file" name="image<?php echo $i; ?>" accept="image/*">
+                                    <!-- Hidden input to retain current image if no new one is uploaded -->
+                                    <input type="hidden" name="current_image<?php echo $i; ?>"
+                                        value="<?php echo $data['image' . $i] ?? ''; ?>">
+                                </div>
+                            <?php endfor; ?>
                         </div>
 
                         <div class="form-group full-width features-section">

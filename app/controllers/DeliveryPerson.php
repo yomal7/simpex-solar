@@ -4,6 +4,10 @@ class DeliveryPerson extends Controller {
     private $deliveryPersonModel;
 
     public function __construct() {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'deliveryPerson') {
+            flash('error_msg', 'Unauthorized access');
+            redirect('users/login');
+        }
         $this->deliveryPersonModel = $this->model('M_DeliveryPerson');
     }
 

@@ -142,9 +142,9 @@
     }
 }
 
-/* Assign New Task Button*/
+/* Add New Employee Button*/
 
-.new-task-btn {
+.new-employee-btn {
     background: #4caf50;
     color: white;
     font-size: 18px;
@@ -156,7 +156,7 @@
     transition: all 0.3s ease;
 }
 
-.new-task-btn:hover {
+.new-employee-btn:hover {
     background: #2e7d32;
     transform: translateY(-2px);
 }
@@ -300,7 +300,7 @@
 
 /* tasks.css */
 
-.task-card {
+.employee-card {
     background: white;
     border-radius: 12px;
     padding: 2rem;
@@ -308,7 +308,7 @@
     margin: 20px 0;
 }
 
-.task-header {
+.employee-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -317,13 +317,13 @@
     border-bottom: 1px solid #eee;
 }
 
-.task-title {
+.employee-name {
     font-size: 1.8rem;
     color: #2c3e50;
     margin: 0;
 }
 
-.task-status {
+.employee-role {
     padding: 0.5rem 1rem;
     border-radius: 20px;
     font-size: 0.9rem;
@@ -331,22 +331,26 @@
     text-transform: capitalize;
 }
 
-.task-status.in_progress { 
+.employee-role.technician { 
     background: #fff3cd; 
     color: #664d03; 
 }
 
-.task-status.incomplete { 
+.employee-role.deliveryPerson { 
     background: #fef2f2;
     color: #dc2626; 
 }
 
-.task-status.completed { 
+.employee-role.engineer { 
     background: #d4edda; 
     color: #155724; 
 }
+.employee-role.clerk { 
+    background: #d1ecf1; 
+    color: #0c5460; 
+}
 
-.task-details {
+.employee-details {
     margin-bottom: 2rem;
 }
 
