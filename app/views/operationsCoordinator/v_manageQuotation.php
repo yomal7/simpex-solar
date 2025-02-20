@@ -17,25 +17,9 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/dashboard">
-                <span class="material-icons-sharp">dashboard</span>
-                <h3>Dashboard</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/projects" class="active">
-                <span class="material-icons-sharp">receipt_long</span>
-                <h3>Projects</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/managePackages">
-                <span class="material-icons-sharp">solar_power</span>
-                <h3>Packages</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/tasks">
-                <span class="material-icons-sharp">task</span>
-                <h3>Tasks</h3>
-            </a>
-            <a href="#">
-                <span class="material-icons-sharp">settings</span>
-                <h3>Settings</h3>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/managePreProject/<?php echo $data['project']->pre_project_id; ?>" class="active">
+                <span class="material-icons-sharp">arrow_back</span>
+                <h3>back</h3>
             </a>
             <a href="<?php echo URLROOT; ?>/users/logout">
                 <span class="material-icons-sharp">logout</span>
@@ -46,6 +30,7 @@
         <input type="hidden" id="packageId" value="<?php echo $data['quotation']->package_id; ?>">
         <input type="hidden" id="initialBasePrice" value="<?php echo $data['quotation']->base_price; ?>">
         <input type="hidden" id="initialServiceCharge" value="<?php echo $data['quotation']->package_price; ?>">
+        <?php error_log("Base Price: " . $data['quotation']->base_price); ?>
 
         <div class="main-content">
             <div class="container">
@@ -81,6 +66,10 @@
                                 <label>Monthly Usage:</label>
                                 <span><?php echo $data['quotation']->monthly_consumption; ?> kWh</span>
                             </div>
+                            <div class="info-item">
+                                <label>Customer Notes:</label>
+                                <span><?php echo $data['quotation']->customizations; ?> kWh</span>
+                            </div>
                         </div>
                     </section>
 
@@ -112,24 +101,23 @@
                                 <?php foreach ($data['packageEquipment'] as $item): ?>
                                     <div class="equipment-item" data-id="<?php echo $item->item_id; ?>">
                                         <span class="item-name"><?php echo $item->item_name; ?></span>
-                                        <input type="number" 
+                                        <input type="hidden" 
                                             value="<?php echo $item->quantity; ?>" 
                                             min="1" 
                                             class="quantity-input"
                                             onchange="updateQuantity(this)">
+                                        <span class="quantity"> <?php echo number_format($item->quantity); ?> Items </span>
                                         <span class="unit-price">Rs. <?php echo number_format($item->unit_price, 2); ?></span>
                                         <span class="total-price">Rs. <?php echo number_format($item->quantity * $item->unit_price, 2); ?></span>
-                                        <button class="remove-btn" onclick="removeEquipment(this)">
+                                        <!-- <button class="remove-btn" onclick="removeEquipment(this)">
                                             <span class="material-icons-sharp">delete</span>
-                                        </button>
+                                        </button> -->
                                     </div>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </div>
                         
-                        <button class="add-equipment-btn" onclick="showInventoryModal()">
-                            <span class="material-icons-sharp">add</span> Add Equipment
-                        </button>
+
                     </section>
 
                     <!-- Calculations Section -->
@@ -138,23 +126,37 @@
                         <div class="calculations-grid">
                             <div class="calc-item">
                                 <label for="systemCapacity">System Capacity (kW):</label>
-                                <input type="number" id="systemCapacity" name="system_capacity" step="0.01" required>
+                                <input type="number" 
+                                    id="systemCapacity" 
+                                    name="system_capacity" 
+                                    step="0.01" 
+                                    required
+                                    <?php echo ($data['quotation']->status == 'accepted_by_customer' || $data['quotation']->status == 'reviewed') ? 'readonly' : ''; ?>>
                             </div>
                             <div class="calc-item">
                                 <label for="estimatedGeneration">Est. Generation (kWh/year):</label>
-                                <input type="number" id="estimatedGeneration" name="estimated_generation" required>
+                                <input type="number" 
+                                    id="estimatedGeneration" 
+                                    name="estimated_generation" 
+                                    required
+                                    <?php echo ($data['quotation']->status == 'accepted_by_customer' || $data['quotation']->status == 'reviewed') ? 'readonly' : ''; ?>>
                             </div>
                             <div class="calc-item">
                                 <label>Base Price:</label>
-                                <span id="basePrice">Rs. 0.00</span>
+                                <span id="basePrice">Rs. <?php echo number_format($data['quotation']->base_price, 2); ?></span>
                             </div>
                             <div class="calc-item">
-                                <label for="serviceCharge">Service Charge:</label>
-                                <input type="number" id="serviceCharge" name="service_charge" onchange="updateTotalPrice()">
+                                <label for="serviceCharge">Service Charge (Rs.):</label>
+                                <input type="text" 
+                                    id="serviceCharge" 
+                                    name="service_charge" 
+                                    value="<?php echo number_format($data['quotation']->service_charge, 2); ?>" 
+                                    onchange="updateTotalPrice()"
+                                    <?php echo ($data['quotation']->status == 'accepted_by_customer' || $data['quotation']->status == 'reviewed') ? 'readonly' : ''; ?>>
                             </div>
                             <div class="calc-item total">
                                 <label>Total Price:</label>
-                                <span id="totalPrice">Rs. 0.00</span>
+                                <span id="totalPrice">Rs. <?php echo number_format($data['quotation']->base_price, 2); ?></span>
                             </div>
                         </div>
                     </section>
@@ -162,14 +164,19 @@
                     <!-- Notes Section -->
                     <section class="info-section notes-section">
                         <h3>Review Notes</h3>
-                        <textarea id="reviewNotes" name="notes" rows="4" placeholder="Add any important notes about the quotation..."></textarea>
+                        <textarea id="reviewNotes" 
+                            name="notes" 
+                            rows="4" 
+                            placeholder="Add any important notes about the quotation..."
+                            <?php echo ($data['quotation']->status == 'accepted_by_customer' || $data['quotation']->status == 'reviewed') ? 'readonly' : ''; ?>></textarea>
                     </section>
 
                     <!-- Action Buttons -->
-                    <div class="action-buttons">
-                        <button class="save-draft-btn" onclick="saveQuotation('draft')">Save Draft</button>
-                        <button class="submit-btn" onclick="saveQuotation('submit')">Submit for Review</button>
-                    </div>
+                    <?php if($data['quotation']->status != 'accepted_by_customer' && $data['quotation']->status != 'reviewed'): ?>
+                        <div class="action-buttons">
+                            <button class="submit-btn" onclick="saveQuotation('submit')">Submit for Review</button>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <div id="inventoryModal" class="modal">

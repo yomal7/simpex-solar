@@ -17,25 +17,9 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/dashboard">
-                <span class="material-icons-sharp">dashboard</span>
-                <h3>Dashboard</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/projects" class="active">
-                <span class="material-icons-sharp">receipt_long</span>
-                <h3>Projects</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/managePackages">
-                <span class="material-icons-sharp">solar_power</span>
-                <h3>Packages</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/tasks">
-                <span class="material-icons-sharp">task</span>
-                <h3>Tasks</h3>
-            </a>
-            <a href="#">
-                <span class="material-icons-sharp">settings</span>
-                <h3>Settings</h3>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/preprojects" class="active">
+                <span class="material-icons-sharp">arrow_back</span>
+                <h3>back</h3>
             </a>
             <a href="<?php echo URLROOT; ?>/users/logout">
                 <span class="material-icons-sharp">logout</span>
@@ -77,7 +61,6 @@
                     <div class="details-grid">
                         <div class="detail-card">
                             <h4>Package Information</h4>
-                            <p><strong>Package Type:</strong> <?php echo ucfirst($data['project']->package_type ?? 'Not specified'); ?></p>
                             <p><strong>Package Name:</strong> <?php echo $data['project']->package_name ?? 'Not specified'; ?></p>
                             <p><strong>Monthly Consumption:</strong> <?php echo $data['project']->monthly_consumption ?? 'Not specified'; ?> kWh</p>
                         </div>

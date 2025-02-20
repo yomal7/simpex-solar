@@ -12,23 +12,36 @@ class M_Inventory
     // Get all inventory items
     public function getAllItems()
     {
+    //     $this->db->query('
+    //     SELECT 
+    //         Inventory.id AS item_id,
+    //         Inventory.name AS product_name, 
+    //         Suppliers.name AS supplier_name, 
+    //         Inventory.price, 
+    //         Inventory.quantity
+    //     FROM 
+    //         Inventory
+    //     INNER JOIN 
+    //         Suppliers 
+    //     ON 
+    //         Inventory.supplier_id = Suppliers.id
+    //     WHERE 
+    //         Inventory.deleted_at IS NULL
+    // ');
+    //     return $this->db->resultSet();
+
         $this->db->query('
         SELECT 
-            Inventory.id AS item_id,
-            Inventory.name AS product_name, 
-            Suppliers.name AS supplier_name, 
-            Inventory.price, 
-            Inventory.quantity
+            inventory.id AS item_id,
+            inventory.name AS product_name, 
+            inventory.price, 
+            inventory.quantity
         FROM 
-            Inventory
-        INNER JOIN 
-            Suppliers 
-        ON 
-            Inventory.supplier_id = Suppliers.id
+            inventory
         WHERE 
-            Inventory.deleted_at IS NULL
+            inventory.deleted_at IS NULL
     ');
-        return $this->db->resultSet();
+    return $this->db->resultSet();
     }
 
     // Optional: Method to get all items, including soft-deleted ones

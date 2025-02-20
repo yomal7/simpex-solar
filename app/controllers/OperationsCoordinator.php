@@ -236,6 +236,7 @@ class OperationsCoordinator extends Controller
             $packageEquipment = $this->preProjectModel->getPackageEquipmentDetails($quotation->package_id);
         }
         
+        error_log(print_r($quotation, true));
         $data = [
             'project' => $project,
             'quotation' => $quotation,
@@ -310,6 +311,29 @@ class OperationsCoordinator extends Controller
 
         header('Content-Type: application/json');
         echo json_encode($response);
+    }
+
+    public function getQuotationDetails($preProjectId) {
+        if (!$preProjectId) {
+            echo json_encode(['success' => false, 'message' => 'Project ID is required']);
+            return;
+        }
+    
+        $quotation = $this->preProjectModel->getQuotationWithPackageDetails($preProjectId);
+        
+        if ($quotation) {
+            echo json_encode([
+                'success' => true,
+                'quotation' => [
+                    'package_name' => $quotation->package_name,
+                    'total_cost' => number_format($quotation->total_cost, 2),
+                    'status' => ucfirst($quotation->status),
+                    'review_date' => date('F j, Y', strtotime($quotation->review_date))
+                ]
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Quotation not found']);
+        }
     }
 
     //##################################################################################################
@@ -434,6 +458,7 @@ class OperationsCoordinator extends Controller
     
         // Get project details
         $project = $this->preProjectModel->getPreProjectById($preProjectId);
+        $siteVisit = $this->preProjectModel->getSiteVisitByPreProjectId($preProjectId);
         if (!$project) {
             flash('project_message', 'Project not found', 'alert alert-danger');
             redirect('operationsCoordinator/preProjects');
@@ -465,7 +490,8 @@ class OperationsCoordinator extends Controller
             'agreement' => $agreement,
             'equipment' => $equipment,
             'coordinator_signature' => $coordinatorSignature,
-            'title' => 'Create Agreement'
+            'title' => 'Create Agreement',
+            'siteVisit' => $siteVisit
         ];
     
         $this->view('operationsCoordinator/v_manageAgreement', $data);
@@ -1114,6 +1140,12 @@ class OperationsCoordinator extends Controller
                         }
                     }
                 }
+                
+                // Convert all elements of equipment array to objects
+                foreach ($equipment as &$eq) {
+                    $eq = (object) $eq;
+                }
+                unset($eq); // Unset reference to avoid unintended modifications
             }
 
             // Process features
@@ -1141,6 +1173,7 @@ class OperationsCoordinator extends Controller
                 'inventory_items' => $this->inventoryModel->getAllItems(),
                 'errors' => []
             ];
+
 
             // Validation
             if (empty($data['title'])) {

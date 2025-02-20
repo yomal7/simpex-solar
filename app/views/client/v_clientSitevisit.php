@@ -10,9 +10,7 @@
     <div class="sidebar">
         <ul class="side-menu">
             <li>
-                <a href="<?php echo URLROOT; ?>/client/project" class="back-button">
-                    <i class='bx bx-arrow-back'></i>Back
-                </a>
+                <a href="<?php echo URLROOT; ?>/client/operationDashboard" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a></li>
             </li>
         </ul>
     </div>
@@ -98,7 +96,7 @@
                                     </div>
                                 </div>
 
-                                <form action="<?php echo URLROOT; ?>/operationsCoordinator/handleReschedule" method="POST" class="reschedule-form">
+                                <!-- <form action="<?php echo URLROOT; ?>/operationsCoordinator/handleReschedule" method="POST" class="reschedule-form">
                                     <input type="hidden" name="visit_id" value="<?php echo $data['site_visit']->visit_id; ?>">
                                     <input type="hidden" name="pre_project_id" value="<?php echo $data['project']->pre_project_id; ?>">
                                     
@@ -114,7 +112,7 @@
                                     <button type="submit" class="btn-primary">
                                         <i class="fas fa-calendar-check"></i> Confirm New Schedule
                                     </button>
-                                </form>
+                                </form> -->
                             </div>
 
                     <?php elseif($data['site_visit']->status == 'completed'): ?>

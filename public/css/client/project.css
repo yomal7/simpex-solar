@@ -258,3 +258,18 @@
     
 }
 
+.project-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.project-header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.project-header h2 {
+    font-size: 20px;
+    color: #666;
+}

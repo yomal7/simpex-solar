@@ -15,10 +15,19 @@
             <i class='bx bx-code-alt'></i>
             <div class="logo-name"><span>Asmr</span>Prog</div>
         </a> -->
-        <ul class="side-menu">
+        <!-- <ul class="side-menu">
             <li>
-                <a href="<?php echo URLROOT; ?>/client/project" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a></li>
+                <a href="<php echo URLROOT; ?>/client/project" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a></li>
             </li>
+        </ul> -->
+
+        <ul class="side-menu">
+            <li  ><a href="<?php echo URLROOT; ?>/client/dashboard"><i class='bx bxs-dashboard'></i>Dashboard</a></li>
+            <li class="active" ><a href="<?php echo URLROOT; ?>/client/operationDashboard"><i class='bx bx-analyse'></i>Quotations and Projects</a></li>
+            <li ><a href="<?php echo URLROOT; ?>/client/shop"><i class='bx bx-store-alt'></i>Shop</a></li>
+            <li><a href="#"><i class='bx bx-message-square-dots'></i>Chat</a></li>
+            <!-- <li><a href="#"><i class='bx bx-group'></i>Users</a></li> -->
+            <li ><a href="<?php echo URLROOT; ?>/client/settings"><i class='bx bx-cog'></i>Settings</a></li>
         </ul>
     </div>
     <!-- End of Sidebar -->
@@ -78,8 +87,8 @@
                                         <span><?php echo date('M d, Y', strtotime($quotation->created_at)); ?></span>
                                     </div>
                                     <div class="card-info">
-                                        <span class="card-info-label">System Type:</span>
-                                        <span><?php echo ucfirst($quotation->package_type); ?></span>
+                                        <span class="card-info-label">Monthly consumption:</span>
+                                        <span><?php echo ucfirst($quotation->monthly_consumption); ?> kW</span>
                                     </div>
                                 </div>
                                 <div class="card-actions">

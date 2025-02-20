@@ -1,0 +1,18 @@
+{
+    "name": "dell/simplex",
+    "description": "this file is composer file of this project.",
+    "require": {
+        "dompdf/dompdf": "^3.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dell\\Simplex\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "BinulaDimantha",
+            "email": "habdthilakasiri2002@gmail.com"
+        }
+    ]
+}

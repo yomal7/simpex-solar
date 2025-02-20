@@ -12,7 +12,6 @@
 
         <div class="sidebar" id="sidebar">
             <img
-                
                 src="<?php echo URLROOT; ?>/public/assets/profile.png"
                 alt="manager profile-picture"
                 class="profile-picture"
@@ -21,7 +20,11 @@
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/projects" class="active">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/preprojects" class="active">
+                <span class="material-icons-sharp">pending_actions</span>
+                <h3>Pre-Projects</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/projects">
                 <span class="material-icons-sharp">receipt_long</span>
                 <h3>Projects</h3>
             </a>
@@ -59,7 +62,7 @@
                     </div>
                 </div>
 
-            <!-- Control Bar -->
+                <!-- Control Bar -->
                 <div class="control-bar">
                     <div class="search-box">
                         <span class="material-icons search-icon">search</span>
@@ -107,11 +110,8 @@
                         </div>
                     <?php endforeach; ?>
                 </div>
-                </div>
-                </div>
             </div>
-        </div>   
-
+        </div>
     </div>
 
     <div class="overlay" id="overlay"></div>
@@ -120,7 +120,6 @@
         const URLROOT = "<?php echo URLROOT; ?>";
     </script>
 
-    <!-- <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script> -->
     <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/preProjects.js"></script>
 
 <?php require APPROOT.'/views/operationsCoordinator/footer.php';?>
