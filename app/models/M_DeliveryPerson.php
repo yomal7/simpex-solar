@@ -47,11 +47,24 @@ class M_DeliveryPerson
     }
 
 
-    public function getTasks($employee_id)
+    public function getTasks($employee_id, $limit = 10, $offset = 0)
     {
-        $this->db->query('SELECT * FROM tasks WHERE employee_id = :employee_id');
+        $this->db->query('SELECT * FROM tasks 
+        WHERE employee_id = :employee_id
+        ORDER BY end_date DESC
+        LIMIT :limit OFFSET :offset');
+
+        $this->db->bind(':limit', $limit);
+        $this->db->bind(':offset', $offset);
         $this->db->bind('employee_id', $employee_id);
 
         return $this->db->resultSet();
+    }
+
+    public function getTotalProjectTasks($employee_id)
+    {
+        $this->db->query('SELECT COUNT(*) AS total FROM tasks WHERE employee_id = :employee_id');
+        $this->db->bind(':employee_id', $employee_id);
+        return $this->db->single()->total;
     }
 }

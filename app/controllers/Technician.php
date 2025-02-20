@@ -24,9 +24,23 @@ class technician extends Controller
 
     public function dashboard()
     {
-        //$technician = $this->technicianModel->getTechnicianByUserId($_SESSION['employee_id']);
-        $data = [];
-        $this->view('technician/v_technicianDashboard', $data);
+        $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+
+    if (!$employee) {
+        flash('error_msg', 'Employee not found');
+        redirect('users/login');
+    }
+
+    // Fetch tasks for the technician
+    $tasks = $this->technicianModel->getTotalProjectTasksById($employee->employee_id);
+
+    // Prepare data for view
+    $data = [
+        'employee' => $employee,
+        'tasks' => $tasks
+    ];
+
+    $this->view('technician/v_technicianDashboard', $data);
     }
 
     public function requestHoliday()
@@ -150,10 +164,6 @@ class technician extends Controller
     {
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
-
-
-            error_log("Employee data: " . print_r($employee, true));
-
 
             $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
             $limit = 10;

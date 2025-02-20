@@ -153,6 +153,8 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    position: relative;
 }
 
 .card:hover {
@@ -161,6 +163,7 @@ body {
 }
 
 .card-header {
+    margin-top: 30px;
     display: flex;
     align-items: center;
     margin-bottom: 15px;
@@ -173,8 +176,8 @@ body {
 }
 
 .card-title {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight:700;
 }
 
 .card-value {
@@ -186,6 +189,73 @@ body {
 .card-change {
     font-size: 14px;
     color: var(--success-color);
+}
+
+.card-status-button {
+    padding: 2px 8px;
+    border-radius: 0 0 15px 0;
+    font-size: 12px;
+    font-weight: bold;
+    border: none;
+    box-shadow: none;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+.card-status-button.completed {
+    background-color: var(--success-color);
+    color: var(--white);
+}
+
+.card-status-button.incomplete {
+    background-color: var(--danger-color);
+    color: var(--white);
+}
+
+.card-status-button.in_progress {
+    background-color: var(--warning-color);
+    color: var(--white);
+}
+
+.card-body {
+    margin-bottom: 15px;
+}
+
+.card-body h2 {
+    color: var(--theme-color);
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    border-bottom: var(--theme-color) solid 2px;
+}
+
+.card-body h4 {
+    margin-bottom: 30px;
+}
+
+.days-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 12px;
+    font-weight: bold;
+ }
+
+.overdue {
+    background-color: #FAA0A0;
+    color: white;
+    padding: 3px 5px;
+    border-radius: 12px;
+    color: red;
+}
+
+.remaining {
+    background-color: #D1FFBD;
+    color: white;
+    padding: 3px 5px;
+    border-radius: 12px;
+    color: green;
 }
 
 .overlay {
@@ -1454,3 +1524,8 @@ textarea {
     background-color: var (--theme-color);
 }
 
+.fa-tasks {
+    color: var(--theme-color);
+    font-size: 20px;
+    margin-right: 10px;
+}

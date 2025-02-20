@@ -94,6 +94,39 @@ class M_Employee
         $this->db->bind(':user_id', $_SESSION['user_id']);
         
         return $this->db->single();
-    }    
+    }  
+    
+    public function getHolidayRecords($limit = 10, $offset = 0)
+    {
+        $this->db->query('SELECT * FROM holidayrecords 
+        ORDER BY 
+        CASE 
+            WHEN status = "pending" THEN 0 
+            ELSE 1 
+        END,
+        start_date ASC 
+        LIMIT :limit OFFSET :offset');
 
+        // $this->db->bind(':employee_id', $employee_id);
+        $this->db->bind(':limit', $limit);
+        $this->db->bind('offset', $offset);
+
+        return $this->db->resultSet();
+    }
+
+    public function getTotalHolidayRecords()
+    {
+        $this->db->query('SELECT COUNT(*) AS total FROM holidayrecords');
+        return $this->db->single()->total;
+    }
+
+    public function approval($data) {
+        $this->db->query('INSERT INTO holidayrecords (id, comment) 
+                              VALUES (:id, :comment) WHERE id = :id');
+
+        $this->db->bind(':id', $data['id']);
+        $this->db->bind(':comment', $data['comment']);
+
+        return $this->db->execute();
+    }
 }

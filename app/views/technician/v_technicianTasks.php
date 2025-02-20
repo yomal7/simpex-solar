@@ -69,7 +69,7 @@
                                     <tr>
                                         <td class="center-align">TSK<?php echo str_pad($task->id, 6, '0', STR_PAD_LEFT); ?></td>
                                         <td class="center-align">PRJ<?php echo str_pad($task->project_id, 6, '0', STR_PAD_LEFT); ?></td>
-                                        <td><?php echo $task->title; ?></td>
+                                        <td><?php echo strlen($task->title) > 50 ? substr($task->title, 0, 50) . '...' : $task->title; ?></td>
                                         <td class="center-align"><?php echo $task->end_date; ?></td>
                                         <td class="center-align">
                                             <button class="status-button <?php echo strtolower($task->status); ?>" onclick="openStatusPopup(<?php echo $task->id; ?>, '<?php echo $task->status; ?>')">
@@ -121,11 +121,11 @@
         <img src="<?php echo URLROOT ?>/assets/tick.png" alt="Success">
         <h2><span id="currentStatus"></span></h2>
         <div class="select-container">
-        <select id="statusSelect">
-            <option value="incomplete">Incomplete</option>
-            <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
-        </select>
+            <select id="statusSelect">
+                <option value="incomplete">Incomplete</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+            </select>
         </div>
         <div class="popup-buttons">
             <button type="button" class="update-btn" onclick="updateStatus()">Update</button>

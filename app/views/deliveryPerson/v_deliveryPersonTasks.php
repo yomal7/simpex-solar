@@ -55,7 +55,31 @@
                                 <th>Comment</th>
                             </tr>
                         </thead>
-                        <tbody id="tasksTableBody"></tbody>
+                        <tbody id="projectTasksTableBody">
+                            <?php if (!empty($data['projectTasks'])): ?>
+                                <?php foreach ($data['projectTasks'] as $task): ?>
+                                    <tr>
+                                        <td class="center-align"><?php echo $task->id; ?></td>
+                                        <td class="center-align"><?php echo $task->project_id; ?></td>
+                                        <td><?php echo $task->title; ?></td>
+                                        <td class="center-align"><?php echo $task->end_date; ?></td>
+                                        <td class="center-align">
+                                            <button class="status-button <?php echo strtolower($task->status); ?>" onclick="openStatusPopup(<?php echo $task->id; ?>, '<?php echo $task->status; ?>')">
+                                                <?php echo str_replace('_', ' ', ucfirst($task->status)); ?>
+                                            </button>
+                                        </td>
+                                        <td class="center-align">
+                                            <button class="icon-button view-comment-btn" onclick="openViewCommentPopup(<?php echo $task->id; ?>)" title="View Comment"><i class="fas fa-eye"></i></button>
+                                            <button class="icon-button add-comment-btn" onclick="openAddCommentPopup(<?php echo $task->id; ?>)" title="Add Comment"><i class="fas fa-plus-circle"></i></button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="8">No tasks found.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
                     </table>
                 </div>
 

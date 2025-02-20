@@ -262,8 +262,87 @@ class HRAdministrator extends Controller
 
     public function holiday()
     {
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            // $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $limit = 10;
+            $offset = ($page - 1) * $limit;
 
-        $data = [];
-        $this->view('hRAdministrator/v_holiday', $data);
+            // if (!$employee) {
+            //     flash('error_msg', 'Employee not found');
+            //     redirect('users/login');
+            // }
+
+            $data = [
+                'employee_id' => '',
+                'holidayRecords' => $this->employeeModel->getHolidayRecords($limit, $offset),
+                'totalRecords' => $this->employeeModel->getTotalHolidayRecords(),
+                'currentPage' => $page,
+                'totalPages' => ceil($this->employeeModel->getTotalHolidayRecords() / $limit),
+                'start_date' => '',
+                'end_date' => '',
+                'number_of_days' => '',
+                'reason' => '',
+                'status' => '',
+                'leave_type' => '',
+                'start_date_err' => '',
+                'end_date_err' => '',
+                'days_err' => '',
+                'reason_err' => '',
+                'leave_type_err' => ''
+            ];
+
+            $this->view('hRAdministrator/v_holiday', $data);
+        } else {
+            // Sanitize POST data
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+            // $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+
+            $data = [
+                'id' => $_POST['id'],
+                'holidayRecords' => $this->employeeModel->getHolidayRecords(),
+                // 'employee_id' => $employee_id,
+                'comment' => trim($_POST['comment']),
+                'coment_err' => ''
+            ];
+
+            if (empty($data['comment'])) {
+                $data['comment_err'] = 'Please enter comment';
+            }
+
+            // Make sure no errors
+            if (
+                // empty($data['start_date_err']) &&
+                // empty($data['end_date_err']) &&
+                // empty($data['days_err']) &&
+                // empty($data['reason_err']) &&
+                // empty($data['leave_type_err'])
+                empty($data['comment_err'])
+            ) {
+                // Prepare holiday data
+                $holidayData = [
+                    'id' => $_POST['id'],
+                    'comment' => $data['comment']
+                ];
+
+                if ($this->employeeModel->approval($holidayData)) {
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Holiday request submitted successfully'
+                    ]);
+                    return;
+                } else {
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Failed to submit request'
+                    ]);
+                    return;
+                }
+            } else {
+                // Load view with errors
+                $this->view('hRAdministrator/v_holiday', $data);
+            }
+        }
     }
 }

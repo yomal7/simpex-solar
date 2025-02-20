@@ -53,12 +53,12 @@
                             <div class="task-info">
                                 <div class="info-group">
                                     <label class="fut">Task ID:</label>
-                                    <span><?php echo $data['task']->id; ?></span>
+                                    <span>TSK<?php echo str_pad($data['task']->id, 6, '0', STR_PAD_LEFT); ?></span>
                                 </div>
 
                                 <div class="info-group">
                                     <label>Project ID:</label>
-                                    <span><?php echo $data['task']->project_id; ?></span>
+                                    <span>PRJ<?php echo str_pad($data['task']->project_id, 6, '0', STR_PAD_LEFT); ?></span>
                                 </div>
 
                                 <div class="info-group">

@@ -2,7 +2,7 @@
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/technician/dashboard.css">
+<!-- <link rel="stylesheet" href="</?php echo URLROOT; ?>/css/technician/dashboard.css"> -->
 
 </head>
 
@@ -41,60 +41,41 @@
             <div class="container">
 
                 <section class="dashboard-cards">
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="material-icons card-icon">work_outline</span>
-                            <h2 class="card-title">Project 1</h2>
-                        </div>
-                        <h3 class="card-value">Project Name:</h3>
-                        <h2>Keels Installation</h2>
-                        <h3 class="card-value">Tasks:</h3>
-                        <h4>Install 5kW solar panel system</h4>
-                    </div>
+                    <?php if (isset($data['tasks']) && is_array($data['tasks'])): ?>
+                        <?php foreach ($data['tasks'] as $task): ?>
+                            <div class="card" onclick="window.location='<?php echo URLROOT; ?>/technician/details/<?php echo $task->id; ?>';">
+                                <div class="card-header">
+                                    <i class="fas fa-tasks"></i>
+                                    <h2 class="card-title">TSK<?php echo str_pad($task->id, 6, '0', STR_PAD_LEFT); ?></h2>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="material-icons card-icon">work_outline</span>
-                            <h2 class="card-title">Project 2</h2>
-                        </div>
-                        <h3 class="card-value">Project Name:</h3>
-                        <h2>Watawala Industries Maintenance</h2>
-                        <h3 class="card-value">Tasks:</h3>
-                        <h4>Solar panel maintenance</h4>
-                    </div>
+                                    <div class="card-status-button <?php echo strtolower($task->status); ?>">
+                                        <?php echo str_replace('_', ' ', ucfirst($task->status)); ?>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <h2>PRJ<?php echo str_pad($task->project_id, 6, '0', STR_PAD_LEFT); ?></h2>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="material-icons card-icon">work_outline</span>
-                            <h2 class="card-title">Project 3</h2>
-                        </div>
-                        <h3 class="card-value">Project Name:</h3>
-                        <h2>DB Ltd Repair</h2>
-                        <h3 class="card-value">Tasks:</h3>
-                        <h4>Repair solar inverter</h4>
-                    </div>
+                                    <h4><?php echo strlen($task->title) > 60 ? substr($task->title, 0, 60) . '...' : $task->title; ?></h4>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="material-icons card-icon">work_outline</span>
-                            <h2 class="card-title">Project 4</h2>
-                        </div>
-                        <h3 class="card-value">Project Name:</h3>
-                        <h2>Residential Battery Installation</h2>
-                        <h3 class="card-value">Tasks:</h3>
-                        <h4>Install battery storage system</h4>
-                    </div>
+                                </div>
+                                <div class="days-indicator <?php
+                                                            $endDate = new DateTime($task->end_date);
+                                                            $today = new DateTime();
+                                                            $interval = $today->diff($endDate);
+                                                            echo $interval->invert ? 'overdue' : '';
+                                                            ?>">
+                                    <?php
+                                    if ($interval->invert) {
+                                        echo '<span class="days-status overdue">' . $interval->days . 'ds overdue</span>';
+                                    } else {
+                                        echo '<span class="days-status remaining">' . $interval->days . 'ds remaining</span>';
+                                    }
+                                    ?>
+                                </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="material-icons card-icon">work_outline</span>
-                            <h2 class="card-title">Project 5</h2>
-                        </div>
-                        <h3 class="card-value">Project Name:</h3>
-                        <h2>City Mall Site Survey</h2>
-                        <h3 class="card-value">Tasks:</h3>
-                        <h4>Site survey at City Mall</h4>
-                    </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </section>
 
 
