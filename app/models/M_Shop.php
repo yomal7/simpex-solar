@@ -368,4 +368,38 @@ class M_Shop
             return false;
         }
     }
+
+    public function uploadBankSlip($orderId, $filePath)
+    {
+        try {
+            // First update order status
+            $this->db->query("UPDATE store_orders SET status = 'processing' WHERE id = :id");
+            $this->db->bind(':id', $orderId);
+
+            if (!$this->db->execute()) {
+                throw new Exception("Failed to update order status");
+            }
+
+            // Then create payment record
+            $this->db->query("INSERT INTO store_payments 
+            (order_id, payment_method, payment_status, bank_slip_image, bank_slip_status) 
+            VALUES 
+            (:order_id, :payment_method, :payment_status, :bank_slip_image, :bank_slip_status)");
+
+            $this->db->bind(':order_id', $orderId);
+            $this->db->bind(':payment_method', 'bank');
+            $this->db->bind(':payment_status', false);
+            $this->db->bind(':bank_slip_image', $filePath);
+            $this->db->bind(':bank_slip_status', 'pending');
+
+            if (!$this->db->execute()) {
+                throw new Exception("Failed to create payment record");
+            }
+
+            return true;
+        } catch (Exception $e) {
+            error_log('Payment processing error: ' . $e->getMessage());
+            return false;
+        }
+    }
 }

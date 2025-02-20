@@ -284,4 +284,62 @@ class Client extends Controller
             redirect('client/shop');
         }
     }
+
+    public function processBankDeposit()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            header('Content-Type: application/json');
+
+            try {
+                if (!isset($_FILES['slip']) || !isset($_POST['orderId'])) {
+                    throw new Exception('Invalid request data');
+                }
+
+                $file = $_FILES['slip'];
+                $orderId = $_POST['orderId'];
+
+                // Validate file
+                $allowedTypes = ['image/jpeg', 'image/png'];
+                $maxSize = 5 * 1024 * 1024; // 5MB
+
+                if (!in_array($file['type'], $allowedTypes)) {
+                    throw new Exception('Invalid file type');
+                }
+
+                if ($file['size'] > $maxSize) {
+                    throw new Exception('File too large');
+                }
+
+                // Create upload directory if it doesn't exist
+                $uploadDir = APPROOT . '/../public/uploads/bank_slips/';
+                if (!file_exists($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+
+                // Generate unique filename
+                $fileName = uniqid() . '_' . basename($file['name']);
+                $filePath = $uploadDir . $fileName;
+
+                // Upload file
+                if (move_uploaded_file($file['tmp_name'], $filePath)) {
+                    if ($this->shopModel->uploadBankSlip($orderId, 'uploads/bank_slips/' . $fileName)) {
+                        echo json_encode([
+                            'success' => true,
+                            'message' => 'Bank slip uploaded successfully'
+                        ]);
+                    } else {
+                        throw new Exception('Failed to save payment record');
+                    }
+                } else {
+                    throw new Exception('Failed to upload file');
+                }
+            } catch (Exception $e) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]);
+            }
+            exit;
+        }
+    }
 }
