@@ -311,18 +311,21 @@ class Client extends Controller
                 }
 
                 // Create upload directory if it doesn't exist
-                $uploadDir = APPROOT . '/../public/uploads/bank_slips/';
-                if (!file_exists($uploadDir)) {
-                    mkdir($uploadDir, 0777, true);
+                $uploadDir = 'uploads/bank_slips/';
+                $fullUploadDir = APPROOT . '/../public/' . $uploadDir;
+
+                if (!file_exists($fullUploadDir)) {
+                    mkdir($fullUploadDir, 0777, true);
                 }
 
                 // Generate unique filename
                 $fileName = uniqid() . '_' . basename($file['name']);
-                $filePath = $uploadDir . $fileName;
+                $filePath = $fullUploadDir . $fileName;
+                $dbFilePath = $uploadDir . $fileName; // Path to store in database
 
                 // Upload file
                 if (move_uploaded_file($file['tmp_name'], $filePath)) {
-                    if ($this->shopModel->uploadBankSlip($orderId, 'uploads/bank_slips/' . $fileName)) {
+                    if ($this->shopModel->uploadBankSlip($orderId, $dbFilePath)) {
                         echo json_encode([
                             'success' => true,
                             'message' => 'Bank slip uploaded successfully'

@@ -93,8 +93,45 @@ function removeFile() {
   previewImage.src = "";
 }
 
-submitButton.addEventListener("click", function () {
-  alert("Deposit slip submitted successfully!");
+// submitButton.addEventListener("click", function () {
+//   alert("Deposit slip submitted successfully!");
+// });
+
+submitButton.addEventListener("click", async function () {
+  const fileInput = document.getElementById("fileInput");
+  const file = fileInput.files[0];
+  const orderId = document.getElementById("orderId").value;
+
+  if (!file) {
+    alert("Please select a file first");
+    return;
+  }
+
+  try {
+    submitButton.disabled = true; // Disable button while processing
+
+    const formData = new FormData();
+    formData.append("slip", file);
+    formData.append("orderId", orderId);
+
+    const response = await fetch(`${URLROOT}/client/processBankDeposit`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert("Bank slip uploaded successfully!");
+      window.location.href = `${URLROOT}/client/shop`;
+    } else {
+      throw new Error(data.message || "Failed to process payment");
+    }
+  } catch (error) {
+    alert(error.message || "Something went wrong");
+  } finally {
+    submitButton.disabled = false; // Re-enable button after processing
+  }
 });
 
 const uploadUI = document.getElementById("uploadUI");

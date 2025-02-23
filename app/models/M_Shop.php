@@ -372,28 +372,43 @@ class M_Shop
     public function uploadBankSlip($orderId, $filePath)
     {
         try {
-            // First update order status
-            $this->db->query("UPDATE store_orders SET status = 'processing' WHERE id = :id");
+            // 1. Update order status to processing
+            $this->db->query("UPDATE store_orders 
+                         SET status = 'processing',
+                             updated_at = CURRENT_TIMESTAMP 
+                         WHERE id = :id");
             $this->db->bind(':id', $orderId);
 
             if (!$this->db->execute()) {
                 throw new Exception("Failed to update order status");
             }
 
-            // Then create payment record
+            // 2. Create payment record
             $this->db->query("INSERT INTO store_payments 
-            (order_id, payment_method, payment_status, bank_slip_image, bank_slip_status) 
-            VALUES 
-            (:order_id, :payment_method, :payment_status, :bank_slip_image, :bank_slip_status)");
+                         (order_id, payment_method, payment_status) 
+                         VALUES 
+                         (:order_id, 'bank deposit', false)");
 
             $this->db->bind(':order_id', $orderId);
-            $this->db->bind(':payment_method', 'bank');
-            $this->db->bind(':payment_status', false);
-            $this->db->bind(':bank_slip_image', $filePath);
-            $this->db->bind(':bank_slip_status', 'pending');
 
             if (!$this->db->execute()) {
                 throw new Exception("Failed to create payment record");
+            }
+
+            // Get payment ID for bank slip
+            $paymentId = $this->db->lastInsertId();
+
+            // 3. Create bank slip record
+            $this->db->query("INSERT INTO bank_slips 
+                         (payment_id, image, status) 
+                         VALUES 
+                         (:payment_id, :image, 'pending')");
+
+            $this->db->bind(':payment_id', $paymentId);
+            $this->db->bind(':image', $filePath);
+
+            if (!$this->db->execute()) {
+                throw new Exception("Failed to create bank slip record");
             }
 
             return true;
