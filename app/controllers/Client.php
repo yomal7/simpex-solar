@@ -1,37 +1,43 @@
 <?php
 
-class Client extends Controller {
+class Client extends Controller
+{
     private $clientModel;
+    private $shopModel;
     private $clientSidePreProjectModel;
     private $customerProjectModel;
 
-        public function __construct() {
-            // Check if user is logged in and is a customer
-            if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
-                redirect('users/index');
-            }
-            
-            $this->clientModel = $this->model('M_Client');
-            $this->clientSidePreProjectModel = $this->model('M_clientSidePreProject');
-            $this->customerProjectModel = $this->model('M_CustomerProject');
-        }
+    public function __construct() 
+    {
+      // Check if user is logged in and is a customer
+      if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
+        redirect('users/index');
+      }
+      
+      $this->clientModel = $this->model('M_Client');
+      $this->clientSidePreProjectModel = $this->model('M_clientSidePreProject');
+      $this->customerProjectModel = $this->model('M_CustomerProject');
+      $this->shopModel = $this->model('M_Shop');
+      
+    }
+           
+    public function index()
+    {
+        $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
+        $data = [
+            'customer' => $client
+        ];
+        $this->view('client/v_clientDashboard', $data);
+    }
 
-        public function index() {
-            $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
-            $data = [
-                'customer' => $client
-            ];
-            $this->view('client/v_clientDashboard', $data);
-        }
-
-        public function dashboard() {
-            // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
-            $data = [];
-            $this->view('client/v_clientDashboard', $data);
-        }
-
-
-        // public function operationDashboard() {
+    public function dashboard()
+    {
+        // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
+        $data = [];
+        $this->view('client/v_clientDashboard', $data);
+    }
+  
+    // public function operationDashboard() {
         //     $userId = $_SESSION['user_id'];
         
         //     // Get all pre-projects and projects
@@ -526,142 +532,311 @@ class Client extends Controller {
 
 
 
-
-
-
-
-
-
-
-
-
-
         
         //#############################################################################################
         //----------------------------------------- End of preproject phase -----------------------------------------
         //#############################################################################################
 
-        public function firstPayment() {
-            $data = [];
-            $this->view('client/v_clientFirstPayment', $data);  
-        }
-        
-        public function finalPayment() { 
-            $data = [];
-            $this->view('client/v_clientFinalPayment', $data); 
-        }
-        
-        public function installation() {
-            $data = [];
-            $this->view('client/v_clientInstallation', $data);  
+    public function sitevisit()
+    {
+        // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
+        $data = [];
+        $this->view('client/v_clientsitevisit', $data);
+    }
+
+    public function firstPayment()
+    {
+        $data = [];
+        $this->view('client/v_clientFirstPayment', $data);
+    }
+
+    public function finalPayment()
+    {
+        $data = [];
+        $this->view('client/v_clientFinalPayment', $data);
+    }
+
+    public function installation()
+    {
+        $data = [];
+        $this->view('client/v_clientInstallation', $data);
+    }
+
+    public function settings()
+    {
+        // Get user data using session user_id
+        $userId = $_SESSION['user_id'];
+        $userData = $this->clientModel->getUserById($userId);
+
+        if (!$userData) {
+            flash('profile_message', 'User data not found', 'alert alert-danger');
+            redirect('client/dashboard');
         }
 
-        public function settings() {
-            // Get user data using session user_id
-            $userId = $_SESSION['user_id'];
-            $userData = $this->clientModel->getUserById($userId);
-    
-            if (!$userData) {
-                flash('profile_message', 'User data not found', 'alert alert-danger');
-                redirect('client/dashboard');
-            }
-    
-            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-                // Handle profile update
-                if (isset($_POST['update_profile'])) {
-                    $phone = trim($_POST['phone']);
-                    
-                    $updateData = [
-                        'phone' => $phone,
-                        'phone_err' => ''
-                    ];
-    
-                    // Validate phone
-                    if (empty($phone)) {
-                        $updateData['phone_err'] = 'Please enter phone number';
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Handle profile update
+            if (isset($_POST['update_profile'])) {
+                $phone = trim($_POST['phone']);
+
+                $updateData = [
+                    'phone' => $phone,
+                    'phone_err' => ''
+                ];
+
+                // Validate phone
+                if (empty($phone)) {
+                    $updateData['phone_err'] = 'Please enter phone number';
+                }
+
+                // If no errors, update profile
+                if (empty($updateData['phone_err'])) {
+                    if ($this->clientModel->updateProfile($userId, $updateData)) {
+                        flash('profile_message', 'Profile Updated Successfully', 'alert alert-success');
+                        redirect('client/settings');
+                    } else {
+                        flash('profile_message', 'Something went wrong', 'alert alert-danger');
                     }
-    
-                    // If no errors, update profile
-                    if (empty($updateData['phone_err'])) {
-                        if ($this->clientModel->updateProfile($userId, $updateData)) {
-                            flash('profile_message', 'Profile Updated Successfully', 'alert alert-success');
+                }
+            }
+
+            // Handle password change
+            if (isset($_POST['change_password'])) {
+                $currentPassword = trim($_POST['current_password']);
+                $newPassword = trim($_POST['new_password']);
+
+                if (empty($currentPassword) || empty($newPassword)) {
+                    flash('password_message', 'Both password fields are required', 'alert alert-danger');
+                } else {
+                    if ($this->clientModel->verifyPassword($userId, $currentPassword)) {
+                        if ($this->clientModel->updatePassword($userId, $newPassword)) {
+                            flash('password_message', 'Password Updated Successfully', 'alert alert-success');
                             redirect('client/settings');
                         } else {
-                            flash('profile_message', 'Something went wrong', 'alert alert-danger');
-                        }
-                    }
-                }
-    
-                // Handle password change
-                if (isset($_POST['change_password'])) {
-                    $currentPassword = trim($_POST['current_password']);
-                    $newPassword = trim($_POST['new_password']);
-    
-                    if (empty($currentPassword) || empty($newPassword)) {
-                        flash('password_message', 'Both password fields are required', 'alert alert-danger');
-                    } else {
-                        if ($this->clientModel->verifyPassword($userId, $currentPassword)) {
-                            if ($this->clientModel->updatePassword($userId, $newPassword)) {
-                                flash('password_message', 'Password Updated Successfully', 'alert alert-success');
-                                redirect('client/settings');
-                            } else {
-                                flash('password_message', 'Failed to update password', 'alert alert-danger');
-                            }
-                        } else {
-                            flash('password_message', 'Current password is incorrect', 'alert alert-danger');
-                        }
-                    }
-                }
-    
-                // Handle profile picture upload
-                if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
-                    $file = $_FILES['profile_picture'];
-                    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-                    $maxSize = 5 * 1024 * 1024; // 5MB
-    
-                    if (in_array($file['type'], $allowedTypes) && $file['size'] <= $maxSize) {
-                        $fileName = uniqid() . '_' . basename($file['name']);
-                        $uploadDir = APPROOT . '/../public/uploads/profile_pictures/';
-                        
-                        if (!file_exists($uploadDir)) {
-                            mkdir($uploadDir, 0777, true);
-                        }
-                        
-                        $uploadPath = $uploadDir . $fileName;
-    
-                        if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-                            if ($this->clientModel->updateProfilePicture($userId, $fileName)) {
-                                flash('profile_picture_message', 'Profile Picture Updated Successfully', 'alert alert-success');
-                                redirect('client/settings');
-                            } else {
-                                flash('profile_picture_message', 'Failed to update database', 'alert alert-danger');
-                            }
-                        } else {
-                            flash('profile_picture_message', 'Failed to upload file', 'alert alert-danger');
+                            flash('password_message', 'Failed to update password', 'alert alert-danger');
                         }
                     } else {
-                        flash('profile_picture_message', 'Invalid file type or size', 'alert alert-danger');
+                        flash('password_message', 'Current password is incorrect', 'alert alert-danger');
                     }
                 }
             }
-    
-            // Prepare view data
-            $viewData = [
-                'name' => $userData->name,
-                'email' => $userData->email,
-                'phone' => $userData->phone ?? '',
-                'profile_picture' => $userData->profile_picture ?? '',
-                'title' => 'Settings'
-            ];
-    
-            $this->view('client/v_clientSettings', $viewData);
+
+            // Handle profile picture upload
+            if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
+                $file = $_FILES['profile_picture'];
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                $maxSize = 5 * 1024 * 1024; // 5MB
+
+                if (in_array($file['type'], $allowedTypes) && $file['size'] <= $maxSize) {
+                    $fileName = uniqid() . '_' . basename($file['name']);
+                    $uploadDir = APPROOT . '/../public/uploads/profile_pictures/';
+
+                    if (!file_exists($uploadDir)) {
+                        mkdir($uploadDir, 0777, true);
+                    }
+
+                    $uploadPath = $uploadDir . $fileName;
+
+                    if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+                        if ($this->clientModel->updateProfilePicture($userId, $fileName)) {
+                            flash('profile_picture_message', 'Profile Picture Updated Successfully', 'alert alert-success');
+                            redirect('client/settings');
+                        } else {
+                            flash('profile_picture_message', 'Failed to update database', 'alert alert-danger');
+                        }
+                    } else {
+                        flash('profile_picture_message', 'Failed to upload file', 'alert alert-danger');
+                    }
+                } else {
+                    flash('profile_picture_message', 'Invalid file type or size', 'alert alert-danger');
+                }
+            }
         }
 
-        public function shop() {
-            // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
-            $data = [];
-            $this->view('client/v_clientShop', $data);
+        // Prepare view data
+        $viewData = [
+            'name' => $userData->name,
+            'email' => $userData->email,
+            'phone' => $userData->phone ?? '',
+            'profile_picture' => $userData->profile_picture ?? '',
+            'title' => 'Settings'
+        ];
+
+        $this->view('client/v_clientSettings', $viewData);
+    }
+
+    public function shop()
+    {
+        $userId = $_SESSION['user_id'];
+        $orders = $this->shopModel->getUserOrders($userId);
+        $data = [
+            'orders' => $orders
+        ];
+        $this->view('client/v_clientShop', $data);
+    }
+
+    public function confirmOrder($orderId)
+    {
+        $order = $this->shopModel->getOrderDetailsByID($orderId);
+        if ($order) {
+            $data = [
+                'order' => $order
+            ];
+            $this->view('client/v_clientConfirmOrder', $data);
+        } else {
+            redirect('client/shop');
         }
     }
 
+    public function cancelOrder($id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if ($this->shopModel->cancelOrder($id)) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to cancel order']);
+            }
+        }
+    }
+
+    public function processOrder()
+    {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            try {
+                $data = json_decode(file_get_contents("php://input"));
+
+                if (!isset($data->orderId) || !isset($data->paymentMethod)) {
+                    throw new Exception("Invalid request data");
+                }
+
+                switch ($data->paymentMethod) {
+                    case 'cash':
+                        if ($this->shopModel->processPayment($data->orderId, 'cash')) {
+                            echo json_encode([
+                                'success' => true,
+                                'redirect' => 'shop'
+                            ]);
+                        } else {
+                            throw new Exception('Failed to process payment');
+                        }
+                        break;
+
+                    case 'online':
+                        echo json_encode([
+                            'success' => true,
+                            'redirect' => 'checkout/' . $data->orderId
+                        ]);
+                        break;
+
+                    case 'bank':
+                        echo json_encode([
+                            'success' => true,
+                            'redirect' => 'bankDeposit/' . $data->orderId
+                        ]);
+                        break;
+
+                    default:
+                        throw new Exception('Invalid payment method');
+                }
+            } catch (Exception $e) {
+                http_response_code(500);
+                echo json_encode([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]);
+            }
+            exit;
+        }
+    }
+
+    public function checkout($orderId)
+    {
+        $order = $this->shopModel->getOrderDetailsByID($orderId);
+        if ($order) {
+            $data = [
+                'order' => $order
+            ];
+            $this->view('client/v_clientCheckout', $data);
+        } else {
+            redirect('client/shop');
+        }
+    }
+
+    public function bankDeposit($orderId)
+    {
+        $order = $this->shopModel->getOrderDetailsByID($orderId);
+        if ($order) {
+            $data = [
+                'order' => $order
+            ];
+            $this->view('client/v_clientBankDeposit', $data);
+        } else {
+            redirect('client/shop');
+        }
+    }
+
+    public function processBankDeposit()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            header('Content-Type: application/json');
+
+            try {
+                if (!isset($_FILES['slip']) || !isset($_POST['orderId'])) {
+                    throw new Exception('Invalid request data');
+                }
+
+                $file = $_FILES['slip'];
+                $orderId = $_POST['orderId'];
+
+                // Validate file
+                $allowedTypes = ['image/jpeg', 'image/png'];
+                $maxSize = 5 * 1024 * 1024; // 5MB
+
+                if (!in_array($file['type'], $allowedTypes)) {
+                    throw new Exception('Invalid file type');
+                }
+
+                if ($file['size'] > $maxSize) {
+                    throw new Exception('File too large');
+                }
+
+                // Create upload directory if it doesn't exist
+                $uploadDir = 'uploads/bank_slips/';
+                $fullUploadDir = APPROOT . '/../public/' . $uploadDir;
+
+                if (!file_exists($fullUploadDir)) {
+                    mkdir($fullUploadDir, 0777, true);
+                }
+
+                // Generate unique filename
+                $fileName = uniqid() . '_' . basename($file['name']);
+                $filePath = $fullUploadDir . $fileName;
+                $dbFilePath = $uploadDir . $fileName; // Path to store in database
+
+                // Upload file
+                if (move_uploaded_file($file['tmp_name'], $filePath)) {
+                    if ($this->shopModel->uploadBankSlip($orderId, $dbFilePath)) {
+                        echo json_encode([
+                            'success' => true,
+                            'message' => 'Bank slip uploaded successfully'
+                        ]);
+                    } else {
+                        throw new Exception('Failed to save payment record');
+                    }
+                } else {
+                    throw new Exception('Failed to upload file');
+                }
+            } catch (Exception $e) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ]);
+            }
+            exit;
+        }
+    }
+}
+
 ?>
+
