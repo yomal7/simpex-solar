@@ -118,11 +118,11 @@ class M_Packages {
         
         foreach ($equipment as $item) {
             $this->db->query('SELECT price FROM inventory WHERE id = :id AND deleted_at IS NULL');
-            $this->db->bind(':id', $item['item_id']);
+            $this->db->bind(':id', $item->item_id); // Change ['item_id'] to ->item_id
             $result = $this->db->single();
-            
+
             if ($result) {
-                $totalPrice += $result->price * $item['quantity'];
+                $totalPrice += $result->price * $item->quantity; // Change ['quantity'] to ->quantity
             }
         }
     
@@ -177,13 +177,30 @@ class M_Packages {
         $this->db->bind(':package_id', $package_id);
         return $this->db->resultSet();
     }
-
     public function updatePackage($id, $data) {
         try {
-            // Calculate the total price from equipment
-            $equipmentPrice = $this->calculateFinalPrice($data['equipment'], $data['service_charge']);
+            // Ensure that equipment and features are always arrays of objects
+            $equipmentList = is_array($data['equipment']) ? array_map(function ($eq) {
+                return is_object($eq) ? $eq : (object) $eq;
+            }, $data['equipment']) : [];
+    
+            $featureList = is_array($data['features']) ? array_map(function ($ft) {
+                return is_object($ft) ? $ft : (object) $ft;
+            }, $data['features']) : [];
+    
+            // Debugging logs
+            error_log("Equipment Data: " . print_r($equipmentList, true));
+            error_log("Features Data: " . print_r($featureList, true));
+    
+            if (!is_array($equipmentList) || !is_array($featureList)) {
+                throw new Exception("Invalid data format for equipment or features.");
+            }
+    
+            // Calculate total price
+            $equipmentPrice = $this->calculateFinalPrice($equipmentList, $data['service_charge']);
             $finalPrice = $equipmentPrice + floatval($data['service_charge']);
     
+            // Update package details
             $this->db->query('UPDATE package SET 
                 title = :title,
                 description = :description,
@@ -193,7 +210,7 @@ class M_Packages {
                 service_charge = :service_charge,
                 final_price = :final_price
                 WHERE package_id = :package_id');
-            
+    
             $this->db->bind(':package_id', $id);
             $this->db->bind(':title', $data['title']);
             $this->db->bind(':description', $data['description']);
@@ -207,7 +224,7 @@ class M_Packages {
                 throw new Exception("Failed to update package");
             }
     
-            // Delete existing equipment and features
+            // Remove existing equipment and features
             $this->db->query('DELETE FROM packageequipment WHERE package_id = :package_id');
             $this->db->bind(':package_id', $id);
             $this->db->execute();
@@ -217,15 +234,21 @@ class M_Packages {
             $this->db->execute();
     
             // Add updated equipment
-            foreach ($data['equipment'] as $item) {
-                if (!$this->addEquipment($id, $item['item_id'], $item['quantity'])) {
+            foreach ($equipmentList as $item) {
+                if (!isset($item->item_id) || !isset($item->quantity)) {
+                    throw new Exception("Invalid equipment data structure.");
+                }
+                if (!$this->addEquipment($id, $item->item_id, $item->quantity)) {
                     throw new Exception("Failed to add equipment");
                 }
             }
     
             // Add updated features
-            foreach ($data['features'] as $feature) {
-                if (!$this->addFeature($id, $feature['name'], $feature['description'])) {
+            foreach ($featureList as $feature) {
+                if (!isset($feature->name) || !isset($feature->description)) {
+                    throw new Exception("Invalid feature data structure.");
+                }
+                if (!$this->addFeature($id, $feature->name, $feature->description)) {
                     throw new Exception("Failed to add feature");
                 }
             }
@@ -236,6 +259,7 @@ class M_Packages {
             return false;
         }
     }
+    
 
     public function deletePackage($id) {
         try {
@@ -305,7 +329,9 @@ class M_Packages {
                          WHERE p.type = :type AND p.deleted_at IS NULL 
                          GROUP BY p.package_id');
         $this->db->bind(':type', $type);
+        
         return $this->db->resultSet();
+        // error_log("Packages Retrieved for Type '$type': " . json_encode($result, JSON_PRETTY_PRINT));
     }
 
     public function getAllPackagesWithFeatures() {
@@ -327,31 +353,58 @@ class M_Packages {
         return $this->db->resultSet();
     }
 
+    
     public function submitQuotation($data) {
+        // Log the incoming data
+        error_log("Attempting to submit quotation with data: " . print_r($data, true));
+        
         $this->db->query('INSERT INTO customerquotation (
-            user_id, 
-            package_id, 
-            address, 
-            monthly_consumption, 
-            nearest_city, 
-            customizations
+            user_id,
+            package_id,
+            address,
+            monthly_consumption,
+            nearest_city,
+            customizations,
+            package_type,
+            status
         ) VALUES (
-            :user_id, 
-            :package_id, 
-            :address, 
-            :monthly_consumption, 
-            :nearest_city, 
-            :customizations
+            :user_id,
+            :package_id,
+            :address,
+            :monthly_consumption,
+            :nearest_city,
+            :customizations,
+            :package_type,
+            "pending"
         )');
-    
-        $this->db->bind(':user_id', $data['user_id']);
-        $this->db->bind(':package_id', $data['package_id']);
-        $this->db->bind(':address', $data['address']);
-        $this->db->bind(':monthly_consumption', $data['monthly_consumption']);
-        $this->db->bind(':nearest_city', $data['nearest_city']);
-        $this->db->bind(':customizations', $data['customizations']);
-    
-        return $this->db->execute();
+
+        // Log the SQL query for debugging
+        error_log("SQL Query prepared");
+
+        try {
+            $this->db->bind(':user_id', $data['user_id']);
+            $this->db->bind(':package_id', $data['package_id']);
+            $this->db->bind(':address', $data['address']);
+            $this->db->bind(':monthly_consumption', $data['monthly_consumption']);
+            $this->db->bind(':nearest_city', $data['nearest_city']);
+            $this->db->bind(':customizations', $data['customizations']);
+            $this->db->bind(':package_type', $data['package_type']);
+            
+            // Log before execution
+            error_log("All parameters bound, attempting execution");
+            
+            if($this->db->execute()) {
+                error_log("Query executed successfully");
+                return true;
+            } else {
+                error_log("Query execution failed");
+                return false;
+            }
+            
+        } catch (Exception $e) {
+            error_log("Error in submitQuotation: " . $e->getMessage());
+            return false;
+        }
     }
 
 }

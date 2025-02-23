@@ -16,15 +16,19 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/dashboard" class="active">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/dashboard" >
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/preprojects">
+                <span class="material-icons-sharp">pending_actions</span>
+                <h3>Pre-Projects</h3>
             </a>
             <a href="<?php echo URLROOT ?>/operationsCoordinator/projects">
                 <span class="material-icons-sharp">receipt_long</span>
                 <h3>Projects</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/managePackages">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/managePackages" class="active">
                 <span class="material-icons-sharp">solar_power</span>
                 <h3>Packages</h3>
             </a>
@@ -95,7 +99,8 @@
                                 </div>
 
                                 <div class="package-actions">
-                                    <a href="<?php echo URLROOT; ?>/operationsCoordinator/editPackage/<?php echo $package->package_id; ?>" 
+                                    <a href="<?php echo URLROOT; ?>/operationsCoordinator/editPackage/<?php echo $package->package_id; ?>"
+                                        style="text-decoration: none;"
                                         class="btn-edit" title="Edit Package">
                                         <span class="material-icons-sharp">edit</span>
                                     </a>

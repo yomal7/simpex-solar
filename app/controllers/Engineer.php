@@ -4,6 +4,10 @@ class engineer extends Controller {
     private $engineerModel;
 
     public function __construct() {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'engineer') {
+            flash('error_msg', 'Unauthorized access');
+            redirect('users/login');
+        }
         $this->engineerModel = $this->model('M_Engineer');
     }
 

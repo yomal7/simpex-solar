@@ -9,19 +9,10 @@
     <?php require APPROOT.'/views/inc/components/topnavbar.php'; ?>
     <!-- Sidebar -->
     <div class="sidebar">
-        <!-- <a href="#" class="logo">
-            <i class='bx bx-code-alt'></i>
-            <div class="logo-name"><span>Asmr</span>Prog</div>
-        </a> -->
-        <ul class="side-menu">
-            <li ><a href="<?php echo URLROOT; ?>/client/dashboard"><i class='bx bxs-dashboard'></i>Dashboard</a></li>
-            <li  class="active"><a href="<?php echo URLROOT; ?>/client/project"><i class='bx bx-analyse'></i>Project</a></li>
-            <li ><a href="<?php echo URLROOT; ?>/client/shop"><i class='bx bx-store-alt'></i>Shop</a></li>
-            <li><a href="#"><i class='bx bx-message-square-dots'></i>Chat</a></li>
-            <!-- <li><a href="#"><i class='bx bx-group'></i>Users</a></li> -->
-            <li ><a href="<?php echo URLROOT; ?>/client/settings"><i class='bx bx-cog'></i>Settings</a></li>
-        </ul>
-        <ul class="side-menu">
+            <ul class="side-menu">
+            <li>
+                <a href="<?php echo URLROOT; ?>/client/operationDashboard" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a></li>
+            </li>
             <li>
                 <a href="<?php echo URLROOT; ?>/users/logout" class="logout">
                     <i class='bx bx-log-out-circle'></i>
@@ -42,51 +33,193 @@
         <!-- End of Navbar -->
          
         <main>
-        <div class="container">
-            <div class="timeline-container">
-                <div class="timeline-progress-bar">
-                    <div class="timeline-progress-fill"></div>
-                </div>
 
-                <div class="timeline-item completed" style="animation-delay: 0.2s;">
-                    <div class="timeline-card">
-                        <h3>Agreement Phase</h3>
-                        <p>Agreement approving and signing</p>
-                        <a href="<?php echo URLROOT; ?>/client/agreement" class="proceed-button">View Details</a>
+        <div class="project-header">
+            <h1>Project Details</h1>
+            <h2>Project ID: <?php echo $data['pre_project_id']; ?></h2>
+        </div>
+
+        <div class="progress-container container">
+            <!-- Pre-project Phases -->
+            <?php 
+            $preProjectPhases = [
+                'quotation' => [
+                    'title' => 'Quotation Phase',
+                    'description' => 'Review and accept project quotation'
+                ],
+                'site_visit' => [
+                    'title' => 'Site Visit Phase',
+                    'description' => 'Schedule a date for site visit'
+                ],
+                'agreement' => [
+                    'title' => 'Agreement Phase',
+                    'description' => 'Agreement approving and signing'
+                ]
+            ];
+
+            $projectPhases = [
+                'document_submission' => [
+                    'title' => 'Document Submission',
+                    'description' => 'Submit required documents'
+                ],
+                'first_payment' => [
+                    'title' => 'First Payment Phase',
+                    'description' => 'Pay the 25% of total project cost'
+                ],
+                'installation' => [
+                    'title' => 'Installation Phase',
+                    'description' => 'Schedule the date for installation'
+                ],
+                'final_payment' => [
+                    'title' => 'Final Payment Phase',
+                    'description' => 'Pay the remaining 75% of total project cost'
+                ]
+            ];
+
+            $currentPhase = $data['progress']['project'] ? 
+                $data['progress']['project']->current_phase : 
+                $data['progress']['pre_project']->current_phase;
+            ?>
+
+            <div class="progress-list">
+                <?php foreach($preProjectPhases as $phase => $info): ?>
+                    <?php
+                    $status = 'locked';
+                    if ($phase === $currentPhase) {
+                        $status = 'active';
+                    } elseif ($data['progress']['project'] || 
+                            array_search($phase, array_keys($preProjectPhases)) < 
+                            array_search($currentPhase, array_keys($preProjectPhases))) {
+                        $status = 'completed';
+                    }
+                    ?>
+                    <div class="progress-item <?php echo $status; ?>">
+                        <div class="progress-dot"></div>
+                        <div class="progress-info">
+                            <h3><?php echo $info['title']; ?></h3>
+                            <p><?php echo $info['description']; ?></p>
+                            <?php if($status === 'active'): ?>
+                                <?php if($phase === 'site_visit'): ?>
+                                    <a href="<?php echo URLROOT . '/client/siteVisit/' . $data['pre_project_id']; ?>" class="btn-proceed">
+                                        Proceed Now
+                                    </a>
+                                <?php elseif($phase === 'agreement'): ?>
+                                    <a href="<?php echo URLROOT . '/client/agreement/' . $data['pre_project_id']; ?>" class="btn-proceed">
+                                        Proceed Now
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?php echo URLROOT . '/client/project/' . $data['pre_project_id'] . '/' . $phase; ?>" class="btn-proceed">
+                                        Proceed Now
+                                    </a>
+                                <?php endif; ?>
+                            <?php elseif($status === 'completed'): ?>
+                                <?php if($phase === 'site_visit'): ?>
+                                    <a href="<?php echo URLROOT . '/client/siteVisit/' . $data['pre_project_id']; ?>" class="btn-view">
+                                        View Details
+                                    </a>
+                                <?php elseif($phase === 'agreement'): ?>
+                                    <a href="<?php echo URLROOT . '/client/agreement/' . $data['pre_project_id']; ?>" class="btn-view">
+                                        View Details
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?php echo URLROOT . '/client/project/' . $data['pre_project_id'] . '/' . $phase; ?>" class="btn-view">
+                                        View Details
+                                    </a>
+                                <?php endif; ?>
+                                <span class="check-mark">✓</span>
+                            <?php else: ?>
+                                <span class="lock-icon">🔒</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+                <?php if($data['progress']['project'] && 
+                    $data['progress']['project']->current_phase === 'document_submission' && 
+                    !isset($_SESSION['overlay_shown_' . $data['pre_project_id']])): ?>
+                <!-- Congratulations Overlay -->
+                <div class="congrats-overlay" id="congratsOverlay">
+                    <div class="congrats-modal">
+                        <div class="congrats-content">
+                            <i class='bx bx-medal success-icon'></i>
+                            <h2>Congratulations!</h2>
+                            <p>You've successfully completed the initial phases of your solar journey.</p>
+                            <p>You're halfway there! Let's continue with the installation process.</p>
+                            <button onclick="closeCongratsOverlay()" class="btn-proceed">Let's Continue</button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="timeline-item completed" style="animation-delay: 0.4s;">
-                    <div class="timeline-card">
-                        <h3>Site Visit Phase</h3>
-                        <p>Schedule a date for site visit</p>
-                        <a href="<?php echo URLROOT; ?>/client/sitevisit" class="proceed-button">View Details</a>
-                    </div>
-                </div>
+                <?php $_SESSION['overlay_shown_' . $data['pre_project_id']] = true; ?>
+            <?php endif; ?>
 
-                <div class="timeline-item active" style="animation-delay: 0.6s;">
-                    <div class="timeline-card">
-                        <h3>First Payment Phase</h3>
-                        <p>Pay the 25% of total project cost</p>
-                        <a href="<?php echo URLROOT; ?>/client/firstpayment" class="proceed-button">Proceed Now</a>
-                    </div>
-                </div>
-
-                <div class="timeline-item future" style="animation-delay: 0.8s;">
-                    <div class="timeline-card">
-                        <h3>Installation Phase</h3>
-                        <p>Schedule the date for installation</p>
-                        <a href="<?php echo URLROOT; ?>/client/installation" class="proceed-button">View Phase</a>
-                    </div>
-                </div>
-
-                <div class="timeline-item future" style="animation-delay: 1s;">
-                    <div class="timeline-card">
-                        <h3>Final Payment Phase</h3>
-                        <p>Pay the remaining 75% of total project cost</p>
-                        <a href="<?php echo URLROOT; ?>/client/finalpayment" class="proceed-button">View Phase</a>
-                    </div>
-                </div>
+                <?php if($data['progress']['project']): ?>
+                    <?php foreach($projectPhases as $phase => $info): ?>
+                        <?php
+                        $status = 'locked';
+                        if ($phase === $currentPhase) {
+                            $status = 'active';
+                        } elseif (array_search($phase, array_keys($projectPhases)) < 
+                                array_search($currentPhase, array_keys($projectPhases))) {
+                            $status = 'completed';
+                        }
+                        ?>
+                        <div class="progress-item <?php echo $status; ?>">
+                            <div class="progress-dot"></div>
+                            <div class="progress-info">
+                                <h3><?php echo $info['title']; ?></h3>
+                                <p><?php echo $info['description']; ?></p>
+                                <?php if($status === 'active'): ?>
+                                    <?php if($phase === 'document_submission'): ?>
+                                        <a href="<?php echo URLROOT . '/client/documents/' . $data['pre_project_id']; ?>" class="btn-proceed">
+                                            Proceed Now
+                                        </a>
+                                    <?php elseif($phase === 'first_payment'): ?>
+                                        <a href="<?php echo URLROOT . '/client/payment/' . $data['pre_project_id']; ?>" class="btn-proceed">
+                                            Proceed Now
+                                        </a>
+                                    <?php elseif($phase === 'installation'): ?>
+                                        <a href="<?php echo URLROOT . '/client/installation/' . $data['pre_project_id']; ?>" class="btn-proceed">
+                                            Proceed Now
+                                        </a>
+                                    <?php elseif($phase === 'final_payment'): ?>
+                                        <a href="<?php echo URLROOT . '/client/finalPayment/' . $data['pre_project_id']; ?>" class="btn-proceed">
+                                            Proceed Now
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="<?php echo URLROOT . '/client/project/' . $data['pre_project_id'] . '/' . $phase; ?>" class="btn-proceed">
+                                            Proceed Now
+                                        </a>
+                                    <?php endif; ?>
+                                <?php elseif($status === 'completed'): ?>
+                                    <?php if($phase === 'document_submission'): ?>
+                                        <a href="<?php echo URLROOT . '/client/documents/' . $data['pre_project_id']; ?>" class="btn-view">
+                                            View Details
+                                        </a>
+                                    <?php elseif($phase === 'first_payment'): ?>
+                                        <a href="<?php echo URLROOT . '/client/payment/' . $data['pre_project_id']; ?>" class="btn-view">
+                                            View Details
+                                        </a>
+                                    <?php elseif($phase === 'installation'): ?>
+                                        <a href="<?php echo URLROOT . '/client/installation/' . $data['pre_project_id']; ?>" class="btn-view">
+                                            View Details
+                                        </a>
+                                    <?php elseif($phase === 'final_payment'): ?>
+                                        <a href="<?php echo URLROOT . '/client/finalPayment/' . $data['pre_project_id']; ?>" class="btn-view">
+                                            View Details
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="<?php echo URLROOT . '/client/project/' . $data['pre_project_id'] . '/' . $phase; ?>" class="btn-view">
+                                            View Details
+                                        </a>
+                                    <?php endif; ?>
+                                    <span class="check-mark">✓</span>
+                                <?php else: ?>
+                                    <span class="lock-icon">🔒</span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
         </main>

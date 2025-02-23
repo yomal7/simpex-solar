@@ -39,46 +39,129 @@
                     <div class="status-badge">Pending Review</div>
                 </div>
                 
-                <div class="pdf-container" id="pdfContainer">
-                    <div class="canvas-container" id="canvasContainer"></div>
+                <div class="agreement-details">
+                    <input type="hidden" name="agreement_id" value="<?php echo $data['agreement']->agreement_id; ?>">
+                    <input type="hidden" name="pre_project_id" value="<?php echo $data['agreement']->pre_project_id; ?>">
+                    
+                    <!-- System Details -->
+                    <div class="details-section">
+                        <h3>System Details</h3>
+                        <div class="detail-row">
+                            <span>System Capacity:</span>
+                            <span><?php echo $data['agreement']->system_capacity; ?> kW</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Estimated Generation:</span>
+                            <span><?php echo $data['agreement']->estimated_generation; ?> kWh/year</span>
+                        </div>
+                    </div>
+
+                    <!-- Equipment List -->
+                    <div class="details-section">
+                        <h3>Equipment List</h3>
+                        <?php foreach($data['equipment'] as $item): ?>
+                            <div class="equipment-row">
+                                <span><?php echo $item->item_name; ?></span>
+                                <span><?php echo $item->quantity; ?> units</span>
+                                <span>Rs. <?php echo number_format($item->total_price, 2); ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <!-- Pricing Details -->
+                    <div class="details-section">
+                        <h3>Pricing Details</h3>
+                        <div class="detail-row">
+                            <span>Base Price:</span>
+                            <span>Rs. <?php echo number_format($data['agreement']->base_price, 2); ?></span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Service Charge:</span>
+                            <span>Rs. <?php echo number_format($data['agreement']->service_charge, 2); ?></span>
+                        </div>
+
+                        <div class="detail-row total">
+                            <span>Total Price:</span>
+                            <span>Rs. <?php echo number_format($data['agreement']->total_price, 2); ?></span>
+                        </div>
+                    </div>
+
+                    <!-- Notes Section -->
+                    <div class="details-section">
+                        <h3>Agreement Notes</h3>
+                        <div class="notes-content">
+                            <?php echo nl2br(htmlspecialchars($data['agreement']->notes)); ?>
+                        </div>
+                    </div>
+
+                    <!-- Coordinator Signature Section -->
+                    <div class="details-section">
+                        <h3>Coordinator Signature</h3>
+                        <?php if ($data['agreement']->coordinator_signature_id && $data['agreement']->coordinator_signature): ?>
+                            <div class="signature-display">
+                                <img src="<?php echo URLROOT; ?>/public/uploads/signatures/<?php echo $data['agreement']->coordinator_signature; ?>" 
+                                    alt="Coordinator Signature">
+                            </div>
+                        <?php else: ?>
+                            <p>Pending coordinator signature</p>
+                        <?php endif; ?>
+                    </div>
+
                 </div>
 
                 <div class="button-group">
-                    <button class="btn btn-secondary" onclick="downloadPDF()">
-                        <i>📥</i> Download PDF
-                    </button>
-                    <button class="btn btn-primary" onclick="openApprovePopup()">
-                        <i>✓</i> Approve Quotation
-                    </button>
-                    <button class="btn btn-secondary" onclick="openSubmitAgainPopup()">
-                        <i>↺</i> Submit Again
-                    </button>
-                    <button class="btn btn-danger" onclick="openCancelPopup()">
-                        <i>✕</i> Cancel Equation
-                    </button>
+                    <?php if ($data['agreement']->status === 'pending'): ?>
+                        <button class="btn btn-primary" onclick="openApprovePopup()">
+                            <i>✓</i> Sign & Approve Agreement
+                        </button>
+                        <button class="btn btn-secondary" onclick="openSubmitAgainPopup()">
+                            <i>↺</i> Request Revision
+                        </button>
+                        <button class="btn btn-danger" onclick="openCancelPopup()">
+                            <i>✕</i> Cancel Project
+                        </button>
+                    <?php else: ?>
+                        <div class="status-message">
+                            <?php 
+                            switch($data['agreement']->status) {
+                                case 'revision_requested':
+                                    echo '<p class="status warning">Agreement is under revision</p>';
+                                    break;
+                                case 'completed':
+                                    echo '<p class="status success">Agreement has been signed</p>';
+                                    break;
+                                case 'cancelled':
+                                    echo '<p class="status danger">Agreement has been cancelled</p>';
+                                    break;
+                            }
+                            ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
+
+
             </div>
         </div>
 
         <!-- Toast Container -->
         <div class="toast-container" id="toastContainer"></div>
 
-        <!-- Existing popups remain the same -->
+        <!-- Popup forms remain the same but moved outside the agreement-details div -->
         <div class="popup" id="approvePopup">
-            <h2 >Sign Agreement</h2>
-            <p style="padding: 20px;">By clicking on this document, you agree to the terms and conditions outlined within the Project Agreement, 
-                acknowledging that you have read and understood all provisions related to the project's scope, timelines, costs, 
-                and responsibilities</p>
-            <div class="signature-box" id="signatureBox">
-                <p>Click here to upload signature</p>
-                <input type="file" id="signatureInput" accept="image/*" style="display: none">
-            </div>
-            <button class="btn btn-primary" onclick="submitSignature()">Submit</button>
-            <button class="btn btn-secondary" onclick="closePopup('approvePopup')">Cancel</button>
+            <h2>Sign Agreement</h2>
+            <p>By signing this agreement, you confirm that you have read and understood all terms and conditions.</p>
+            <form id="signatureForm" enctype="multipart/form-data">
+                <div class="signature-box" id="signatureBox">
+                    <p>Click here to upload signature</p>
+                </div>
+                <input type="file" id="signatureInput" name="signature" accept="image/*" style="display: none">
+                <button type="button" class="btn btn-primary" onclick="submitSignature()">Submit</button>
+                <button type="button" class="btn btn-secondary" onclick="closePopup('approvePopup')">Cancel</button>
+            </form>
         </div>
 
         <div class="popup" id="submitAgainPopup">
-            <h2>Submit Review</h2>
+            <h2>Request Revision</h2>
             <textarea class="comment-box" placeholder="Enter your comments for changes..."></textarea>
             <button class="btn btn-primary" onclick="submitReview()">Submit</button>
             <button class="btn btn-secondary" onclick="closePopup('submitAgainPopup')">Cancel</button>
@@ -86,13 +169,16 @@
 
         <div class="popup" id="cancelPopup">
             <h2>Warning!</h2>
-            <p>Are you sure you want to cancel this equation? This action cannot be undone.</p>
+            <p>Are you sure you want to cancel this project? This action cannot be undone.</p>
             <button class="btn btn-danger" onclick="confirmCancel()">Yes, Cancel</button>
             <button class="btn btn-secondary" onclick="closePopup('cancelPopup')">No, Keep</button>
         </div>
-    </div>
 
     <div class="overlay" id="overlay"></div>
+    <script>
 
+        const URLROOT = '<?php echo URLROOT; ?>';
+
+    </script>
     <script src="<?php echo URLROOT; ?>/js/client/agreement.js"></script>
 <?php require APPROOT.'/views/client/footer.php';?>

@@ -59,6 +59,7 @@
                                 <option value="technician">Technician</option>
                                 <option value="deliveryPerson">Delivery Person</option>
                                 <option value="engineer">Engineer</option>
+                                <option value="clerk">Clerk</option>
                             </select>
                             <span class="form-invalid"><?php echo isset($data['role_err']) ? $data['role_err'] : ''; ?></span>
                         </div>
@@ -74,7 +75,7 @@
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input type="password" name="password" id="password" placeholder="Project" value="<?php $data['password']; ?>">
+                            <input type="password" name="password" id="password" placeholder="Password" value="<?php $data['password']; ?>">
                             <span class="form-invalid"><?php echo isset($data['password_err']) ? $data['password_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
@@ -84,7 +85,7 @@
                         </div>
                     </div>
                     <div class="button-group">
-                        <input type="submit" value="Create Emplyoee" class="btn btn-primary">
+                        <input type="submit" value="Create Employee" class="btn btn-primary">
                         <a href="<?php echo URLROOT; ?>/hRAdministrator/employees"><button type="button" class="btn btn-secondary">Cancel</button></a>
                     </div>
                 </form>
@@ -97,3 +98,8 @@
 
 
     <?php require APPROOT . '/views/operationsCoordinator/footer.php'; ?>
+
+    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script>
+</body>
+
+</html>

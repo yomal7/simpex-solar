@@ -50,7 +50,7 @@
             <div class="content-wrapper">
             <div class="page-header">
                 <h1>Published Posts</h1>
-                <a style="background-color: #4CAF50; margin-bottom: 1rem;" href="<?php echo URLROOT; ?>/admin/createBlog" class="btn add-btn"  >
+                <a style="background-color: #4CAF50; margin-bottom: 1rem; text-decoration: none;" href="<?php echo URLROOT; ?>/admin/createBlog" class="btn add-btn"  >
                     <i class="fas fa-plus"></i> New Post
                 </a>
             </div>
@@ -92,19 +92,19 @@
                                            target="_blank" 
                                            class="btn view-btn" 
                                            title="View Post">
-                                           <span style="font-size: 1rem" class="material-icons-sharp">remove_red_eye</span>
+                                           <!-- <span style="font-size: 1rem" class="material-icons-sharp">remove_red_eye</span> -->
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         <a href="<?php echo URLROOT; ?>/admin/editBlog/<?php echo $post->post_id; ?>" 
                                            class="btn edit-btn" 
                                            title="Edit Post">
-                                           <span style="font-size: 1rem" class="material-icons-sharp">edit</span>
+                                           <!-- <span style="font-size: 1rem" class="material-icons-sharp">edit</span> -->
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button onclick="confirmDelete(<?php echo $post->post_id; ?>, '<?php echo $post->title; ?>')" 
                                                 class="btn delete-btn" 
                                                 title="Delete Post">
-                                            <span style="font-size: 1rem" class="material-icons-sharp">delete</span>
+                                            <!-- <span style="font-size: 1rem" class="material-icons-sharp">delete</span> -->
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </td>

@@ -12,6 +12,24 @@ class M_Inventory
     // Get all inventory items
     public function getAllItems()
     {
+    //     $this->db->query('
+    //     SELECT 
+    //         Inventory.id AS item_id,
+    //         Inventory.name AS product_name, 
+    //         Suppliers.name AS supplier_name, 
+    //         Inventory.price, 
+    //         Inventory.quantity
+    //     FROM 
+    //         Inventory
+    //     INNER JOIN 
+    //         Suppliers 
+    //     ON 
+    //         Inventory.supplier_id = Suppliers.id
+    //     WHERE 
+    //         Inventory.deleted_at IS NULL
+    // ');
+    //     return $this->db->resultSet();
+
         $this->db->query('
         SELECT 
             inventory.id AS item_id,
@@ -28,7 +46,7 @@ class M_Inventory
         WHERE 
             inventory.deleted_at IS NULL
     ');
-        return $this->db->resultSet();
+    return $this->db->resultSet();
     }
 
     // Optional: Method to get all items, including soft-deleted ones
@@ -99,32 +117,6 @@ class M_Inventory
         return $this->db->lastInsertId();
     }
 
-    // Update existing inventory item
-    // public function updateItem($itemId, $data)
-    // {
-    //     $this->db->query('UPDATE Inventory 
-    //         SET name = :name, 
-    //             supplier_id = :supplier, 
-    //             description = :description, 
-    //             price = :price, 
-    //             quantity = :quantity, 
-    //             status = :status,
-    //             blog_link = :blog_link, 
-    //             image_path = :image_path 
-    //         WHERE item_id = :item_id');
-
-    //     $this->db->bind(':item_id', $itemId);
-    //     $this->db->bind(':name', $data['name']);
-    //     $this->db->bind(':supplier_id', $data['supplier_id']);
-    //     $this->db->bind(':description', $data['description']);
-    //     $this->db->bind(':price', $data['price']);
-    //     $this->db->bind(':quantity', $data['quantity']);
-    //     $this->db->bind(':status', $data['status']);
-    //     $this->db->bind(':blog_link', $data['blog_link']);
-    //     $this->db->bind(':image_path', $data['image_path'] ?? null);
-    //     return $this->db->execute();
-    // }
-
     public function updateItem($itemId, $data)
     {
         $this->db->query('UPDATE inventory 
@@ -145,14 +137,6 @@ class M_Inventory
         return $this->db->execute();
     }
 
-
-    // Delete inventory item
-    // public function deleteItem($itemId)
-    // {
-    //     $this->db->query('DELETE FROM Inventory WHERE item_id = :item_id');
-    //     $this->db->bind(':item_id', $itemId);
-    //     return $this->db->execute();
-    // }
 
     public function softDeleteItem($itemId)
     {

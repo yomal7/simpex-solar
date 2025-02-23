@@ -4,6 +4,10 @@ class technician extends Controller {
     private $technicianModel;
 
     public function __construct() {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'technician') {
+            flash('error_msg', 'Unauthorized access');
+            redirect('users/login');
+        }
         $this->technicianModel = $this->model('M_Technician');
     }
 
