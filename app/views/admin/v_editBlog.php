@@ -16,29 +16,10 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="#" class="active">
-                <span class="material-icons-sharp">dashboard</span>
-                <h3>Dashboard</h3>
+            <a href="<?php echo URLROOT; ?>/admin/published" class="back-button active">
+                <span class="material-icons-sharp">arrow_back</span>
+                <h3>Back</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">person</span>
-                <h3>Customers</h3>
-            </a>
-            <a href="#">
-                <span class="material-icons-sharp">receipt_long</span>
-                <h3>Projects</h3>
-            </a>
-            <a href="#">
-                <span class="material-icons-sharp">inventory</span>
-                <h3>Inventory</h3>
-            </a>
-            <a href="#">
-                <span class="material-icons-sharp">group</span>
-                <h3>Employees</h3>
-            </a>
-            <a href="#">
-                <span class="material-icons-sharp">settings</span>
-                <h3>Settings</h3>
             </a>
             <a href="<?php echo URLROOT; ?>/users/logout">
                 <span class="material-icons-sharp">logout</span>
