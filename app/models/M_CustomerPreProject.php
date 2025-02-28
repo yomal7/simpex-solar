@@ -8,25 +8,6 @@ class M_CustomerPreProject {
 
     public function submitQuotation($data) {
         // Create pre-project
-        $this->db->query('INSERT INTO pre_projects (
-            customer_id,
-            current_phase,
-            status
-        ) VALUES (
-            :customer_id,
-            "quotation",
-            "active"
-        )');
-    
-        $this->db->bind(':customer_id', $data['user_id']);
-        
-        if (!$this->db->execute()) {
-            return false;
-        }
-        
-        $preProjectId = $this->db->lastInsertId();
-    
-        // Create quotation
         $this->db->query('INSERT INTO customerquotation (
             pre_project_id,
             user_id, 
@@ -48,7 +29,7 @@ class M_CustomerPreProject {
             :package_type,
             "pending"
         )');
-    
+        
         $this->db->bind(':pre_project_id', $preProjectId);
         $this->db->bind(':user_id', $data['user_id']);
         $this->db->bind(':package_id', $data['package_id']);
@@ -57,7 +38,19 @@ class M_CustomerPreProject {
         $this->db->bind(':nearest_city', $data['nearest_city']);
         $this->db->bind(':customizations', $data['customizations']);
         $this->db->bind(':package_type', $data['package_type']);
-    
+        
+        if (!$this->db->execute()) {
+            return false;
+        }
+        
+        // Update user phone
+        $this->db->query('UPDATE users SET
+            phone = :phone
+            WHERE user_id = :user_id');
+        
+        $this->db->bind(':phone', $data['phone']);
+        $this->db->bind(':user_id', $data['user_id']);
+        
         return $this->db->execute();
     }
 
