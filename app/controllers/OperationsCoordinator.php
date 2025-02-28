@@ -7,6 +7,7 @@ class OperationsCoordinator extends Controller
     private $inventoryModel;
     private $employeeModel;
     private $preProjectModel;
+    private $projectModel;
     private $operationsCoordinatorModel;
 
     public function __construct()
@@ -20,6 +21,7 @@ class OperationsCoordinator extends Controller
         $this->inventoryModel = $this->model('M_Inventory');
         $this->employeeModel = $this->model('M_Employee');
         $this->preProjectModel = $this->model('M_CustomerPreProject');
+        $this->projectModel = $this->model('M_CustomerProject');
         $this->operationsCoordinatorModel = $this->model('M_OperationsCoordinator');
     }
 
@@ -35,11 +37,6 @@ class OperationsCoordinator extends Controller
         $this->view('operationsCoordinator/v_dashboard', $data);
     }
 
-    public function projects()
-    {
-        $data = [];
-        $this->view('operationsCoordinator/v_projects', $data);
-    }
 
     public function projectDashboard()
     {
@@ -51,19 +48,21 @@ class OperationsCoordinator extends Controller
     //-------------------------------------Add signature----------------------------------------------
     //################################################################################################
 
-    public function signature() {
+    public function signature()
+    {
         $signature = $this->operationsCoordinatorModel->getSignatureByCoordinatorId($_SESSION['user_id']);
-        
+
         $data = [
             'title' => 'Signature Upload',
             'signature' => $signature,
             'signature_err' => ''
         ];
-        
+
         $this->view('operationsCoordinator/v_signature', $data);
     }
 
-    public function uploadSignature() {
+    public function uploadSignature()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('operationsCoordinator/signature');
         }
@@ -76,7 +75,7 @@ class OperationsCoordinator extends Controller
         }
 
         $file = $_FILES['signature'];
-        
+
         // Validate file
         if (!$this->validateSignatureFile($file)) {
             redirect('operationsCoordinator/signature');
@@ -108,7 +107,8 @@ class OperationsCoordinator extends Controller
         redirect('operationsCoordinator/signature');
     }
 
-    private function validateSignatureFile($file) {
+    private function validateSignatureFile($file)
+    {
         $allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
         $maxSize = 5 * 1024 * 1024; // 5MB
 
@@ -125,16 +125,17 @@ class OperationsCoordinator extends Controller
         return true;
     }
 
-    public function deleteSignature() {
+    public function deleteSignature()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('operationsCoordinator/signature');
         }
 
         $signature = $this->operationsCoordinatorModel->getSignatureByCoordinatorId($_SESSION['user_id']);
-        
+
         if ($signature) {
             $filePath = dirname(APPROOT) . '/public/uploads/signatures/' . $signature->signature_image;
-            
+
             if (file_exists($filePath) && unlink($filePath)) {
                 if ($this->operationsCoordinatorModel->deleteSignature($_SESSION['user_id'])) {
                     flash('signature_msg', 'Signature deleted successfully', 'success');
@@ -154,54 +155,57 @@ class OperationsCoordinator extends Controller
     //PreProjects
 
 
-    public function preProjects() {
+    public function preProjects()
+    {
         $currentPhase = isset($_GET['phase']) ? $_GET['phase'] : 'all';
-        
+
         // Get project statistics
         $stats = $this->preProjectModel->getPreProjectStats();
-        
+
         // Get pre-projects
         $preProjects = $this->preProjectModel->getAllPreProjects($currentPhase);
-        
+
         $data = [
             'stats' => $stats,
             'preProjects' => $preProjects,
             'current_phase' => $currentPhase
         ];
-        
+
         $this->view('operationsCoordinator/v_preProjects', $data);
     }
 
-    
-    public function managePreProject($preProjectId = null) {
+
+    public function managePreProject($preProjectId = null)
+    {
         if ($preProjectId === null) {
             redirect('operationsCoordinator/preProjects');
         }
-    
+
         // Get project details
         $project = $this->preProjectModel->getPreProjectById($preProjectId);
-        
+
         if (!$project) {
             flash('project_message', 'Project not found', 'alert alert-danger');
             redirect('operationsCoordinator/preProjects');
         }
-    
+
         $data = [
             'project' => $project,
             'title' => 'Manage Project'
         ];
-    
+
         $this->view('operationsCoordinator/v_manageApreProject', $data);
     }
 
-    public function manageAgreement($preProjectId = null) {
+    public function manageAgreement($preProjectId = null)
+    {
         if ($preProjectId === null) {
             redirect('operationsCoordinator/preProjects');
         }
-    
+
         // Check if there's a revision requested agreement
         $revisionAgreement = $this->preProjectModel->getRevisionRequestedAgreement($preProjectId);
-        
+
         if ($revisionAgreement) {
             // If there's a revision requested agreement, redirect to revision page
             redirect("operationsCoordinator/agreementRevision/{$revisionAgreement->agreement_id}");
@@ -209,33 +213,31 @@ class OperationsCoordinator extends Controller
             // If no revision requested agreement, redirect to create agreement
             redirect("operationsCoordinator/createAgreement/$preProjectId");
         }
-
-
-        
     }
-//-------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
     //Review Quotation
-    
-    public function manageQuotation($preProjectId = null) {
+
+    public function manageQuotation($preProjectId = null)
+    {
         if ($preProjectId === null) {
             redirect('operationsCoordinator/preProjects');
         }
-    
+
         $project = $this->preProjectModel->getPreProjectById($preProjectId);
         if (!$project) {
             flash('project_message', 'Project not found', 'alert alert-danger');
             redirect('operationsCoordinator/preProjects');
         }
-    
+
         // Get quotation with package details
         $quotation = $this->preProjectModel->getQuotationWithPackageDetails($preProjectId);
-        
+
         // Get package equipment
         $packageEquipment = [];
         if ($quotation && $quotation->package_id) {
             $packageEquipment = $this->preProjectModel->getPackageEquipmentDetails($quotation->package_id);
         }
-        
+
         error_log(print_r($quotation, true));
         $data = [
             'project' => $project,
@@ -243,16 +245,17 @@ class OperationsCoordinator extends Controller
             'packageEquipment' => $packageEquipment,
             'title' => 'Manage Quotation'
         ];
-    
+
         $this->view('operationsCoordinator/v_manageQuotation', $data);
     }
-    
-    public function getPackageEquipment($packageId) {
+
+    public function getPackageEquipment($packageId)
+    {
         if (!$packageId) {
             echo json_encode([]);
             return;
         }
-        
+
         $this->preProjectModel->query('SELECT 
             pe.equipment_id,
             pe.package_id,
@@ -264,28 +267,29 @@ class OperationsCoordinator extends Controller
             JOIN inventory i ON pe.item_id = i.id
             WHERE pe.package_id = :package_id
             AND i.deleted_at IS NULL');
-            
+
         $this->preProjectModel->bind(':package_id', $packageId);
         $equipment = $this->preProjectModel->resultSet();
-        
+
         header('Content-Type: application/json');
         echo json_encode($equipment);
     }
 
 
-    public function saveReviewedQuotation() {
+    public function saveReviewedQuotation()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('operationsCoordinator/preProjects');
         }
 
         $postData = json_decode(file_get_contents("php://input"), true);
-        
+
         if ($this->preProjectModel->createReviewedQuotation($postData)) {
             $response = ['success' => true, 'message' => 'Quotation saved successfully'];
-            
+
             // Update quotation status
             $this->preProjectModel->updateQuotationStatus(
-                $postData['quotation_id'], 
+                $postData['quotation_id'],
                 $postData['status']
             );
         } else {
@@ -296,13 +300,14 @@ class OperationsCoordinator extends Controller
         echo json_encode($response);
     }
 
-    public function updateQuotationStatus() {
+    public function updateQuotationStatus()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('operationsCoordinator/preProjects');
         }
 
         $postData = json_decode(file_get_contents("php://input"), true);
-        
+
         if ($this->preProjectModel->updateQuotationStatus($postData['quotation_id'], $postData['status'])) {
             $response = ['success' => true];
         } else {
@@ -313,14 +318,15 @@ class OperationsCoordinator extends Controller
         echo json_encode($response);
     }
 
-    public function getQuotationDetails($preProjectId) {
+    public function getQuotationDetails($preProjectId)
+    {
         if (!$preProjectId) {
             echo json_encode(['success' => false, 'message' => 'Project ID is required']);
             return;
         }
-    
+
         $quotation = $this->preProjectModel->getQuotationWithPackageDetails($preProjectId);
-        
+
         if ($quotation) {
             echo json_encode([
                 'success' => true,
@@ -340,122 +346,128 @@ class OperationsCoordinator extends Controller
     //-----------------------------------------Site Visit----------------------------------------------
     //##################################################################################################
 
-    public function manageSiteVisit($preProjectId = null) {
+    public function manageSiteVisit($preProjectId = null)
+    {
         if ($preProjectId === null) {
             redirect('operationsCoordinator/preProjects');
         }
-    
+
         $project = $this->preProjectModel->getPreProjectById($preProjectId);
         if (!$project) {
             flash('project_message', 'Project not found', 'alert alert-danger');
             redirect('operationsCoordinator/preProjects');
         }
-    
+
         $siteVisit = $this->preProjectModel->getSiteVisitByPreProjectId($preProjectId);
-    
+
         $data = [
             'project' => $project,
             'site_visit' => $siteVisit,
             'title' => 'Manage Site Visit'
         ];
-    
+
         $this->view('operationsCoordinator/v_manageSiteVisit', $data);
     }
-    
-    public function scheduleSiteVisit() {
+
+    public function scheduleSiteVisit()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('operationsCoordinator/preProjects');
             return;
         }
-    
+
         $preProjectId = $_POST['pre_project_id'];
         $visitDate = $_POST['visit_date'];
         $visitTime = $_POST['visit_time'];
-    
+
         // Validate time (8 AM to 4 PM)
         $timeValue = strtotime($visitTime);
         $startTime = strtotime('08:00:00');
         $endTime = strtotime('16:00:00');
-    
+
         if ($timeValue < $startTime || $timeValue > $endTime) {
             flash('site_visit_message', 'Site visit time must be between 8 AM and 4 PM', 'error');
             redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
             return;
         }
-    
+
         if ($this->preProjectModel->scheduleSiteVisit($preProjectId, $visitDate, $visitTime)) {
             flash('site_visit_message', 'Site visit scheduled successfully', 'success');
         } else {
             flash('site_visit_message', 'Failed to schedule site visit', 'error');
         }
-    
+
         redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
     }
-    
-    public function completeSiteVisit() {
+
+    public function completeSiteVisit()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('operationsCoordinator/preProjects');
             return;
         }
-    
+
         $preProjectId = $_POST['pre_project_id'];
         $notes = $_POST['site_notes'];
-    
+
         if ($this->preProjectModel->completeSiteVisit($preProjectId, $notes)) {
             flash('site_visit_message', 'Site visit completed successfully', 'success');
         } else {
             flash('site_visit_message', 'Failed to complete site visit', 'error');
         }
-    
+
         redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
     }
 
-    public function handleReschedule() {
+    public function handleReschedule()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('operationsCoordinator/preProjects');
             return;
         }
-    
+
         $visitId = $_POST['visit_id'];
         $preProjectId = $_POST['pre_project_id'];
         $newDate = $_POST['new_date'];
         $newTime = $_POST['new_time'];
-    
+
         // Validate time (8 AM to 4 PM)
         $timeValue = strtotime($newTime);
         $startTime = strtotime('08:00:00');
         $endTime = strtotime('16:00:00');
-    
+
         if ($timeValue < $startTime || $timeValue > $endTime) {
             flash('site_visit_message', 'Site visit time must be between 8 AM and 4 PM', 'error');
             redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
             return;
         }
-    
+
         if ($this->preProjectModel->handleReschedule($visitId, $newDate, $newTime)) {
             flash('site_visit_message', 'Site visit rescheduled successfully', 'success');
         } else {
             flash('site_visit_message', 'Failed to reschedule site visit', 'error');
         }
-    
+
         redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
     }
 
-    public function getSiteVisitCalendar() {
+    public function getSiteVisitCalendar()
+    {
         header('Content-Type: application/json');
         $visits = $this->preProjectModel->getAllSiteVisits();
         echo json_encode($visits);
     }
 
-     //####################################################################################################
+    //####################################################################################################
     //-----------------------------------------Agreement phase--------------------------------------------
     //####################################################################################################
 
-    public function createAgreement($preProjectId = null) {
+    public function createAgreement($preProjectId = null)
+    {
         if ($preProjectId === null) {
             redirect('operationsCoordinator/preProjects');
         }
-    
+
         // Get project details
         $project = $this->preProjectModel->getPreProjectById($preProjectId);
         $siteVisit = $this->preProjectModel->getSiteVisitByPreProjectId($preProjectId);
@@ -463,27 +475,27 @@ class OperationsCoordinator extends Controller
             flash('project_message', 'Project not found', 'alert alert-danger');
             redirect('operationsCoordinator/preProjects');
         }
-    
+
         // Get reviewed quotation
         $quotation = $this->preProjectModel->getReviwedQuotationByPreProjectId($preProjectId);
-        
+
         // Initialize equipment array
         $equipment = [];
-    
+
         if ($quotation && !empty($quotation->review_id)) {
             // Get equipment from reviewed quotation
             $equipment = $this->preProjectModel->getReviewedEquipment($quotation->review_id);
         }
-        
+
         // Get existing agreement if any
         $agreement = $this->preProjectModel->getAgreementByPreProjectId($preProjectId);
         if ($agreement) {
             $equipment = $this->preProjectModel->getAgreementEquipment($agreement->agreement_id);
         }
-    
+
         // Get coordinator signature
         $coordinatorSignature = $this->preProjectModel->getCoordinatorSignature($_SESSION['user_id']);
-    
+
         $data = [
             'project' => $project,
             'quotation' => $quotation,
@@ -493,27 +505,30 @@ class OperationsCoordinator extends Controller
             'title' => 'Create Agreement',
             'siteVisit' => $siteVisit
         ];
-    
+
         $this->view('operationsCoordinator/v_manageAgreement', $data);
     }
 
-    public function getInventory() {
+    public function getInventory()
+    {
         header('Content-Type: application/json');
         $inventory = $this->preProjectModel->getAvailableInventory();
         echo json_encode($inventory);
     }
 
-    public function getAgreementEquipment($agreementId) {
+    public function getAgreementEquipment($agreementId)
+    {
         header('Content-Type: application/json');
         $equipment = $this->preProjectModel->getAgreementEquipment($agreementId);
         echo json_encode($equipment);
     }
 
-    public function saveAgreement() {
+    public function saveAgreement()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('operationsCoordinator/preProjects');
         }
-    
+
         // Get reviewed quotation
         $reviewedQuotation = $this->preProjectModel->getReviewedQuotationByPreProjectId($_POST['pre_project_id']);
         if (!$reviewedQuotation) {
@@ -523,7 +538,7 @@ class OperationsCoordinator extends Controller
             ]);
             return;
         }
-    
+
         // Handle signature
         $signatureId = null;
         if (isset($_FILES['coordinator_signature']) && $_FILES['coordinator_signature']['error'] === 0) {
@@ -543,7 +558,7 @@ class OperationsCoordinator extends Controller
                 $signatureId = $signature->signature_id;
             }
         }
-    
+
         // Prepare data with proper review_id and signature
         $data = [
             'pre_project_id' => $_POST['pre_project_id'],
@@ -558,14 +573,14 @@ class OperationsCoordinator extends Controller
             'coordinator_signature_id' => $signatureId,
             'equipment' => json_decode($_POST['equipment'], true)
         ];
-    
+
         $success = $this->preProjectModel->createAgreement($data);
-    
+
         header('Content-Type: application/json');
         if ($success) {
             // Update project phase
             $this->preProjectModel->updatePreProjectPhase($data['pre_project_id'], 'agreement');
-            
+
             echo json_encode([
                 'success' => true,
                 'message' => 'Agreement saved successfully'
@@ -578,7 +593,8 @@ class OperationsCoordinator extends Controller
         }
     }
 
-    private function handleSignatureUpload($file) {
+    private function handleSignatureUpload($file)
+    {
         $uploadDir = 'public/uploads/signatures/';
         if (!file_exists($uploadDir)) {
             mkdir($uploadDir, 0777, true);
@@ -593,7 +609,8 @@ class OperationsCoordinator extends Controller
         return false;
     }
 
-    public function viewAgreement($preProjectId = null) {
+    public function viewAgreement($preProjectId = null)
+    {
         if ($preProjectId === null) {
             redirect('operationsCoordinator/preProjects');
         }
@@ -601,8 +618,8 @@ class OperationsCoordinator extends Controller
         $agreement = $this->preProjectModel->getAgreementByPreProjectId($preProjectId);
         if (!$agreement) {
             flash('project_message', 'Agreement not found', 'alert alert-danger');
-   
-         redirect('operationsCoordinator/preProjects');
+
+            redirect('operationsCoordinator/preProjects');
         }
 
         $project = $this->preProjectModel->getPreProjectById($preProjectId);
@@ -618,47 +635,48 @@ class OperationsCoordinator extends Controller
         $this->view('operationsCoordinator/v_viewAgreement', $data);
     }
 
-    public function agreementRevision($agreementId = null) {
-        
+    public function agreementRevision($agreementId = null)
+    {
+
         // Check if agreement ID is provided
         if ($agreementId === null) {
             error_log("Agreement revision failed: No agreement ID provided");
             flash('agreement_message', 'Invalid agreement ID', 'alert alert-danger');
             redirect('operationsCoordinator/preProjects');
         }
-        
+
         // Get agreement details
         $agreement = $this->preProjectModel->getAgreementById($agreementId);
-        
+
         // Check if agreement exists
         if (!$agreement) {
             flash('agreement_message', 'Agreement not found', 'alert alert-danger');
             redirect('operationsCoordinator/preProjects');
         }
-        
+
         // Check if agreement status is revision_requested
         if ($agreement->status !== 'revision_requested') {
             error_log("Agreement revision failed: Invalid status. Expected 'revision_requested', got: " . $agreement->status);
             flash('agreement_message', 'Access denied. Agreement is not pending revision.', 'alert alert-danger');
             redirect('operationsCoordinator/preProjects');
         }
-        
+
         // Get project details
         $project = $this->preProjectModel->getPreProjectById($agreement->pre_project_id);
-        
+
         if (!$project) {
             error_log("Agreement revision failed: Project not found for pre_project_id: " . $agreement->pre_project_id);
             flash('project_message', 'Project not found', 'alert alert-danger');
             redirect('operationsCoordinator/preProjects');
         }
-        
+
         // Get equipment from existing agreement
         $equipment = $this->preProjectModel->getAgreementEquipment($agreementId);
-        
+
         // Get coordinator signature
         $coordinatorSignature = $this->preProjectModel->getCoordinatorSignature($_SESSION['user_id']);
 
-        
+
         $data = [
             'project' => $project,
             'agreement' => $agreement,
@@ -670,21 +688,22 @@ class OperationsCoordinator extends Controller
     }
 
 
-    public function updateAgreement($agreementId) {
+    public function updateAgreement($agreementId)
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('operationsCoordinator/preProjects');
         }
-    
+
         // First cancel the old agreement
         if (!$this->preProjectModel->cancelAgreement($agreementId)) {
             flash('agreement_message', 'Error updating old agreement', 'error');
             redirect("operationsCoordinator/agreementRevision/$agreementId");
             return;
         }
-    
+
         // Get original agreement for reference
         $originalAgreement = $this->preProjectModel->getAgreementById($agreementId);
-        
+
         // Prepare data for new agreement
         $data = [
             'pre_project_id' => $originalAgreement->pre_project_id,
@@ -699,7 +718,7 @@ class OperationsCoordinator extends Controller
             'equipment' => json_decode($_POST['equipment'], true),
             'coordinator_signature_id' => null
         ];
-    
+
         // Handle signature
         if (isset($_POST['use_existing_signature'])) {
             $signature = $this->preProjectModel->getCoordinatorSignature($_SESSION['user_id']);
@@ -707,10 +726,10 @@ class OperationsCoordinator extends Controller
                 $data['coordinator_signature_id'] = $signature->signature_id;
             }
         }
-    
+
         // Create new agreement
         $newAgreementId = $this->preProjectModel->createRevisedAgreement($data);
-        
+
         if ($newAgreementId) {
             flash('agreement_message', 'Revised agreement created successfully', 'success');
             redirect('operationsCoordinator/preProjects');
@@ -720,6 +739,38 @@ class OperationsCoordinator extends Controller
             flash('agreement_message', 'Error creating revised agreement', 'error');
             redirect("operationsCoordinator/agreementRevision/$agreementId");
         }
+    }
+
+    //####################################################################################################
+    //-----------------------------------------PROJECT----------------------------------------------------
+    //####################################################################################################
+
+    public function projects()
+    {
+        // Get project statistics using the exact phase names from the database enum
+        $stats = [
+            'document_submission' => $this->projectModel->getProjectCountByPhase('document_submission'),
+            'first_payment' => $this->projectModel->getProjectCountByPhase('first_payment'),
+            'installation' => $this->projectModel->getProjectCountByPhase('installation'),
+            'final_payment' => $this->projectModel->getProjectCountByPhase('final_payment'),
+            'engineer_approval' => $this->projectModel->getProjectCountByPhase('engineer_approval')
+        ];
+
+        // For debugging - print the returned counts
+        error_log('Project stats: ' . print_r($stats, true));
+
+        // Get all projects with customer details
+        $projects = $this->projectModel->getAllProjectsWithCustomerDetails();
+
+        // For debugging - check if projects are being returned
+        error_log('Total projects returned: ' . count($projects));
+
+        $data = [
+            'stats' => $stats,
+            'projects' => $projects
+        ];
+
+        $this->view('operationsCoordinator/v_projects', $data);
     }
 
 
@@ -740,9 +791,8 @@ class OperationsCoordinator extends Controller
 
 
 
-    
 
-//--------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------
 
 
 
@@ -875,11 +925,11 @@ class OperationsCoordinator extends Controller
     // Edit Task
     public function editTask($taskId)
     {
-        if($_SERVER['REQUEST_METHOD'] == 'POST'){
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
             $data = [
                 'id' => $taskId,
-                'title' => trim($_POST['title']),   
+                'title' => trim($_POST['title']),
                 'start_date' => trim($_POST['start_date']),
                 'end_date' => trim($_POST['end_date']),
                 'description' => trim($_POST['description']),
@@ -926,19 +976,19 @@ class OperationsCoordinator extends Controller
             }
 
             // Make sure no errors
-            if(empty($data['title_err']) && empty($data['start_date_err']) && empty($data['end_date_err']) && empty($data['description_err']) && empty($data['project_id_err']) && empty($data['employee_id_err']) && empty($data['status_err'])){
+            if (empty($data['title_err']) && empty($data['start_date_err']) && empty($data['end_date_err']) && empty($data['description_err']) && empty($data['project_id_err']) && empty($data['employee_id_err']) && empty($data['status_err'])) {
                 // Validated
-                if($this->tasksModel->edit($data)){
-                    flash('task_msg', 'Task updated successfully'); 
+                if ($this->tasksModel->edit($data)) {
+                    flash('task_msg', 'Task updated successfully');
                     redirect('operationsCoordinator/tasks');
-                }else{
+                } else {
                     die('Something went wrong');
                 }
             } else {
                 // Load view with errors
                 $this->view('operationsCoordinator/v_editTask', $data);
             }
-        }else{
+        } else {
             $task = $this->tasksModel->getTaskById($taskId);
 
             $data = [
@@ -961,20 +1011,18 @@ class OperationsCoordinator extends Controller
             ];
 
             $this->view('operationsCoordinator/v_editTask', $data);
-
         }
-        
     }
- 
+
     // Delete TaskA
     public function deleteTask($taskId)
     {
         $task = $this->tasksModel->getTaskById($taskId);
-        
-        if($this->tasksModel->delete($taskId)){
+
+        if ($this->tasksModel->delete($taskId)) {
             flash('task_msg', 'Task removed successfully');
             redirect('operationsCoordinator/tasks');
-        }else{
+        } else {
             die('Something went wrong');
         }
     }
@@ -1140,7 +1188,7 @@ class OperationsCoordinator extends Controller
                         }
                     }
                 }
-                
+
                 // Convert all elements of equipment array to objects
                 foreach ($equipment as &$eq) {
                     $eq = (object) $eq;
@@ -1243,6 +1291,4 @@ class OperationsCoordinator extends Controller
         }
         redirect('operationsCoordinator/managePackages');
     }
-
-   
 }

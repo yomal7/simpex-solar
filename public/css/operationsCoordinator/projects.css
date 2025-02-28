@@ -1,247 +1,382 @@
 :root {
-    /* Phase-specific colors with their lighter variants */
-    --agreement-color: #81C784;
-    --agreement-light: #E8F5E9;
-    --agreement-border: #66BB6A;
+  /* Phase-specific colors */
+  --document-submission-color: #4e73df;
+  --document-submission-light: #eaefff;
+  --first-payment-color: #1cc88a;
+  --first-payment-light: #e6f8f5;
+  --installation-color: #f6c23e;
+  --installation-light: #fff9e6;
+  --final-payment-color: #e74a3b;
+  --final-payment-light: #fdeded;
+  --engineer-approval-color: #6f42c1;
+  --engineer-approval-light: #f3effa;
 
-    --site-visit-color: #4DB6AC;
-    --site-visit-light: #E0F2F1;
-    --site-visit-border: #26A69A;
-
-    --first-payment-color: #4FC3F7;
-    --first-payment-light: #E1F5FE;
-    --first-payment-border: #29B6F6;
-
-    --installation-color: #7986CB;
-    --installation-light: #E8EAF6;
-    --installation-border: #5C6BC0;
-
-    --final-payment-color: #9575CD;
-    --final-payment-light: #EDE7F6;
-    --final-payment-border: #7E57C2;
-
-    --engineer-approval-color: #FF8A65;
-    --engineer-approval-light: #FBE9E7;
-    --engineer-approval-border: #FF7043;
-
-    --text-dark: #2C3E50;
-    --text-light: #34495E;
-    --bg-color: #f5f5f5;
+  --document-submission-border: #66bb6a;
+  --site-visit-color: #4db6ac;
+  --site-visit-light: #e0f2f1;
+  --site-visit-border: #26a69a;
+  --text-dark: #2c3e50;
+  --text-light: #34495e;
+  --bg-color: #f5f5f5;
 }
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    background-color: var(--bg-color);
-    color: var(--text-dark);
-    line-height: 1.6;
-    padding: 20px;
+  background-color: var(--bg-color);
+  color: var(--text-dark);
+  line-height: 1.6;
+  padding: 20px;
 }
 
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
 }
 
 .phase-filter {
-    background: white;
-    padding: 1rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-    display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-    scrollbar-width: none;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .phase-filter::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 
 .filter-btn {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 6px;
-    background: transparent;
-    color: var(--text-dark);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-    font-weight: 500;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  font-weight: 500;
 }
 
 .filter-btn:hover {
-    transform: translateY(-2px);
+  transform: translateY(-2px);
 }
 
 .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 2rem;
-    padding: 1rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  padding: 1rem 0;
 }
 
 .project-card {
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    position: relative;
-    animation: fadeIn 0.5s ease-out;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  animation: fadeIn 0.5s ease-out;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .project-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
 }
 
 .project-content {
-    padding: 1.5rem;
+  padding: 1.5rem;
 }
 
 .project-id {
-    font-size: 0.875rem;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
 .customer-name {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 }
 
 .project-location {
-    font-size: 0.875rem;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .project-phase {
-    font-size: 0.875rem;
-    font-weight: 500;
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
-    display: inline-block;
-    color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  display: inline-block;
+  color: white;
 }
 
 /* Phase-specific styles */
-.project-card[data-phase="agreement"] {
-    background-color: var(--agreement-light);
-    border: 2px solid var(--agreement-border);
+.project-card[data-phase="document_submission"] {
+  background-color: var(--document-submission-light);
+  border: 2px solid var(--document-submission-color);
 }
-.project-card[data-phase="agreement"] .project-phase {
-    background-color: var(--agreement-color);
-}
-
-.project-card[data-phase="site-visit"] {
-    background-color: var(--site-visit-light);
-    border: 2px solid var(--site-visit-border);
-}
-.project-card[data-phase="site-visit"] .project-phase {
-    background-color: var(--site-visit-color);
+.project-card[data-phase="document_submission"] .project-phase {
+  background-color: var(--document-submission-color);
 }
 
-.project-card[data-phase="first-payment"] {
-    background-color: var(--first-payment-light);
-    border: 2px solid var(--first-payment-border);
+.project-card[data-phase="first_payment"] {
+  background-color: var(--first-payment-light);
+  border: 2px solid var(--first-payment-color);
 }
-.project-card[data-phase="first-payment"] .project-phase {
-    background-color: var(--first-payment-color);
+.project-card[data-phase="first_payment"] .project-phase {
+  background-color: var(--first-payment-color);
 }
 
 .project-card[data-phase="installation"] {
-    background-color: var(--installation-light);
-    border: 2px solid var(--installation-border);
+  background-color: var(--installation-light);
+  border: 2px solid var(--installation-color);
 }
 .project-card[data-phase="installation"] .project-phase {
-    background-color: var(--installation-color);
+  background-color: var(--installation-color);
 }
 
-.project-card[data-phase="final-payment"] {
-    background-color: var(--final-payment-light);
-    border: 2px solid var(--final-payment-border);
+.project-card[data-phase="final_payment"] {
+  background-color: var(--final-payment-light);
+  border: 2px solid var(--final-payment-color);
 }
-.project-card[data-phase="final-payment"] .project-phase {
-    background-color: var(--final-payment-color);
+.project-card[data-phase="final_payment"] .project-phase {
+  background-color: var(--final-payment-color);
 }
 
-.project-card[data-phase="engineer-approval"] {
-    background-color: var(--engineer-approval-light);
-    border: 2px solid var(--engineer-approval-border);
+.project-card[data-phase="engineer_approval"] {
+  background-color: var(--engineer-approval-light);
+  border: 2px solid var(--engineer-approval-color);
 }
-.project-card[data-phase="engineer-approval"] .project-phase {
-    background-color: var(--engineer-approval-color);
+.project-card[data-phase="engineer_approval"] .project-phase {
+  background-color: var(--engineer-approval-color);
 }
 
 /* Filter button active states */
-.filter-btn[data-phase="agreement"].active {
-    background-color: var(--agreement-color);
-    color: white;
+.filter-btn[data-phase="document_submission"].active {
+  background-color: var(--document-submission-color);
+  color: white;
 }
-.filter-btn[data-phase="site-visit"].active {
-    background-color: var(--site-visit-color);
-    color: white;
-}
-.filter-btn[data-phase="first-payment"].active {
-    background-color: var(--first-payment-color);
-    color: white;
+.filter-btn[data-phase="first_payment"].active {
+  background-color: var(--first-payment-color);
+  color: white;
 }
 .filter-btn[data-phase="installation"].active {
-    background-color: var(--installation-color);
-    color: white;
+  background-color: var(--installation-color);
+  color: white;
 }
-.filter-btn[data-phase="final-payment"].active {
-    background-color: var(--final-payment-color);
-    color: white;
+.filter-btn[data-phase="final_payment"].active {
+  background-color: var(--final-payment-color);
+  color: white;
 }
-.filter-btn[data-phase="engineer-approval"].active {
-    background-color: var(--engineer-approval-color);
-    color: white;
+.filter-btn[data-phase="engineer_approval"].active {
+  background-color: var(--engineer-approval-color);
+  color: white;
+}
+
+/* Add these new styles to your existing projects.css file */
+
+/* Stats Cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.stat-card h3 {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.stat-card .count {
+  font-size: 32px;
+  font-weight: bold;
+  color: #333;
+  margin-top: 10px;
+}
+
+.stat-card[data-phase="all"] {
+  background: linear-gradient(to bottom right, #ffffff, #f5f5f5);
+  border-left: 4px solid #2c3e50;
+  cursor: pointer;
+}
+
+.stat-card[data-phase="document_submission"] {
+  background: linear-gradient(
+    to bottom right,
+    #ffffff,
+    var(--document-submission-light)
+  );
+  border-left: 4px solid var(--document-submission-color);
+  cursor: pointer;
+}
+
+.stat-card[data-phase="first_payment"] {
+  background: linear-gradient(
+    to bottom right,
+    #ffffff,
+    var(--first-payment-light)
+  );
+  border-left: 4px solid var(--first-payment-color);
+  cursor: pointer;
+}
+
+.stat-card[data-phase="installation"] {
+  background: linear-gradient(
+    to bottom right,
+    #ffffff,
+    var(--installation-light)
+  );
+  border-left: 4px solid var(--installation-color);
+  cursor: pointer;
+}
+
+.stat-card[data-phase="final_payment"] {
+  background: linear-gradient(
+    to bottom right,
+    #ffffff,
+    var(--final-payment-light)
+  );
+  border-left: 4px solid var(--final-payment-color);
+  cursor: pointer;
+}
+
+.stat-card[data-phase="engineer_approval"] {
+  background: linear-gradient(
+    to bottom right,
+    #ffffff,
+    var(--engineer-approval-light)
+  );
+  border-left: 4px solid var(--engineer-approval-color);
+  cursor: pointer;
+}
+
+/* Control Bar */
+.control-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 40px 10px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 30px;
+  font-size: 14px;
+}
+
+.search-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+}
+
+.sort-dropdown {
+  padding: 10px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 30px;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Project cards update */
+.project-date {
+  font-size: 14px;
+  color: #777;
+  margin-bottom: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .control-bar {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .search-box {
+    max-width: 100%;
+  }
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 768px) {
-    .container {
-        padding: 0.5rem;
-    }
+  .container {
+    padding: 0.5rem;
+  }
 
-    .projects-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 
-    .phase-filter {
-        padding: 0.75rem;
-        margin-bottom: 1rem;
-    }
+  .phase-filter {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
 
-    .filter-btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.875rem;
-    }
+  .filter-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.875rem;
+  }
 }

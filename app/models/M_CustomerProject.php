@@ -1,21 +1,25 @@
 <?php
-class M_CustomerProject {
+class M_CustomerProject
+{
     private $db;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = new Database;
     }
 
-    public function getProjectsByCustomerId($customerId) {
+    public function getProjectsByCustomerId($customerId)
+    {
         $this->db->query('SELECT * FROM project 
                          WHERE customer_id = :customer_id 
                          ORDER BY created_at DESC');
-        
+
         $this->db->bind(':customer_id', $customerId);
         return $this->db->resultSet();
     }
 
-    public function getProjectById($projectId) {
+    public function getProjectById($projectId)
+    {
         $this->db->query('SELECT 
             p.*,
             rq.system_capacity,
@@ -26,12 +30,13 @@ class M_CustomerProject {
             FROM project p
             LEFT JOIN reviewed_quotations rq ON p.quotation_id = rq.review_id
             WHERE p.project_id = :project_id');
-        
+
         $this->db->bind(':project_id', $projectId);
         return $this->db->single();
     }
 
-    public function getProjectPhaseDetails($projectId) {
+    public function getProjectPhaseDetails($projectId)
+    {
         $this->db->query('SELECT 
             current_phase,
             phase_status,
@@ -44,22 +49,48 @@ class M_CustomerProject {
             grid_connection_date
             FROM project
             WHERE project_id = :project_id');
-        
+
         $this->db->bind(':project_id', $projectId);
         return $this->db->single();
     }
 
-    public function updateProjectPhase($projectId, $phase, $status = 'pending') {
+    public function updateProjectPhase($projectId, $phase, $status = 'pending')
+    {
         $this->db->query('UPDATE project SET 
             current_phase = :phase,
             phase_status = :status,
             updated_at = CURRENT_TIMESTAMP
             WHERE project_id = :project_id');
-        
+
         $this->db->bind(':project_id', $projectId);
         $this->db->bind(':phase', $phase);
         $this->db->bind(':status', $status);
-        
+
         return $this->db->execute();
+    }
+
+    public function getProjectCount()
+    {
+        $this->db->query('SELECT COUNT(*) as count FROM project');
+        $result = $this->db->single();
+        return $result->count;
+    }
+
+    public function getProjectCountByPhase($phase)
+    {
+        $this->db->query('SELECT COUNT(*) as count FROM project WHERE current_phase = :phase');
+        $this->db->bind(':phase', $phase);
+        $result = $this->db->single();
+        return $result->count;
+    }
+
+    public function getAllProjectsWithCustomerDetails()
+    {
+        $this->db->query('SELECT p.*, u.name as customer_name, cq.nearest_city as location 
+                     FROM project p
+                     JOIN users u ON p.customer_id = u.user_id
+                     JOIN customerquotation cq ON p.pre_project_id = cq.pre_project_id
+                     ORDER BY p.created_at DESC');
+        return $this->db->resultSet();
     }
 }
