@@ -71,26 +71,30 @@ class M_CustomerProject
 
     public function getProjectCount()
     {
-        $this->db->query('SELECT COUNT(*) as count FROM project');
+        $this->db->query('SELECT COUNT(*) as count FROM projects WHERE status = "active"');
         $result = $this->db->single();
         return $result->count;
     }
 
     public function getProjectCountByPhase($phase)
     {
-        $this->db->query('SELECT COUNT(*) as count FROM project WHERE current_phase = :phase');
+        // Simplify the query to avoid potential issues
+        $this->db->query('SELECT COUNT(*) as count FROM projects WHERE current_phase = :phase AND status = "active"');
         $this->db->bind(':phase', $phase);
         $result = $this->db->single();
-        return $result->count;
+
+        return ($result && isset($result->count)) ? $result->count : 0;
     }
 
     public function getAllProjectsWithCustomerDetails()
     {
-        $this->db->query('SELECT p.*, u.name as customer_name, cq.nearest_city as location 
-                     FROM project p
-                     JOIN users u ON p.customer_id = u.user_id
-                     JOIN customerquotation cq ON p.pre_project_id = cq.pre_project_id
-                     ORDER BY p.created_at DESC');
+        $this->db->query('SELECT p.*, u.name as customer_name, IFNULL(cq.nearest_city, "No Location") as location 
+             FROM projects p
+             LEFT JOIN users u ON p.customer_id = u.user_id
+             LEFT JOIN customerquotation cq ON p.pre_project_id = cq.pre_project_id
+             WHERE p.status = "active"
+             ORDER BY p.created_at DESC');
+
         return $this->db->resultSet();
     }
 }

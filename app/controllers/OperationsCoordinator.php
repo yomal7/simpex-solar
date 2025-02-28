@@ -756,14 +756,8 @@ class OperationsCoordinator extends Controller
             'engineer_approval' => $this->projectModel->getProjectCountByPhase('engineer_approval')
         ];
 
-        // For debugging - print the returned counts
-        error_log('Project stats: ' . print_r($stats, true));
-
         // Get all projects with customer details
         $projects = $this->projectModel->getAllProjectsWithCustomerDetails();
-
-        // For debugging - check if projects are being returned
-        error_log('Total projects returned: ' . count($projects));
 
         $data = [
             'stats' => $stats,
