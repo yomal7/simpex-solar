@@ -1,78 +1,53 @@
-document.getElementById('purchaseRequestForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const submitButton = document.querySelector('.submit-button');
-    submitButton.disabled = true;
-    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("purchaseRequestForm");
 
-    // Simulate form submission
-    setTimeout(() => {
-        // Here you would normally send the data to your server
-        window.location.href = '/request-success';
-    }, 2000);
-});
-
-document.getElementById('purchaseRequestForm').addEventListener('submit', function(e) {
+  form.addEventListener("submit", function (e) {
     e.preventDefault();
-    
+
     // Basic form validation
-    const requiredFields = this.querySelectorAll('[required]');
+    const requiredFields = this.querySelectorAll("[required]");
     let isValid = true;
 
-    requiredFields.forEach(field => {
-        if (!field.value.trim()) {
-            isValid = false;
-            field.classList.add('invalid');
-        } else {
-            field.classList.remove('invalid');
-        }
+    requiredFields.forEach((field) => {
+      if (!field.value.trim()) {
+        isValid = false;
+        field.classList.add("invalid");
+      } else {
+        field.classList.remove("invalid");
+      }
     });
 
     if (!isValid) {
-        alert('Please fill in all required fields');
-        return;
+      alert("Please fill in all required fields");
+      return;
     }
 
-    const submitButton = document.querySelector('.submit-button');
-    submitButton.disabled = true;
-    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    // Check terms agreement
+    const termsCheckbox = document.getElementById("termsAgree");
+    if (!termsCheckbox.checked) {
+      alert("Please agree to the terms and conditions");
+      return;
+    }
 
-    // Collect form data
-    const formData = new FormData(this);
-    
-    // Simulate form submission
-    setTimeout(() => {
-        // Here you would normally send the data to your server
-        // Example AJAX request:
-        /*
-        fetch('/api/purchase-request', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            window.location.href = '/request-success';
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
-        });
-        */
+    // Debug form submission
+    console.log("Form submitted");
+    console.log("Form data:", new FormData(this));
 
-        window.location.href = '/request-success';
-    }, 2000);
+    // Submit the form
+    this.submit();
+  });
 });
 
 // Phone number validation
 const phoneInputs = document.querySelectorAll('input[type="tel"]');
-phoneInputs.forEach(input => {
-    input.addEventListener('input', function(e) {
-        // Remove any non-numeric characters
-        this.value = this.value.replace(/[^\d+\-\s()]/g, '');
-    });
+phoneInputs.forEach((input) => {
+  input.addEventListener("input", function (e) {
+    // Remove any non-numeric characters
+    this.value = this.value.replace(/[^\d+\-\s()]/g, "");
+  });
 });
 
 // Date validation for installation date
-const installationDateInput = document.getElementById('preferredInstallation');
-const today = new Date().toISOString().split('T')[0];
-installationDateInput.setAttribute('min', today);
+const installationDateInput = document.getElementById("preferredInstallation");
+const today = new Date().toISOString().split("T")[0];
+installationDateInput.setAttribute("min", today);
