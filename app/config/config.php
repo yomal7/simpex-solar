@@ -16,8 +16,8 @@ define('SITENAME', 'simpex ');
 
 
 define('SMTP_HOST', 'smtp.gmail.com'); 
-define('SMTP_USER', 'pasansanjiiwa2023@gmail.com');
-define('SMTP_PASS', 'ygkj tcso qcde bzgd'); 
+define('SMTP_USER', '');
+define('SMTP_PASS', ''); 
 define('SITE_NAME', 'simpex solar'); 
 
 define('address', 'Simpex Holding, No 465, Galle Road, Colombo 03');
