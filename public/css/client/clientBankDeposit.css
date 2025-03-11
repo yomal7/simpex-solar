@@ -1,0 +1,245 @@
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}
+
+.header p {
+  color: #666;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.order-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  color: #666;
+}
+
+.summary-row.discount {
+  color: #16a34a;
+}
+
+.divider {
+  height: 1px;
+  background-color: #e5e5e5;
+  margin: 1rem 0;
+}
+
+.total-row {
+  font-weight: 600;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.bank-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.bank-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.bank-card:hover {
+  transform: translateY(-4px);
+}
+
+.bank-card h3 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.bank-detail {
+  margin: 0.5rem 0;
+  color: #666;
+}
+
+.bank-detail span {
+  font-weight: bold;
+  color: #333;
+}
+
+.upload-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.file-drop-area {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  margin: 1rem 0;
+  transition: all 0.3s;
+  position: relative;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-drop-area.dragover {
+  border-color: #4a90e2;
+  background-color: #f8f9ff;
+}
+
+.upload-ui {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.upload-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  display: block;
+}
+
+.choose-file-btn {
+  background: #4a90e2;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  margin: 1rem 0;
+  display: inline-block;
+}
+
+.choose-file-btn:hover {
+  background: #357abd;
+}
+
+.preview-area {
+  display: none;
+  background: #f8f9ff;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+.preview-area.show {
+  display: block;
+}
+
+.preview-container {
+  display: none;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.preview-container.show {
+  display: block;
+}
+
+.remove-file {
+  color: #dc3545;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.remove-preview {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.remove-preview:hover {
+  background: rgba(255, 255, 255, 1);
+}
+
+.submit-button {
+  background: #4a90e2;
+  color: white;
+  padding: 1rem;
+  border: none;
+  border-radius: 4px;
+  width: 100%;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.submit-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #357abd;
+}
+
+.preview-image-container {
+  width: 100%;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+#previewImage {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  display: block;
+}
+
+.file-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid #eee;
+}
+
+#dropAreaPreview {
+  width: 100%;
+  height: 300px;
+  object-fit: contain;
+  display: block;
+}

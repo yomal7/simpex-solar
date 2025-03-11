@@ -20,18 +20,57 @@ class SupplierCoordinator extends Controller
 
     public function index()
     {
-        // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
-        $data = [];
+        // Get all required order data
+        $pendingOrders = $this->shopModel->getPendingOrders();
+        $processingOrders = $this->shopModel->getProcessingOrders();
+        $activeOrders = $this->shopModel->getActiveOrders();
+
+        $data = [
+            'pending_orders' => $pendingOrders,
+            'processing_orders' => $processingOrders,
+            'active_orders' => $activeOrders,
+            'orders' => $pendingOrders, // Default view
+            'show_status' => false
+        ];
+
         $this->view('supplierCoordinator/v_dashboard', $data);
     }
 
     public function dashboard()
     {
-        // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
-        $data = [];
+        $pendingOrders = $this->shopModel->getPendingOrders();
+        $processingOrders = $this->shopModel->getProcessingOrders();
+        $activeOrders = $this->shopModel->getActiveOrders();
+
+        $data = [
+            'pending_orders' => $pendingOrders,
+            'processing_orders' => $processingOrders,
+            'active_orders' => $activeOrders,
+            'orders' => $pendingOrders, // Default view
+            'show_status' => false
+        ];
+
         $this->view('supplierCoordinator/v_dashboard', $data);
     }
 
+    public function getOrders($type)
+    {
+        switch ($type) {
+            case 'pending':
+                $orders = $this->shopModel->getPendingOrders();
+                $show_status = false;
+                break;
+            case 'processing':
+                $orders = $this->shopModel->getProcessingOrders();
+                $show_status = false;
+                break;
+            case 'active':
+                $orders = $this->shopModel->getActiveOrders();
+                $show_status = true;
+                break;
+        }
+        echo json_encode(['orders' => $orders, 'show_status' => $show_status]);
+    }
     public function addSupplier()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -906,5 +945,56 @@ class SupplierCoordinator extends Controller
             }
         }
         redirect('supplierCoordinator/shop');
+    }
+
+    public function viewOrder($id)
+    {
+        $order = $this->shopModel->getOrderDetails($id);
+        if ($order) {
+            $data = [
+                'order' => $order
+            ];
+            $this->view('supplierCoordinator/v_requestOrders', $data);
+        } else {
+            redirect('supplierCoordinator/dashboard');
+        }
+    }
+
+    public function approveOrder()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $data = json_decode(file_get_contents("php://input"));
+
+            if ($this->shopModel->approveOrder($data)) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Order approved successfully'
+                ]);
+            } else {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Failed to approve order'
+                ]);
+            }
+        }
+    }
+
+    public function rejectOrder()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $data = json_decode(file_get_contents("php://input"));
+
+            if ($this->shopModel->rejectOrder($data->orderId)) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Order rejected successfully'
+                ]);
+            } else {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Failed to reject order'
+                ]);
+            }
+        }
     }
 }
