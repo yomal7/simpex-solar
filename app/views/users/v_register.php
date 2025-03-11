@@ -1,5 +1,4 @@
-<?php require APPROOT.'/views/inc/header.php';?>
-    <div class="form-container">
+<div class="form-container">
         <div class="form-header">
             <center><h1>User Registration</h1></center>
             <br>

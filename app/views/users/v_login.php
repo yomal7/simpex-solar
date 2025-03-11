@@ -1,4 +1,4 @@
-<?php require APPROOT.'/views/inc/header.php';?>
+<!-- <php require APPROOT.'/views/inc/header.php';?> -->
     <!-- Top Navbar -->
      <?php require APPROOT.'/views/inc/components/topnavbar.php'; ?>
     <h1>User sign up</h1>
