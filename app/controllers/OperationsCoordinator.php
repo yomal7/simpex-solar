@@ -806,16 +806,8 @@ class OperationsCoordinator extends Controller
         }
 
         // Get additional project data like customer details
-        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+        $data = $this->projectModel->getCustomerDetailsByProjectId($projectId);
 
-        // Merge project and customer details
-        if ($customerDetails) {
-            foreach ($customerDetails as $key => $value) {
-                if (!isset($project->$key)) {
-                    $project->$key = $value;
-                }
-            }
-        }
 
         $data = [
             'project' => $project
