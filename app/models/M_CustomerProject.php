@@ -97,4 +97,16 @@ class M_CustomerProject
 
         return $this->db->resultSet();
     }
+
+    public function getCustomerDetailsByProjectId($projectId)
+    {
+        $this->db->query('SELECT u.name as customer_name, u.email, u.phone, cq.address, cq.nearest_city as location 
+                     FROM projects p
+                     LEFT JOIN users u ON p.customer_id = u.user_id
+                     LEFT JOIN customerquotation cq ON p.pre_project_id = cq.pre_project_id
+                     WHERE p.project_id = :project_id');
+
+        $this->db->bind(':project_id', $projectId);
+        return $this->db->single();
+    }
 }

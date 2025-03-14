@@ -38,11 +38,6 @@ class OperationsCoordinator extends Controller
     }
 
 
-    public function projectDashboard()
-    {
-        $data = [];
-        $this->view('operationsCoordinator/v_projectDashboard', $data);
-    }
 
     //################################################################################################
     //-------------------------------------Add signature----------------------------------------------
@@ -767,8 +762,68 @@ class OperationsCoordinator extends Controller
         $this->view('operationsCoordinator/v_projects', $data);
     }
 
+    public function projectDashboard($projectId)
+    {
+
+        // Get project details with all required information
+        $project = $this->projectModel->getProjectById($projectId);
+
+        // If project doesn't exist, redirect
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get additional project data like customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+
+        // Merge project and customer details
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                if (!isset($project->$key)) {
+                    $project->$key = $value;
+                }
+            }
+        }
+
+        $data = [
+            'project' => $project
+        ];
+
+        $this->view('operationsCoordinator/v_manageAproject', $data);
+    }
 
 
+    public function manageAproject($projectId)
+    {
+        // Get project details with all required information
+        $project = $this->projectModel->getProjectById($projectId);
+
+        // If project doesn't exist, redirect
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get additional project data like customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+
+        // Merge project and customer details
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                if (!isset($project->$key)) {
+                    $project->$key = $value;
+                }
+            }
+        }
+
+        $data = [
+            'project' => $project
+        ];
+
+        // Change this line to load v_manageAproject.php instead of v_projectDashboard.php
+        $this->view('operationsCoordinator/v_manageAproject', $data);
+    }
 
 
 
@@ -791,11 +846,7 @@ class OperationsCoordinator extends Controller
 
 
 
-    public function manageAproject()
-    {
-        $data = [];
-        $this->view('operationsCoordinator/v_manageAproject', $data);
-    }
+
 
     public function tasks()
     {

@@ -97,7 +97,7 @@
                     <?php if (isset($data['projects']) && !empty($data['projects'])): ?>
                         <?php foreach ($data['projects'] as $project): ?>
                             <div class="project-card" data-phase="<?php echo $project->current_phase; ?>"
-                                onclick="window.location.href='<?php echo URLROOT; ?>/operationsCoordinator/projectDashboard/<?php echo $project->project_id; ?>'">
+                                onclick="window.location.href='<?php echo URLROOT; ?>/operationsCoordinator/manageAproject/<?php echo $project->project_id; ?>'">
                                 <div class="project-content">
                                     <div class="project-id">#PRJ<?php echo str_pad($project->project_id, 3, '0', STR_PAD_LEFT); ?></div>
                                     <div class="customer-name"><?php echo $project->customer_name; ?></div>
