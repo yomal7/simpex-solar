@@ -753,6 +753,7 @@ class OperationsCoordinator extends Controller
         $this->view('operationsCoordinator/v_manageAproject', $data);
     }
 
+    // View all tasks
     public function tasks()
     {
         // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
@@ -763,7 +764,7 @@ class OperationsCoordinator extends Controller
         $this->view('operationsCoordinator/v_tasks', $data);
     }
 
-    // View Task
+    // View a task by ID
     public function viewTask($taskId)
     {
         // Fetch the task from the model

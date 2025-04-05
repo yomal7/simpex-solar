@@ -31,10 +31,11 @@ CREATE TABLE Tasks (
    project_id INT,
    employee_id INT,
    status ENUM('incomplete', 'in_progress', 'completed') NOT NULL DEFAULT 'incomplete',
+   comment varchar(255) DEFAULT NULL,
    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY(id),
-   FOREIGN KEY (employee_id) REFERENCES Employe(employee_id)
+   FOREIGN KEY (employee_id) REFERENCES Employees(employee_id)
 );
 
 CREATE TABLE employe (
