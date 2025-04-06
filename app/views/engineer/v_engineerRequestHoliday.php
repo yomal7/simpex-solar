@@ -143,9 +143,11 @@
 
     <div class="overlay" id="overlay"></div>
 
-</body>
+
 <script>
     // Assuming you have the employee ID from the PHP session
     const employeeId = <?php echo $data['employee']->employee_id ?? 0; ?>;
 </script>
 <script src="<?php echo URLROOT; ?>/js/engineer/requestHoliday.js"></script>
+
+<?php require APPROOT . '/views/engineer/footer.php'; ?>

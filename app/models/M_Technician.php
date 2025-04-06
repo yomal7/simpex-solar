@@ -32,8 +32,8 @@ class M_Technician
 
     public function addHolidayRecords($data)
     {
-        $this->db->query('INSERT INTO holidayrecords (employee_id, start_date, end_date, number_of_days, reason, status, leave_type) 
-                              VALUES (:employee_id, :start_date, :end_date, :number_of_days, :reason, :status, :leave_type)');
+        $this->db->query('INSERT INTO holidayrecords (employee_id, start_date, end_date, number_of_days, reason, status, leave_type, comment) 
+                              VALUES (:employee_id, :start_date, :end_date, :number_of_days, :reason, :status, :leave_type), :comment');
 
         $this->db->bind(':employee_id', $data['employee_id']);
         $this->db->bind(':start_date', $data['start_date']);
@@ -42,6 +42,7 @@ class M_Technician
         $this->db->bind(':reason', $data['reason']);
         $this->db->bind(':status', 'pending');
         $this->db->bind(':leave_type', $data['leave_type']);
+        $this->db->bind(':comment', $data['comment']);
 
         return $this->db->execute();
     }
@@ -61,7 +62,7 @@ class M_Technician
         return $this->db->resultSet();
     }
 
-    public function getTotalProjectTasksById($employee_id, $limit = 10, $offset = 0)
+    public function getTotalProjectTasksById($employee_id)
     {
         $this->db->query('SELECT id, project_id, title, description, start_date, end_date, status, comment 
     FROM taskss 

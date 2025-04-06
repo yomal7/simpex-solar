@@ -66,12 +66,14 @@ class technician extends Controller
                 'end_date' => '',
                 'number_of_days' => '',
                 'reason' => '',
+                'comment' => '',
                 'leave_type' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',
                 'days_err' => '',
                 'reason_err' => '',
-                'leave_type_err' => ''
+                'leave_type_err' => '',
+                'comment_err' => ''
             ];
 
             $this->view('technician/v_technicianRequestHoliday', $data);
@@ -91,12 +93,14 @@ class technician extends Controller
                 'reason' => trim($_POST['reason']),
                 'leave_type' => trim($_POST['leaveType']),
                 'status' => 'pending',
+                'comment' => '',
                 // Initialize error fields
                 'start_date_err' => '',
                 'end_date_err' => '',
                 'days_err' => '',
                 'reason_err' => '',
-                'leave_type_err' => ''
+                'leave_type_err' => '',
+                'comment_err' => ''
             ];
 
             // Validation
@@ -161,138 +165,125 @@ class technician extends Controller
 
 
     public function tasks()
-    {
-        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-            $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+{
+    if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+        $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
 
-            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-            $limit = 10;
-            $offset = ($page - 1) * $limit;
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = 10;
+        $offset = ($page - 1) * $limit;
 
-            if (!$employee) {
-                flash('error_msg', 'Employee not found');
-                redirect('users/login');
-            }
+        if (!$employee) {
+            flash('error_msg', 'Employee not found');
+            redirect('users/login');
+        }
 
-            $data = [
-                'employee' => $employee,
-                'projectTasks' => $this->technicianModel->getProjectTasks($employee->employee_id, $limit, $offset),
-                'totalTasks' => $this->technicianModel->getTotalProjectTasks($employee->employee_id),
-                'currentPage' => $page,
-                'totalPages' => ceil($this->technicianModel->getTotalProjectTasks($employee->employee_id) / $limit),
-                'id' => '',
-                'start_date' => '',
-                'end_date' => '',
-                'title' => '',
-                'description' => '',
-                'project_id' => '',
-                'status' => '',
-                'comment' => '',
-                'id_err' => '',
-                'start_date_err' => '',
-                'end_date_err' => '',
-                'title_err' => '',
-                'description_err' => '',
-                'project_id_err' => '',
-                'status_err' => '',
-                'comment_err' => ''
-            ];
+        $data = [
+            'employee' => $employee,
+            'projectTasks' => $this->technicianModel->getProjectTasks($employee->employee_id, $limit, $offset),
+            'totalTasks' => $this->technicianModel->getTotalProjectTasks($employee->employee_id),
+            'currentPage' => $page,
+            'totalPages' => ceil($this->technicianModel->getTotalProjectTasks($employee->employee_id) / $limit),
+            'id' => '',
+            'start_date' => '',
+            'end_date' => '',
+            'title' => '',
+            'description' => '',
+            'project_id' => '',
+            'status' => '',
+            'comment' => '',
+            'id_err' => '',
+            'start_date_err' => '',
+            'end_date_err' => '',
+            'title_err' => '',
+            'description_err' => '',
+            'project_id_err' => '',
+            'status_err' => '',
+            'comment_err' => ''
+        ];
 
-            $this->view('technician/v_technicianTasks', $data);
-        } else {
-            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+        $data['currentPage'] = $page;
+        $this->view('technician/v_technicianTasks', $data);
+    } else {
+        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-            $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+        $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
 
-            if (isset($_POST['action']) && $_POST['action'] === 'view_comment') {
-                $taskId = trim($_POST['id']);
-                $task = $this->technicianModel->getProjectTasksById($taskId);
-                
+        // Handle status update only
+        $taskId = trim($_POST['id']);
+        $status = isset($_POST['status']) ? trim($_POST['status']) : null;
+
+        if ($status !== null) {
+            // Handle status update
+            if ($this->technicianModel->updateTaskStatus($taskId, $status)) {
                 echo json_encode([
                     'success' => true,
-                    'comment' => $task ? $task->comment : null
+                    'message' => 'Task status updated successfully'
                 ]);
                 return;
             }
-
-            // CORRECTION 1: Handle both status and comment updates
-            $taskId = trim($_POST['id']);
-            $status = isset($_POST['status']) ? trim($_POST['status']) : null;
-            $comment = isset($_POST['comment']) ? trim($_POST['comment']) : null;
-
-            // CORRECTION 2: Separate logic for status and comment updates
-            if ($status !== null) {
-                // Handle status update
-                if ($this->technicianModel->updateTaskStatus($taskId, $status)) {
-                    echo json_encode([
-                        'success' => true,
-                        'message' => 'Task status updated successfully'
-                    ]);
-                    return;
-                }
-            } else if ($comment !== null) {
-                // Handle comment update
-                // CORRECTION 3: Basic comment validation
-                if (empty($comment)) {
-                    echo json_encode([
-                        'success' => false,
-                        'message' => 'Comment cannot be empty'
-                    ]);
-                    return;
-                }
-
-                if ($this->technicianModel->updateTaskComment($taskId, $comment)) {
-                    echo json_encode([
-                        'success' => true,
-                        'message' => 'Comment added successfully'
-                    ]);
-                    return;
-                }
-            }
-
-            // If we get here, something went wrong
-            echo json_encode([
-                'success' => false,
-                'message' => 'Failed to update task'
-            ]);
-            return;
         }
+
+        // If we get here, something went wrong
+        echo json_encode([
+            'success' => false,
+            'message' => 'Failed to update task'
+        ]);
+        return;
+    }
+}
+
+public function details($taskId = null) {
+    if (!$taskId) {
+        redirect('technician/tasks');
     }
 
-    public function details($taskId = null) {
-        // Validate taskId
-        if (!$taskId) {
-            redirect('technician/tasks');
-        }
-    
-        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-            $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
-            $taskDetails = $this->technicianModel->getProjectTasksById($taskId);
-    
-            // Debug
-            error_log("Task Details: " . print_r($taskDetails, true));
-            
-            $data = [
-                'task' => $taskDetails
-            ];
-            
-            $this->view('technician/v_technicianTaskDetails', $data);
+    if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+        $taskDetails = $this->technicianModel->getProjectTasksById($taskId);
 
-        } else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            
-            if (isset($_POST['action']) && $_POST['action'] === 'delete_comment') {
-                $result = $this->technicianModel->deleteTaskComment($taskId);
-                
-                header('Content-Type: application/json');
-                if ($result) {
-                    echo json_encode(['success' => true]);
-                } else {
-                    echo json_encode(['success' => false]);
-                }
-                exit;
+        // Debug
+        error_log("Task Details: " . print_r($taskDetails, true));
+
+        $data = [
+            'task' => $taskDetails
+        ];
+
+        $this->view('technician/v_technicianTaskDetails', $data);
+
+    } else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+        // Handle comment update (adding or editing)
+        if (isset($_POST['comment'])) {
+            $comment = trim($_POST['comment']);
+
+            if (empty($comment)) {
+                echo json_encode(['success' => false, 'message' => 'Comment cannot be empty']);
+                return;
+            }
+
+            if ($this->technicianModel->updateTaskComment($taskId, $comment)) {
+                echo json_encode(['success' => true, 'message' => 'Comment added/updated successfully']);
+                return;
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to update comment']);
+                return;
             }
         }
+
+        // Handle comment deletion
+        if (isset($_POST['action']) && $_POST['action'] === 'delete_comment') {
+            $result = $this->technicianModel->deleteTaskComment($taskId);
+
+            header('Content-Type: application/json');
+            if ($result) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false]);
+            }
+            exit;
+        }
     }
+}
 
     public function settings()
     {

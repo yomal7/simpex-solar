@@ -93,5 +93,7 @@
         <button type="button" onclick="confirmView()">Done</button>
     </div>
 
-</body>
+
     <script src="<?php echo URLROOT; ?>/js/engineer/tasks.js"></script>
+
+<?php require APPROOT.'/views/engineer/footer.php';?>

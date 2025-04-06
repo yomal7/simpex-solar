@@ -108,5 +108,7 @@
 
 
 
-</body>
+
 <script src="<?php echo URLROOT; ?>/js/deliveryPerson/dashboard.js"></script>
+
+<?php require APPROOT . '/views/deliveryPerson/footer.php'; ?>

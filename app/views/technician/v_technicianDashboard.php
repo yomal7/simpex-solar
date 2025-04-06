@@ -86,6 +86,6 @@
     <div class="överlay" id="overlay"></div>
 
 
-
-</body>
 <script src="<?php echo URLROOT; ?>/js/technician/dashboard.js"></script>
+
+<?php require APPROOT . '/views/technician/footer.php'; ?>

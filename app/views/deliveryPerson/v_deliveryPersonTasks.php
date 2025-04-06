@@ -117,5 +117,7 @@
         <button type="button" onclick="confirmView()">Done</button>
     </div>
 
-</body>
+
     <script src="<?php echo URLROOT; ?>/js/deliveryPerson/tasks.js"></script>
+
+<?php require APPROOT.'/views/deliveryPerson/footer.php';?>

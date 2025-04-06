@@ -1,5 +1,6 @@
 <?php require APPROOT . '/views/operationsCoordinator/header.php'; ?>
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/projects.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/hRAdministrator/holiday.css">
 </head>
 
 <body>
@@ -16,7 +17,7 @@
                 src="<?php echo URLROOT; ?>/public/assets/profile.png"
                 alt="manager profile-picture"
                 class="profile-picture" />
-            <a href="<?php echo URLROOT ?>/hRAdministrator/dashboard" class="active">
+            <a href="<?php echo URLROOT ?>/hRAdministrator/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
@@ -46,16 +47,16 @@
 
                 <div class="leaveRecords-table-container">
                     <div class="leaveRecords-table-header">
-                        <h2>Leave Records</h2>
+                        <h2>Leave Requests</h2>
                     </div>
                     <table>
                         <colgroup>
-                            <col style="width: 10%;"> <!-- employee_id -->
+                            <col style="width: 15%;"> <!-- employee_id -->
                             <col style="width: 15%;"> <!-- leave_type -->
-                            <col style="width: 15%;"> <!-- start_date -->
-                            <col style="width: 10%;"> <!-- number_of_days -->
-                            <col style="width: 15%;"> <!-- status -->
-                            <col style="width: 35%;"> <!-- details -->
+                            <col style="width: 20%;"> <!-- start_date -->
+                            <col style="width: 15%;"> <!-- number_of_days -->
+                            <col style="width: 20%;"> <!-- status -->
+                            <col style="width: 15%;"> <!-- details -->
                         </colgroup>
                         <thead>
                             <tr>
@@ -71,13 +72,17 @@
                             <?php if (!empty($data['holidayRecords'])): ?>
                                 <?php foreach ($data['holidayRecords'] as $record): ?>
                                     <tr>
-                                        <td><?php echo $record->employee_id; ?></td>
-                                        <td><?php echo $record->leave_type; ?></td>
-                                        <td><?php echo $record->start_date; ?></td>
-                                        <td><?php echo $record->number_of_days; ?></td>
-                                        <td><span class="<?php echo strtolower($record->status); ?>"><?php echo ucfirst($record->status); ?></span></td>
+                                        <td class="center-align"><span>EMP<?php echo str_pad($record->employee_id, 6, '0', STR_PAD_LEFT); ?></span></td>
+                                        <td class="left-align"><?php echo $record->leave_type; ?></td>
+                                        <td class="center-align"><?php echo $record->start_date; ?></td>
+                                        <td class="center-align"><?php echo $record->number_of_days; ?></td>
                                         <td class="center-align">
-                                            <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/hrAdministrator/details/<?php echo $record->id; ?>'" title="View Details"><i class="fas fa-eye"></i></button>
+                                            <span class="status-button <?php echo strtolower($record->status); ?>">
+                                                <?php echo str_replace('_', ' ', ucfirst($record->status)); ?>
+                                            </span>
+                                        </td>
+                                        <td class="center-align">
+                                            <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/hRAdministrator/details/<?php echo $record->id; ?>'" title="View Details"><i class="fas fa-eye"></i></button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -120,7 +125,5 @@
 
     <div class="overlay" id="overlay"></div>
 
-    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script>
-    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/projects.js"></script>
 
     <?php require APPROOT . '/views/operationsCoordinator/footer.php'; ?>

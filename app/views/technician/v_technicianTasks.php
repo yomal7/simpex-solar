@@ -77,7 +77,7 @@
                                             </button>
                                         </td>
                                         <td class="center-align">
-                                            <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/technician/details/<?php echo $task->id; ?>'" title="View Details"><i class="fas fa-eye"></i></button>
+                                            <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/technician/details/<?php echo $task->id; ?>?page=<?php echo isset($data['currentPage']) ? $data['currentPage'] : 1; ?>'"  title="View Details"><i class="fas fa-eye"></i></button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -133,5 +133,7 @@
         </div>
     </div>
 
-</body>
+
 <script src="<?php echo URLROOT; ?>/js/technician/tasks.js"></script>
+
+<?php require APPROOT . '/views/technician/footer.php'; ?>

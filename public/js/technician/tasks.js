@@ -129,39 +129,44 @@ function addComment(taskId) {
   const comment = document.getElementById("newComment").value.trim();
   if (!comment) return;
 
-  fetch(`${URLROOT}/technician/tasks`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: `id=${taskId}&comment=${encodeURIComponent(comment)}`,
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        location.reload();
-      } else {
-        alert(data.message || "Failed to add comment");
-      }
-    });
-}
-
-function deleteComment(taskId) {
-  if (!confirm("Are you sure you want to delete this comment?")) return;
-
+  // Send the request as x-www-form-urlencoded with taskId and comment
   fetch(`${URLROOT}/technician/details/${taskId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: `action=delete_comment`,
+    body: `id=${taskId}&comment=${encodeURIComponent(comment)}`, // Correct body format
   })
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        location.reload();
+        location.reload(); // Reload to reflect the added comment
+      } else {
+        alert(data.message || "Failed to add comment");
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+}
+
+function deleteComment(taskId) {
+  if (!confirm("Are you sure you want to delete this comment?")) return;
+
+  // Send the request as x-www-form-urlencoded for deleting the comment
+  fetch(`${URLROOT}/technician/details/${taskId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `action=delete_comment`, // Pass only the action for deletion
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        location.reload(); // Reload to reflect the deletion
       } else {
         alert("Failed to delete comment");
       }
-    });
+    })
+    .catch((error) => console.error("Error:", error));
 }
+

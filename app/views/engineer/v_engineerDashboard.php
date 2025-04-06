@@ -106,5 +106,6 @@
 
 
 
-</body>
 <script src="<?php echo URLROOT; ?>/js/engineer/dashboard.js"></script>
+
+<?php require APPROOT . '/views/engineer/footer.php'; ?>

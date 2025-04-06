@@ -43,7 +43,7 @@
 
                 <div class="task-details-container">
                     <div class="actions">
-                        <button class="back-button" onclick="window.location.href='<?php echo URLROOT; ?>/technician/tasks'" class="back-btn">
+                        <button class="back-button" onclick="window.location.href='<?php echo URLROOT; ?>/technician/tasks<?php echo isset($_GET['page']) ? '?page=' . $_GET['page'] : ''; ?>'" class="back-btn">
                             Back to Tasks
                         </button>
                     </div>
@@ -132,5 +132,7 @@
 
         <div class="overlay" id="overlay"></div>
 
-</body>
+
 <script src="<?php echo URLROOT; ?>/js/technician/tasks.js"></script>
+
+<?php require APPROOT . '/views/technician/footer.php'; ?>
