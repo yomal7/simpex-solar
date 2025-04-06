@@ -17,12 +17,12 @@ define('DB_NAME', 'simpex_db');
 //Addresses
 define('APPROOT', dirname(dirname(__FILE__)));
 define('URLROOT', 'http://localhost/simpex-solar');
-define('SITENAME', 'simpex ');
+define('SITENAME', 'simpex');
 
 
 define('SMTP_HOST', 'smtp.gmail.com'); 
-define('SMTP_USER', 'pasansanjiiwa2022@gmail.com');
-define('SMTP_PASS', 'vhfy rfuz pnpi mzwh'); 
+define('SMTP_USER', 'solarprojectcs25@gmail.com');
+define('SMTP_PASS', 'rvxr gkmt svdp hbtq'); 
 define('SITE_NAME', 'simpex solar'); 
 
 define('address', 'Simpex Holding, No 465, Galle Road, Colombo 03');
