@@ -2,10 +2,15 @@
 
 
 //Database Configuration
-define('DB_HOST', 'database-1.crme2mkgqnhq.eu-north-1.rds.amazonaws.com');
+define('DB_HOST', 'mysolardb.cvggoaa6op0w.eu-north-1.rds.amazonaws.com');
 define('DB_USER', 'admin');
-define('DB_PASSWORD', 'mahindA69');
+define('DB_PASSWORD', 'Simpexdb25');
 define("DB_NAME", "simpex_db");
+
+// define('DB_HOST', 'mysql-128f1e1e-thisum-feb8.f.aivencloud.com:12959');
+// define('DB_USER', 'sadmin1');
+// define('DB_PASSWORD', 'AVNS_J_3AliTbKdr_hFlOTXx');
+// define("DB_NAME", "simpex_db");
 
 
 
