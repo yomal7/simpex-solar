@@ -13,13 +13,7 @@
         }
     
         public function about() {
-            // Correct method call on $pagesModel
-            $users = $this->pagesModel->getUsers();
-            
-            $data = [
-                'users' => $users
-            ];
-
+            $data = []; // Initialize an empty array for data
             $this->view('pages/v_about', $data);
         }
     }
