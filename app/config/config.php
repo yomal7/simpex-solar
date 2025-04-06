@@ -2,10 +2,15 @@
 
 
 //Database Configuration
-define('DB_HOST', 'database-1.crme2mkgqnhq.eu-north-1.rds.amazonaws.com');
-define('DB_USER', 'admin');
-define('DB_PASSWORD', 'mahindA69');
-define("DB_NAME", "simpex_db");
+// define('DB_HOST', 'mysql-128f1e1e-thisum-feb8.f.aivencloud.com:12959');
+// define('DB_USER', 'sadmin1');
+// define('DB_PASSWORD', 'AVNS_J_3AliTbKdr_hFlOTXx');
+// define("DB_NAME", "simpex_db");
+
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');              
+define('DB_PASSWORD', '');               
+define('DB_NAME', 'simpex_db');         
 
 
 
@@ -16,8 +21,8 @@ define('SITENAME', 'simpex ');
 
 
 define('SMTP_HOST', 'smtp.gmail.com'); 
-define('SMTP_USER', '');
-define('SMTP_PASS', ''); 
+define('SMTP_USER', 'pasansanjiiwa2022@gmail.com');
+define('SMTP_PASS', 'vhfy rfuz pnpi mzwh'); 
 define('SITE_NAME', 'simpex solar'); 
 
 define('address', 'Simpex Holding, No 465, Galle Road, Colombo 03');
