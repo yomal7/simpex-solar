@@ -91,4 +91,12 @@ class M_Users {
         $this->db->bind(':user_id', $userId);
         return $this->db->execute();
     }
+
+    public function resetPassword($email, $password) {
+        $this->db->query('UPDATE users SET password = :password WHERE email = :email');
+        $this->db->bind(':password', $password);
+        $this->db->bind(':email', $email);
+        
+        return $this->db->execute();
+    }
 }

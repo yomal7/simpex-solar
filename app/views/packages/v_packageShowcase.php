@@ -15,7 +15,7 @@
 
     <div class="info-section">
         <button class="info-toggle-btn" onclick="toggleInfo()">
-            No idea what to choose? 🤔 We got you covered! Get to kwnow more about the different types of solar systems.
+            No idea what to choose? 🤔 We got you covered! Get to know more about the different types of solar systems.
             <svg class="toggle-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 9l-7 7-7-7"></path>
             </svg>
