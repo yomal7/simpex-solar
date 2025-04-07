@@ -562,6 +562,215 @@ class Users extends Controller {
         redirect('users/index');
     }
 
+    public function forgotPassword() {
+        // Check if form is submitted
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Process forgot password request
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            
+            // Get email
+            $email = trim($_POST['email']);
+            
+            // Validate Email
+            if (empty($email)) {
+                $data = [
+                    'email' => '',
+                    'email_err' => 'Please enter your email address'
+                ];
+                $this->view('users/v_forgot_password', $data);
+                return;
+            }
+            
+            // Check email exists
+            $user = $this->userModel->getUserByEmail($email);
+            if (!$user) {
+                $data = [
+                    'email' => $email,
+                    'email_err' => 'No account found with that email'
+                ];
+                $this->view('users/v_forgot_password', $data);
+                return;
+            }
+            
+            // Generate OTP
+            $otp = sprintf("%06d", mt_rand(100000, 999999));
+            $expiry = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+            
+            // Save OTP to database
+            if ($this->otpModel->saveOTP($email, $otp, $expiry)) {
+                // Store email in session for reset process
+                $_SESSION['reset_email'] = $email;
+                
+                // Send OTP email
+                if ($this->mailer->sendPasswordResetOTP($email, $user->name, $otp)) {
+                    // Redirect to OTP verification page
+                    redirect('users/verifyResetOTP');
+                } else {
+                    flash('forgot_password_message', 'Failed to send OTP email. Please try again.', 'alert alert-danger');
+                    redirect('users/forgotPassword');
+                }
+            } else {
+                flash('forgot_password_message', 'Something went wrong. Please try again.', 'alert alert-danger');
+                redirect('users/forgotPassword');
+            }
+        } else {
+            // Display forgot password form
+            $data = [
+                'email' => '',
+                'email_err' => ''
+            ];
+            
+            $this->view('users/v_forgot_password', $data);
+        }
+    }
+    
+    public function verifyResetOTP() {
+        // Check if email is in session
+        if (!isset($_SESSION['reset_email'])) {
+            redirect('users/forgotPassword');
+        }
+        
+        // Check if form is submitted
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Process OTP verification
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            
+            $data = [
+                'email' => $_SESSION['reset_email'],
+                'otp' => trim($_POST['otp']),
+                'otp_err' => ''
+            ];
+            
+            // Validate OTP
+            if (empty($data['otp'])) {
+                $data['otp_err'] = 'Please enter the OTP';
+                $this->view('users/v_verify_reset_otp', $data);
+                return;
+            }
+            
+            // Verify OTP
+            if ($this->otpModel->verifyOTP($data['email'], $data['otp'])) {
+                // OTP is valid, redirect to reset password page
+                redirect('users/resetPassword');
+            } else {
+                $data['otp_err'] = 'Invalid or expired OTP. Please try again.';
+                $this->view('users/v_verify_reset_otp', $data);
+            }
+        } else {
+            // Display OTP verification form
+            $data = [
+                'email' => $_SESSION['reset_email'],
+                'otp' => '',
+                'otp_err' => ''
+            ];
+            
+            $this->view('users/v_verify_reset_otp', $data);
+        }
+    }
+    
+    public function resetPassword() {
+        // Check if email is in session
+        if (!isset($_SESSION['reset_email'])) {
+            redirect('users/forgotPassword');
+        }
+        
+        // Check if form is submitted
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Process password reset
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            
+            $data = [
+                'email' => $_SESSION['reset_email'],
+                'password' => trim($_POST['password']),
+                'confirm_password' => trim($_POST['confirm_password']),
+                'password_err' => '',
+                'confirm_password_err' => ''
+            ];
+            
+            // Validate Password
+            if (empty($data['password'])) {
+                $data['password_err'] = 'Please enter a password';
+            } elseif (strlen($data['password']) < 6) {
+                $data['password_err'] = 'Password must be at least 6 characters';
+            }
+            
+            // Validate Confirm Password
+            if (empty($data['confirm_password'])) {
+                $data['confirm_password_err'] = 'Please confirm password';
+            } elseif ($data['password'] != $data['confirm_password']) {
+                $data['confirm_password_err'] = 'Passwords do not match';
+            }
+            
+            // Make sure there are no errors
+            if (empty($data['password_err']) && empty($data['confirm_password_err'])) {
+                // Hash Password
+                $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+                
+                // Update password in the database
+                if ($this->userModel->resetPassword($data['email'], $data['password'])) {
+                    // Clean up OTP and session
+                    $this->otpModel->deleteOTP($data['email']);
+                    unset($_SESSION['reset_email']);
+                    
+                    flash('password_reset_success', 'Your password has been reset successfully', 'alert alert-success');
+                    redirect('users/index');
+                } else {
+                    flash('password_reset_error', 'Failed to reset password', 'alert alert-danger');
+                    redirect('users/resetPassword');
+                }
+            } else {
+                // Load view with errors
+                $this->view('users/v_reset_password', $data);
+            }
+        } else {
+            // Display reset password form
+            $data = [
+                'email' => $_SESSION['reset_email'],
+                'password' => '',
+                'confirm_password' => '',
+                'password_err' => '',
+                'confirm_password_err' => ''
+            ];
+            
+            $this->view('users/v_reset_password', $data);
+        }
+    }
+
+    public function resendResetOTP() {
+        // Check if email is in session
+        if (!isset($_SESSION['reset_email'])) {
+            redirect('users/forgotPassword');
+            return;
+        }
+        
+        $email = $_SESSION['reset_email'];
+        $user = $this->userModel->getUserByEmail($email);
+        
+        if (!$user) {
+            flash('forgot_password_message', 'Something went wrong. Please try again.', 'alert alert-danger');
+            redirect('users/forgotPassword');
+            return;
+        }
+        
+        // Generate new OTP
+        $otp = sprintf("%06d", mt_rand(100000, 999999));
+        $expiry = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+        
+        // Update OTP in database
+        if ($this->otpModel->updateOTP($email, $otp, $expiry)) {
+            // Send OTP email
+            if ($this->mailer->sendPasswordResetOTP($email, $user->name, $otp)) {
+                flash('otp_message', 'A new verification code has been sent to your email', 'alert alert-success');
+            } else {
+                flash('otp_message', 'Failed to send verification code. Please try again.', 'alert alert-danger');
+            }
+        } else {
+            flash('otp_message', 'Something went wrong. Please try again.', 'alert alert-danger');
+        }
+        
+        redirect('users/verifyResetOTP');
+    }
+
     public function isLoggedIn()
     {
         return isset($_SESSION['user_id']);
