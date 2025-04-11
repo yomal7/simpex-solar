@@ -27,7 +27,7 @@ class M_CustomerProject
             rq.base_price,
             rq.service_charge,
             rq.total_price
-            FROM project p
+            FROM projects p
             LEFT JOIN reviewed_quotations rq ON p.quotation_id = rq.review_id
             WHERE p.project_id = :project_id');
 
@@ -47,7 +47,7 @@ class M_CustomerProject
             final_payment_date,
             engineer_approval_date,
             grid_connection_date
-            FROM project
+            FROM projects
             WHERE project_id = :project_id');
 
         $this->db->bind(':project_id', $projectId);
@@ -56,7 +56,7 @@ class M_CustomerProject
 
     public function updateProjectPhase($projectId, $phase, $status = 'pending')
     {
-        $this->db->query('UPDATE project SET 
+        $this->db->query('UPDATE projects SET 
             current_phase = :phase,
             phase_status = :status,
             updated_at = CURRENT_TIMESTAMP
