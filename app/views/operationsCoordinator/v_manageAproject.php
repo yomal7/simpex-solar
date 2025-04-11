@@ -149,7 +149,12 @@
 
                             $url = URLROOT . "/operationsCoordinator/manageProjectPhase/{$data['project']->project_id}/{$phase}";
                         ?>
-                            <div class="phase-card" data-phase="<?php echo $phase; ?>" data-url="<?php echo $url; ?>">
+                            <div class="phase-card" data-phase="<?php echo $phase; ?>"
+                                <?php if ($phase === 'document_submission'): ?>
+                                onclick="window.location.href='<?php echo URLROOT ?>/operationsCoordinator/documentSubmission/<?php echo $data['project']->project_id; ?>'"
+                                <?php else: ?>
+                                data-url="<?php echo $url; ?>"
+                                <?php endif; ?>>
                                 <div class="phase-icon"><?php echo $info['icon']; ?></div>
                                 <div class="phase-content">
                                     <h3><?php echo $info['title']; ?></h3>

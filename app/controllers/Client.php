@@ -5,6 +5,7 @@ class Client extends Controller
     private $clientModel;
     private $shopModel;
     private $clientSidePreProjectModel;
+    private $clientSideProjectModel;
     private $customerProjectModel;
 
     public function __construct()
@@ -16,6 +17,7 @@ class Client extends Controller
 
         $this->clientModel = $this->model('M_Client');
         $this->clientSidePreProjectModel = $this->model('M_clientSidePreProject');
+        $this->clientSideProjectModel = $this->model('M_clientSideProject');
         $this->customerProjectModel = $this->model('M_CustomerProject');
         $this->shopModel = $this->model('M_Shop');
     }
@@ -540,14 +542,118 @@ class Client extends Controller
     }
 
 
+    //###################################################################################################
+    //----------------------------------------- Project phase ----------------------------------------------
+    //###################################################################################################
 
+    //###################################################################################################
+    //----------------------------------------- Document Submission ----------------------------------------------
+    //###################################################################################################
 
+    public function documents($preProjectId = null)
+    {
+        if ($preProjectId === null) {
+            redirect('client/project');
+        }
 
+        // Get the project using pre_project_id
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
 
+        if (!$project) {
+            flash('document_message', 'Project not found', 'alert alert-danger');
+            redirect('client/project');
+        }
 
-    //#############################################################################################
-    //----------------------------------------- End of preproject phase -----------------------------------------
-    //#############################################################################################
+        // Check if this project belongs to the logged-in user
+        if ($project->customer_id != $_SESSION['user_id']) {
+            flash('document_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/project');
+        }
+
+        // Get document submission if exists
+        $documentSubmission = $this->clientSideProjectModel->getDocumentSubmission($project->project_id);
+
+        $data = [
+            'project_id' => $project->project_id,
+            'pre_project_id' => $preProjectId
+        ];
+
+        // If document submission exists, add its data
+        if ($documentSubmission) {
+            $data['document_status'] = $documentSubmission->status || 'NULL';
+            $data['submission_date'] = $documentSubmission->created_at;
+
+            if ($documentSubmission->status == 'reject') {
+                $data['rejection_reason'] = $documentSubmission->rejection_reason ?? 'Document did not meet requirements.';
+            }
+
+            if ($documentSubmission->status == 'accept') {
+                $data['approval_date'] = $documentSubmission->updated_at;
+            }
+        }
+
+        $this->view('client/v_clientDocument', $data);
+    }
+
+    public function submitDocument()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('client/project');
+        }
+
+        // Return JSON response
+        header('Content-Type: application/json');
+
+        if (!isset($_FILES['document']) || !isset($_POST['project_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Missing document or project ID']);
+            return;
+        }
+
+        $file = $_FILES['document'];
+        $projectId = $_POST['project_id'];
+
+        // Validate file
+        $allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+        $maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (!in_array($file['type'], $allowedTypes)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid file type. Please upload a PDF, JPEG, or PNG file.']);
+            return;
+        }
+
+        if ($file['size'] > $maxSize) {
+            echo json_encode(['success' => false, 'message' => 'File size exceeds the 5MB limit.']);
+            return;
+        }
+
+        // Create upload directory if it doesn't exist
+        $uploadDir = dirname(APPROOT) . '/public/uploads/documents/';
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        // Generate unique filename
+        $fileName = uniqid() . '_' . basename($file['name']);
+        $uploadPath = $uploadDir . $fileName;
+
+        // Upload file
+        if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+            // Save document in database
+            $documentData = [
+                'project_id' => $projectId,
+                'document' => $fileName,
+                'status' => 'pending' // Default status after submission
+            ];
+
+            if ($this->clientSideProjectModel->submitDocument($documentData)) {
+                echo json_encode(['success' => true, 'message' => 'Document uploaded successfully']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to save document information']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to upload document']);
+        }
+    }
 
     public function firstPayment()
     {

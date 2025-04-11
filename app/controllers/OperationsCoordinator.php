@@ -817,6 +817,106 @@ class OperationsCoordinator extends Controller
         $this->view('operationsCoordinator/v_manageAproject', $data);
     }
 
+    public function documentSubmission($projectId)
+    {
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+
+        // Merge project and customer details
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                $project->$key = $value;
+            }
+        }
+
+        // Get document submission if exists
+        $document = $this->projectModel->getDocumentSubmission($projectId);
+
+        $data = [
+            'project' => $project,
+            'document' => $document
+        ];
+
+        $this->view('operationsCoordinator/v_documentSubmission', $data);
+    }
+
+    public function acceptDocument()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get submitted data
+        $documentId = $_POST['document_id'];
+        $projectId = $_POST['project_id'];
+
+        // Get document details
+        $document = $this->projectModel->getDocumentById($documentId);
+
+        if (!$document) {
+            flash('document_message', 'Document not found', 'alert alert-danger');
+            redirect('operationsCoordinator/documentSubmission/' . $projectId);
+        }
+
+        // Update document status
+        if ($this->projectModel->updateDocumentStatus($documentId, 'accept')) {
+            // Move project to next phase (first_payment)
+            $this->projectModel->updateProjectsPhase($projectId, 'first_payment');
+            flash('document_message', 'Document approved successfully', 'alert alert-success');
+        } else {
+            flash('document_message', 'Failed to approve document', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/documentSubmission/' . $projectId);
+    }
+
+    /**
+     * Reject submitted document
+     */
+    public function rejectDocument()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get submitted data
+        $documentId = $_POST['document_id'];
+        $projectId = $_POST['project_id'];
+        $rejectionReason = $_POST['rejection_reason'];
+
+        // Validate rejection reason
+        if (empty($rejectionReason)) {
+            flash('document_message', 'Please provide a reason for rejection', 'alert alert-danger');
+            redirect('operationsCoordinator/documentSubmission/' . $projectId);
+            return;
+        }
+
+        // Get document details
+        $document = $this->projectModel->getDocumentById($documentId);
+
+        if (!$document) {
+            flash('document_message', 'Document not found', 'alert alert-danger');
+            redirect('operationsCoordinator/documentSubmission/' . $projectId);
+        }
+
+        // Update document status
+        if ($this->projectModel->updateDocumentStatus($documentId, 'reject', $rejectionReason)) {
+            flash('document_message', 'Document rejected successfully', 'alert alert-success');
+        } else {
+            flash('document_message', 'Failed to reject document', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/documentSubmission/' . $projectId);
+    }
+
 
 
 

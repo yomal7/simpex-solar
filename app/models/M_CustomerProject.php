@@ -109,4 +109,46 @@ class M_CustomerProject
         $this->db->bind(':project_id', $projectId);
         return $this->db->single();
     }
+
+    public function getDocumentSubmission($projectId)
+    {
+        $this->db->query('SELECT * FROM documentSubmission WHERE project_id = :project_id');
+        $this->db->bind(':project_id', $projectId);
+        return $this->db->single();
+    }
+
+    public function getDocumentById($documentId)
+    {
+        $this->db->query('SELECT * FROM documentSubmission WHERE id = :id');
+        $this->db->bind(':id', $documentId);
+        return $this->db->single();
+    }
+
+    public function updateDocumentStatus($documentId, $status, $rejectionReason = null)
+    {
+        $this->db->query('UPDATE documentSubmission 
+                     SET status = :status, 
+                         rejection_reason = :rejection_reason, 
+                         updated_at = NOW() 
+                     WHERE id = :id');
+
+        $this->db->bind(':id', $documentId);
+        $this->db->bind(':status', $status);
+        $this->db->bind(':rejection_reason', $rejectionReason);
+
+        return $this->db->execute();
+    }
+
+    public function updateProjectsPhase($projectId, $phase)
+    {
+        $this->db->query('UPDATE projects SET 
+            current_phase = :phase,
+            updated_at = CURRENT_TIMESTAMP
+            WHERE project_id = :project_id');
+
+        $this->db->bind(':project_id', $projectId);
+        $this->db->bind(':phase', $phase);
+
+        return $this->db->execute();
+    }
 }
