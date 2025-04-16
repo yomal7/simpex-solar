@@ -58,7 +58,7 @@
                 </div>
               </div>
             </li>
-            <li><a href="#">Feedback</a></li>
+            <li><a href="<?php echo URLROOT; ?>/pages/feedback">Feedback</a></li>
 
               <?php
                 $navbarData = getNavbarData();
