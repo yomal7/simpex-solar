@@ -87,7 +87,7 @@
                                         <a href="<?php echo URLROOT; ?>/blog/showPost/<?php echo $post->slug; ?>"" 
                                            target="_blank" 
                                            class="btn view-btn" 
-                                           title="View Post">
+                                           title="View Post" style="text-decoration: none">
                                            <!-- <span style="font-size: 1rem" class="material-icons-sharp">remove_red_eye</span> -->
                                             <i class="fas fa-eye"></i>
                                         </a>

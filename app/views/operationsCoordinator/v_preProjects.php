@@ -86,9 +86,28 @@
                             data-phase="agreement">Agreement Phase</button>
                 </div>
 
-                <!-- Projects Grid -->
                 <div class="projects-grid" id="projectsGrid">
-                    <?php foreach ($data['preProjects'] as $project): ?>
+                    <?php 
+                    // Pagination variables
+                    $projects = $data['preProjects'];
+                    $totalProjects = count($projects);
+                    $projectsPerPage = 6;
+                    $totalPages = ceil($totalProjects / $projectsPerPage);
+                    
+                    // Get current page from query string or default to 1
+                    $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                    if ($currentPage < 1) $currentPage = 1;
+                    if ($currentPage > $totalPages && $totalPages > 0) $currentPage = $totalPages;
+                    
+                    // Calculate start and end indices for current page
+                    $startIndex = ($currentPage - 1) * $projectsPerPage;
+                    $endIndex = min($startIndex + $projectsPerPage, $totalProjects);
+                    
+                    // Display only projects for current page
+                    for ($i = $startIndex; $i < $endIndex; $i++):
+                        if (isset($projects[$i])):
+                            $project = $projects[$i];
+                    ?>
                         <div class="project-card" data-phase="<?php echo $project->current_phase; ?>">
                             <div class="card-header">
                                 <div class="project-id">#PP<?php echo str_pad($project->pre_project_id, 3, '0', STR_PAD_LEFT); ?></div>
@@ -108,8 +127,32 @@
                                 </div>
                             </div>
                         </div>
-                    <?php endforeach; ?>
+                    <?php 
+                        endif;
+                    endfor; 
+                    ?>
                 </div>
+
+                <!-- Pagination Controls -->
+                <?php if ($totalPages > 1): ?>
+                <div class="pagination">
+                    <?php if ($currentPage > 1): ?>
+                        <a href="?phase=<?php echo $data['current_phase']; ?>&page=<?php echo $currentPage - 1; ?>" class="page-link">&laquo; Previous</a>
+                    <?php endif; ?>
+                    
+                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                        <a href="?phase=<?php echo $data['current_phase']; ?>&page=<?php echo $i; ?>" 
+                           class="page-link <?php echo $i === $currentPage ? 'active' : ''; ?>">
+                            <?php echo $i; ?>
+                        </a>
+                    <?php endfor; ?>
+                    
+                    <?php if ($currentPage < $totalPages): ?>
+                        <a href="?phase=<?php echo $data['current_phase']; ?>&page=<?php echo $currentPage + 1; ?>" class="page-link">Next &raquo;</a>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
+                
             </div>
         </div>
     </div>
