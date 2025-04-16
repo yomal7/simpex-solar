@@ -27,10 +27,14 @@ class Mailer {
         $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $this->mailer->Port = 587;
         $this->mailer->setFrom(SMTP_USER, SITE_NAME);
+        
     }
     
     public function sendOTP($email, $name, $otp) {
         try {
+            // Get the logo path
+            $logoPath = dirname(APPROOT) . '/public/assets/simpex-logo.png';
+
             // Reset recipients
             $this->mailer->clearAddresses();
             
@@ -38,6 +42,15 @@ class Mailer {
             $this->mailer->addAddress($email, $name);
             $this->mailer->isHTML(true);
             $this->mailer->Subject = 'Email Verification OTP';
+
+            $logoTag = '';
+            if (file_exists($logoPath)) {
+                $this->mailer->addEmbeddedImage($logoPath, 'logo_id', 'simpex-logo.png');
+                $logoTag = '<img src="cid:logo_id" alt="Simpex Solar" class="logo">';
+                error_log('Logo embedded with ID: logo_id');
+            } else {
+                error_log('Logo file not found at: ' . $logoPath);
+            }
             
             // Email body
             $body = "
@@ -122,7 +135,7 @@ class Mailer {
             <body>
                 <div class='container'>
                     <div class='header'>
-                        <img src='<?php echo URLROOT; ?>/public/assets/simpex-logo.png' alt='Simpex Solar' class='logo'>
+                        $logoTag
                         <h2>Email Verification</h2>
                     </div>
                     <div class='content'>
@@ -155,7 +168,12 @@ class Mailer {
     }
 
     public function sendPasswordResetOTP($email, $name, $otp) {
+
+
         try {
+
+            $logoPath = dirname(APPROOT) . '/public/assets/simpex-logo.png';
+
             // Reset recipients
             $this->mailer->clearAddresses();
             
@@ -164,6 +182,18 @@ class Mailer {
             $this->mailer->isHTML(true);
             $this->mailer->Subject = 'Password Reset Code';
             
+
+            // Add logo as embedded image if the file exists
+            $logoTag = '';
+            if (file_exists($logoPath)) {
+                $this->mailer->addEmbeddedImage($logoPath, 'logo_id', 'simpex-logo.png');
+                $logoTag = '<img src="cid:logo_id" alt="Simpex Solar" class="logo">';
+                error_log('Logo embedded with ID: logo_id');
+            } else {
+                error_log('Logo file not found at: ' . $logoPath);
+            }
+
+
             // Email body
             $body = "
             <html>
@@ -186,14 +216,14 @@ class Mailer {
                         overflow: hidden;
                     }
                     .header {
-                        background-color: #4CAF50;
-                        padding: 20px;
+                        background-color:rgb(92, 215, 96);
+                        padding: 10px;
                         text-align: center;
                         color: white;
                     }
                     .logo {
-                        max-height: 60px;
-                        margin-bottom: 10px;
+                        max-height: 80px;
+                        margin-bottom: 2px;
                     }
                     .content {
                         padding: 30px;
@@ -247,7 +277,7 @@ class Mailer {
             <body>
                 <div class='container'>
                     <div class='header'>
-                        <img src='" . URLROOT . "/public/assets/simpex-logo.png' alt='Simpex Solar' class='logo'>
+                        $logoTag
                         <h2>Password Reset</h2>
                     </div>
                     <div class='content'>
