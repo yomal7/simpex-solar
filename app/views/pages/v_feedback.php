@@ -70,11 +70,6 @@
                 </div>
             </div>
             
-            <div class="form-group consent-group">
-                <input type="checkbox" id="contact_consent" name="contact_consent" value="1" <?php echo (isset($data['contact_consent']) && $data['contact_consent'] == 1) ? 'checked' : ''; ?> required>
-                <label for="contact_consent">I consent to be contacted regarding my feedback</label>
-            </div>
-            
             <div class="form-group">
                 <input type="submit" value="Submit Feedback" class="btn">
             </div>
