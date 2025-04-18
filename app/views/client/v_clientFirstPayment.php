@@ -201,77 +201,6 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize the payment methods accordion
-            const methodHeaders = document.querySelectorAll('.method-header');
-
-            methodHeaders.forEach(header => {
-                header.addEventListener('click', function() {
-                    // Get the method content and toggle icon
-                    const methodId = this.getAttribute('onclick').match(/'([^']+)'/)[1];
-                    const content = document.getElementById(methodId);
-                    const icon = this.querySelector('.toggle-icon');
-
-                    // Close all other contents first
-                    document.querySelectorAll('.method-content').forEach(item => {
-                        if (item.id !== methodId) {
-                            item.style.display = 'none';
-                            item.previousElementSibling.querySelector('.toggle-icon').textContent = '+';
-                        }
-                    });
-
-                    // Toggle the clicked content
-                    if (content.style.display === 'block') {
-                        content.style.display = 'none';
-                        icon.textContent = '+';
-                    } else {
-                        content.style.display = 'block';
-                        icon.textContent = '-';
-                    }
-                });
-            });
-
-            // Bank account selector
-            const bankSelect = document.getElementById('bank_account');
-            const bankDetails = document.getElementById('selectedBankDetails');
-            const bankAccounts = <?php echo json_encode(BANK_ACCOUNTS); ?>;
-
-            if (bankSelect) {
-                bankSelect.addEventListener('change', function() {
-                    const selectedIndex = this.value;
-                    if (selectedIndex !== '') {
-                        const bank = bankAccounts[selectedIndex];
-                        bankDetails.innerHTML = `
-                        <div class="bank-details">
-                            <h5>${bank.bank_name} Details</h5>
-                            <p><strong>Account Name:</strong> ${bank.account_name}</p>
-                            <p><strong>Account Number:</strong> ${bank.account_number}</p>
-                            <p><strong>Branch:</strong> ${bank.branch} (${bank.branch_code})</p>
-                            <p><strong>Amount to Pay:</strong> Rs. <?php echo number_format($data['payment_amount'], 2); ?></p>
-                        </div>
-                    `;
-                    } else {
-                        bankDetails.innerHTML = '';
-                    }
-                });
-            }
-
-            // File input feedback
-            const fileInput = document.getElementById('payment_slip');
-            if (fileInput) {
-                fileInput.addEventListener('change', function() {
-                    const fileName = this.value.split('\\').pop();
-                    if (fileName) {
-                        const label = this.previousElementSibling || this.parentElement.querySelector('label');
-                        if (label) {
-                            label.innerHTML = 'Selected File: ' + fileName;
-                        }
-                    }
-                });
-            }
-        });
-
-        // You can remove this function as it's now handled by the event listeners above
         function toggleMethod(methodId) {
             const methodContent = document.getElementById(methodId);
             const allContents = document.querySelectorAll('.method-content');
@@ -297,6 +226,31 @@
                 methodContent.style.display = 'block';
                 event.currentTarget.querySelector('.toggle-icon').textContent = '-';
             }
+        }
+
+        // Bank account details display
+        const bankSelect = document.getElementById('bank_account');
+        const bankDetails = document.getElementById('selectedBankDetails');
+        const bankAccounts = <?php echo json_encode(BANK_ACCOUNTS); ?>;
+
+        if (bankSelect) {
+            bankSelect.addEventListener('change', function() {
+                const selectedIndex = this.value;
+                if (selectedIndex !== '') {
+                    const bank = bankAccounts[selectedIndex];
+                    bankDetails.innerHTML = `
+                        <div class="bank-details">
+                            <h5>${bank.bank_name} Details</h5>
+                            <p>Account Name: ${bank.account_name}</p>
+                            <p>Account Number: ${bank.account_number}</p>
+                            <p>Branch: ${bank.branch} (${bank.branch_code})</p>
+                            <p>Amount: Rs. <?php echo number_format($data['payment_amount'], 2); ?></p>
+                        </div>
+                    `;
+                } else {
+                    bankDetails.innerHTML = '';
+                }
+            });
         }
     </script>
 
