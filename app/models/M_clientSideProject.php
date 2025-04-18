@@ -52,35 +52,81 @@ class M_clientSideProject
         return $this->db->execute();
     }
 
-    public function getAgreementByID($agreementId)
+    public function getAgreementByPreProjectId($preProjectId)
     {
-        $this->db->query('SELECT * FROM project_agreements WHERE agreement_id = :agreement_id');
-        $this->db->bind(':agreement_id', $agreementId);
+        $this->db->query('SELECT pa.* 
+                     FROM project_agreements pa
+                     JOIN projects p ON pa.agreement_id = p.agreement_id
+                     WHERE p.pre_project_id = :pre_project_id
+                     ORDER BY pa.created_at DESC
+                     LIMIT 1');
+
+        $this->db->bind(':pre_project_id', $preProjectId);
         return $this->db->single();
     }
 
     /**
-     * Get project payment
+     * Get project payment by phase
+     * 
+     * @param int $projectId Project ID
+     * @param string $phase Payment phase (first_payment, final_payment)
+     * @return object|bool Payment object or false
      */
-    public function getProjectPayment($projectId, $paymentPhase)
+    public function getProjectPayment($projectId, $phase)
     {
         $this->db->query('SELECT * FROM project_payments 
-                     WHERE project_id = :project_id 
-                     AND payment_phase = :payment_phase');
+                         WHERE project_id = :project_id 
+                         AND payment_phase = :payment_phase
+                         ORDER BY created_at DESC
+                         LIMIT 1');
+
         $this->db->bind(':project_id', $projectId);
-        $this->db->bind(':payment_phase', $paymentPhase);
+        $this->db->bind(':payment_phase', $phase);
+        return $this->db->single();
+    }
+
+    /**
+     * Get project bank slip
+     * 
+     * @param int $projectId Project ID
+     * @param string $phase Payment phase (first_payment, final_payment)
+     * @return object|bool Bank slip object or false
+     */
+    public function getProjectBankSlip($projectId, $phase)
+    {
+        $this->db->query('SELECT pbs.* 
+                         FROM project_bankslips pbs
+                         JOIN project_payments pp ON pbs.projectpayment_id = pp.id
+                         WHERE pp.project_id = :project_id 
+                         AND pp.payment_phase = :payment_phase
+                         ORDER BY pbs.created_at DESC
+                         LIMIT 1');
+
+        $this->db->bind(':project_id', $projectId);
+        $this->db->bind(':payment_phase', $phase);
         return $this->db->single();
     }
 
     /**
      * Create project payment
+     * 
+     * @param array $data Payment data
+     * @return int|bool Payment ID or false
      */
     public function createProjectPayment($data)
     {
-        $this->db->query('INSERT INTO project_payments 
-                     (project_id, payment_method, amount, payment_phase, payment_status, created_at, updated_at) 
-                     VALUES 
-                     (:project_id, :payment_method, :amount, :payment_phase, :payment_status, NOW(), NOW())');
+        $this->db->query('INSERT INTO project_payments (
+                          project_id,
+                          payment_method,
+                          amount,
+                          payment_phase,
+                          payment_status)
+                          VALUES (
+                          :project_id,
+                          :payment_method,
+                          :amount,
+                          :payment_phase,
+                          :payment_status)');
 
         $this->db->bind(':project_id', $data['project_id']);
         $this->db->bind(':payment_method', $data['payment_method']);
@@ -88,116 +134,125 @@ class M_clientSideProject
         $this->db->bind(':payment_phase', $data['payment_phase']);
         $this->db->bind(':payment_status', $data['payment_status']);
 
-        return $this->db->execute();
+        if ($this->db->execute()) {
+            return $this->db->lastInsertId();
+        }
+
+        return false;
     }
 
     /**
      * Update project payment
+     * 
+     * @param int $paymentId Payment ID
+     * @param array $data Payment data
+     * @return bool Success status
      */
     public function updateProjectPayment($paymentId, $data)
     {
-        $this->db->query('UPDATE project_payments 
-                     SET payment_method = :payment_method,
-                         amount = :amount, 
-                         payment_status = :payment_status,
-                         updated_at = NOW()
-                     WHERE id = :id');
+        $query = 'UPDATE project_payments SET ';
+        $params = [];
 
-        $this->db->bind(':id', $paymentId);
-        $this->db->bind(':payment_method', $data['payment_method']);
-        $this->db->bind(':amount', $data['amount']);
-        $this->db->bind(':payment_status', $data['payment_status']);
+        if (isset($data['payment_status'])) {
+            $params[] = 'payment_status = :payment_status';
+        }
+        if (isset($data['transaction_id'])) {
+            $params[] = 'transaction_id = :transaction_id';
+        }
+
+        $query .= implode(', ', $params) . ', updated_at = CURRENT_TIMESTAMP WHERE id = :payment_id';
+
+        $this->db->query($query);
+        $this->db->bind(':payment_id', $paymentId);
+
+        if (isset($data['payment_status'])) {
+            $this->db->bind(':payment_status', $data['payment_status']);
+        }
+        if (isset($data['transaction_id'])) {
+            $this->db->bind(':transaction_id', $data['transaction_id']);
+        }
 
         return $this->db->execute();
     }
 
     /**
-     * Get payment by ID
+     * Create project bank slip
+     * 
+     * @param array $data Bank slip data
+     * @return int|bool Bank slip ID or false
      */
-    public function getPaymentById($paymentId)
+    public function createProjectBankSlip($data)
     {
-        $this->db->query('SELECT * FROM project_payments WHERE id = :id');
-        $this->db->bind(':id', $paymentId);
-        return $this->db->single();
+        $this->db->query('INSERT INTO project_bankslips (
+                          projectpayment_id,
+                          slip_file,
+                          status)
+                          VALUES (
+                          :projectpayment_id,
+                          :slip_file,
+                          :status)');
+
+        $this->db->bind(':projectpayment_id', $data['projectpayment_id']);
+        $this->db->bind(':slip_file', $data['slip_file']);
+        $this->db->bind(':status', $data['status']);
+
+        if ($this->db->execute()) {
+            return $this->db->lastInsertId();
+        }
+
+        return false;
     }
 
     /**
-     * Create or update bank slip entry
+     * Record that a bank slip was downloaded
+     * 
+     * @param int $projectId Project ID
+     * @param string $paymentPhase Payment phase
+     * @return bool Success status
      */
-    public function createOrUpdateBankSlip($paymentId)
+    public function recordSlipDownloaded($projectId, $paymentPhase)
     {
-        // Check if entry exists
-        $this->db->query('SELECT id FROM project_bankslips WHERE projectpayment_id = :payment_id');
-        $this->db->bind(':payment_id', $paymentId);
-        $existing = $this->db->single();
+        // First check if a payment record exists, create one if not
+        $payment = $this->getProjectPayment($projectId, $paymentPhase);
 
-        if ($existing) {
-            // Update existing entry
-            $this->db->query('UPDATE project_bankslips 
-                         SET slip_downloaded = false, 
-                             updated_at = NOW() 
-                         WHERE projectpayment_id = :payment_id');
-            $this->db->bind(':payment_id', $paymentId);
+        if (!$payment) {
+            // Create a payment record with payment_status = false
+            $paymentId = $this->createProjectPayment([
+                'project_id' => $projectId,
+                'payment_method' => 'bank_deposit',
+                'amount' => 0, // Will be updated when slip is uploaded
+                'payment_phase' => $paymentPhase,
+                'payment_status' => false
+            ]);
+        } else {
+            $paymentId = $payment->id;
+        }
+
+        // Check if a bank slip record exists, update it or create a new one
+        $slip = $this->getProjectBankSlip($projectId, $paymentPhase);
+
+        if ($slip) {
+            // Update existing slip record
+            $this->db->query('UPDATE project_bankslips SET 
+                             slip_downloaded = TRUE,
+                             updated_at = CURRENT_TIMESTAMP
+                             WHERE id = :id');
+
+            $this->db->bind(':id', $slip->id);
             return $this->db->execute();
         } else {
-            // Create new entry
-            $this->db->query('INSERT INTO project_bankslips 
-                         (projectpayment_id, status, slip_downloaded, created_at, updated_at) 
-                         VALUES 
-                         (:payment_id, "pending", false, NOW(), NOW())');
-            $this->db->bind(':payment_id', $paymentId);
+            // Create new slip record
+            $this->db->query('INSERT INTO project_bankslips (
+                             projectpayment_id,
+                             slip_downloaded,
+                             status)
+                             VALUES (
+                             :projectpayment_id,
+                             TRUE,
+                             "pending")');
+
+            $this->db->bind(':projectpayment_id', $paymentId);
             return $this->db->execute();
         }
-    }
-
-    /**
-     * Get bank slip by payment ID
-     */
-    public function getBankSlipByPaymentId($paymentId)
-    {
-        $this->db->query('SELECT * FROM project_bankslips WHERE projectpayment_id = :payment_id');
-        $this->db->bind(':payment_id', $paymentId);
-        return $this->db->single();
-    }
-
-    /**
-     * Mark bank slip as downloaded
-     */
-    public function markSlipAsDownloaded($paymentId)
-    {
-        $this->db->query('UPDATE project_bankslips 
-                     SET slip_downloaded = true, 
-                         updated_at = NOW() 
-                     WHERE projectpayment_id = :payment_id');
-        $this->db->bind(':payment_id', $paymentId);
-        return $this->db->execute();
-    }
-
-    /**
-     * Reset bank slip downloaded status
-     */
-    public function resetBankSlip($paymentId)
-    {
-        $this->db->query('UPDATE project_bankslips 
-                     SET slip_downloaded = false, 
-                         slip_file = NULL,
-                         updated_at = NOW() 
-                     WHERE projectpayment_id = :payment_id');
-        $this->db->bind(':payment_id', $paymentId);
-        return $this->db->execute();
-    }
-
-    /**
-     * Update bank slip with uploaded file
-     */
-    public function updateBankSlipFile($paymentId, $fileName)
-    {
-        $this->db->query('UPDATE project_bankslips 
-                     SET slip_file = :slip_file, 
-                         updated_at = NOW() 
-                     WHERE projectpayment_id = :payment_id');
-        $this->db->bind(':payment_id', $paymentId);
-        $this->db->bind(':slip_file', $fileName);
-        return $this->db->execute();
     }
 }

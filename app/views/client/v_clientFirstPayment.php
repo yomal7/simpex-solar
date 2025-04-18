@@ -14,7 +14,6 @@
             <li>
                 <a href="<?php echo URLROOT; ?>/client/project" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a>
             </li>
-            </li>
         </ul>
     </div>
     <!-- End of Sidebar -->
@@ -31,8 +30,8 @@
 
             <div class="status-bar">
                 <h2>Payment Status</h2>
-                <div class="status-indicator <?php echo isset($data['existing_payment']) && $data['existing_payment']->payment_status ? 'paid' : 'pending'; ?>">
-                    <?php echo isset($data['existing_payment']) && $data['existing_payment']->payment_status ? 'Paid' : 'Pending'; ?>
+                <div class="status-indicator <?php echo (isset($data['payment']) && is_object($data['payment']) && $data['payment']->payment_status) ? 'paid' : 'pending'; ?>">
+                    <?php echo (isset($data['payment']) && is_object($data['payment']) && $data['payment']->payment_status) ? 'Paid' : 'Pending'; ?>
                 </div>
             </div>
 
@@ -56,123 +55,249 @@
 
             <div class="payment-container">
                 <div class="amount-display">
-                    <h3>Amount Due (25% of Total Project Cost)</h3>
-                    <div class="amount">Rs. <?php echo number_format($data['first_payment_amount'], 2); ?></div>
-                    <p class="payment-note">Please note: This is the minimum required payment to proceed with your solar installation project.</p>
+                    <h3>First Payment (25% of Total Project Cost)</h3>
+                    <div class="amount">Rs. <?php echo number_format($data['payment_amount'], 2); ?></div>
+                    <p class="payment-note">This initial payment allows us to begin your solar installation project.</p>
                 </div>
 
-                <?php if (!isset($data['existing_payment']) || !$data['existing_payment']->payment_status): ?>
-                    <div class="payment-options">
-                        <div class="payment-option" onclick="confirmPaymentMethod('online')">
-                            <i class="material-icons">credit_card</i>
-                            <h3>Online Banking</h3>
-                            <p>Pay securely using your bank account</p>
+                <?php if (!isset($data['payment']) || !$data['payment']->payment_status): ?>
+                    <!-- Payment Methods Accordion -->
+                    <div class="payment-methods">
+                        <h3>Select Payment Method</h3>
+
+                        <!-- Bank Deposit Method -->
+                        <div class="payment-method">
+                            <div class="method-header" onclick="toggleMethod('bank-deposit')">
+                                <h4>Bank Deposit</h4>
+                                <span class="toggle-icon">+</span>
+                            </div>
+                            <div class="method-content" id="bank-deposit">
+                                <p>Make a bank deposit and upload your payment slip.</p>
+
+                                <?php if (isset($data['bank_slip']) && $data['bank_slip']): ?>
+                                    <div class="slip-status">
+                                        <p>You have uploaded a slip. Status:
+                                            <?php
+                                            switch ($data['bank_slip']->status) {
+                                                case 'pending':
+                                                    echo 'Pending';
+                                                    break;
+                                                case 'approved':
+                                                    echo 'Approved';
+                                                    break;
+                                                case 'rejected':
+                                                    echo 'Rejected';
+                                                    break;
+                                                default:
+                                                    echo ucfirst($data['bank_slip']->status);
+                                            }
+                                            ?>
+                                        </p>
+                                        <?php if ($data['bank_slip']->status == 'rejected' && !empty($data['bank_slip']->reject_reason)): ?>
+                                            <p class="rejection-reason">Reason: <?php echo $data['bank_slip']->reject_reason; ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+
+                                <h4>Select Bank Account</h4>
+                                <form action="<?php echo URLROOT; ?>/client/generateBankSlip" method="post" id="bankForm">
+                                    <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
+                                    <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
+                                    <input type="hidden" name="payment_phase" value="first_payment">
+                                    <input type="hidden" name="amount" value="<?php echo $data['payment_amount']; ?>">
+
+                                    <div class="form-group">
+                                        <select name="bank_account" id="bank_account" required>
+                                            <option value="">-- Select Bank --</option>
+                                            <?php foreach (BANK_ACCOUNTS as $index => $bank): ?>
+                                                <option value="<?php echo $index; ?>"><?php echo $bank['bank_name']; ?> - <?php echo $bank['branch']; ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="selected-bank-details" id="selectedBankDetails">
+                                        <!-- Bank details will be shown here -->
+                                    </div>
+
+                                    <div class="action-buttons">
+                                        <button type="submit" class="btn btn-secondary">Download Payment Slip</button>
+                                    </div>
+                                </form>
+
+                                <?php if (!isset($data['bank_slip']) || $data['bank_slip']->status == 'rejected'): ?>
+                                    <form action="<?php echo URLROOT; ?>/client/uploadBankSlip" method="post" enctype="multipart/form-data" class="upload-form">
+                                        <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
+                                        <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
+                                        <input type="hidden" name="payment_phase" value="first_payment">
+                                        <input type="hidden" name="amount" value="<?php echo $data['payment_amount']; ?>">
+                                        <div class="form-group">
+                                            <label for="payment_slip">Upload Signed Payment Slip:</label>
+                                            <input type="file" id="payment_slip" name="payment_slip" accept="image/*,.pdf" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Upload Slip</button>
+                                    </form>
+                                <?php endif; ?>
+                            </div>
                         </div>
 
-                        <div class="payment-option" onclick="confirmPaymentMethod('bank_deposit')">
-                            <i class="material-icons">upload_file</i>
-                            <h3>Bank Deposit</h3>
-                            <p>Upload your payment confirmation</p>
+                        <!-- Online Payment Method -->
+                        <div class="payment-method">
+                            <div class="method-header" onclick="toggleMethod('online-payment')">
+                                <h4>Online Payment</h4>
+                                <span class="toggle-icon">+</span>
+                            </div>
+                            <div class="method-content" id="online-payment">
+                                <p>Pay securely online with your credit/debit card or bank account.</p>
+                                <div class="action-buttons">
+                                    <form action="<?php echo URLROOT; ?>/client/processOnlinePayment" method="post">
+                                        <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
+                                        <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
+                                        <input type="hidden" name="payment_phase" value="first_payment">
+                                        <input type="hidden" name="amount" value="<?php echo $data['payment_amount']; ?>">
+                                        <button type="submit" class="btn btn-primary">Proceed to Payment</button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="payment-option" onclick="confirmPaymentMethod('cash')">
-                            <i class="material-icons">payments</i>
-                            <h3>Cash Payment</h3>
-                            <p>Pay in cash at our office</p>
+                        <!-- Cash Payment Method -->
+                        <div class="payment-method">
+                            <div class="method-header" onclick="toggleMethod('cash-payment')">
+                                <h4>Cash Payment</h4>
+                                <span class="toggle-icon">+</span>
+                            </div>
+                            <div class="method-content" id="cash-payment">
+                                <p>Visit our office and pay in cash.</p>
+                                <div class="office-details">
+                                    <h5>Office Details</h5>
+                                    <p>Address: <?php echo address; ?></p>
+                                    <p>Business Hours: Monday to Friday, 9:00 AM - 5:00 PM</p>
+                                    <p>Phone: 011-2345678</p>
+                                </div>
+                                <div class="action-buttons">
+                                    <form action="<?php echo URLROOT; ?>/client/recordCashPayment" method="post">
+                                        <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
+                                        <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
+                                        <input type="hidden" name="payment_phase" value="first_payment">
+                                        <input type="hidden" name="amount" value="<?php echo $data['payment_amount']; ?>">
+                                        <button type="submit" class="btn btn-primary">I'll Pay in Cash</button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 <?php else: ?>
                     <div class="payment-success">
-                        <i class="material-icons success-icon">check_circle</i>
+                        <div class="success-icon">✓</div>
                         <h3>Payment Complete</h3>
                         <p>Your payment has been received. Thank you!</p>
-                        <p>Amount Paid: Rs. <?php echo number_format($data['existing_payment']->amount, 2); ?></p>
-                        <p>Payment Method: <?php echo ucfirst(str_replace('_', ' ', $data['existing_payment']->payment_method)); ?></p>
-                        <p>Payment Date: <?php echo date('F j, Y', strtotime($data['existing_payment']->created_at)); ?></p>
+                        <p>Amount Paid: Rs. <?php echo number_format($data['payment']->amount, 2); ?></p>
+                        <p>Payment Method: <?php echo ucfirst(str_replace('_', ' ', $data['payment']->payment_method)); ?></p>
+                        <p>Payment Date: <?php echo date('F j, Y', strtotime($data['payment']->created_at)); ?></p>
                     </div>
                 <?php endif; ?>
             </div>
         </div>
-
-        <!-- Payment Method Confirmation Popup -->
-        <div class="popup" id="paymentMethodPopup">
-            <div class="popup-content">
-                <h2>Confirm Payment Method</h2>
-                <p>You have selected <span id="selectedMethod"></span> as your payment method.</p>
-                <p>Do you want to proceed with this payment method?</p>
-
-                <div class="popup-buttons">
-                    <button class="btn-secondary" onclick="closePopup()">Cancel</button>
-                    <button class="btn-primary" onclick="processPaymentMethod()">Confirm</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="overlay" id="overlay"></div>
     </div>
 
     <script>
-        let selectedPaymentMethod = '';
-        const projectId = '<?php echo $data['project_id']; ?>';
-        const preProjectId = '<?php echo $data['pre_project_id']; ?>';
-        const paymentAmount = <?php echo $data['first_payment_amount']; ?>;
-        const URLROOT = '<?php echo URLROOT; ?>';
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the payment methods accordion
+            const methodHeaders = document.querySelectorAll('.method-header');
 
-        function confirmPaymentMethod(method) {
-            selectedPaymentMethod = method;
-            document.getElementById('selectedMethod').textContent = method.replace('_', ' ');
-            document.getElementById('paymentMethodPopup').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
-        }
+            methodHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    // Get the method content and toggle icon
+                    const methodId = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+                    const content = document.getElementById(methodId);
+                    const icon = this.querySelector('.toggle-icon');
 
-        function closePopup() {
-            document.getElementById('paymentMethodPopup').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-        }
-
-        function processPaymentMethod() {
-            // Send AJAX request to record payment method choice
-            fetch(`${URLROOT}/client/selectPaymentMethod`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        project_id: projectId,
-                        payment_method: selectedPaymentMethod,
-                        amount: paymentAmount,
-                        payment_phase: 'first_payment'
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Redirect based on payment method
-                        switch (selectedPaymentMethod) {
-                            case 'online':
-                                window.location.href = `${URLROOT}/client/onlinePayment/${preProjectId}`;
-                                break;
-                            case 'bank_deposit':
-                                window.location.href = `${URLROOT}/client/projectBankDeposit/${preProjectId}`;
-                                break;
-                            case 'cash':
-                                window.location.href = `${URLROOT}/client/cashPayment/${preProjectId}`;
-                                break;
+                    // Close all other contents first
+                    document.querySelectorAll('.method-content').forEach(item => {
+                        if (item.id !== methodId) {
+                            item.style.display = 'none';
+                            item.previousElementSibling.querySelector('.toggle-icon').textContent = '+';
                         }
-                    } else {
-                        alert(data.message || 'Error processing payment method selection');
-                        closePopup();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while processing your request');
-                    closePopup();
-                });
-        }
+                    });
 
-        // Close popup when clicking overlay
-        document.getElementById('overlay').addEventListener('click', closePopup);
+                    // Toggle the clicked content
+                    if (content.style.display === 'block') {
+                        content.style.display = 'none';
+                        icon.textContent = '+';
+                    } else {
+                        content.style.display = 'block';
+                        icon.textContent = '-';
+                    }
+                });
+            });
+
+            // Bank account selector
+            const bankSelect = document.getElementById('bank_account');
+            const bankDetails = document.getElementById('selectedBankDetails');
+            const bankAccounts = <?php echo json_encode(BANK_ACCOUNTS); ?>;
+
+            if (bankSelect) {
+                bankSelect.addEventListener('change', function() {
+                    const selectedIndex = this.value;
+                    if (selectedIndex !== '') {
+                        const bank = bankAccounts[selectedIndex];
+                        bankDetails.innerHTML = `
+                        <div class="bank-details">
+                            <h5>${bank.bank_name} Details</h5>
+                            <p><strong>Account Name:</strong> ${bank.account_name}</p>
+                            <p><strong>Account Number:</strong> ${bank.account_number}</p>
+                            <p><strong>Branch:</strong> ${bank.branch} (${bank.branch_code})</p>
+                            <p><strong>Amount to Pay:</strong> Rs. <?php echo number_format($data['payment_amount'], 2); ?></p>
+                        </div>
+                    `;
+                    } else {
+                        bankDetails.innerHTML = '';
+                    }
+                });
+            }
+
+            // File input feedback
+            const fileInput = document.getElementById('payment_slip');
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    const fileName = this.value.split('\\').pop();
+                    if (fileName) {
+                        const label = this.previousElementSibling || this.parentElement.querySelector('label');
+                        if (label) {
+                            label.innerHTML = 'Selected File: ' + fileName;
+                        }
+                    }
+                });
+            }
+        });
+
+        // You can remove this function as it's now handled by the event listeners above
+        function toggleMethod(methodId) {
+            const methodContent = document.getElementById(methodId);
+            const allContents = document.querySelectorAll('.method-content');
+            const allIcons = document.querySelectorAll('.toggle-icon');
+
+            // Close all other method contents
+            allContents.forEach(content => {
+                if (content.id !== methodId) {
+                    content.style.display = 'none';
+                }
+            });
+
+            // Reset all toggle icons
+            allIcons.forEach(icon => {
+                icon.textContent = '+';
+            });
+
+            // Toggle the clicked method
+            if (methodContent.style.display === 'block') {
+                methodContent.style.display = 'none';
+                event.currentTarget.querySelector('.toggle-icon').textContent = '+';
+            } else {
+                methodContent.style.display = 'block';
+                event.currentTarget.querySelector('.toggle-icon').textContent = '-';
+            }
+        }
     </script>
 
     <?php require APPROOT . '/views/client/footer.php'; ?>

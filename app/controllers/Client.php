@@ -655,13 +655,19 @@ class Client extends Controller
         }
     }
 
+    /**
+     * Display the first payment page
+     * 
+     * @param int $preProjectId The pre-project ID
+     * @return void
+     */
     public function firstPayment($preProjectId = null)
     {
         if ($preProjectId === null) {
             redirect('client/project');
         }
 
-        // Get the project using pre_project_id
+        // Get project data
         $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
 
         if (!$project) {
@@ -669,349 +675,341 @@ class Client extends Controller
             redirect('client/project');
         }
 
-        // Check if this project belongs to the logged-in user
+        // Check if the project belongs to the logged-in user
         if ($project->customer_id != $_SESSION['user_id']) {
             flash('payment_message', 'Unauthorized access', 'alert alert-danger');
             redirect('client/project');
         }
 
-        // Get agreement details for pricing
-        $agreement = $this->clientSideProjectModel->getAgreementByID($project->agreement_id);
-
+        // Get agreement data (for pricing information)
+        $agreement = $this->clientSideProjectModel->getAgreementByPreProjectId($preProjectId);
         if (!$agreement) {
-            flash('payment_message', 'Agreement details not found', 'alert alert-danger');
-            redirect('client/project');
+            flash('payment_message', 'Agreement not found', 'alert alert-danger');
+            redirect('client/project/' . $preProjectId);
         }
 
-        // Get any existing payment for this phase
-        $existingPayment = $this->clientSideProjectModel->getProjectPayment($project->project_id, 'first_payment');
+        // Get payment details (if any)
+        $payment = $this->clientSideProjectModel->getProjectPayment($project->project_id, 'first_payment');
 
-        // Set default object if payment doesn't exist
-        if (!$existingPayment) {
-            $existingPayment = (object)[
-                'payment_status' => false,
-                'amount' => 0,
-                'payment_method' => '',
-                'created_at' => ''
-            ];
-        }
+        // Get bank slip details (if any)
+        $bankSlip = $this->clientSideProjectModel->getProjectBankSlip($project->project_id, 'first_payment');
+
+        // Calculate first payment amount (25% of total)
+        $paymentAmount = $agreement->total_price * 0.25;
 
         $data = [
-            'project_id' => $project->project_id,
             'pre_project_id' => $preProjectId,
+            'project_id' => $project->project_id,
             'base_price' => $agreement->base_price,
             'service_charge' => $agreement->service_charge,
             'total_price' => $agreement->total_price,
-            'first_payment_amount' => $agreement->total_price * 0.25, // 25% of total
-            'existing_payment' => $existingPayment
+            'payment_amount' => $paymentAmount,
+            'payment' => $payment,
+            'bank_slip' => $bankSlip
         ];
 
         $this->view('client/v_clientFirstPayment', $data);
     }
 
-    public function selectPaymentMethod()
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('client/project');
-        }
-
-        // Get JSON data from request
-        $jsonData = file_get_contents('php://input');
-        $data = json_decode($jsonData);
-
-        if (
-            !$data || !isset($data->project_id) || !isset($data->payment_method) ||
-            !isset($data->amount) || !isset($data->payment_phase)
-        ) {
-            echo json_encode(['success' => false, 'message' => 'Missing required data']);
-            return;
-        }
-
-        // Prepare data for database
-        $paymentData = [
-            'project_id' => $data->project_id,
-            'payment_method' => $data->payment_method,
-            'amount' => $data->amount,
-            'payment_phase' => $data->payment_phase,
-            'payment_status' => false // Will be updated when payment is complete
-        ];
-
-        // Check if a payment record already exists
-        $existingPayment = $this->clientSideProjectModel->getProjectPayment($data->project_id, $data->payment_phase);
-
-        if ($existingPayment) {
-            // Update existing payment
-            $success = $this->clientSideProjectModel->updateProjectPayment($existingPayment->id, $paymentData);
-        } else {
-            // Create new payment record
-            $success = $this->clientSideProjectModel->createProjectPayment($paymentData);
-        }
-
-        if ($success) {
-            echo json_encode(['success' => true]);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to save payment information']);
-        }
-    }
-
-
-    public function projectBankDeposit($preProjectId = null)
-    {
-        if ($preProjectId === null) {
-            redirect('client/project');
-        }
-
-        // Get the project using pre_project_id
-        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
-
-        if (!$project) {
-            flash('bank_payment_message', 'Project not found', 'alert alert-danger');
-            redirect('client/project');
-        }
-
-        // Check if this project belongs to the logged-in user
-        if ($project->customer_id != $_SESSION['user_id']) {
-            flash('bank_payment_message', 'Unauthorized access', 'alert alert-danger');
-            redirect('client/project');
-        }
-
-        // Get agreement details for pricing
-        $agreement = $this->clientSideProjectModel->getAgreementByID($project->agreement_id);
-
-        if (!$agreement) {
-            flash('bank_payment_message', 'Agreement details not found', 'alert alert-danger');
-            redirect('client/project');
-        }
-
-        // Get any existing payment for this phase
-        $existingPayment = $this->clientSideProjectModel->getProjectPayment($project->project_id, 'first_payment');
-
-        // Calculate minimum payment (25% of total cost)
-        $minimumPayment = $agreement->total_price * 0.25;
-
-        // Check if slip has been downloaded already
-        $slipDownloaded = false;
-        $paymentId = null;
-
-        if ($existingPayment && $existingPayment->payment_method === 'bank_deposit') {
-            // Check if bank slip entry exists
-            $bankSlip = $this->clientSideProjectModel->getBankSlipByPaymentId($existingPayment->id);
-            if ($bankSlip && $bankSlip->slip_downloaded) {
-                $slipDownloaded = true;
-                $paymentId = $existingPayment->id;
-            }
-        }
-
-        // Get user details for slip
-        $user = $this->clientModel->getUserById($_SESSION['user_id']);
-
-        $data = [
-            'project_id' => $project->project_id,
-            'pre_project_id' => $preProjectId,
-            'base_price' => $agreement->base_price,
-            'service_charge' => $agreement->service_charge,
-            'total_price' => $agreement->total_price,
-            'minimum_payment' => $minimumPayment,
-            'slip_downloaded' => $slipDownloaded,
-            'payment_id' => $paymentId,
-            'user' => $user
-        ];
-
-        $this->view('client/v_clientProjectBank', $data);
-    }
-
     /**
-     * Generate bank slip and save payment details
+     * Generate bank deposit slip
+     * 
+     * @return void
      */
     public function generateBankSlip()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('client/project');
+            redirect('client/dashboard');
         }
 
-        // Get JSON data from request
-        $jsonData = file_get_contents('php://input');
-        $data = json_decode($jsonData);
+        $projectId = $_POST['project_id'];
+        $preProjectId = $_POST['pre_project_id'];
+        $paymentPhase = $_POST['payment_phase'];
+        $amount = $_POST['amount'];
+        $bankAccountIndex = $_POST['bank_account'];
 
+        // Validate inputs
         if (
-            !$data || !isset($data->project_id) || !isset($data->amount) ||
-            !isset($data->bank_index) || !isset($data->payment_phase)
+            empty($projectId) || empty($preProjectId) || empty($paymentPhase) ||
+            empty($amount) || !isset($bankAccountIndex)
         ) {
-            echo json_encode(['success' => false, 'message' => 'Missing required data']);
-            return;
+            flash('payment_message', 'Invalid request data', 'alert alert-danger');
+            redirect('client/firstPayment/' . $preProjectId);
         }
 
-        // Get selected bank
-        $bankAccounts = BANK_ACCOUNTS;
-        if (!isset($bankAccounts[$data->bank_index])) {
-            echo json_encode(['success' => false, 'message' => 'Invalid bank selection']);
-            return;
-        }
-
-        $selectedBank = $bankAccounts[$data->bank_index];
-
-        // Prepare payment data
-        $paymentData = [
-            'project_id' => $data->project_id,
-            'payment_method' => 'bank_deposit',
-            'amount' => $data->amount,
-            'payment_phase' => $data->payment_phase,
-            'payment_status' => false, // Will be updated when payment is verified
-            'bank_name' => $selectedBank['bank_name'],
-            'account_number' => $selectedBank['account_number']
-        ];
-
-        // Check if a payment record already exists
-        $existingPayment = $this->clientSideProjectModel->getProjectPayment($data->project_id, $data->payment_phase);
-
-        if ($existingPayment && $existingPayment->payment_method === 'bank_deposit') {
-            // Update existing payment
-            $paymentId = $existingPayment->id;
-            $success = $this->clientSideProjectModel->updateProjectPayment($paymentId, $paymentData);
-        } else {
-            // Create new payment record
-            $paymentId = $this->clientSideProjectModel->createProjectPayment($paymentData);
-            $success = ($paymentId > 0);
-        }
-
-        if ($success) {
-            // Create bank slip entry if it doesn't exist
-            $this->clientSideProjectModel->createOrUpdateBankSlip($paymentId);
-
-            echo json_encode([
-                'success' => true,
-                'payment_id' => $paymentId
-            ]);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to save payment information']);
-        }
-    }
-
-    /**
-     * Download bank slip
-     */
-    public function downloadBankSlip($paymentId)
-    {
-        // Get payment details
-        $payment = $this->clientSideProjectModel->getPaymentById($paymentId);
-
-        if (!$payment) {
-            flash('bank_payment_message', 'Payment not found', 'alert alert-danger');
-            redirect('client/project');
-        }
-
-        // Get project details
-        $project = $this->clientSideProjectModel->getProjectById($payment->project_id);
-
+        // Verify project belongs to the user
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
         if (!$project || $project->customer_id != $_SESSION['user_id']) {
-            flash('bank_payment_message', 'Unauthorized access', 'alert alert-danger');
-            redirect('client/project');
+            flash('payment_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/dashboard');
         }
 
-        // Get user details
-        $user = $this->clientModel->getUserById($_SESSION['user_id']);
+        // Get the selected bank account
+        if (!isset(BANK_ACCOUNTS[$bankAccountIndex])) {
+            flash('payment_message', 'Invalid bank account selected', 'alert alert-danger');
+            redirect('client/firstPayment/' . $preProjectId);
+        }
+        $bankAccount = BANK_ACCOUNTS[$bankAccountIndex];
 
-        // Mark slip as downloaded
-        $this->clientSideProjectModel->markSlipAsDownloaded($paymentId);
+        // Customer details
+        $customer = $this->clientModel->getClientByUserId($_SESSION['user_id']);
 
         // Generate PDF
+        require_once APPROOT . '/libraries/PdfGenerator.php';
         $pdfGenerator = new PdfGenerator();
-        $output = $pdfGenerator->generateBankSlip(
-            $payment->bank_name,
-            $payment->account_number,
-            $payment->amount,
-            $project->project_id,
-            $user->name,
-            $user->address ?? 'Not specified'
-        );
+        $pdf = $pdfGenerator->generateBankDepositSlip([
+            'customer_name' => $customer->name,
+            'customer_id' => $_SESSION['user_id'],
+            'project_id' => $projectId,
+            'payment_type' => 'First Payment (25%)',
+            'amount' => $amount,
+            'reference' => 'PR' . str_pad($projectId, 5, '0', STR_PAD_LEFT),
+            'bank_account' => $bankAccount
+        ]);
 
-        // Output PDF
+        // Record that a slip was downloaded
+        $this->clientSideProjectModel->recordSlipDownloaded($projectId, $paymentPhase);
+
+        // Output PDF to browser
         header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="bank_deposit_slip.pdf"');
-        header('Content-Length: ' . strlen($output));
-        echo $output;
+        header('Content-Disposition: attachment; filename="Bank_Deposit_Slip.pdf"');
+        echo $pdf;
         exit();
     }
 
     /**
-     * Reset bank slip (if customer wants to change details)
-     */
-    public function resetBankSlip($preProjectId)
-    {
-        // Get the project
-        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
-
-        if (!$project || $project->customer_id != $_SESSION['user_id']) {
-            flash('bank_payment_message', 'Unauthorized access', 'alert alert-danger');
-            redirect('client/project');
-        }
-
-        // Get payment
-        $payment = $this->clientSideProjectModel->getProjectPayment($project->project_id, 'first_payment');
-
-        if ($payment && $payment->payment_method === 'bank_deposit') {
-            // Reset bank slip downloaded status
-            $this->clientSideProjectModel->resetBankSlip($payment->id);
-        }
-
-        redirect('client/projectBankDeposit/' . $preProjectId);
-    }
-
-    /**
-     * Upload bank deposit slip
+     * Upload bank slip for payment
+     * 
+     * @return void
      */
     public function uploadBankSlip()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('client/project');
+            redirect('client/dashboard');
         }
 
-        // Return JSON response
-        header('Content-Type: application/json');
+        $projectId = $_POST['project_id'];
+        $preProjectId = $_POST['pre_project_id'];
+        $paymentPhase = $_POST['payment_phase'];
+        $amount = $_POST['amount'];
 
-        if (!isset($_FILES['slip']) || !isset($_POST['payment_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Missing required fields']);
-            return;
+        // Validate inputs
+        if (empty($projectId) || empty($preProjectId) || empty($paymentPhase) || empty($amount)) {
+            flash('payment_message', 'Invalid request data', 'alert alert-danger');
+            redirect('client/firstPayment/' . $preProjectId);
         }
 
-        $file = $_FILES['slip'];
-        $paymentId = $_POST['payment_id'];
-
-        // Validate file
-        $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-        $maxSize = 5 * 1024 * 1024; // 5MB
-
-        if (!in_array($file['type'], $allowedTypes)) {
-            echo json_encode(['success' => false, 'message' => 'Invalid file type. Please upload a JPG or PNG file.']);
-            return;
+        // Verify project belongs to the user
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+        if (!$project || $project->customer_id != $_SESSION['user_id']) {
+            flash('payment_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/dashboard');
         }
 
-        if ($file['size'] > $maxSize) {
-            echo json_encode(['success' => false, 'message' => 'File size exceeds the 5MB limit.']);
-            return;
+        // Check if file was uploaded
+        if (!isset($_FILES['payment_slip']) || $_FILES['payment_slip']['error'] !== UPLOAD_ERR_OK) {
+            flash('payment_message', 'Please upload a valid payment slip', 'alert alert-danger');
+            redirect('client/firstPayment/' . $preProjectId);
         }
 
-        // Create upload directory if it doesn't exist
-        $uploadDir = dirname(APPROOT) . '/public/uploads/projectbankslips/';
+        // Handle file upload
+        $file = $_FILES['payment_slip'];
+        $uploadDir = 'uploads/payment_slips/';
+        $fileExt = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $fileName = uniqid('slip_') . '.' . $fileExt;
+        $uploadPath = $uploadDir . $fileName;
+
+        // Create directory if it doesn't exist
         if (!file_exists($uploadDir)) {
             mkdir($uploadDir, 0777, true);
         }
 
-        // Generate unique filename
-        $fileName = uniqid() . '_' . basename($file['name']);
-        $uploadPath = $uploadDir . $fileName;
-
-        // Upload file
+        // Move uploaded file
         if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-            // Update bank slip record
-            if ($this->clientSideProjectModel->updateBankSlipFile($paymentId, $fileName)) {
-                echo json_encode(['success' => true, 'message' => 'Deposit slip uploaded successfully']);
+            // Check if we already have a payment record
+            $payment = $this->clientSideProjectModel->getProjectPayment($projectId, $paymentPhase);
+
+            if (!$payment) {
+                // Create new payment record
+                $paymentId = $this->clientSideProjectModel->createProjectPayment([
+                    'project_id' => $projectId,
+                    'payment_method' => 'bank_deposit',
+                    'amount' => $amount,
+                    'payment_phase' => $paymentPhase,
+                    'payment_status' => false // payment pending verification
+                ]);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Failed to save deposit slip information']);
+                $paymentId = $payment->id;
+            }
+
+            if ($paymentId) {
+                // Create bank slip record
+                $slipCreated = $this->clientSideProjectModel->createProjectBankSlip([
+                    'projectpayment_id' => $paymentId,
+                    'slip_file' => $uploadPath,
+                    'status' => 'pending'
+                ]);
+
+                if ($slipCreated) {
+                    flash('payment_message', 'Payment slip uploaded successfully. It will be verified by our team.', 'alert alert-success');
+                } else {
+                    flash('payment_message', 'Error recording slip details', 'alert alert-danger');
+                }
+            } else {
+                flash('payment_message', 'Error recording payment', 'alert alert-danger');
             }
         } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to upload deposit slip']);
+            flash('payment_message', 'Error uploading file', 'alert alert-danger');
         }
+
+        redirect('client/firstPayment/' . $preProjectId);
+    }
+
+    /**
+     * Process online payment
+     * 
+     * @return void
+     */
+    public function processOnlinePayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('client/dashboard');
+        }
+
+        $projectId = $_POST['project_id'];
+        $preProjectId = $_POST['pre_project_id'];
+        $paymentPhase = $_POST['payment_phase'];
+        $amount = $_POST['amount'];
+
+        // Validate inputs
+        if (empty($projectId) || empty($preProjectId) || empty($paymentPhase) || empty($amount)) {
+            flash('payment_message', 'Invalid request data', 'alert alert-danger');
+            redirect('client/firstPayment/' . $preProjectId);
+        }
+
+        // Verify project belongs to the user
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+        if (!$project || $project->customer_id != $_SESSION['user_id']) {
+            flash('payment_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/dashboard');
+        }
+
+        // Create pending payment record
+        $paymentId = $this->clientSideProjectModel->createProjectPayment([
+            'project_id' => $projectId,
+            'payment_method' => 'online',
+            'amount' => $amount,
+            'payment_phase' => $paymentPhase,
+            'payment_status' => false // payment pending
+        ]);
+
+        if (!$paymentId) {
+            flash('payment_message', 'Error initiating payment', 'alert alert-danger');
+            redirect('client/firstPayment/' . $preProjectId);
+        }
+
+        // Redirect to payment gateway
+        $data = [
+            'project_id' => $projectId,
+            'pre_project_id' => $preProjectId,
+            'payment_id' => $paymentId,
+            'payment_phase' => $paymentPhase,
+            'amount' => $amount
+        ];
+
+        $this->view('client/v_paymentGateway', $data);
+    }
+
+    /**
+     * Complete online payment
+     * 
+     * @return void
+     */
+    public function completeOnlinePayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('client/dashboard');
+        }
+
+        $projectId = $_POST['project_id'];
+        $preProjectId = $_POST['pre_project_id'];
+        $paymentId = $_POST['payment_id'];
+        $paymentPhase = $_POST['payment_phase'];
+        $amount = $_POST['amount'];
+
+        // Verify project belongs to the user
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+        if (!$project || $project->customer_id != $_SESSION['user_id']) {
+            flash('payment_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/dashboard');
+        }
+
+        // Simulate successful payment
+        // In a real application, this would verify the payment with a payment gateway
+
+        // Generate transaction ID
+        $transactionId = 'TRANS_' . uniqid();
+
+        // Update payment status
+        $paymentUpdated = $this->clientSideProjectModel->updateProjectPayment($paymentId, [
+            'payment_status' => true,
+            'transaction_id' => $transactionId
+        ]);
+
+        if ($paymentUpdated) {
+            flash('payment_message', 'Payment completed successfully!', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to update payment status', 'alert alert-danger');
+        }
+
+        redirect('client/firstPayment/' . $preProjectId);
+    }
+
+    /**
+     * Record cash payment intent
+     * 
+     * @return void
+     */
+    public function recordCashPayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('client/dashboard');
+        }
+
+        $projectId = $_POST['project_id'];
+        $preProjectId = $_POST['pre_project_id'];
+        $paymentPhase = $_POST['payment_phase'];
+        $amount = $_POST['amount'];
+
+        // Validate inputs
+        if (empty($projectId) || empty($preProjectId) || empty($paymentPhase) || empty($amount)) {
+            flash('payment_message', 'Invalid request data', 'alert alert-danger');
+            redirect('client/firstPayment/' . $preProjectId);
+        }
+
+        // Verify project belongs to the user
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+        if (!$project || $project->customer_id != $_SESSION['user_id']) {
+            flash('payment_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/dashboard');
+        }
+
+        // Create pending payment record for cash
+        $paymentId = $this->clientSideProjectModel->createProjectPayment([
+            'project_id' => $projectId,
+            'payment_method' => 'cash',
+            'amount' => $amount,
+            'payment_phase' => $paymentPhase,
+            'payment_status' => false // Cash payment pending
+        ]);
+
+        if ($paymentId) {
+            flash('payment_message', 'Your cash payment intention has been recorded. Please visit our office at ' . address . ' to complete the payment.', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Error recording payment intention', 'alert alert-danger');
+        }
+
+        redirect('client/firstPayment/' . $preProjectId);
     }
 
     public function finalPayment()

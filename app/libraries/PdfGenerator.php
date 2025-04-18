@@ -226,164 +226,210 @@ class PdfGenerator
         return $this->dompdf->output();
     }
 
-    public function generateBankSlip($bankName, $accountNumber, $amount, $projectId, $customerName, $customerAddress)
+    public function generateBankDepositSlip($data)
     {
         $html = '
-            <html>
-            <head>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        margin: 0;
-                        padding: 20px;
-                        font-size: 12px;
-                    }
-                    .container {
-                        border: 1px solid #000;
-                        padding: 15px;
-                        width: 100%;
-                    }
-                    .header {
-                        text-align: center;
-                        margin-bottom: 20px;
-                    }
-                    .header h1 {
-                        margin: 0;
-                        font-size: 18px;
-                        font-weight: bold;
-                    }
-                    .header h2 {
-                        margin: 5px 0;
-                        font-size: 14px;
-                        color: #777;
-                    }
-                    .copy-label {
-                        color: #D32F2F;
-                        font-weight: bold;
-                        margin-top: 5px;
-                    }
-                    .date-section {
-                        margin: 15px 0;
-                    }
-                    .date-boxes {
-                        display: inline-block;
-                    }
-                    .date-box {
-                        width: 25px;
-                        height: 25px;
-                        border: 1px solid #000;
-                        display: inline-block;
-                        text-align: center;
-                        line-height: 25px;
-                    }
-                    .bank-info {
-                        border: 1px solid #000;
-                        padding: 10px;
-                        margin-bottom: 15px;
-                    }
-                    .bank-info p {
-                        margin: 5px 0;
-                    }
-                    .branch-line {
-                        border-bottom: 1px dotted #000;
-                        width: 70%;
-                        display: inline-block;
-                    }
-                    .payment-info {
-                        border: 1px solid #000;
-                        margin-bottom: 15px;
-                        width: 100%;
-                        border-collapse: collapse;
-                    }
-                    .payment-info th, .payment-info td {
-                        border: 1px solid #000;
-                        padding: 8px;
-                        text-align: left;
-                    }
-                    .payment-info th {
-                        background-color: #f2f2f2;
-                    }
-                    .amount-section, .signature-section {
-                        border: 1px solid #000;
-                        padding: 10px;
-                        margin-bottom: 15px;
-                        width: 45%;
-                        display: inline-block;
-                        vertical-align: top;
-                        height: 150px;
-                    }
-                    .customer-section {
-                        border: 1px solid #000;
-                        padding: 10px;
-                        width: 45%;
-                        float: right;
-                        height: 150px;
-                    }
-                    .signature-line {
-                        border-top: 1px solid #000;
-                        margin-top: 60px;
-                        text-align: center;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>CASH-PAYING-IN-SLIP</h1>
-                        <h2>(To be filled in quadruplicate)</h2>
-                        <div class="copy-label">CLIENT COPY</div>
+        <html>
+        <head>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    color: #333;
+                }
+                
+                .bank-slip {
+                    width: 100%;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    border: 2px solid #2e7d32;
+                    padding: 20px;
+                }
+                
+                .header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-bottom: 2px solid #2e7d32;
+                    padding-bottom: 10px;
+                    margin-bottom: 20px;
+                }
+                
+                .logo {
+                    width: 150px;
+                }
+                
+                .slip-title {
+                    font-size: 24px;
+                    font-weight: bold;
+                    color: #2e7d32;
+                    text-align: center;
+                    margin: 10px 0 20px;
+                }
+                
+                .bank-info, .payment-info, .customer-info {
+                    margin-bottom: 20px;
+                }
+                
+                .section-title {
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #2e7d32;
+                    margin-bottom: 10px;
+                    border-bottom: 1px solid #ddd;
+                    padding-bottom: 5px;
+                }
+                
+                .info-row {
+                    display: flex;
+                    margin-bottom: 5px;
+                }
+                
+                .label {
+                    width: 150px;
+                    font-weight: bold;
+                }
+                
+                .value {
+                    flex: 1;
+                }
+                
+                .amount {
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: #2e7d32;
+                    text-align: right;
+                    margin: 20px 0;
+                }
+                
+                .amount-words {
+                    margin-bottom: 20px;
+                    font-style: italic;
+                }
+                
+                .signatures {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 50px;
+                }
+                
+                .signature-box {
+                    width: 45%;
+                    border-top: 1px solid #333;
+                    padding-top: 5px;
+                    text-align: center;
+                }
+                
+                .footer {
+                    margin-top: 30px;
+                    text-align: center;
+                    font-size: 12px;
+                    color: #666;
+                }
+                
+                .instructions {
+                    margin-top: 20px;
+                    font-size: 12px;
+                    border: 1px dashed #ccc;
+                    padding: 10px;
+                    background-color: #f9f9f9;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="bank-slip">
+                <div class="header">
+                    <div class="company-info">
+                        <h2 style="margin: 0; color: #2e7d32;">SimplEx Solar Solutions</h2>
+                        <p style="margin: 5px 0;">' . address . '</p>
                     </div>
-                    
-                    <div class="date-section">
-                        <strong>DATE:</strong>
-                        <div class="date-boxes">
-                            <div class="date-box">D</div>
-                            <div class="date-box">D</div>
-                            <div class="date-box">M</div>
-                            <div class="date-box">M</div>
-                            <div class="date-box">Y</div>
-                            <div class="date-box">Y</div>
-                            <div class="date-box">Y</div>
-                            <div class="date-box">Y</div>
-                        </div>
-                    </div>
-                    
-                    <div class="bank-info">
-                        <h3>NOT FOR SALE</h3>
-                        <h3>SIMPEX SOLAR</h3>
-                        <p>Paid at ' . htmlspecialchars($bankName) . '</p>
-                        <p>Branch: <span class="branch-line"></span></p>
-                    </div>
-                    
-                    <p><strong>PAID IN CREDIT OF:</strong> SIMPEX SOLAR - ' . htmlspecialchars($bankName) . ' - A/C No. ' . htmlspecialchars($accountNumber) . '</p>
-                    
-                    <table class="payment-info">
-                        <tr>
-                            <th>Purpose</th>
-                            <th>Total Payment</th>
-                        </tr>
-                        <tr>
-                            <td>Solar Project (' . htmlspecialchars($projectId) . ') First Payment</td>
-                            <td>Rs. ' . number_format($amount, 2) . '</td>
-                        </tr>
-                    </table>
-                    
-                    <div class="amount-section">
-                        <p><strong>Amount Paid Rs.:</strong> ' . number_format($amount, 2) . '</p>
-                        <p><strong>Amount in Words:</strong> ' . $this->numberToWords($amount) . '</p>
-                        
-                        <div class="signature-line">Cash Depositor\'s Signature</div>
-                        <div class="signature-line">Cashier\'s Signature</div>
-                    </div>
-                    
-                    <div class="customer-section">
-                        <h3>Customer Information</h3>
-                        <p><strong>Name:</strong> ' . htmlspecialchars($customerName) . '</p>
-                        <p><strong>Address:</strong> ' . htmlspecialchars($customerAddress) . '</p>
+                    <div>
+                        <p style="text-align: right;">Reference: ' . $data['reference'] . '</p>
+                        <p style="text-align: right;">Date: ' . date('Y-m-d') . '</p>
                     </div>
                 </div>
-            </body>
-            </html>';
+                
+                <h1 class="slip-title">BANK DEPOSIT SLIP</h1>
+                
+                <div class="bank-info">
+                    <h3 class="section-title">Bank Details</h3>
+                    <div class="info-row">
+                        <span class="label">Bank Name:</span>
+                        <span class="value">' . $data['bank_account']['bank_name'] . '</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Account Name:</span>
+                        <span class="value">' . $data['bank_account']['account_name'] . '</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Account Number:</span>
+                        <span class="value">' . $data['bank_account']['account_number'] . '</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Branch:</span>
+                        <span class="value">' . $data['bank_account']['branch'] . ' (' . $data['bank_account']['branch_code'] . ')</span>
+                    </div>
+                </div>
+                
+                <div class="customer-info">
+                    <h3 class="section-title">Customer Details</h3>
+                    <div class="info-row">
+                        <span class="label">Customer Name:</span>
+                        <span class="value">' . htmlspecialchars($data['customer_name']) . '</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Customer ID:</span>
+                        <span class="value">' . $data['customer_id'] . '</span>
+                    </div>
+                </div>
+                
+                <div class="payment-info">
+                    <h3 class="section-title">Payment Details</h3>
+                    <div class="info-row">
+                        <span class="label">Project ID:</span>
+                        <span class="value">' . $data['project_id'] . '</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Payment Type:</span>
+                        <span class="value">' . $data['payment_type'] . '</span>
+                    </div>
+                </div>
+                
+                <div class="amount">
+                    Amount: Rs. ' . number_format($data['amount'], 2) . '
+                </div>
+                
+                <div class="amount-words">
+                    Amount in words: ' . $this->numberToWords($data['amount']) . ' rupees only
+                </div>
+                
+                <div class="signatures">
+                    <div class="signature-box">
+                        Customer Signature
+                    </div>
+                    <div class="signature-box">
+                        Bank Officer Signature & Stamp
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <strong>Instructions:</strong>
+                    <ol>
+                        <li>Print this deposit slip and take it to any branch of ' . $data['bank_account']['bank_name'] . '.</li>
+                        <li>Make sure the bank officer signs and stamps the slip after depositing the amount.</li>
+                        <li>Upload a scanned copy or clear photo of the stamped deposit slip to your project dashboard.</li>
+                        <li>Keep the original receipt for your records.</li>
+                    </ol>
+                </div>
+                
+                <div class="footer">
+                    <p>This is an official payment document for SimplEx Solar Solutions.</p>
+                    <p>For any queries please contact: finance@simpex.com | Phone: 011-2345678</p>
+                </div>
+            </div>
+        </body>
+        </html>';
 
         $this->dompdf->loadHtml($html);
         $this->dompdf->setPaper('A4', 'portrait');
@@ -391,90 +437,181 @@ class PdfGenerator
         return $this->dompdf->output();
     }
 
+    /**
+     * Convert a number to words
+     * 
+     * @param float $number Number to convert
+     * @return string Number in words
+     */
     private function numberToWords($number)
     {
-        // Number to words conversion logic as before
-        $words = [];
+        $ones = array(
+            0 => "Zero",
+            1 => "One",
+            2 => "Two",
+            3 => "Three",
+            4 => "Four",
+            5 => "Five",
+            6 => "Six",
+            7 => "Seven",
+            8 => "Eight",
+            9 => "Nine",
+            10 => "Ten",
+            11 => "Eleven",
+            12 => "Twelve",
+            13 => "Thirteen",
+            14 => "Fourteen",
+            15 => "Fifteen",
+            16 => "Sixteen",
+            17 => "Seventeen",
+            18 => "Eighteen",
+            19 => "Nineteen"
+        );
+
+        $tens = array(
+            2 => "Twenty",
+            3 => "Thirty",
+            4 => "Forty",
+            5 => "Fifty",
+            6 => "Sixty",
+            7 => "Seventy",
+            8 => "Eighty",
+            9 => "Ninety"
+        );
+
+        // For Sri Lankan currency format (Rupees)
+        $thousands = array(
+            "",
+            "Thousand",
+            "Million",
+            "Billion",
+            "Trillion"
+        );
+
         $number = number_format($number, 2, '.', '');
-        list($whole, $decimal) = explode('.', $number);
 
-        $units = [
-            '',
-            'One',
-            'Two',
-            'Three',
-            'Four',
-            'Five',
-            'Six',
-            'Seven',
-            'Eight',
-            'Nine',
-            'Ten',
-            'Eleven',
-            'Twelve',
-            'Thirteen',
-            'Fourteen',
-            'Fifteen',
-            'Sixteen',
-            'Seventeen',
-            'Eighteen',
-            'Nineteen'
-        ];
-        $tens = [
-            '',
-            '',
-            'Twenty',
-            'Thirty',
-            'Forty',
-            'Fifty',
-            'Sixty',
-            'Seventy',
-            'Eighty',
-            'Ninety'
-        ];
+        $number_array = explode('.', $number);
+        $wholeNumber = $number_array[0];
+        $decimalNumber = $number_array[1];
 
-        if ($whole == 0) {
-            $words[] = 'Zero';
+        $result = "";
+
+        // Process whole number
+        $wholeNumber = (int)$wholeNumber;
+        if ($wholeNumber == 0) {
+            $result = "Zero";
         } else {
-            // For lakhs and crores (Sri Lankan currency denomination)
-            if ($whole >= 10000000) {
-                $words[] = $this->numberToWords(floor($whole / 10000000)) . ' Crore';
-                $whole %= 10000000;
+            // Handle millions
+            $millions = floor($wholeNumber / 1000000);
+            if ($millions > 0) {
+                $result .= $this->convertLessThanThousand($millions) . " Million ";
+                $wholeNumber %= 1000000;
             }
 
-            if ($whole >= 100000) {
-                $words[] = $this->numberToWords(floor($whole / 100000)) . ' Lakh';
-                $whole %= 100000;
+            // Handle thousands
+            $thousands = floor($wholeNumber / 1000);
+            if ($thousands > 0) {
+                $result .= $this->convertLessThanThousand($thousands) . " Thousand ";
+                $wholeNumber %= 1000;
             }
 
-            if ($whole >= 1000) {
-                $words[] = $this->numberToWords(floor($whole / 1000)) . ' Thousand';
-                $whole %= 1000;
+            // Handle hundreds and remaining
+            if ($wholeNumber > 0) {
+                $result .= $this->convertLessThanThousand($wholeNumber);
             }
+        }
 
-            if ($whole >= 100) {
-                $words[] = $units[floor($whole / 100)] . ' Hundred';
-                $whole %= 100;
-            }
+        // Process decimal part
+        if ($decimalNumber > 0) {
+            $result .= " and ";
 
-            if ($whole > 0) {
-                if ($whole < 20) {
-                    $words[] = $units[$whole];
-                } else {
-                    $words[] = $tens[floor($whole / 10)];
-                    if ($whole % 10 > 0) {
-                        $words[] = $units[$whole % 10];
-                    }
+            if ((int)$decimalNumber < 20) {
+                $result .= $ones[(int)$decimalNumber];
+            } else {
+                $tensVal = floor($decimalNumber / 10);
+                $onesVal = $decimalNumber % 10;
+
+                $result .= $tens[$tensVal];
+                if ($onesVal > 0) {
+                    $result .= " " . $ones[$onesVal];
                 }
             }
+
+            $result .= " Cents";
         }
 
-        $result = implode(' ', $words);
+        return $result;
+    }
 
-        if ($decimal > 0) {
-            $result .= ' and ' . $decimal . '/100';
+    /**
+     * Convert a number less than 1000 to words
+     * 
+     * @param int $number Number to convert
+     * @return string Number in words
+     */
+    private function convertLessThanThousand($number)
+    {
+        $ones = array(
+            0 => "",
+            1 => "One",
+            2 => "Two",
+            3 => "Three",
+            4 => "Four",
+            5 => "Five",
+            6 => "Six",
+            7 => "Seven",
+            8 => "Eight",
+            9 => "Nine",
+            10 => "Ten",
+            11 => "Eleven",
+            12 => "Twelve",
+            13 => "Thirteen",
+            14 => "Fourteen",
+            15 => "Fifteen",
+            16 => "Sixteen",
+            17 => "Seventeen",
+            18 => "Eighteen",
+            19 => "Nineteen"
+        );
+
+        $tens = array(
+            0 => "",
+            2 => "Twenty",
+            3 => "Thirty",
+            4 => "Forty",
+            5 => "Fifty",
+            6 => "Sixty",
+            7 => "Seventy",
+            8 => "Eighty",
+            9 => "Ninety"
+        );
+
+        $result = "";
+
+        // Handle hundreds
+        $hundreds = floor($number / 100);
+        if ($hundreds > 0) {
+            $result .= $ones[$hundreds] . " Hundred";
+            $number %= 100;
+
+            if ($number > 0) {
+                $result .= " and ";
+            }
         }
 
-        return $result . ' Rupees Only';
+        // Handle tens and ones
+        if ($number < 20) {
+            $result .= $ones[$number];
+        } else {
+            $tensVal = floor($number / 10);
+            $onesVal = $number % 10;
+
+            $result .= $tens[$tensVal];
+            if ($onesVal > 0) {
+                $result .= " " . $ones[$onesVal];
+            }
+        }
+
+        return $result;
     }
 }
