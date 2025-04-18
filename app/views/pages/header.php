@@ -10,6 +10,8 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         <!-- <link rel="stylesheet" href="<?php echo URLROOT; ?>/app/views/inc/components/style.css"> -->
         <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/pages.css">
+        <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/about.css">
+        <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/feedback.css">
 
     </head>
     <body>

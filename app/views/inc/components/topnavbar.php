@@ -6,7 +6,7 @@
           <ul class="nav-links">
             <label for="close-btn" class="btn close-btn"><i class="fas fa-times"></i></label>
             <li><a href="<?php echo URLROOT; ?>">Home</a></li>
-            <li><a href="#">About</a></li>
+            <li><a href="<?php echo URLROOT; ?>/pages/about">About</a></li>
             <li><a href="<?php echo URLROOT; ?>/packages">Packages</a></li>
             <!-- <li>
               <a href="#" class="desktop-item">Dropdown Menu</a>
@@ -58,7 +58,7 @@
                 </div>
               </div>
             </li>
-            <li><a href="#">Feedback</a></li>
+            <li><a href="<?php echo URLROOT; ?>/pages/feedback">Feedback</a></li>
 
               <?php
                 $navbarData = getNavbarData();

@@ -1,142 +1,265 @@
-<?php require APPROOT.'/views/packages/header.php';?>
-    <?php require APPROOT.'/views/inc/components/topnavbar.php'; ?>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><?php echo SITENAME; ?></title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+        <!-- <link rel="stylesheet" href="<?php echo URLROOT; ?>/app/views/inc/components/style.css"> -->
+        <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/packages.css">
+        <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/packages/packageSelector.css">
 
+    </head>
+    <body>
+<?php require APPROOT.'/views/inc/components/topnavbar.php'; ?>
 
-    <div class="select-container">
-        <div class="header">
-            <h1>Find Your Perfect Solar Solution</h1>
-            <p>Tell us your requirements and we'll find the best package for you</p>
-        </div>
-
-        <div class="selector-form-container">
-            <form id="packageForm" action="<?php echo URLROOT; ?>/packages/selectPackage" method="POST">
-                <div class="form-group">
-                    <label for="price">Budget (Rs)</label>
-                    <input name="price" type="number" id="price" min="1000" placeholder="Enter your budget" required 
-                        value="<?= isset($data['price']) ? htmlspecialchars($data['price']) : '' ?>">
-                </div>
-
-                <div class="form-group">
-                    <label for="consumption">Monthly Power Consumption (kWh)</label>
-                    <input name="consumption" type="number" id="consumption" placeholder="Enter monthly consumption" required 
-                        value="<?= isset($data['consumption']) ? htmlspecialchars($data['consumption']) : '' ?>">
-                </div>
-
-                <div class="form-group">
-                    <label for="systemType">Preferred System Type</label>
-                    <select name="systemType" id="systemType" required>
-                        <option value="">Select system type</option>
-                        <option value="on-grid" <?= isset($data['systemType']) && $data['systemType'] == 'on-grid' ? 'selected' : '' ?>>On Grid System</option>
-                        <option value="off-grid" <?= isset($data['systemType']) && $data['systemType'] == 'off-grid' ? 'selected' : '' ?>>Off Grid System</option>
-                        <option value="hybrid" <?= isset($data['systemType']) && $data['systemType'] == 'hybrid' ? 'selected' : '' ?>>Hybrid System</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn">Find My Package</button>
-            </form>
-        </div>
-
-        <div id="packageDisplay" class="package-display">
-            <h2 id="packageName"></h2>
-            <img id="packageImage" class="package-image" src="" alt="Package Image">
-            <div class="package-price" id="packagePrice"></div>
-            <div class="package-id" id="packageId"></div>
-
-            <div class="recommendation-box">
-                <h3>Why This Package?</h3>
-                <p id="aiReasoning"></p>
-            </div>
-
-            <div class="features-section-container">
-                <h3>Package Features</h3>
-                <ul id="featureList"></ul>
-            </div>
-
-            <div class="button-group">
-                <a id="getQuoteLink" class="btn-getQuote btn">Get Quote</a>
-                <!-- <button id="regenerate" class="btn btn-secondary">Show Another Option</button> -->
-            </div>
-        </div>
+<div class="select-container">
+    <div class="header">
+        <h1>Find Your Perfect Solar Solution</h1>
+        <p>Tell us your requirements and we'll show you the best packages for your energy needs</p>
     </div>
+    
+    <?php if (!empty($data['error'])): ?>
+        <div class="error-message">
+            <i class="error-icon"></i>
+            <?php echo $data['error']; ?>
+        </div>
+    <?php endif; ?>
+    
+    <div class="selector-form-container">
+        <form id="packageForm" action="<?php echo URLROOT; ?>/packages/selectPackage" method="POST">
+            <div class="form-group">
+                <label for="price">Budget (Rs)</label>
+                <input name="price" type="number" id="price" min="1000" placeholder="Enter your budget" required 
+                    value="<?= isset($data['price']) ? htmlspecialchars($data['price']) : '' ?>"
+                    class="input-field">
+            </div>
+            
+            <div class="form-group">
+                <label for="consumption">Monthly Power Consumption (kWh)</label>
+                <input name="consumption" type="number" id="consumption" placeholder="Enter monthly consumption" required 
+                    value="<?= isset($data['consumption']) ? htmlspecialchars($data['consumption']) : '' ?>"
+                    class="input-field">
+            </div>
+            
+            <div class="form-group">
+                <label for="systemType">Preferred System Type</label>
+                <select name="systemType" id="systemType" required class="select-field">
+                    <option value="">Select system type</option>
+                    <option value="on-grid" <?= isset($data['systemType']) && $data['systemType'] == 'on-grid' ? 'selected' : '' ?>>On Grid System</option>
+                    <option value="off-grid" <?= isset($data['systemType']) && $data['systemType'] == 'off-grid' ? 'selected' : '' ?>>Off Grid System</option>
+                    <option value="hybrid" <?= isset($data['systemType']) && $data['systemType'] == 'hybrid' ? 'selected' : '' ?>>Hybrid System</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn">Find Matching Packages</button>
+        </form>
+    </div>
+    
+    <?php if (isset($data['packages']) && !empty($data['packages'])): ?>
+        <h2 class="compare-heading">Recommended Packages</h2>
+        <div id="packagesDisplay" class="packages-grid">
+            <?php foreach ($data['packages'] as $index => $pkgData): ?>
+                <div class="package-display" style="animation-delay: <?= 0.1 * $index ?>s">
+                    <?php if ($index === 0): ?>
+                        <div class="package-badge">
+                            <span class="badge-text">Best Match</span>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <h2><?php echo htmlspecialchars($pkgData['package']->title); ?></h2>
+                    
+                    <div class="image-container">
+                        <img class="package-image" src="<?php echo htmlspecialchars($pkgData['imageUrl']); ?>" 
+                            alt="<?php echo htmlspecialchars($pkgData['package']->title); ?> Package">
+                    </div>
+                    
+                    <div class="package-price">
+                        Rs <?php echo number_format(floatval($pkgData['package']->price)); ?>
+                    </div>
+                    
+                    <div class="recommendation-box">
+                        <h3>Why This Package?</h3>
+                        <p><?php echo htmlspecialchars($pkgData['reasoning']); ?></p>
+                    </div>
+                    
+                    <div class="features-section-container">
+                        <h3>Key Features</h3>
+                        <ul class="features-list">
+                            <?php 
+                            // Show only top 3 features to save space
+                            $topFeatures = array_slice($pkgData['features'], 0, 3);
+                            foreach ($topFeatures as $feature): 
+                            ?>
+                                <li class="feature-item"><?php echo htmlspecialchars($feature); ?></li>
+                            <?php endforeach; ?>
+                            
+                            <?php if (count($pkgData['features']) > 3): ?>
+                                <li class="feature-item">+ <?php echo count($pkgData['features']) - 3; ?> more features</li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                    
+                    <div class="button-group">
+                        <a href="<?php echo URLROOT; ?>/packages/packageDetails/<?php echo htmlspecialchars($pkgData['slug']); ?>" 
+                           class="btn btn-getQuote">View Details</a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        
+        <!-- Compare Table -->
+        <h2 class="compare-heading">Package Comparison</h2>
+        <div class="compare-table-container">
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <?php foreach ($data['packages'] as $pkgData): ?>
+                            <th><?php echo htmlspecialchars($pkgData['package']->title); ?></th>
+                        <?php endforeach; ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Price Row -->
+                    <tr>
+                        <td><strong>Price</strong></td>
+                        <?php foreach ($data['packages'] as $pkgData): ?>
+                            <td>Rs <?php echo number_format(floatval($pkgData['package']->price)); ?></td>
+                        <?php endforeach; ?>
+                    </tr>
+                    
+                    <!-- Power Rating Row (if available) -->
+                    <tr>
+                        <td><strong>Power Rating</strong></td>
+                        <?php foreach ($data['packages'] as $pkgData): ?>
+                            <?php 
+                            $title = $pkgData['package']->title;
+                            preg_match('/(\d+(\.\d+)?)kW/i', $title, $matches);
+                            $kWRating = !empty($matches) ? $matches[1] : 'N/A';
+                            ?>
+                            <td><?php echo $kWRating; ?> kW</td>
+                        <?php endforeach; ?>
+                    </tr>
+                    
+                    <!-- System Type Row -->
+                    <tr>
+                        <td><strong>System Type</strong></td>
+                        <?php foreach ($data['packages'] as $pkgData): ?>
+                            <td><?php echo ucfirst(htmlspecialchars($pkgData['package']->type)); ?></td>
+                        <?php endforeach; ?>
+                    </tr>
+                    
+                    <!-- Common Features - Dynamically generated -->
+                    <?php
+                    // Get common feature names across all packages
+                    $allFeatures = [];
+                    foreach ($data['packages'] as $pkgData) {
+                        foreach ($pkgData['features'] as $feature) {
+                            if (!in_array($feature, $allFeatures)) {
+                                $allFeatures[] = $feature;
+                            }
+                        }
+                    }
+                    
+                    // Show top features (limit to 5 to keep table manageable)
+                    $topAllFeatures = array_slice($allFeatures, 0, 5);
+                    
+                    foreach ($topAllFeatures as $feature):
+                    ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($feature); ?></td>
+                            <?php foreach ($data['packages'] as $pkgData): ?>
+                                <td>
+                                    <?php echo in_array($feature, $pkgData['features']) ? 
+                                        '<span style="color: var(--primary);">✓</span>' : 
+                                        '<span style="color: var(--gray);">✗</span>'; ?>
+                                </td>
+                            <?php endforeach; ?>
+                        </tr>
+                    <?php endforeach; ?>
+                    
+                    <!-- Actions Row -->
+                    <tr>
+                        <td><strong>Actions</strong></td>
+                        <?php foreach ($data['packages'] as $pkgData): ?>
+                            <td>
+                                <a href="<?php echo URLROOT; ?>/packages/packageDetails/<?php echo htmlspecialchars($pkgData['slug']); ?>" 
+                                   class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">View Details</a>
+                            </td>
+                        <?php endforeach; ?>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+    
+</div>
 
+<!-- Enhanced JavaScript for animations and smooth interactions -->
 <script>
-document.getElementById('packageForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(document.getElementById('packageForm'));
-
-    try {
-        const response = await fetch("<?php echo URLROOT; ?>/packages/selectPackage", {
-            method: 'POST',
-            body: formData
+document.addEventListener('DOMContentLoaded', function() {
+    // Add active class to form fields when focused
+    const formFields = document.querySelectorAll('.input-field, .select-field');
+    
+    formFields.forEach(field => {
+        field.addEventListener('focus', function() {
+            this.parentElement.classList.add('active');
         });
-
-        const result = await response.json();
-        console.log("Response from server:", result);
-
-        if (result.success) {
-            if (result.package && result.package.details) {
-                displayPackage(result.package);
-            } else {
-                console.error('Incorrect package data structure:', result);
-                alert('Unexpected response format. Please try again.');
+        
+        field.addEventListener('blur', function() {
+            if (this.value === '') {
+                this.parentElement.classList.remove('active');
             }
-        } else {
-            alert(result.error || 'Could not find a suitable package. Please try different criteria.');
+        });
+        
+        // Initialize fields that already have values
+        if (field.value !== '') {
+            field.parentElement.classList.add('active');
         }
-    } catch (error) {
-        console.error('Error fetching package data:', error);
-        alert('An error occurred. Please try again later.');
-    }
-});
-
-// document.getElementById('regenerate').addEventListener('click', async () => {
-//     try {
-//         const response = await fetch("<php echo URLROOT; ?>/packages/selectPackage", {
-//             method: 'POST',
-//         });
-
-//         const result = await response.json();
-//         if (result.success && result.package) {
-//             displayPackage(result.package);
-//         } else {
-//             alert('No alternative package found. Please try again.');
-//         }
-//     } catch (error) {
-//         console.error('Error fetching new package:', error);
-//         alert('An error occurred. Please try again later.');
-//     }
-// });
-
-function displayPackage(packageData) {
-    const display = document.getElementById('packageDisplay');
-
-    if (!packageData || !packageData.details) {
-        console.error('Missing required package data:', packageData);
-        return;
-    }
-
-    document.getElementById('packageName').textContent = packageData.details.title;
-    document.getElementById('packagePrice').textContent = `Rs ${parseFloat(packageData.details.price).toLocaleString()}`;
-    document.getElementById('packageId').textContent = `Package ID: ${packageData.details.package_id}`;
-    document.getElementById('aiReasoning').textContent = packageData.reasoning;
-
-    const featureList = document.getElementById('featureList');
-    featureList.innerHTML = '';
-    packageData.features.forEach(feature => {
-        const li = document.createElement('li');
-        li.textContent = feature;
-        featureList.appendChild(li);
     });
-
-    document.getElementById('packageImage').src = packageData.image || 'path/to/default-image.jpg';
-    document.getElementById('getQuoteLink').href = `<?php echo URLROOT; ?>/packages/packageDetails/${packageData.slug}`;
-
-    display.style.display = 'block';
-    display.scrollIntoView({ behavior: 'smooth' });
-}
+    
+    // Smooth scroll to results if they exist
+    <?php if ((isset($data['packages']) && !empty($data['packages'])) || (isset($data['package']) && $data['package'])): ?>
+    setTimeout(function() {
+        const targetElement = document.getElementById('packagesDisplay') || document.getElementById('packageDisplay');
+        if (targetElement) {
+            targetElement.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }, 500);
+    <?php endif; ?>
+    
+    // Add ripple effect to buttons
+    const buttons = document.querySelectorAll('.btn');
+    
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (this.tagName.toLowerCase() === 'a') return; // Skip for anchor tags
+            
+            const x = e.clientX - e.target.getBoundingClientRect().left;
+            const y = e.clientY - e.target.getBoundingClientRect().top;
+            
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            
+            this.appendChild(ripple);
+            
+            setTimeout(function() {
+                ripple.remove();
+            }, 600);
+        });
+    });
+});
 </script>
 
-
-    <?php require APPROOT.'/views/inc/components/bottomfooter.php'; ?>
-<?php require APPROOT.'/views/packages/footer.php';?>
+<?php require APPROOT.'/views/inc/components/bottomfooter.php'; ?>
+<?php require APPROOT.'/views/packages/footer.php'; ?>

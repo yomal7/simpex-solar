@@ -16,25 +16,21 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="#" class="active">
-                <span class="material-icons-sharp">dashboard</span>
-                <h3>Dashboard</h3>
+            <a href="<?php echo URLROOT; ?>/admin/createBlog">
+                <span class="material-icons-sharp">post_add</span>
+                <h3>Create Blog</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">person</span>
-                <h3>Customers</h3>
+            <a href="<?php echo URLROOT; ?>/admin/drafts">
+                <span class="material-icons-sharp">drafts</span>
+                <h3>Draft Blogs</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">receipt_long</span>
-                <h3>Projects</h3>
+            <a href="<?php echo URLROOT; ?>/admin/published" class="active">
+                <span class="material-icons-sharp">article</span>
+                <h3>Published Blogs</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">inventory</span>
-                <h3>Inventory</h3>
-            </a>
-            <a href="#">
-                <span class="material-icons-sharp">group</span>
-                <h3>Employees</h3>
+            <a href="<?php echo URLROOT; ?>/admin/addCoordinator">
+                <span class="material-icons-sharp">supervisor_account</span>
+                <h3>Manage Coordinators</h3>
             </a>
             <a href="#">
                 <span class="material-icons-sharp">settings</span>
@@ -91,7 +87,7 @@
                                         <a href="<?php echo URLROOT; ?>/blog/showPost/<?php echo $post->slug; ?>"" 
                                            target="_blank" 
                                            class="btn view-btn" 
-                                           title="View Post">
+                                           title="View Post" style="text-decoration: none">
                                            <!-- <span style="font-size: 1rem" class="material-icons-sharp">remove_red_eye</span> -->
                                             <i class="fas fa-eye"></i>
                                         </a>

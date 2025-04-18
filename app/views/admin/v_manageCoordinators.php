@@ -16,27 +16,23 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="#" class="active">
-                <span class="material-icons-sharp">business</span>
-                <h3>Coordinators</h3>
+            <a href="<?php echo URLROOT; ?>/admin/createBlog">
+                <span class="material-icons-sharp">post_add</span>
+                <h3>Create Blog</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">person</span>
-                <h3>Customers</h3>
+            <a href="<?php echo URLROOT; ?>/admin/drafts">
+                <span class="material-icons-sharp">drafts</span>
+                <h3>Draft Blogs</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">receipt_long</span>
-                <h3>Projects</h3>
+            <a href="<?php echo URLROOT; ?>/admin/published" >
+                <span class="material-icons-sharp">article</span>
+                <h3>Published Blogs</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">inventory</span>
-                <h3>Inventory</h3>
+            <a href="<?php echo URLROOT; ?>/admin/addCoordinator" class="active">
+                <span class="material-icons-sharp">supervisor_account</span>
+                <h3>Manage Coordinators</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">group</span>
-                <h3>Employees</h3>
-            </a>
-            <a href="#">
+            <a href="<?php echo URLROOT; ?>/admin/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
@@ -79,10 +75,16 @@
                                         <p class="email"><?php echo $coordinator->email; ?></p>
                                     </div>
                                     <div class="actions">
-                                        <button class="btn-edit" onclick="openEditModal('<?php echo $coordinator->user_id; ?>', '<?php echo $coordinator->name; ?>', '<?php echo $coordinator->email; ?>', '<?php echo $coordinator->role; ?>')">
+                                        <button class="btn-edit" data-action="edit" 
+                                                data-userid="<?php echo $coordinator->user_id; ?>"
+                                                data-name="<?php echo $coordinator->name; ?>"
+                                                data-email="<?php echo $coordinator->email; ?>"
+                                                data-role="<?php echo $coordinator->role; ?>">
                                             <span class="material-icons-sharp">edit</span>
                                         </button>
-                                        <button class="btn-delete" onclick="openDeleteModal('<?php echo $coordinator->user_id; ?>', '<?php echo $coordinator->name; ?>')">
+                                        <button class="btn-delete" data-action="delete"
+                                                data-userid="<?php echo $coordinator->user_id; ?>"
+                                                data-name="<?php echo $coordinator->name; ?>">
                                             <span class="material-icons-sharp">delete</span>
                                         </button>
                                     </div>
@@ -155,12 +157,12 @@
                         <input type="email" id="edit_email" name="email" required>
                     </div>
                     <div class="form-group">
-                        <label for="type">Package Type</label>
+                        <!-- <label for="type">Package Type</label>
                         <select name="type" id="type" class="form-control" required>
                             <option value="on-grid" <?php echo ($data['type'] === 'on-grid') ? 'selected' : ''; ?>>On Grid</option>
                             <option value="off-grid" <?php echo ($data['type'] === 'off-grid') ? 'selected' : ''; ?>>Off Grid</option>
                             <option value="hybrid" <?php echo ($data['type'] === 'hybrid') ? 'selected' : ''; ?>>Hybrid</option>
-                        </select>
+                        </select> -->
                         <span class="error"><?php echo $data['errors']['type'] ?? ''; ?></span>
                     </div>
                     <div class="form-actions">

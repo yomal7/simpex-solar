@@ -16,27 +16,23 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="#" class="active">
-                <span class="material-icons-sharp">save</span>
-                <h3>Draft posts</h3>
+            <a href="<?php echo URLROOT; ?>/admin/createBlog">
+                <span class="material-icons-sharp">post_add</span>
+                <h3>Create Blog</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">person</span>
-                <h3>Customers</h3>
+            <a href="<?php echo URLROOT; ?>/admin/drafts" class="active">
+                <span class="material-icons-sharp">drafts</span>
+                <h3>Draft Blogs</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">receipt_long</span>
-                <h3>Projects</h3>
+            <a href="<?php echo URLROOT; ?>/admin/published" >
+                <span class="material-icons-sharp">article</span>
+                <h3>Published Blogs</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">inventory</span>
-                <h3>Inventory</h3>
+            <a href="<?php echo URLROOT; ?>/admin/addCoordinator">
+                <span class="material-icons-sharp">supervisor_account</span>
+                <h3>Manage Coordinators</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">group</span>
-                <h3>Employees</h3>
-            </a>
-            <a href="#">
+            <a href="<?php echo URLROOT; ?>/admin/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
@@ -50,8 +46,8 @@
         <div class="content-wrapper">
             <div class="page-header">
                 <h1>Draft Posts</h1>
-                <a style="background-color: #4CAF50;" href="<?php echo URLROOT; ?>/admin/createBlog" class="btn add-btn" >
-                    <i class="fas fa-plus"></i> New Post
+                <a style="background-color: #4CAF50;  text-decoration: none" href="<?php echo URLROOT; ?>/admin/createBlog" class="btn add-btn" >
+                    <i class="fas fa-plus"  ></i> New Post
                 </a>
             </div>
 
@@ -84,13 +80,13 @@
                                     <td data-label="Created"><?php echo date('M d, Y', strtotime($draft->created_at)); ?></td>
                                     <td data-label="Modified"><?php echo date('M d, Y', strtotime($draft->updated_at)); ?></td>
                                     <td data-label="Actions" class="action-buttons">
-                                        <button onclick="previewDraft(<?php echo $draft->post_id; ?>)" class="btn preview-btn">
+                                        <!-- <button onclick="previewDraft(<?php echo $draft->post_id; ?>)" class="btn preview-btn">
                                             <i class="fas fa-eye"></i>
                                             <span class="btn-text">Preview</span>
-                                        </button>
-                                        <a href="<?php echo URLROOT; ?>/admin/editBlog/<?php echo $draft->post_id; ?>" class="btn edit-btn">
+                                        </button> -->
+                                        <a href="<?php echo URLROOT; ?>/admin/editBlog/<?php echo $draft->post_id; ?>" class="btn edit-btn" style="text-decoration: none">
                                             <i class="fas fa-edit"></i>
-                                            <span class="btn-text">Edit</span>
+                                            <span class="btn-text" >Edit</span>
                                         </a>
                                         <button onclick="publishDraft(<?php echo $draft->post_id; ?>)" class="btn publish-btn">
                                             <i class="fas fa-paper-plane"></i>

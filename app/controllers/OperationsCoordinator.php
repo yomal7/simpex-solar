@@ -1003,6 +1003,7 @@ class OperationsCoordinator extends Controller
         redirect('operationsCoordinator/firstPayment/' . $projectId);
     }
 
+
     /**
      * Accept bank slip
      */
@@ -1082,6 +1083,9 @@ class OperationsCoordinator extends Controller
 
 
 
+
+    // View all tasks
+
     public function tasks()
     {
         // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
@@ -1092,7 +1096,7 @@ class OperationsCoordinator extends Controller
         $this->view('operationsCoordinator/v_tasks', $data);
     }
 
-    // View Task
+    // View a task by ID
     public function viewTask($taskId)
     {
         // Fetch the task from the model

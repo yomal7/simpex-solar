@@ -14,7 +14,7 @@ class M_Tasks
     // }
 
     // public function getAllTasks(){
-    //     $this->db->query('SELECT * FROM Tasks ORDER BY created_at DESC');
+    //     $this->db->query('SELECT * FROM tasks ORDER BY created_at DESC');
     //     $results= $this->db->resultSet();
     //     return $results;
     // }
@@ -22,17 +22,19 @@ class M_Tasks
 
     public function getAllTasks()
     {
-        $this->db->query('SELECT t.*, e.name as employee_name 
+        $this->db->query('SELECT t.*, u.name as employee_name 
                       FROM tasks t 
-                      LEFT JOIN employe e ON t.employee_id = e.employee_id 
+                      LEFT JOIN employees e ON t.employee_id = e.employee_id
+                      LEFT JOIN users u ON e.user_id = u.user_id
                       ORDER BY t.id');
         return $this->db->resultSet();
     }
 
     public function getTaskById($taskId) {
-        $this->db->query('SELECT t.*, e.name as employee_name 
+        $this->db->query('SELECT t.*, u.name as employee_name, e.role as employee_role 
                           FROM tasks t 
-                          LEFT JOIN employe e ON t.employee_id = e.employee_id 
+                          LEFT JOIN employees e ON t.employee_id = e.employee_id
+                          LEFT JOIN users u ON e.user_id = u.user_id
                           WHERE t.id = :id');
         $this->db->bind(':id', $taskId);
         return $this->db->single();
@@ -47,7 +49,7 @@ class M_Tasks
 
     // public function getTaskById($taskId)
     // {
-    //     $this->db->query('SELECT * FROM Tasks WHERE id = :id');
+    //     $this->db->query('SELECT * FROM tasks WHERE id = :id');
     //     $this->db->bind(':id', $taskId);
     //     $row = $this->db->single();
     //     return $row;
@@ -55,7 +57,7 @@ class M_Tasks
 
     public function create($data)
     {
-        $this->db->query('INSERT INTO Tasks (title, description, start_date, end_date, project_id, employee_id, status) VALUES(:title, :description, :start_date, :end_date, :project_id, :employee_id, :status)');
+        $this->db->query('INSERT INTO tasks (title, description, start_date, end_date, project_id, employee_id, status) VALUES(:title, :description, :start_date, :end_date, :project_id, :employee_id, :status)');
         $this->db->bind(':title', $data['title']);
         $this->db->bind(':description', $data['description']);
         $this->db->bind(':start_date', $data['start_date']);
@@ -87,7 +89,7 @@ class M_Tasks
 
     public function edit($data)
     {
-        $this->db->query('UPDATE Tasks SET title = :title, description = :description, start_date = :start_date, end_date = :end_date, project_id = :project_id, employee_id = :employee_id, status = :status WHERE id = :id');
+        $this->db->query('UPDATE tasks SET title = :title, description = :description, start_date = :start_date, end_date = :end_date, project_id = :project_id, employee_id = :employee_id, status = :status WHERE id = :id');
         $this->db->bind(':title', $data['title']);
         $this->db->bind(':description', $data['description']);
         $this->db->bind(':start_date', $data['start_date']);
@@ -117,7 +119,7 @@ class M_Tasks
 
     public function delete($taskId)
     {
-        $this->db->query('DELETE FROM Tasks WHERE id = :id');
+        $this->db->query('DELETE FROM tasks WHERE id = :id');
         $this->db->bind(':id', $taskId);
 
         if ($this->db->execute()) {
