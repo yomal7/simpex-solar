@@ -62,74 +62,87 @@
 
                 <?php if (!isset($data['payment']) || !is_object($data['payment']) || !$data['payment']->payment_status): ?>
                     <!-- Payment Methods Accordion -->
-                    <div class="payment-methods">
-                        <h3>Select Payment Method</h3>
+                    <!-- Bank Deposit Method -->
+                    <div class="payment-method">
+                        <div class="method-header" onclick="toggleMethod('bank-deposit')">
+                            <h4><i class="fas fa-university"></i> Bank Deposit</h4>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                        <div class="method-content" id="bank-deposit">
+                            <p>Make a bank deposit and upload your payment slip.</p>
 
-                        <!-- Bank Deposit Method -->
-                        <div class="payment-method">
-                            <div class="method-header" onclick="toggleMethod('bank-deposit')">
-                                <h4>Bank Deposit</h4>
-                                <span class="toggle-icon">+</span>
-                            </div>
-                            <div class="method-content" id="bank-deposit">
-                                <p>Make a bank deposit and upload your payment slip.</p>
+                            <?php if (isset($data['bank_slip']) && is_object($data['bank_slip'])): ?>
+                                <div class="slip-status">
+                                    <p>Slip Status: <strong><?php echo ucfirst($data['bank_slip']->status); ?></strong></p>
 
-                                <?php if (isset($data['bank_slip']) && $data['bank_slip']): ?>
-                                    <div class="slip-status">
-                                        <p>You have uploaded a slip. Status:
-                                            <?php
-                                            switch ($data['bank_slip']->status) {
-                                                case 'pending':
-                                                    echo 'Pending';
-                                                    break;
-                                                case 'accept':
-                                                    echo 'Approved';
-                                                    break;
-                                                case 'reject':
-                                                    echo 'Rejected';
-                                                    break;
-                                                default:
-                                                    echo ucfirst($data['bank_slip']->status);
-                                            }
-                                            ?>
-                                        </p>
-                                        <?php if ($data['bank_slip']->status == 'reject' && !empty($data['bank_slip']->reject_reason)): ?>
-                                            <p class="rejection-reason">Reason: <?php echo $data['bank_slip']->reject_reason; ?></p>
-                                        <?php endif; ?>
-                                    </div>
+                                    <?php if ($data['bank_slip']->status == 'pending' && $data['bank_slip']->slip_file): ?>
+                                        <div class="processing-message">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                            <p>Your payment slip is being processed. Please check back later.</p>
+                                        </div>
+                                    <?php elseif ($data['bank_slip']->status == 'reject'): ?>
+                                        <p class="rejection-reason">Reason: <?php echo $data['bank_slip']->reject_reason; ?></p>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if (
+                                !isset($data['bank_slip']) || !is_object($data['bank_slip']) ||
+                                ($data['bank_slip']->slip_downloaded && !$data['bank_slip']->slip_file) ||
+                                $data['bank_slip']->status == 'reject'
+                            ): ?>
+
+                                <?php if (!isset($data['bank_slip']) || !is_object($data['bank_slip']) || !$data['bank_slip']->slip_downloaded): ?>
+                                    <h4>Select Bank Account and Payment Amount</h4>
+                                    <form action="<?php echo URLROOT; ?>/client/generateBankSlip" method="post" id="bankForm">
+                                        <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
+                                        <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
+                                        <input type="hidden" name="payment_phase" value="first_payment">
+
+                                        <div class="form-group">
+                                            <label for="bank_account">Bank Account:</label>
+                                            <select name="bank_account" id="bank_account" required>
+                                                <option value="">-- Select Bank --</option>
+                                                <?php foreach (BANK_ACCOUNTS as $index => $bank): ?>
+                                                    <option value="<?php echo $index; ?>"><?php echo $bank['bank_name']; ?> - <?php echo $bank['branch']; ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="amount">Payment Amount (Rs.):</label>
+                                            <input type="number" id="amount" name="amount"
+                                                value="<?php echo $data['payment_amount']; ?>"
+                                                min="<?php echo $data['payment_amount']; ?>"
+                                                max="<?php echo $data['total_price']; ?>"
+                                                step="0.01" required>
+                                            <small>Minimum: Rs. <?php echo number_format($data['payment_amount'], 2); ?> (25% of total)</small>
+                                            <small>Maximum: Rs. <?php echo number_format($data['total_price'], 2); ?> (Full payment)</small>
+                                        </div>
+
+                                        <div class="selected-bank-details" id="selectedBankDetails">
+                                            <!-- Bank details will be shown here -->
+                                        </div>
+
+                                        <div class="action-buttons">
+                                            <button type="submit" class="btn btn-secondary">
+                                                <i class="fas fa-download"></i> Download Payment Slip
+                                            </button>
+                                        </div>
+                                    </form>
                                 <?php endif; ?>
 
-                                <h4>Select Bank Account</h4>
-                                <form action="<?php echo URLROOT; ?>/client/generateBankSlip" method="post" id="bankForm">
-                                    <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
-                                    <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
-                                    <input type="hidden" name="payment_phase" value="first_payment">
-                                    <input type="hidden" name="amount" value="<?php echo $data['payment_amount']; ?>">
 
-                                    <div class="form-group">
-                                        <select name="bank_account" id="bank_account" required>
-                                            <option value="">-- Select Bank --</option>
-                                            <?php foreach (BANK_ACCOUNTS as $index => $bank): ?>
-                                                <option value="<?php echo $index; ?>"><?php echo $bank['bank_name']; ?> - <?php echo $bank['branch']; ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-
-                                    <div class="selected-bank-details" id="selectedBankDetails">
-                                        <!-- Bank details will be shown here -->
-                                    </div>
-
-                                    <div class="action-buttons">
-                                        <button type="submit" class="btn btn-secondary">Download Payment Slip</button>
-                                    </div>
-                                </form>
-
-                                <?php if (!isset($data['bank_slip']) || !is_object($data['bank_slip']) || $data['bank_slip']->status == 'reject'): ?>
+                                <?php if ((isset($data['bank_slip']) && is_object($data['bank_slip']) &&
+                                    $data['bank_slip']->slip_downloaded && !$data['bank_slip']->slip_file) || (isset($data['bank_slip']) && is_object($data['bank_slip']) && $data['bank_slip']->status == 'reject')): ?>
                                     <form action="<?php echo URLROOT; ?>/client/uploadBankSlip" method="post" enctype="multipart/form-data" class="upload-form">
                                         <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
                                         <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
                                         <input type="hidden" name="payment_phase" value="first_payment">
-                                        <input type="hidden" name="amount" value="<?php echo $data['payment_amount']; ?>">
+                                        <input type="hidden" name="payment_id" value="<?php echo isset($data['payment']) && is_object($data['payment']) ? $data['payment']->id : ''; ?>">
+                                        <input type="hidden" name="amount" value="<?php echo isset($data['payment']) && is_object($data['payment']) ? $data['payment']->amount : $data['payment_amount']; ?>">
+                                        <input type="hidden" name="slip_id" value="<?php echo $data['bank_slip']->id; ?>">
+
                                         <div class="form-group">
                                             <label for="payment_slip">Upload Signed Payment Slip:</label>
                                             <input type="file" id="payment_slip" name="payment_slip" accept="image/*,.pdf" required>
@@ -137,68 +150,112 @@
                                         <button type="submit" class="btn btn-primary">Upload Slip</button>
                                     </form>
                                 <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <!-- Online Payment Method -->
+                    <div class="payment-method">
+                        <div class="method-header" onclick="toggleMethod('online-payment')">
+                            <h4>Online Payment</h4>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                        <div class="method-content" id="online-payment">
+                            <p>Pay securely online with your credit/debit card or bank account.</p>
+                            <div class="action-buttons">
+                                <form action="<?php echo URLROOT; ?>/client/processOnlinePayment" method="post">
+                                    <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
+                                    <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
+                                    <input type="hidden" name="payment_phase" value="first_payment">
+                                    <input type="hidden" name="amount" value="<?php echo $data['payment_amount']; ?>">
+                                    <button type="submit" class="btn btn-primary">Proceed to Payment</button>
+                                </form>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Online Payment Method -->
-                        <div class="payment-method">
-                            <div class="method-header" onclick="toggleMethod('online-payment')">
-                                <h4>Online Payment</h4>
-                                <span class="toggle-icon">+</span>
-                            </div>
-                            <div class="method-content" id="online-payment">
-                                <p>Pay securely online with your credit/debit card or bank account.</p>
-                                <div class="action-buttons">
-                                    <form action="<?php echo URLROOT; ?>/client/processOnlinePayment" method="post">
-                                        <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
-                                        <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
-                                        <input type="hidden" name="payment_phase" value="first_payment">
-                                        <input type="hidden" name="amount" value="<?php echo $data['payment_amount']; ?>">
-                                        <button type="submit" class="btn btn-primary">Proceed to Payment</button>
-                                    </form>
+                    <!-- Cash Payment Method -->
+                    <div class="payment-method">
+                        <div class="method-header" onclick="toggleMethod('cash-payment')">
+                            <h4><i class="fas fa-money-bill-wave"></i> Cash Payment</h4>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                        <div class="method-content" id="cash-payment">
+                            <?php if (
+                                isset($data['payment']) && is_object($data['payment']) &&
+                                $data['payment']->payment_method == 'cash' &&
+                                !$data['payment']->payment_status
+                            ): ?>
+                                <div class="cash-payment-info">
+                                    <h4>Payment Details</h4>
+                                    <p>You have chosen to pay by cash. Please visit our office with the amount below:</p>
+                                    <div class="amount-to-pay">Rs. <?php echo number_format($data['payment']->amount, 2); ?></div>
+
+                                    <div class="office-details">
+                                        <h5>Office Details</h5>
+                                        <p><i class="fas fa-map-marker-alt"></i> Address: <?php echo address; ?></p>
+                                        <p><i class="fas fa-clock"></i> Business Hours: Monday to Friday, 9:00 AM - 5:00 PM</p>
+                                        <p><i class="fas fa-phone"></i> Phone: 011-2345678</p>
+                                    </div>
+
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn btn-secondary" onclick="changePaymentMethod()">
+                                            <i class="fas fa-exchange-alt"></i> Change Payment Method
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Cash Payment Method -->
-                        <div class="payment-method">
-                            <div class="method-header" onclick="toggleMethod('cash-payment')">
-                                <h4>Cash Payment</h4>
-                                <span class="toggle-icon">+</span>
-                            </div>
-                            <div class="method-content" id="cash-payment">
+                            <?php else: ?>
                                 <p>Visit our office and pay in cash.</p>
                                 <div class="office-details">
                                     <h5>Office Details</h5>
-                                    <p>Address: <?php echo address; ?></p>
-                                    <p>Business Hours: Monday to Friday, 9:00 AM - 5:00 PM</p>
-                                    <p>Phone: 011-2345678</p>
+                                    <p><i class="fas fa-map-marker-alt"></i> Address: <?php echo address; ?></p>
+                                    <p><i class="fas fa-clock"></i> Business Hours: Monday to Friday, 9:00 AM - 5:00 PM</p>
+                                    <p><i class="fas fa-phone"></i> Phone: 011-2345678</p>
                                 </div>
                                 <div class="action-buttons">
-                                    <form action="<?php echo URLROOT; ?>/client/recordCashPayment" method="post">
-                                        <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
-                                        <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
-                                        <input type="hidden" name="payment_phase" value="first_payment">
-                                        <input type="hidden" name="amount" value="<?php echo $data['payment_amount']; ?>">
-                                        <button type="submit" class="btn btn-primary">I'll Pay in Cash</button>
-                                    </form>
+                                    <button type="button" class="btn btn-primary" onclick="confirmCashPayment()">
+                                        <i class="fas fa-money-bill-wave"></i> I'll Pay in Cash
+                                    </button>
                                 </div>
-                            </div>
+
+                                <!-- Hidden form for cash payment submission -->
+                                <form id="cashPaymentForm" action="<?php echo URLROOT; ?>/client/recordCashPayment" method="post" style="display: none;">
+                                    <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
+                                    <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
+                                    <input type="hidden" name="payment_phase" value="first_payment">
+                                    <input type="hidden" name="amount" value="<?php echo $data['payment_amount']; ?>">
+                                </form>
+                            <?php endif; ?>
                         </div>
                     </div>
-                <?php else: ?>
-                    <div class="payment-success">
-                        <div class="success-icon">✓</div>
-                        <h3>Payment Complete</h3>
-                        <p>Your payment has been received. Thank you!</p>
-                        <p>Amount Paid: Rs. <?php echo number_format($data['payment']->amount, 2); ?></p>
-                        <p>Payment Method: <?php echo ucfirst(str_replace('_', ' ', $data['payment']->payment_method)); ?></p>
-                        <p>Payment Date: <?php echo date('F j, Y', strtotime($data['payment']->created_at)); ?></p>
-                    </div>
-                <?php endif; ?>
+            </div>
+        <?php else: ?>
+            <div class="payment-success">
+                <div class="success-icon">✓</div>
+                <h3>Payment Complete</h3>
+                <p>Your payment has been received. Thank you!</p>
+                <p>Amount Paid: Rs. <?php echo number_format($data['payment']->amount, 2); ?></p>
+                <p>Payment Method: <?php echo ucfirst(str_replace('_', ' ', $data['payment']->payment_method)); ?></p>
+                <p>Payment Date: <?php echo date('F j, Y', strtotime($data['payment']->created_at)); ?></p>
+            </div>
+        <?php endif; ?>
+        </div>
+    </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmationModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3>Confirm Cash Payment</h3>
+            <p>Are you sure you want to pay Rs. <?php echo number_format($data['payment_amount'], 2); ?> in cash at our office?</p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitCashPayment()">Confirm</button>
             </div>
         </div>
     </div>
+    <div class="overlay" id="overlay" onclick="closeModal()"></div>
 
     <script>
         function toggleMethod(methodId) {
@@ -238,19 +295,58 @@
                 const selectedIndex = this.value;
                 if (selectedIndex !== '') {
                     const bank = bankAccounts[selectedIndex];
+                    const amount = document.getElementById('amount').value;
                     bankDetails.innerHTML = `
-                        <div class="bank-details">
-                            <h5>${bank.bank_name} Details</h5>
-                            <p>Account Name: ${bank.account_name}</p>
-                            <p>Account Number: ${bank.account_number}</p>
-                            <p>Branch: ${bank.branch} (${bank.branch_code})</p>
-                            <p>Amount: Rs. <?php echo number_format($data['payment_amount'], 2); ?></p>
-                        </div>
-                    `;
+                <div class="bank-details">
+                    <h5>${bank.bank_name} Details</h5>
+                    <p><strong>Account Name:</strong> ${bank.account_name}</p>
+                    <p><strong>Account Number:</strong> ${bank.account_number}</p>
+                    <p><strong>Branch:</strong> ${bank.branch} (${bank.branch_code})</p>
+                    <p><strong>Amount to Pay:</strong> Rs. ${parseFloat(amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                </div>
+            `;
                 } else {
                     bankDetails.innerHTML = '';
                 }
             });
+
+            // Modal functions
+            function openModal() {
+                document.getElementById('confirmationModal').style.display = 'block';
+                document.getElementById('overlay').style.display = 'block';
+            }
+
+            function closeModal() {
+                document.getElementById('confirmationModal').style.display = 'none';
+                document.getElementById('overlay').style.display = 'none';
+            }
+
+            // Cash payment functions
+            function confirmCashPayment() {
+                openModal();
+            }
+
+            function submitCashPayment() {
+                document.getElementById('cashPaymentForm').submit();
+                closeModal();
+            }
+
+            function changePaymentMethod() {
+                if (confirm('Are you sure you want to change your payment method? This will cancel your current payment method selection.')) {
+                    window.location.href = `${URLROOT}/client/cancelPayment/<?php echo $data['pre_project_id']; ?>`;
+                }
+            }
+
+            // Update amount when changed
+            const amountInput = document.getElementById('amount');
+            if (amountInput) {
+                amountInput.addEventListener('change', function() {
+                    if (bankSelect.value !== '') {
+                        // Trigger bank select change event to update display
+                        bankSelect.dispatchEvent(new Event('change'));
+                    }
+                });
+            }
         }
     </script>
     <script src="<?php echo URLROOT; ?>/js/client/clientFirstPayment.js"></script>

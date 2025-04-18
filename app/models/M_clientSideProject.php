@@ -210,7 +210,7 @@ class M_clientSideProject
      * @param string $paymentPhase Payment phase
      * @return bool Success status
      */
-    public function recordSlipDownloaded($projectId, $paymentPhase)
+    public function recordSlipDownloaded($projectId, $paymentPhase, $amount = 0)
     {
         // First check if a payment record exists, create one if not
         $payment = $this->getProjectPayment($projectId, $paymentPhase);
@@ -220,12 +220,23 @@ class M_clientSideProject
             $paymentId = $this->createProjectPayment([
                 'project_id' => $projectId,
                 'payment_method' => 'bank deposit',
-                'amount' => 0, // Will be updated when slip is uploaded
+                'amount' => $amount, // Use the provided amount
                 'payment_phase' => $paymentPhase,
                 'payment_status' => false
             ]);
         } else {
             $paymentId = $payment->id;
+
+            // Update the amount if it has changed
+            if ($payment->amount != $amount && $amount > 0) {
+                $this->db->query('UPDATE project_payments SET 
+                            amount = :amount,
+                            updated_at = CURRENT_TIMESTAMP
+                            WHERE id = :id');
+                $this->db->bind(':amount', $amount);
+                $this->db->bind(':id', $paymentId);
+                $this->db->execute();
+            }
         }
 
         // Check if a bank slip record exists, update it or create a new one
@@ -234,25 +245,78 @@ class M_clientSideProject
         if ($slip) {
             // Update existing slip record
             $this->db->query('UPDATE project_bankslips SET 
-                             slip_downloaded = TRUE,
-                             updated_at = CURRENT_TIMESTAMP
-                             WHERE id = :id');
+                         slip_downloaded = TRUE,
+                         updated_at = CURRENT_TIMESTAMP
+                         WHERE id = :id');
 
             $this->db->bind(':id', $slip->id);
             return $this->db->execute();
         } else {
             // Create new slip record
             $this->db->query('INSERT INTO project_bankslips (
-                             projectpayment_id,
-                             slip_downloaded,
-                             status)
-                             VALUES (
-                             :projectpayment_id,
-                             TRUE,
-                             "pending")');
+                         projectpayment_id,
+                         slip_downloaded,
+                         status,
+                         created_at,
+                         updated_at)
+                         VALUES (
+                         :projectpayment_id,
+                         TRUE,
+                         "pending",
+                         CURRENT_TIMESTAMP,
+                         CURRENT_TIMESTAMP)');
 
             $this->db->bind(':projectpayment_id', $paymentId);
             return $this->db->execute();
         }
+    }
+
+    /**
+     * Update project bank slip with uploaded file
+     * 
+     * @param int $slipId Bank slip ID
+     * @param string $slipFile Path to uploaded slip file
+     * @return bool Success status
+     */
+    public function updateBankSlipFile($slipId, $slipFile)
+    {
+        $this->db->query('UPDATE project_bankslips 
+                     SET slip_file = :slip_file,
+                         status = :status,
+                         updated_at = CURRENT_TIMESTAMP
+                     WHERE id = :id');
+
+        $this->db->bind(':slip_file', $slipFile);
+        $this->db->bind(':status', 'pending');
+        $this->db->bind(':id', $slipId);
+
+        return $this->db->execute();
+    }
+
+    /**
+     * Delete pending payment
+     */
+    public function deletePendingPayment($projectId, $phase)
+    {
+        // First get the payment to check if it's pending
+        $payment = $this->getProjectPayment($projectId, $phase);
+
+        if (!$payment || $payment->payment_status) {
+            // If payment doesn't exist or is already completed, do nothing
+            return false;
+        }
+
+        // Delete associated bank slips first (due to foreign key constraint)
+        $this->db->query('DELETE FROM project_bankslips 
+                     WHERE projectpayment_id = :payment_id');
+        $this->db->bind(':payment_id', $payment->id);
+        $this->db->execute();
+
+        // Now delete the payment record
+        $this->db->query('DELETE FROM project_payments 
+                     WHERE id = :payment_id AND payment_status = 0');
+        $this->db->bind(':payment_id', $payment->id);
+
+        return $this->db->execute();
     }
 }

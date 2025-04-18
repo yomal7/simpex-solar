@@ -733,7 +733,7 @@ class Client extends Controller
             empty($projectId) || empty($preProjectId) || empty($paymentPhase) ||
             empty($amount) || !isset($bankAccountIndex)
         ) {
-            flash('payment_message', 'Invalid request data', 'alert alert-danger');
+            flash('payment_message', 'Missing required fields', 'alert alert-danger');
             redirect('client/firstPayment/' . $preProjectId);
         }
 
@@ -742,6 +742,20 @@ class Client extends Controller
         if (!$project || $project->customer_id != $_SESSION['user_id']) {
             flash('payment_message', 'Unauthorized access', 'alert alert-danger');
             redirect('client/dashboard');
+        }
+
+        // Get the agreement to verify amount limits
+        $agreement = $this->clientSideProjectModel->getAgreementByPreProjectId($preProjectId);
+        if (!$agreement) {
+            flash('payment_message', 'Agreement details not found', 'alert alert-danger');
+            redirect('client/firstPayment/' . $preProjectId);
+        }
+
+        // Validate amount (min: 25% of total, max: total price)
+        $minAmount = $agreement->total_price * 0.25;
+        if ($amount < $minAmount || $amount > $agreement->total_price) {
+            flash('payment_message', 'Invalid payment amount', 'alert alert-danger');
+            redirect('client/firstPayment/' . $preProjectId);
         }
 
         // Get the selected bank account
@@ -758,17 +772,15 @@ class Client extends Controller
         require_once APPROOT . '/libraries/PdfGenerator.php';
         $pdfGenerator = new PdfGenerator();
         $pdf = $pdfGenerator->generateBankDepositSlip([
-            'customer_name' => $customer->name,
-            'customer_id' => $_SESSION['user_id'],
-            'project_id' => $projectId,
-            'payment_type' => 'First Payment (25%)',
+            'bank_account' => $bankAccount,
             'amount' => $amount,
-            'reference' => 'PR' . str_pad($projectId, 5, '0', STR_PAD_LEFT),
-            'bank_account' => $bankAccount
+            'reference' => 'PR' . str_pad($project->project_id, 5, '0', STR_PAD_LEFT),
+            'customer_name' => $customer->name,
+            'customer_id' => $_SESSION['user_id']
         ]);
 
         // Record that a slip was downloaded
-        $this->clientSideProjectModel->recordSlipDownloaded($projectId, $paymentPhase);
+        $this->clientSideProjectModel->recordSlipDownloaded($projectId, $paymentPhase, $amount);
 
         // Output PDF to browser
         header('Content-Type: application/pdf');
@@ -792,12 +804,7 @@ class Client extends Controller
         $preProjectId = $_POST['pre_project_id'];
         $paymentPhase = $_POST['payment_phase'];
         $amount = $_POST['amount'];
-
-        // Validate inputs
-        if (empty($projectId) || empty($preProjectId) || empty($paymentPhase) || empty($amount)) {
-            flash('payment_message', 'Invalid request data', 'alert alert-danger');
-            redirect('client/firstPayment/' . $preProjectId);
-        }
+        $slipId = $_POST['slip_id']; // Get the existing slip ID
 
         // Verify project belongs to the user
         $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
@@ -814,55 +821,35 @@ class Client extends Controller
 
         // Handle file upload
         $file = $_FILES['payment_slip'];
-        $uploadDir = 'uploads/payment_slips/';
+        $uploadDir = 'uploads/projectbankslips/';
         $fileExt = pathinfo($file['name'], PATHINFO_EXTENSION);
         $fileName = uniqid('slip_') . '.' . $fileExt;
-        $uploadPath = $uploadDir . $fileName;
+
+        // Absolute path for file operations
+        $absoluteUploadDir = dirname(APPROOT) . '/public/' . $uploadDir;
+        $absoluteUploadPath = $absoluteUploadDir . $fileName;
+
+
 
         // Create directory if it doesn't exist
-        if (!file_exists($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
+        if (!file_exists($absoluteUploadDir)) {
+            mkdir($absoluteUploadDir, 0777, true);
         }
 
         // Move uploaded file
-        if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-            // Check if we already have a payment record
-            $payment = $this->clientSideProjectModel->getProjectPayment($projectId, $paymentPhase);
-
-            if (!$payment) {
-                // Create new payment record
-                $paymentId = $this->clientSideProjectModel->createProjectPayment([
-                    'project_id' => $projectId,
-                    'payment_method' => 'bank deposit',
-                    'amount' => $amount,
-                    'payment_phase' => $paymentPhase,
-                    'payment_status' => false // payment pending verification
-                ]);
+        if (move_uploaded_file($file['tmp_name'], $absoluteUploadPath)) {
+            // Update the existing bank slip record
+            if ($this->clientSideProjectModel->updateBankSlipFile($slipId, $fileName)) {
+                flash('payment_message', 'Payment slip uploaded successfully. It is now under review.', 'alert alert-success');
             } else {
-                $paymentId = $payment->id;
+                flash('payment_message', 'Failed to update payment slip record', 'alert alert-danger');
             }
 
-            if ($paymentId) {
-                // Create bank slip record
-                $slipCreated = $this->clientSideProjectModel->createProjectBankSlip([
-                    'projectpayment_id' => $paymentId,
-                    'slip_file' => $uploadPath,
-                    'status' => 'pending'
-                ]);
-
-                if ($slipCreated) {
-                    flash('payment_message', 'Payment slip uploaded successfully. It will be verified by our team.', 'alert alert-success');
-                } else {
-                    flash('payment_message', 'Error recording slip details', 'alert alert-danger');
-                }
-            } else {
-                flash('payment_message', 'Error recording payment', 'alert alert-danger');
-            }
+            redirect('client/firstPayment/' . $preProjectId);
         } else {
-            flash('payment_message', 'Error uploading file', 'alert alert-danger');
+            flash('payment_message', 'Failed to upload payment slip', 'alert alert-danger');
+            redirect('client/firstPayment/' . $preProjectId);
         }
-
-        redirect('client/firstPayment/' . $preProjectId);
     }
 
     /**
@@ -1009,6 +996,29 @@ class Client extends Controller
             flash('payment_message', 'Error recording payment intention', 'alert alert-danger');
         }
 
+        redirect('client/firstPayment/' . $preProjectId);
+    }
+
+    /**
+     * Cancel the current payment method selection
+     */
+    public function cancelPayment($preProjectId)
+    {
+        if (!isset($_SESSION['user_id'])) {
+            redirect('users/login');
+        }
+
+        // Verify project belongs to the user
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+        if (!$project || $project->customer_id != $_SESSION['user_id']) {
+            flash('payment_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/dashboard');
+        }
+
+        // Delete any pending payment records
+        $this->clientSideProjectModel->deletePendingPayment($project->project_id, 'first_payment');
+
+        flash('payment_message', 'Payment method reset. You can now choose a different payment method.', 'alert alert-success');
         redirect('client/firstPayment/' . $preProjectId);
     }
 
