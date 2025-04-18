@@ -69,7 +69,8 @@
               <li id="auth-section">
                 <?php if ($isLoggedIn): ?>
                     <div class="profile-section" id="profile-section">
-                        <img src="<?php echo $profilePicture; ?>" alt="Profile" class="profile-pic" id="profile-pic">
+                        <!-- <img src="<php echo $profilePicture; ?>" > -->
+                        <img src="<?php echo !empty($data['customer']->profile_picture) ? URLROOT . '/public/uploads/profile_pictures/' . $data['customer']->profile_picture : URLROOT . '/public/assets/profile.png'; ?>" alt="Profile" class="profile-pic" id="profile-pic"">
 
                         <div class="profile-dropdown">
                             <ul>
