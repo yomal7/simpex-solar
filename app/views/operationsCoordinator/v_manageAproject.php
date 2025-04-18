@@ -152,6 +152,8 @@
                             <div class="phase-card" data-phase="<?php echo $phase; ?>"
                                 <?php if ($phase === 'document_submission'): ?>
                                 onclick="window.location.href='<?php echo URLROOT ?>/operationsCoordinator/documentSubmission/<?php echo $data['project']->project_id; ?>'"
+                                <?php elseif ($phase === 'first_payment'): ?>
+                                onclick="window.location.href='<?php echo URLROOT ?>/operationsCoordinator/firstPayment/<?php echo $data['project']->project_id; ?>'"
                                 <?php else: ?>
                                 data-url="<?php echo $url; ?>"
                                 <?php endif; ?>>

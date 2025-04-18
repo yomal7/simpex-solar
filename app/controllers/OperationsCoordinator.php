@@ -917,6 +917,148 @@ class OperationsCoordinator extends Controller
         redirect('operationsCoordinator/documentSubmission/' . $projectId);
     }
 
+    /**
+     * Handle first payment management
+     * 
+     * @param int $projectId The project ID
+     * @return void
+     */
+    public function firstPayment($projectId = null)
+    {
+        if ($projectId === null) {
+            flash('payment_message', 'Project ID is required', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+        if (!$project) {
+            flash('payment_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                $project->$key = $value;
+            }
+        }
+
+        // Get payment details
+        $payment = $this->projectModel->getProjectPayment($projectId, 'first_payment');
+
+        // Get bank slip if payment method is bank deposit
+        $bankSlip = null;
+        if ($payment && $payment->payment_method == 'bank deposit') {
+            $bankSlip = $this->projectModel->getProjectBankSlip($projectId, 'first_payment');
+        }
+
+        // Get agreement to find pricing details
+        $agreement = $this->projectModel->getAgreementById($project->agreement_id);
+        $firstPaymentAmount = 0;
+
+        if ($agreement) {
+            // Calculate 25% payment amount
+            $firstPaymentAmount = $agreement->total_price * 0.25;
+        }
+
+        $data = [
+            'project' => $project,
+            'payment' => $payment,
+            'bank_slip' => $bankSlip,
+            'first_payment_amount' => $firstPaymentAmount,
+            'agreement' => $agreement
+        ];
+
+        $this->view('operationsCoordinator/v_firstPayment', $data);
+    }
+
+    /**
+     * Process cash payment
+     */
+    public function processPayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $paymentId = $_POST['payment_id'];
+        $amount = $_POST['amount'];
+
+        // Update payment status
+        if ($this->projectModel->updateProjectPayment($paymentId, [
+            'payment_status' => true,
+            'amount' => $amount
+        ])) {
+            // Update project phase to installation
+            $this->projectModel->updateProjectsPhase($projectId, 'installation');
+
+            flash('payment_message', 'Payment processed successfully', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to process payment', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/firstPayment/' . $projectId);
+    }
+
+    /**
+     * Accept bank slip
+     */
+    public function acceptBankSlip()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $paymentId = $_POST['payment_id'];
+        $slipId = $_POST['slip_id'];
+        $amount = $_POST['amount'];
+
+        // Update bank slip status
+        if ($this->projectModel->updateBankSlipStatus($slipId, 'accept')) {
+            // Update payment status
+            $this->projectModel->updateProjectPayment($paymentId, [
+                'payment_status' => true,
+                'amount' => $amount
+            ]);
+
+            // Update project phase to installation
+            $this->projectModel->updateProjectsPhase($projectId, 'installation');
+
+            flash('payment_message', 'Bank slip accepted and payment processed successfully', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to accept bank slip', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/firstPayment/' . $projectId);
+    }
+
+    /**
+     * Reject bank slip
+     */
+    public function rejectBankSlip()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $slipId = $_POST['slip_id'];
+        $rejectReason = $_POST['reject_reason'];
+
+        // Update bank slip status
+        if ($this->projectModel->updateBankSlipStatus($slipId, 'reject', $rejectReason)) {
+            flash('payment_message', 'Bank slip rejected successfully', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to reject bank slip', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/firstPayment/' . $projectId);
+    }
+
 
 
 
