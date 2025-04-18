@@ -1,0 +1,222 @@
+/* 404.css - Dark Space Theme with Logo Panel */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #141836;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Stars background */
+.stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.content-wrapper {
+    display: flex;
+    z-index: 10;
+    position: relative;
+    max-width: 1200px;
+    width: 100%;
+    padding: 20px;
+}
+
+/* Logo Panel */
+.logo-container {
+    background-color: white;
+    border-radius: 10px;
+    width: 40%;
+    margin-right: 20px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo {
+    max-width: 80%;
+    height: auto;
+}
+
+/* Error Content */
+.error-content {
+    background-color: rgba(20, 24, 54, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 10px;
+    width: 60%;
+    text-align: center;
+}
+
+.error-code {
+    font-size: 8rem;
+    font-weight: 900;
+    color: #4CAF50;
+    text-shadow: 0 0 15px rgba(76, 175, 80, 0.7);
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.error-description {
+    font-size: 1.2rem;
+    color: #bbb;
+    margin-bottom: 2rem;
+}
+
+.error-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #4CAF50;
+    color: white;
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+}
+
+.btn-primary:hover {
+    background: #3d8b40;
+    box-shadow: 0 7px 20px rgba(76, 175, 80, 0.6);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Celestial Objects */
+.celestial-objects {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 300px;
+    z-index: 1;
+}
+
+.sun {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    background: #ffde59;
+    border-radius: 50%;
+    top: 100px;
+    right: 100px;
+    box-shadow: 0 0 40px rgba(255, 222, 89, 0.7);
+    animation: glow 4s ease-in-out infinite alternate;
+}
+
+.planet {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background: #1a73e8;
+    border-radius: 50%;
+    top: 150px;
+    right: 200px;
+    /* Removed orbit animation */
+}
+
+/* Animations */
+@keyframes glow {
+    from {
+        box-shadow: 0 0 20px rgba(255, 222, 89, 0.7);
+    }
+    to {
+        box-shadow: 0 0 40px rgba(255, 222, 89, 0.7), 0 0 80px rgba(255, 222, 89, 0.3);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 960px) {
+    .content-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .logo-container {
+        width: 100%;
+        max-width: 400px;
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+    
+    .error-content {
+        width: 100%;
+        max-width: 600px;
+    }
+    
+    .celestial-objects {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .sun {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .planet {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .error-code {
+        font-size: 5rem;
+    }
+    
+    .error-message {
+        font-size: 1.5rem;
+    }
+    
+    .error-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .celestial-objects {
+        opacity: 0.6;
+    }
+}
