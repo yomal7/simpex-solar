@@ -1,0 +1,400 @@
+/* Document Review Page Styles */
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.section-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.8rem;
+}
+
+.project-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.project-id {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+.customer-name {
+  color: #777;
+  font-size: 1.1rem;
+}
+
+/* Document Card */
+.document-card {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+.document-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.document-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.status-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.status-badge.pending {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.status-badge.accept {
+  background: #e8f5e9;
+  color: #4caf50;
+}
+
+.status-badge.reject {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.document-details {
+  margin-bottom: 25px;
+}
+
+.detail-row {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-row .label {
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.rejection-reason {
+  background: #fff8f8;
+  padding: 15px;
+  border-left: 4px solid #d32f2f;
+  border-radius: 4px;
+  margin-top: 5px;
+  color: #333;
+}
+
+/* Document Preview */
+.document-preview {
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  min-height: 200px;
+  max-height: 600px;
+  overflow: hidden;
+}
+
+.document-preview img {
+  max-width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.pdf-preview {
+  width: 100%;
+  height: 500px;
+  overflow: hidden;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.file-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #757575;
+}
+
+.file-icon i {
+  font-size: 5rem;
+  margin-bottom: 15px;
+}
+
+/* Document Actions */
+.document-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+}
+
+.btn-accept,
+.btn-reject {
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-accept {
+  background: #4caf50;
+  color: white;
+}
+
+.btn-accept:hover {
+  background: #43a047;
+}
+
+.btn-reject {
+  background: #f44336;
+  color: white;
+}
+
+.btn-reject:hover {
+  background: #e53935;
+}
+
+/* No Document State */
+.no-document {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  color: #757575;
+}
+
+.no-document i {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.no-document h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.no-document p {
+  margin: 0;
+  color: #757575;
+}
+
+/* Requirements Section */
+.requirements-section {
+  margin-top: 40px;
+}
+
+.requirements-section h3 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.requirements-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+}
+
+.requirement {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.requirement-icon {
+  background: #e3f2fd;
+  color: #1976d2;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.requirement-icon i {
+  font-size: 1.8rem;
+}
+
+.requirement-content {
+  flex: 1;
+}
+
+.requirement-content h4 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.requirement-content ul {
+  margin-top: 10px;
+  padding-left: 20px;
+  color: #555;
+}
+
+.requirement-content li {
+  margin-bottom: 8px;
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  padding: 25px;
+}
+
+.modal h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.modal p {
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-cancel,
+.btn-confirm {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.btn-cancel:hover {
+  background: #d5d5d5;
+}
+
+.btn-confirm {
+  background: #1976d2;
+  color: white;
+}
+
+.btn-confirm:hover {
+  background: #1565c0;
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .project-meta {
+    align-items: flex-start;
+    margin-top: 10px;
+  }
+
+  .document-actions {
+    flex-direction: column;
+  }
+
+  .btn-accept,
+  .btn-reject {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .requirement {
+    flex-direction: column;
+  }
+
+  .requirement-icon {
+    margin-bottom: 15px;
+  }
+}

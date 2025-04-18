@@ -7,10 +7,17 @@ define('DB_USER', 'admin');
 define('DB_PASSWORD', 'Simpexdb25');
 define("DB_NAME", "simpex_db");
 
+
+// define('DB_HOST', 'mysql-128f1e1e-thisum-feb8.f.aivencloud.com:12959');
+// define('DB_USER', 'sadmin1');
+// define('DB_PASSWORD', 'AVNS_J_3AliTbKdr_hFlOTXx');
+// define("DB_NAME", "simpex_db");
+
 // define('DB_HOST', 'localhost');
 // define('DB_USER', 'root');              
 // define('DB_PASSWORD', '');               
 // define('DB_NAME', 'simpex_db');         
+
 
 
 
