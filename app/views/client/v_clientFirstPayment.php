@@ -199,7 +199,7 @@
             </div>
         </div>
     </div>
-
+    
     <script>
         function toggleMethod(methodId) {
             const methodContent = document.getElementById(methodId);
@@ -253,5 +253,5 @@
             });
         }
     </script>
-
+        <script src="<?php echo URLROOT; ?>/js/client/clientFirstPayment.js"></script>
     <?php require APPROOT . '/views/client/footer.php'; ?>
