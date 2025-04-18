@@ -219,7 +219,7 @@ class M_clientSideProject
             // Create a payment record with payment_status = false
             $paymentId = $this->createProjectPayment([
                 'project_id' => $projectId,
-                'payment_method' => 'bank_deposit',
+                'payment_method' => 'bank deposit',
                 'amount' => 0, // Will be updated when slip is uploaded
                 'payment_phase' => $paymentPhase,
                 'payment_status' => false

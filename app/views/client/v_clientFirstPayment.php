@@ -60,7 +60,7 @@
                     <p class="payment-note">This initial payment allows us to begin your solar installation project.</p>
                 </div>
 
-                <?php if (!isset($data['payment']) || !$data['payment']->payment_status): ?>
+                <?php if (!isset($data['payment']) || !is_object($data['payment']) || !$data['payment']->payment_status): ?>
                     <!-- Payment Methods Accordion -->
                     <div class="payment-methods">
                         <h3>Select Payment Method</h3>
@@ -82,10 +82,10 @@
                                                 case 'pending':
                                                     echo 'Pending';
                                                     break;
-                                                case 'approved':
+                                                case 'accept':
                                                     echo 'Approved';
                                                     break;
-                                                case 'rejected':
+                                                case 'reject':
                                                     echo 'Rejected';
                                                     break;
                                                 default:
@@ -93,7 +93,7 @@
                                             }
                                             ?>
                                         </p>
-                                        <?php if ($data['bank_slip']->status == 'rejected' && !empty($data['bank_slip']->reject_reason)): ?>
+                                        <?php if ($data['bank_slip']->status == 'reject' && !empty($data['bank_slip']->reject_reason)): ?>
                                             <p class="rejection-reason">Reason: <?php echo $data['bank_slip']->reject_reason; ?></p>
                                         <?php endif; ?>
                                     </div>
@@ -124,7 +124,7 @@
                                     </div>
                                 </form>
 
-                                <?php if (!isset($data['bank_slip']) || $data['bank_slip']->status == 'rejected'): ?>
+                                <?php if (!isset($data['bank_slip']) || !is_object($data['bank_slip']) || $data['bank_slip']->status == 'reject'): ?>
                                     <form action="<?php echo URLROOT; ?>/client/uploadBankSlip" method="post" enctype="multipart/form-data" class="upload-form">
                                         <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
                                         <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
@@ -199,7 +199,7 @@
             </div>
         </div>
     </div>
-    
+
     <script>
         function toggleMethod(methodId) {
             const methodContent = document.getElementById(methodId);
@@ -253,5 +253,5 @@
             });
         }
     </script>
-        <script src="<?php echo URLROOT; ?>/js/client/clientFirstPayment.js"></script>
+    <script src="<?php echo URLROOT; ?>/js/client/clientFirstPayment.js"></script>
     <?php require APPROOT . '/views/client/footer.php'; ?>

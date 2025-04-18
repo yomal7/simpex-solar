@@ -833,7 +833,7 @@ class Client extends Controller
                 // Create new payment record
                 $paymentId = $this->clientSideProjectModel->createProjectPayment([
                     'project_id' => $projectId,
-                    'payment_method' => 'bank_deposit',
+                    'payment_method' => 'bank deposit',
                     'amount' => $amount,
                     'payment_phase' => $paymentPhase,
                     'payment_status' => false // payment pending verification
