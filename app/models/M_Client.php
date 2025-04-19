@@ -91,6 +91,7 @@
                 cq.quotation_id, 
                 cq.package_id, 
                 cq.package_type,
+                cq.nearest_city,
                 p.title as package_name, 
                 p.type as system_type,
                 proj.project_id,
