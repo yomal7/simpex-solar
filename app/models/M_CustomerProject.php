@@ -328,4 +328,140 @@ class M_CustomerProject
 
         return $success;
     }
+
+    public function getInstallationPhase($projectId)
+    {
+        $this->db->query('SELECT * FROM installation_phase WHERE project_id = :project_id');
+        $this->db->bind(':project_id', $projectId);
+        return $this->db->single();
+    }
+
+    /**
+     * Get installation by ID
+     * 
+     * @param int $installationId Installation ID
+     * @return object|bool Installation object or false
+     */
+    public function getInstallationById($installationId)
+    {
+        $this->db->query('SELECT * FROM installation_phase WHERE installation_id = :installation_id');
+        $this->db->bind(':installation_id', $installationId);
+        return $this->db->single();
+    }
+
+    /**
+     * Get installation schedule
+     * 
+     * @param int $installationId Installation ID
+     * @return object|bool Schedule object or false
+     */
+    public function getInstallationSchedule($installationId)
+    {
+        $this->db->query('SELECT * FROM installation_schedule WHERE installation_id = :installation_id ORDER BY id DESC LIMIT 1');
+        $this->db->bind(':installation_id', $installationId);
+        return $this->db->single();
+    }
+
+    /**
+     * Create installation phase
+     * 
+     * @param array $data Installation data
+     * @return int|bool Installation ID or false
+     */
+    public function createInstallationPhase($data)
+    {
+        $this->db->query('INSERT INTO installation_phase (project_id, status, engineer_id) 
+                     VALUES (:project_id, :status, :engineer_id)');
+
+        $this->db->bind(':project_id', $data['project_id']);
+        $this->db->bind(':status', $data['status']);
+        $this->db->bind(':engineer_id', $data['engineer_id']);
+
+        if ($this->db->execute()) {
+            return $this->db->lastInsertId();
+        }
+
+        return false;
+    }
+
+    /**
+     * Create installation schedule
+     * 
+     * @param array $data Schedule data
+     * @return bool Success status
+     */
+    public function createInstallationSchedule($data)
+    {
+        $this->db->query('INSERT INTO installation_schedule (installation_id, start_date, start_time, end_date, status) 
+                     VALUES (:installation_id, :start_date, :start_time, :end_date, :status)');
+
+        $this->db->bind(':installation_id', $data['installation_id']);
+        $this->db->bind(':start_date', $data['start_date']);
+        $this->db->bind(':start_time', $data['start_time']);
+        $this->db->bind(':end_date', $data['end_date']);
+        $this->db->bind(':status', $data['status']);
+
+        return $this->db->execute();
+    }
+
+    /**
+     * Update installation schedule
+     * 
+     * @param int $scheduleId Schedule ID
+     * @param array $data Schedule data
+     * @return bool Success status
+     */
+    public function updateInstallationSchedule($scheduleId, $data)
+    {
+        $query = 'UPDATE installation_schedule SET ';
+        $params = [];
+
+        if (isset($data['start_date'])) {
+            $params[] = 'start_date = :start_date';
+        }
+
+        if (isset($data['start_time'])) {
+            $params[] = 'start_time = :start_time';
+        }
+
+        if (isset($data['end_date'])) {
+            $params[] = 'end_date = :end_date';
+        }
+
+        if (isset($data['status'])) {
+            $params[] = 'status = :status';
+        }
+
+        if (isset($data['reschedule_request'])) {
+            $params[] = 'reschedule_request = :reschedule_request';
+        }
+
+        $query .= implode(', ', $params) . ' WHERE id = :id';
+
+        $this->db->query($query);
+
+        $this->db->bind(':id', $scheduleId);
+
+        if (isset($data['start_date'])) {
+            $this->db->bind(':start_date', $data['start_date']);
+        }
+
+        if (isset($data['start_time'])) {
+            $this->db->bind(':start_time', $data['start_time']);
+        }
+
+        if (isset($data['end_date'])) {
+            $this->db->bind(':end_date', $data['end_date']);
+        }
+
+        if (isset($data['status'])) {
+            $this->db->bind(':status', $data['status']);
+        }
+
+        if (isset($data['reschedule_request'])) {
+            $this->db->bind(':reschedule_request', $data['reschedule_request']);
+        }
+
+        return $this->db->execute();
+    }
 }
