@@ -265,4 +265,35 @@ class M_CustomerProject
 
         return $this->db->execute();
     }
+
+    public function getInstallationPendingReleaseProjects()
+    {
+        $this->db->query('SELECT p.*, u.name as customer_name, IFNULL(cq.nearest_city, "No Location") as location 
+             FROM projects p
+             LEFT JOIN users u ON p.customer_id = u.user_id
+             LEFT JOIN customerquotation cq ON p.pre_project_id = cq.pre_project_id
+             WHERE p.current_phase = "installation" 
+             AND p.equipment_released = FALSE
+             AND p.status = "active"
+             ORDER BY p.updated_at ASC');
+
+        return $this->db->resultSet();
+    }
+
+    /**
+     * Release equipment for a project
+     * 
+     * @param int $projectId Project ID
+     * @return bool Success status
+     */
+    public function releaseProjectEquipment($projectId)
+    {
+        $this->db->query('UPDATE projects SET 
+                    equipment_released = TRUE,
+                    updated_at = CURRENT_TIMESTAMP
+                    WHERE project_id = :project_id');
+
+        $this->db->bind(':project_id', $projectId);
+        return $this->db->execute();
+    }
 }

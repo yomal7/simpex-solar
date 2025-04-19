@@ -6,6 +6,7 @@ class SupplierCoordinator extends Controller
     private $supplierModel;
     private $inventoryModel;
     private $shopModel;
+    private $projectModel;
 
     public function __construct()
     {
@@ -16,6 +17,7 @@ class SupplierCoordinator extends Controller
         $this->supplierModel = $this->model('M_Suppliers');
         $this->inventoryModel = $this->model('M_Inventory');
         $this->shopModel = $this->model('M_Shop');
+        $this->projectModel = $this->model('M_CustomerProject');
     }
 
     public function index()
@@ -996,5 +998,73 @@ class SupplierCoordinator extends Controller
                 ]);
             }
         }
+    }
+
+    //################################################################################################
+    //-------------------------------------Projects----------------------------------------------
+    //################################################################################################
+
+    public function projects()
+    {
+        // Get installation projects pending equipment release
+        $projects = $this->projectModel->getInstallationPendingReleaseProjects();
+
+        $data = [
+            'title' => 'Installation Projects',
+            'projects' => $projects
+        ];
+
+        $this->view('supplierCoordinator/v_projects', $data);
+    }
+
+    /**
+     * Release equipment for a project
+     * 
+     * @param int $projectId Project ID
+     * @return void
+     */
+    public function releaseEquipment($projectId)
+    {
+        // Validate and release equipment for the project
+        if ($this->projectModel->releaseProjectEquipment($projectId)) {
+            flash('project_message', 'Equipment released successfully', 'alert alert-success');
+        } else {
+            flash('project_message', 'Failed to release equipment', 'alert alert-danger');
+        }
+
+        redirect('supplierCoordinator/projects');
+    }
+
+    /**
+     * View project details
+     * 
+     * @param int $projectId Project ID
+     * @return void
+     */
+    public function viewProject($projectId)
+    {
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('supplierCoordinator/projects');
+        }
+
+        // Get customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+
+        // Merge project and customer details
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                $project->$key = $value;
+            }
+        }
+
+        $data = [
+            'project' => $project
+        ];
+
+        $this->view('supplierCoordinator/v_viewProject', $data);
     }
 }
