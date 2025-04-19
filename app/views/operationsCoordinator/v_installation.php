@@ -18,6 +18,7 @@
                 <h3>Logout</h3>
             </a>
         </div>
+
         <div class="main-content">
             <div class="container">
                 <!-- Installation Header -->
@@ -133,7 +134,7 @@
                                         <label for="engineerId">Assign Engineer:</label>
                                         <select id="engineerId" name="engineer_id" required>
                                             <option value="">Select Engineer...</option>
-                                            <?php if (isset($data['engineers'])): ?>
+                                            <?php if (isset($data['engineers']) && !empty($data['engineers'])): ?>
                                                 <?php foreach ($data['engineers'] as $engineer): ?>
                                                     <option value="<?php echo $engineer->employee_id; ?>">
                                                         <?php echo $engineer->name; ?>
@@ -238,6 +239,14 @@
                                         </div>
                                     </div>
 
+                                    <!-- Progress tracking for steps -->
+                                    <div class="installation-progress">
+                                        <h4>Installation Progress</h4>
+                                        <div class="progress-steps">
+                                            <!-- Step sections go here -->
+                                        </div>
+                                    </div>
+
                                     <?php if ($data['installation']->step_01 && $data['installation']->step_02 && $data['installation']->step_03 && $data['installation']->step_04): ?>
                                         <!-- All steps completed, show complete installation button -->
                                         <div class="complete-installation">
@@ -268,20 +277,6 @@
             const startTimeInput = document.getElementById('startTime');
             if (startTimeInput) {
                 startTimeInput.addEventListener('change', function() {
-                    const time = this.value;
-                    const hour = parseInt(time.split(':')[0]);
-
-                    if (hour < 8 || hour > 12) {
-                        alert('Installation start time must be between 8:00 AM and 12:00 PM');
-                        this.value = '08:00';
-                    }
-                });
-            }
-
-            // Same for reschedule form
-            const newStartTimeInput = document.getElementById('newStartTime');
-            if (newStartTimeInput) {
-                newStartTimeInput.addEventListener('change', function() {
                     const time = this.value;
                     const hour = parseInt(time.split(':')[0]);
 
