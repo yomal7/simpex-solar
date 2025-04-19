@@ -91,6 +91,7 @@
                 cq.quotation_id, 
                 cq.package_id, 
                 cq.package_type,
+                cq.nearest_city,
                 p.title as package_name, 
                 p.type as system_type,
                 proj.project_id,
@@ -154,27 +155,38 @@
         }
 
         public function getProjectStats($userId) {
-            // Get active projects count (pre-projects with accepted quotations)
-            $this->db->query('SELECT COUNT(*) as count FROM pre_projects pp
-                  LEFT JOIN reviewed_quotations rq ON pp.quotation_id = rq.quotation_id
-                  WHERE pp.customer_id = :user_id 
-                  AND pp.status = "active"
-                  AND rq.status = "accepted"');
+            // Get pending quotations count
+            $this->db->query('SELECT COUNT(*) as count FROM customerquotation 
+                             WHERE user_id = :user_id 
+                             AND status NOT IN ("accepted_by_customer", "rejected_by_customer", "cancelled")');
             $this->db->bind(':user_id', $userId);
-            $activeProjectsRow = $this->db->single();
-            $activeProjects = $activeProjectsRow ? $activeProjectsRow->count : 0;
-        
-            // Get total completed projects
+            $pendingQuotations = $this->db->single()->count;
+
+            // Get active pre-projects count
+            $this->db->query('SELECT COUNT(*) as count FROM pre_projects 
+                             WHERE customer_id = :user_id 
+                             AND status = "active"');
+            $this->db->bind(':user_id', $userId);
+            $activePreProjects = $this->db->single()->count;
+
+            // Get active main projects count
             $this->db->query('SELECT COUNT(*) as count FROM projects 
-                  WHERE customer_id = :user_id 
-                  AND status = "completed"');
+                             WHERE customer_id = :user_id 
+                             AND status = "active"');
+            $this->db->bind(':user_id', $userId);
+            $activeMainProjects = $this->db->single()->count;
+
+            // Get completed projects count
+            $this->db->query('SELECT COUNT(*) as count FROM projects 
+                             WHERE customer_id = :user_id 
+                             AND status = "completed"');
             $this->db->bind(':user_id', $userId);
             $completedProjects = $this->db->single()->count;
-        
+
             return [
-            'active_projects' => $activeProjects,
-            'total_solutions' => $activeProjects + $completedProjects,
-            'pending_quotations' => 0 
+                'active_projects' => $activePreProjects + $activeMainProjects,
+                'pending_quotations' => $pendingQuotations,
+                'total_solutions' => $activePreProjects + $activeMainProjects + $completedProjects
             ];
         }
 

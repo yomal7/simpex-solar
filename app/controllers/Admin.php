@@ -324,12 +324,32 @@ class Admin extends Controller {
 
     public function addCoordinator() {
         if($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('admin/coordinators');
+            // Show the coordinators page with the add form
+            $coordinators = $this->userModel->getCoordinators();
+            $coordinator_types = ['chiefCoordinator', 'operationsCoordinator', 'hRAdministrator', 'supplierCoordinator'];
+            
+            $data = [
+                'coordinators' => $coordinators,
+                'coordinator_types' => $coordinator_types,
+                'show_add_modal' => false, // Default don't show modal
+                'form_data' => [
+                    'name' => '',
+                    'email' => '',
+                    'role' => '',
+                    'name_err' => '',
+                    'email_err' => '',
+                    'password_err' => '',
+                    'role_err' => ''
+                ]
+            ];
+    
+            $this->view('admin/v_manageCoordinators', $data);
+            return;
         }
-
+    
         // Sanitize POST data
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-
+    
         $data = [
             'name' => trim($_POST['name']),
             'email' => trim($_POST['email']),
@@ -340,24 +360,24 @@ class Admin extends Controller {
             'password_err' => '',
             'role_err' => ''
         ];
-
+    
         // Validate role and check if coordinator already exists
         if($this->userModel->getCoordinatorByRole($data['role'])) {
             $data['role_err'] = 'A coordinator for this role already exists';
         }
-
+    
         // Validate email
         if($this->userModel->findUserByEmail($data['email'])) {
             $data['email_err'] = 'Email is already taken';
         }
-
+    
         // Make sure no errors
         if(empty($data['email_err']) && empty($data['name_err']) && 
            empty($data['password_err']) && empty($data['role_err'])) {
             
             // Hash Password
             $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-
+    
             if($this->userModel->register($data)) {
                 flash('coordinator_message', 'Coordinator added successfully', 'success');
                 redirect('admin/coordinators');
@@ -365,8 +385,19 @@ class Admin extends Controller {
                 die('Something went wrong');
             }
         } else {
-            flash('coordinator_message', 'Unable to add coordinator. Please check the errors', 'error');
-            redirect('admin/coordinators');
+            // Get all coordinators for the page
+            $coordinators = $this->userModel->getCoordinators();
+            $coordinator_types = ['chiefCoordinator', 'operationsCoordinator', 'hRAdministrator', 'supplierCoordinator'];
+            
+            // Prepare view data with form data and errors
+            $viewData = [
+                'coordinators' => $coordinators,
+                'coordinator_types' => $coordinator_types,
+                'show_add_modal' => true, // Tell view to show the modal
+                'form_data' => $data
+            ];
+    
+            $this->view('admin/v_manageCoordinators', $viewData);
         }
     }
 

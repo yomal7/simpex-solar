@@ -102,7 +102,19 @@
                                 <h3><?php echo $info['title']; ?></h3>
                                 <p><?php echo $info['description']; ?></p>
                                 <?php if ($status === 'active'): ?>
-                                    <?php if ($phase === 'site_visit'): ?>
+                                    <?php if ($phase === 'quotation'): ?>
+                                        <a href="<?php 
+                                            // Check if quotation_id exists in data array
+                                            if (isset($data['quotation_id'])) {
+                                                echo URLROOT . '/client/viewQuotation/' . $data['quotation_id'];
+                                            } else {
+                                                // If no quotation_id, try to get it from the progress data
+                                                echo URLROOT . '/client/viewQuotation/' . ($data['progress']['pre_project']->quotation_id ?? '');
+                                            }
+                                        ?>" class="btn-proceed">
+                                            Proceed Now
+                                        </a>
+                                    <?php elseif ($phase === 'site_visit'): ?>
                                         <a href="<?php echo URLROOT . '/client/siteVisit/' . $data['pre_project_id']; ?>" class="btn-proceed">
                                             Proceed Now
                                         </a>
@@ -116,7 +128,11 @@
                                         </a>
                                     <?php endif; ?>
                                 <?php elseif ($status === 'completed'): ?>
-                                    <?php if ($phase === 'site_visit'): ?>
+                                    <?php if ($phase === 'quotation'): ?>
+                                        <a href="<?php echo URLROOT . '/client/viewQuotation/' . $data['quotation_id']; ?>" class="btn-view">
+                                            View Details
+                                        </a>
+                                    <?php elseif ($phase === 'site_visit'): ?>
                                         <a href="<?php echo URLROOT . '/client/siteVisit/' . $data['pre_project_id']; ?>" class="btn-view">
                                             View Details
                                         </a>

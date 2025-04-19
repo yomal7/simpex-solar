@@ -22,8 +22,8 @@
         </ul> -->
 
         <ul class="side-menu">
-            <li  ><a href="<?php echo URLROOT; ?>/client/dashboard"><i class='bx bxs-dashboard'></i>Dashboard</a></li>
-            <li class="active" ><a href="<?php echo URLROOT; ?>/client/operationDashboard"><i class='bx bx-analyse'></i>Quotations and Projects</a></li>
+            <li class="active" ><a href="<?php echo URLROOT; ?>/client/dashboard"><i class='bx bxs-dashboard'></i>Dashboard</a></li>
+            <li  ><a href="<?php echo URLROOT; ?>/client/operationDashboard"><i class='bx bx-analyse'></i>Quotations and Projects</a></li>
             <li ><a href="<?php echo URLROOT; ?>/client/shop"><i class='bx bx-store-alt'></i>Shop</a></li>
             <li><a href="#"><i class='bx bx-message-square-dots'></i>Chat</a></li>
             <!-- <li><a href="#"><i class='bx bx-group'></i>Users</a></li> -->
