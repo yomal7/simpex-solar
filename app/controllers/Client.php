@@ -33,76 +33,34 @@ class Client extends Controller
 
     public function dashboard()
     {
-        // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
-        $data = [];
+        $userId = $_SESSION['user_id'];
+        
+        // Get customer info
+        $customer = $this->clientModel->getClientByUserId($userId);
+        
+        // Get active quotations
+        $activeQuotations = $this->clientSidePreProjectModel->getActiveQuotationsByCustomerId($userId);
+        
+        // Get ongoing projects
+        $ongoingProjects = $this->clientModel->getOngoingProjects($userId);
+
+        // For debugging, uncomment this line to check what data is being returned
+        // echo '<pre>'; print_r($ongoingProjects); echo '</pre>'; die();
+
+        // Get project statistics
+        $stats = $this->clientModel->getProjectStats($userId);
+        
+        $data = [
+            'customer' => $customer,
+            'quotations' => $activeQuotations,
+            'ongoingProjects' => $ongoingProjects,
+            'stats' => $stats,
+            'notification_count' => 0 // You can update this with actual notification count
+        ];
+        
         $this->view('client/v_clientDashboard', $data);
     }
 
-    // public function operationDashboard() {
-    //     $userId = $_SESSION['user_id'];
-
-    //     // Get all pre-projects and projects
-    //     $preProjects = $this->clientSidePreProjectModel->getPreProjectsByCustomerId($userId);
-    //     $projects = $this->customerProjectModel->getProjectsByCustomerId($userId);
-
-    //     // Get active quotation if exists
-    //     $activeQuotation = $this->clientSidePreProjectModel->getActiveQuotationByCustomerId($userId);
-
-    //     // Get stats
-    //     $stats = [
-    //         'total_projects' => count($projects),
-    //         'active_projects' => count(array_filter($projects, function($p) { 
-    //             return $p->status === 'active'; 
-    //         })),
-    //         'pending_quotations' => count(array_filter($preProjects, function($p) { 
-    //             return $p->current_phase === 'quotation'; 
-    //         }))
-    //     ];
-
-    //     $data = [
-    //         'title' => 'Dashboard',
-    //         'stats' => $stats,
-    //         'quotation' => $activeQuotation,
-    //         'projects' => $projects
-    //     ];
-
-
-    //     $this->view('client/v_operationsDashboard', $data);
-
-    // }
-
-
-
-
-
-    // public function operationDashboard() {
-    //     $userId = $_SESSION['user_id'];
-
-    //     // Get all pre-projects and projects
-    //     $preProjects = $this->clientSidePreProjectModel->getPreProjectsByCustomerId($userId);
-    //     $projects = $this->customerProjectModel->getProjectsByCustomerId($userId);
-
-    //     // Get active quotations - changed to plural
-    //     $activeQuotations = $this->clientSidePreProjectModel->getActiveQuotationsByCustomerId($userId);
-
-    //     // Get stats
-    //     $stats = [
-    //         'total_projects' => count($projects),
-    //         'active_projects' => count(array_filter($projects, function($p) {
-    //             return $p->status === 'active';
-    //         })),
-    //         'pending_quotations' => count($activeQuotations)  // Updated to use actual count
-    //     ];
-
-    //     $data = [
-    //         'title' => 'Dashboard',
-    //         'stats' => $stats,
-    //         'quotations' => $activeQuotations,  // Changed from quotation to quotations
-    //         'projects' => $projects
-    //     ];
-
-    //     $this->view('client/v_operationsDashboard', $data);
-    // }
 
     public function operationDashboard()
     {

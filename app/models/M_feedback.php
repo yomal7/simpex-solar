@@ -14,7 +14,6 @@ class M_Feedback{
             subject, 
             message, 
             rating, 
-            contact_consent, 
             ip_address,
             user_agent,
             created_at
@@ -25,8 +24,7 @@ class M_Feedback{
             :feedback_type, 
             :subject, 
             :message, 
-            :rating, 
-            :contact_consent, 
+            :rating,  
             :ip_address,
             :user_agent,
             :created_at
@@ -39,7 +37,6 @@ class M_Feedback{
         $this->db->bind(":subject", $data["subject"]);
         $this->db->bind(":message", $data["message"]);
         $this->db->bind(":rating", $data["rating"]);
-        $this->db->bind(":contact_consent", $data["contact_consent"]);
         $this->db->bind(":ip_address", $_SERVER['REMOTE_ADDR']);
         $this->db->bind(":user_agent", $_SERVER['HTTP_USER_AGENT']);
         $this->db->bind(":created_at", date("Y-m-d H:i:s"));
