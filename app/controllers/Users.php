@@ -32,6 +32,11 @@ class Users extends Controller {
         $this->view('users/v_auth', $data);
     }
 
+    public function login() {
+        // Simply redirect to index which has the login form
+        redirect('users/index');
+    }
+
     public function auth()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
