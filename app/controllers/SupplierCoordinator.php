@@ -1017,16 +1017,35 @@ class SupplierCoordinator extends Controller
         $this->view('supplierCoordinator/v_projects', $data);
     }
 
-    /**
-     * Release equipment for a project
-     * 
-     * @param int $projectId Project ID
-     * @return void
-     */
-    public function releaseEquipment($projectId)
+    public function releaseEquipment()
     {
-        // Validate and release equipment for the project
-        if ($this->projectModel->releaseProjectEquipment($projectId)) {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('supplierCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $agreementId = $_POST['agreement_id'];
+
+        // Check if there's enough inventory for all items
+        $equipment = $this->projectModel->getAgreementEquipmentWithInventory($agreementId);
+        $insufficientItems = [];
+
+        foreach ($equipment as $item) {
+            if ($item->inventory_quantity < $item->required_quantity) {
+                $insufficientItems[] = $item->name;
+            }
+        }
+
+        if (!empty($insufficientItems)) {
+            $message = 'Insufficient inventory for: ' . implode(', ', $insufficientItems);
+            flash('project_message', $message, 'alert alert-danger');
+            redirect('supplierCoordinator/projectEquipments/' . $projectId);
+        }
+
+        // Update inventory quantities and mark equipment as released
+        $success = $this->projectModel->releaseEquipmentForProject($projectId, $equipment);
+
+        if ($success) {
             flash('project_message', 'Equipment released successfully', 'alert alert-success');
         } else {
             flash('project_message', 'Failed to release equipment', 'alert alert-danger');
@@ -1035,17 +1054,10 @@ class SupplierCoordinator extends Controller
         redirect('supplierCoordinator/projects');
     }
 
-    /**
-     * View project details
-     * 
-     * @param int $projectId Project ID
-     * @return void
-     */
-    public function viewProject($projectId)
+    public function projectEquipments($projectId)
     {
-        // Get project details
+        // Get project details with customer information
         $project = $this->projectModel->getProjectById($projectId);
-
         if (!$project) {
             flash('project_message', 'Project not found', 'alert alert-danger');
             redirect('supplierCoordinator/projects');
@@ -1053,18 +1065,28 @@ class SupplierCoordinator extends Controller
 
         // Get customer details
         $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
-
-        // Merge project and customer details
         if ($customerDetails) {
             foreach ($customerDetails as $key => $value) {
                 $project->$key = $value;
             }
         }
 
+        // Get agreement details
+        $agreement = $this->projectModel->getAgreementById($project->agreement_id);
+        if (!$agreement) {
+            flash('project_message', 'Agreement not found', 'alert alert-danger');
+            redirect('supplierCoordinator/projects');
+        }
+
+        // Get equipment list from agreement
+        $equipment = $this->projectModel->getAgreementEquipmentWithInventory($agreement->agreement_id);
+
         $data = [
-            'project' => $project
+            'project' => $project,
+            'agreement' => $agreement,
+            'equipment' => $equipment
         ];
 
-        $this->view('supplierCoordinator/v_viewProject', $data);
+        $this->view('supplierCoordinator/v_projectEquipments', $data);
     }
 }

@@ -97,41 +97,32 @@
 
 .card-actions {
   display: flex;
-  gap: 1rem;
+  justify-content: center;
   padding: 1rem 1.5rem;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   background-color: rgba(255, 255, 255, 0.6);
 }
 
-.btn-release,
-.btn-view {
+.btn-process {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  width: 100%;
+  padding: 0.75rem 1.5rem;
   border-radius: 6px;
   text-decoration: none;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
-  transition: background-color 0.2s ease;
-}
-
-.btn-release {
   background-color: var(--installation-color);
   color: white;
+  transition: background-color 0.2s ease;
+  border: none;
+  cursor: pointer;
 }
 
-.btn-release:hover {
+.btn-process:hover {
   background-color: #e5b43a;
-}
-
-.btn-view {
-  background-color: #e2e8f0;
-  color: var(--text-dark);
-}
-
-.btn-view:hover {
-  background-color: #d1d8e0;
 }
 
 /* No projects placeholder */
@@ -175,15 +166,5 @@
   .projects-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
-  }
-
-  .card-actions {
-    flex-direction: column;
-  }
-
-  .btn-release,
-  .btn-view {
-    width: 100%;
-    justify-content: center;
   }
 }

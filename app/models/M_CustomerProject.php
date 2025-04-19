@@ -280,20 +280,52 @@ class M_CustomerProject
         return $this->db->resultSet();
     }
 
-    /**
-     * Release equipment for a project
-     * 
-     * @param int $projectId Project ID
-     * @return bool Success status
-     */
-    public function releaseProjectEquipment($projectId)
+    public function getAgreementEquipmentWithInventory($agreementId)
     {
-        $this->db->query('UPDATE projects SET 
-                    equipment_released = TRUE,
-                    updated_at = CURRENT_TIMESTAMP
-                    WHERE project_id = :project_id');
+        $this->db->query('SELECT ae.*, 
+                    i.name, 
+                    i.description,
+                    i.quantity as inventory_quantity,
+                    ae.quantity as required_quantity
+                    FROM agreement_equipment ae
+                    JOIN inventory i ON ae.inventory_id = i.id
+                    WHERE ae.agreement_id = :agreement_id');
 
-        $this->db->bind(':project_id', $projectId);
-        return $this->db->execute();
+        $this->db->bind(':agreement_id', $agreementId);
+        return $this->db->resultSet();
+    }
+
+    public function releaseEquipmentForProject($projectId, $equipment)
+    {
+        $success = true;
+
+        // Update inventory quantities
+        foreach ($equipment as $item) {
+            $newQuantity = $item->inventory_quantity - $item->required_quantity;
+
+            $this->db->query('UPDATE inventory 
+                        SET quantity = :quantity 
+                        WHERE id = :id');
+            $this->db->bind(':quantity', $newQuantity);
+            $this->db->bind(':id', $item->inventory_id);
+
+            // If any update fails, set success to false
+            if (!$this->db->execute()) {
+                $success = false;
+                break;
+            }
+        }
+
+        // Only update project status if inventory updates were successful
+        if ($success) {
+            $this->db->query('UPDATE projects 
+                    SET equipment_released = TRUE,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE project_id = :project_id');
+            $this->db->bind(':project_id', $projectId);
+            $success = $this->db->execute();
+        }
+
+        return $success;
     }
 }

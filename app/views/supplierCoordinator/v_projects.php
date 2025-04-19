@@ -77,11 +77,8 @@
                                     <?php endif; ?>
                                 </div>
                                 <div class="card-actions">
-                                    <a href="<?php echo URLROOT; ?>/supplierCoordinator/releaseEquipment/<?php echo $project->project_id; ?>" class="btn-release">
-                                        <span class="material-icons-sharp">inventory</span> Release Equipment
-                                    </a>
-                                    <a href="<?php echo URLROOT; ?>/supplierCoordinator/viewProject/<?php echo $project->project_id; ?>" class="btn-view">
-                                        <span class="material-icons-sharp">visibility</span> View Details
+                                    <a href="<?php echo URLROOT; ?>/supplierCoordinator/projectEquipments/<?php echo $project->project_id; ?>" class="btn-process">
+                                        <span class="material-icons-sharp">inventory</span> Process
                                     </a>
                                 </div>
                             </div>
