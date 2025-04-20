@@ -322,11 +322,6 @@ function refreshClientList() {
                 <img src="${URLROOT}/public/assets/profile.png" alt="Client">
                 <div class="contact-info">
                     <h4>${client.name}</h4>
-                    <p class="last-message">${client.last_message ? 
-                        (client.last_message.length > 30 ? 
-                        client.last_message.substring(0, 30) + '...' : 
-                        client.last_message) : 
-                        'No messages'}</p>
                 </div>
                 ${client.unread_count > 0 ? 
                     `<span class="unread-count">${client.unread_count}</span>` : 

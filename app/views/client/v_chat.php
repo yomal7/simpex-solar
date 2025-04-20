@@ -49,7 +49,6 @@
                         <img src="<?php echo URLROOT; ?>/assets/operations-icon.png" alt="Operations" onerror="this.src='<?php echo URLROOT; ?>/public/assets/profile.png'">
                         <div class="contact-info">
                             <h4>Operations Coordinator</h4>
-                            <p class="last-message" id="operations-last-message"></p>
                         </div>
                         <?php if (isset($data['unread_counts']['operations']) && $data['unread_counts']['operations'] > 0): ?>
                             <span class="unread-badge" data-coordinator="operations"><?php echo $data['unread_counts']['operations']; ?></span>
@@ -59,7 +58,6 @@
                         <img src="<?php echo URLROOT; ?>/assets/supplier-icon.png" alt="Supplier" onerror="this.src='<?php echo URLROOT; ?>/public/assets/profile.png'">
                         <div class="contact-info">
                             <h4>Supplier Coordinator</h4>
-                            <p class="last-message" id="supplier-last-message"></p>
                         </div>
                         <?php if (isset($data['unread_counts']['supplier']) && $data['unread_counts']['supplier'] > 0): ?>
                             <span class="unread-badge" data-coordinator="supplier"><?php echo $data['unread_counts']['supplier']; ?></span>
@@ -69,7 +67,6 @@
                         <img src="<?php echo URLROOT; ?>/assets/hr-icon.png" alt="HR" onerror="this.src='<?php echo URLROOT; ?>/public/assets/profile.png'">
                         <div class="contact-info">
                             <h4>HR Administrator</h4>
-                            <p class="last-message" id="hr-last-message"></p>
                         </div>
                         <?php if (isset($data['unread_counts']['hr']) && $data['unread_counts']['hr'] > 0): ?>
                             <span class="unread-badge" data-coordinator="hr"><?php echo $data['unread_counts']['hr']; ?></span>
@@ -118,9 +115,7 @@
 
             // Add click event listeners to contact items
             document.addEventListener('DOMContentLoaded', function() {
-                // Load last messages for each coordinator
-                loadLastMessages();
-
+                
                 const contactItems = document.querySelectorAll('.contact-item');
 
                 contactItems.forEach(item => {
@@ -176,31 +171,6 @@
                     });
                 }
             });
-
-            // Function to load last messages for each coordinator
-            function loadLastMessages() {
-                const coordinators = ['operations', 'supplier', 'hr'];
-
-                coordinators.forEach(coordinator => {
-                    fetch(`${URLROOT}/client/getLastMessage/${coordinator}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            const lastMessageElement = document.getElementById(`${coordinator}-last-message`);
-                            if (lastMessageElement) {
-                                if (data && data.message) {
-                                    lastMessageElement.textContent = data.message.length > 30 ?
-                                        data.message.substring(0, 30) + '...' :
-                                        data.message;
-                                } else {
-                                    lastMessageElement.textContent = 'No messages';
-                                }
-                            }
-                        })
-                        .catch(error => {
-                            console.error(`Error loading last message for ${coordinator}:`, error);
-                        });
-                });
-            }
 
             // Function to load chat history
             function loadChatHistory(coordinatorType) {
@@ -293,13 +263,7 @@
                 // Scroll to the bottom
                 chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                // Update the last message in the sidebar for this recipient
-                const lastMessageElement = document.getElementById(`${currentRecipientType}-last-message`);
-                if (lastMessageElement) {
-                    lastMessageElement.textContent = message.length > 30 ?
-                        message.substring(0, 30) + '...' :
-                        message;
-                }
+                
 
                 // Send message to server
                 fetch(`${URLROOT}/client/saveMessage`, {
@@ -399,16 +363,6 @@
                         } else if (coordinatorType) {
                             // Show notification for message from someone else
                             updateUnreadCount(coordinatorType);
-                        }
-
-                        // Update the last message in the sidebar
-                        if (coordinatorType) {
-                            const lastMessageElement = document.getElementById(`${coordinatorType}-last-message`);
-                            if (lastMessageElement) {
-                                lastMessageElement.textContent = data.message.length > 30 ?
-                                    data.message.substring(0, 30) + '...' :
-                                    data.message;
-                            }
                         }
                     }
                 };

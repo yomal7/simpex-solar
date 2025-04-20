@@ -61,10 +61,6 @@
                                     <img src="<?php echo URLROOT; ?>/public/assets/profile.png" alt="Client">
                                     <div class="contact-info">
                                         <h4><?php echo $client->name; ?></h4>
-                                        <p class="last-message"><?php echo !empty($client->last_message) ?
-                                                                    (strlen($client->last_message) > 30 ?
-                                                                        substr($client->last_message, 0, 30) . '...' :
-                                                                        $client->last_message) : 'No messages'; ?></p>
                                     </div>
                                     <?php if (!empty($client->unread_count) && $client->unread_count > 0): ?>
                                         <span class="unread-count"><?php echo $client->unread_count; ?></span>
