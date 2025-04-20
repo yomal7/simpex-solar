@@ -218,10 +218,7 @@
                                 const messageDiv = document.createElement('div');
                                 messageDiv.className = isFromMe ? 'message sent' : 'message received';
 
-                                const formattedTime = new Date(message.timestamp).toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                });
+                                const formattedTime = formatMessageTime(message.timestamp)
 
                                 messageDiv.innerHTML = `
                             <div class="message-content">${message.message}</div>
