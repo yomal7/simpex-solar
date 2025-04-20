@@ -166,9 +166,14 @@
                             </span>
                         </td>
                         <td>
-                            <a href="<?php echo URLROOT; ?>/chiefCoordinator/viewFeedback/<?php echo $feedback->id; ?>" class="btn btn-sm btn-primary" style="text-decoration: none;">
-                            <i class="fas fa-eye"></i> View
-                            </a>
+                            <div class="action-buttons">
+                                <a href="<?php echo URLROOT; ?>/chiefCoordinator/viewFeedback/<?php echo $feedback->id; ?>" class="btn btn-sm btn-primary" style="text-decoration: none; margin-right: 5px;">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <button class="btn btn-sm btn-danger delete-btn" data-id="<?php echo $feedback->id; ?>" onclick="confirmDelete(<?php echo $feedback->id; ?>)">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
                         </td>
                         </tr>
                         <?php endforeach; ?>
@@ -176,7 +181,25 @@
                     </table>
                 </div>
                 </div>
+                <div id="deleteModal" class="modal">
+                    <!-- Modal content -->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2><i class="fas fa-exclamation-triangle"></i> Confirm Deletion</h2>
+                            <span class="close">&times;</span>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete this feedback?</p>
+                            <p><strong>This action cannot be undone.</strong></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-cancel" id="cancelDelete">Cancel</button>
+                            <button class="btn btn-delete" id="confirmDelete">Delete</button>
+                        </div>
+                    </div>
+                </div>
         </div>
+
     </div>
 
 
@@ -221,6 +244,57 @@
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('active');
     }
+
+
+    // Delete confirmation
+    const modal = document.getElementById('deleteModal');
+        
+        // Get the <span> element that closes the modal
+        const closeBtn = document.getElementsByClassName('close')[0];
+        
+        // Get the button elements
+        const cancelBtn = document.getElementById('cancelDelete');
+        const confirmBtn = document.getElementById('confirmDelete');
+        
+        // Store the ID of the item to be deleted
+        let itemToDelete = null;
+        
+        // Function to open modal with the item ID
+        function confirmDelete(id) {
+            itemToDelete = id;
+            modal.style.display = 'flex';
+        }
+        
+        // When the user clicks on <span> (x), close the modal
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+        }
+        
+        // When the user clicks on Cancel, close the modal
+        cancelBtn.onclick = function() {
+            modal.style.display = 'none';
+        }
+        
+        // When the user clicks on Delete, perform the delete action
+        confirmBtn.onclick = function() {
+            if (itemToDelete) {
+                window.location.href = '<?php echo URLROOT; ?>/chiefCoordinator/deleteFeedback/' + itemToDelete;
+            }
+            modal.style.display = 'none';
+        }
+        
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Replace your existing confirmDelete function with this one
+        function confirmDelete(id) {
+            itemToDelete = id;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
 </script>
 
 <?php require APPROOT.'/views/chiefCoordinator/footer.php'; ?>

@@ -50,6 +50,33 @@ class ChiefCoordinator extends Controller {
         
         $this->view('chiefCoordinator/v_viewFeedback', $data);
     }
+
+    public function deleteFeedback($id) {
+        // Check if user is authorized
+        if(!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'chiefCoordinator') {
+            flash('error_msg', 'Unauthorized access');
+            redirect('users/login');
+            return;
+        }
+        
+        // Get the feedback to verify it exists
+        $feedback = $this->feedbackModel->getFeedbackById($id);
+        
+        if(!$feedback) {
+            flash('feedback_message', 'Feedback not found', 'alert alert-danger');
+            redirect('chiefCoordinator/feedbacks');
+            return;
+        }
+        
+        // Delete the feedback
+        if($this->feedbackModel->deleteFeedback($id)) {
+            flash('feedback_message', 'Feedback deleted successfully', 'alert alert-success');
+        } else {
+            flash('feedback_message', 'Unable to delete feedback', 'alert alert-danger');
+        }
+        
+        redirect('chiefCoordinator/feedbacks');
+    }
     
     // Update feedback status
     public function updateStatus() {

@@ -160,12 +160,12 @@
                                 <label for="response">Email Response</label>
                                 <textarea id="response" name="response" class="textarea-field" placeholder="Type your response here...">Dear <?php echo htmlspecialchars($data['feedback']->name); ?>,
 
-Thank you for your feedback regarding "<?php echo htmlspecialchars($data['feedback']->subject); ?>".
+                                    Thank you for your feedback regarding "<?php echo htmlspecialchars($data['feedback']->subject); ?>".
 
-[Your response here]
+                                    [Your response here]
 
-Best regards,
-The SimplEx Solar Team</textarea>
+                                    Best regards,
+                                    The SimplEx Solar Team</textarea>
                             </div>
                             
                             <button type="submit" class="btn-submit">Send Email</button>
