@@ -6,6 +6,7 @@ class SupplierCoordinator extends Controller
     private $supplierModel;
     private $inventoryModel;
     private $shopModel;
+    private $projectModel;
 
     public function __construct()
     {
@@ -16,6 +17,7 @@ class SupplierCoordinator extends Controller
         $this->supplierModel = $this->model('M_Suppliers');
         $this->inventoryModel = $this->model('M_Inventory');
         $this->shopModel = $this->model('M_Shop');
+        $this->projectModel = $this->model('M_CustomerProject');
     }
 
     public function index()
@@ -996,5 +998,95 @@ class SupplierCoordinator extends Controller
                 ]);
             }
         }
+    }
+
+    //################################################################################################
+    //-------------------------------------Projects----------------------------------------------
+    //################################################################################################
+
+    public function projects()
+    {
+        // Get installation projects pending equipment release
+        $projects = $this->projectModel->getInstallationPendingReleaseProjects();
+
+        $data = [
+            'title' => 'Installation Projects',
+            'projects' => $projects
+        ];
+
+        $this->view('supplierCoordinator/v_projects', $data);
+    }
+
+    public function releaseEquipment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('supplierCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $agreementId = $_POST['agreement_id'];
+
+        // Check if there's enough inventory for all items
+        $equipment = $this->projectModel->getAgreementEquipmentWithInventory($agreementId);
+        $insufficientItems = [];
+
+        foreach ($equipment as $item) {
+            if ($item->inventory_quantity < $item->required_quantity) {
+                $insufficientItems[] = $item->name;
+            }
+        }
+
+        if (!empty($insufficientItems)) {
+            $message = 'Insufficient inventory for: ' . implode(', ', $insufficientItems);
+            flash('project_message', $message, 'alert alert-danger');
+            redirect('supplierCoordinator/projectEquipments/' . $projectId);
+        }
+
+        // Update inventory quantities and mark equipment as released
+        $success = $this->projectModel->releaseEquipmentForProject($projectId, $equipment);
+
+        if ($success) {
+            flash('project_message', 'Equipment released successfully', 'alert alert-success');
+        } else {
+            flash('project_message', 'Failed to release equipment', 'alert alert-danger');
+        }
+
+        redirect('supplierCoordinator/projects');
+    }
+
+    public function projectEquipments($projectId)
+    {
+        // Get project details with customer information
+        $project = $this->projectModel->getProjectById($projectId);
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('supplierCoordinator/projects');
+        }
+
+        // Get customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                $project->$key = $value;
+            }
+        }
+
+        // Get agreement details
+        $agreement = $this->projectModel->getAgreementById($project->agreement_id);
+        if (!$agreement) {
+            flash('project_message', 'Agreement not found', 'alert alert-danger');
+            redirect('supplierCoordinator/projects');
+        }
+
+        // Get equipment list from agreement
+        $equipment = $this->projectModel->getAgreementEquipmentWithInventory($agreement->agreement_id);
+
+        $data = [
+            'project' => $project,
+            'agreement' => $agreement,
+            'equipment' => $equipment
+        ];
+
+        $this->view('supplierCoordinator/v_projectEquipments', $data);
     }
 }
