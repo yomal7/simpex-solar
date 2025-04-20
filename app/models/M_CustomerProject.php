@@ -554,4 +554,15 @@ class M_CustomerProject
 
         return $this->db->execute();
     }
+
+    public function removeAllTechnicians($installationId)
+    {
+        $this->db->query('UPDATE installation_employees 
+                     SET assign = FALSE,
+                         updated_at = CURRENT_TIMESTAMP
+                     WHERE installation_id = :installation_id');
+
+        $this->db->bind(':installation_id', $installationId);
+        return $this->db->execute();
+    }
 }

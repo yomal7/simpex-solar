@@ -674,6 +674,20 @@
   margin-top: 5px;
 }
 
+.previous-schedule {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 20px 0;
+  border-left: 4px solid #f57c00;
+}
+
+.previous-schedule h4 {
+  margin-top: 0;
+  color: #f57c00;
+  margin-bottom: 10px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .technicians-grid {

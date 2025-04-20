@@ -1100,6 +1100,9 @@ class OperationsCoordinator extends Controller
 
             // Get engineer data if assigned
             $engineer = $this->projectModel->getAssignedEngineer($installation->installation_id);
+
+            // Get team members
+            $teamMembers = $this->projectModel->getInstallationTeamMembers($installation->installation_id);
         }
 
         // Get engineers for assignment dropdown
@@ -1119,12 +1122,12 @@ class OperationsCoordinator extends Controller
             'engineer' => $engineer,
             'engineers' => $engineers,
             'technicians' => $technicians,
+            'team_members' => $teamMembers ?? [],
             'upcoming_installations' => $upcomingInstallations
         ];
 
         $this->view('operationsCoordinator/v_installation', $data);
     }
-
     // Add a new method to get installation details for the modal
     public function getInstallationDetails($installationId)
     {
@@ -1271,25 +1274,50 @@ class OperationsCoordinator extends Controller
         $startDate = $_POST['start_date'];
         $startTime = $_POST['start_time'];
         $durationDays = $_POST['duration_days'];
+        $engineerId = $_POST['engineer_id'];
+        $technicians = isset($_POST['technicians']) ? $_POST['technicians'] : [];
+
+        // Validate technicians count
+        if (count($technicians) < 3 || count($technicians) > 6) {
+            flash('installation_message', 'Please select between 3 and 6 technicians', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
 
         // Calculate end date
         $endDate = date('Y-m-d', strtotime($startDate . ' + ' . $durationDays . ' days'));
 
-        // Update installation schedule
-        $scheduleUpdated = $this->projectModel->updateInstallationSchedule($scheduleId, [
+        // Create new schedule
+        $scheduleCreated = $this->projectModel->createInstallationSchedule([
+            'installation_id' => $installationId,
             'start_date' => $startDate,
             'start_time' => $startTime,
             'end_date' => $endDate,
-            'status' => 'pending',
-            'reschedule_request' => null
+            'status' => 'pending'
         ]);
 
-        if ($scheduleUpdated) {
-            flash('installation_message', 'Installation rescheduled successfully', 'alert alert-success');
-        } else {
+        if (!$scheduleCreated) {
             flash('installation_message', 'Failed to reschedule installation', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
         }
 
+        // Update engineer if changed
+        $engineerAssigned = $this->projectModel->reassignEngineer($installationId, $engineerId);
+
+        // Update technicians
+        // First remove all current technicians
+        $this->projectModel->removeAllTechnicians($installationId);
+
+        // Then add new ones
+        $techniciansAssigned = true;
+        foreach ($technicians as $technicianId) {
+            if (!$this->projectModel->assignTechnicianToInstallation($installationId, $technicianId)) {
+                $techniciansAssigned = false;
+            }
+        }
+
+        flash('installation_message', 'Installation rescheduled successfully', 'alert alert-success');
         redirect('operationsCoordinator/installation/' . $projectId);
     }
 

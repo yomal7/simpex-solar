@@ -259,12 +259,30 @@
                                         <p><?php echo $data['schedule']->reschedule_request; ?></p>
                                     </div>
 
+                                    <!-- Display original schedule details -->
+                                    <div class="previous-schedule">
+                                        <h4>Original Schedule:</h4>
+                                        <div class="detail-row">
+                                            <span class="detail-label">Start Date:</span>
+                                            <span class="detail-value"><?php echo date('l, F j, Y', strtotime($data['schedule']->start_date)); ?></span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">Start Time:</span>
+                                            <span class="detail-value"><?php echo date('h:i A', strtotime($data['schedule']->start_time)); ?></span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">End Date:</span>
+                                            <span class="detail-value"><?php echo date('l, F j, Y', strtotime($data['schedule']->end_date)); ?></span>
+                                        </div>
+                                    </div>
+
                                     <!-- Show scheduling form again -->
                                     <form action="<?php echo URLROOT; ?>/operationsCoordinator/rescheduleInstallation" method="POST" class="installation-form" id="rescheduleForm">
                                         <input type="hidden" name="installation_id" value="<?php echo $data['installation']->installation_id; ?>">
                                         <input type="hidden" name="schedule_id" value="<?php echo $data['schedule']->id; ?>">
                                         <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
 
+                                        <h4>New Schedule Details</h4>
                                         <div class="form-group">
                                             <label for="newStartDate">New Start Date:</label>
                                             <input type="date" id="newStartDate" name="start_date" required min="<?php echo date('Y-m-d', strtotime('+1 day')); ?>">
@@ -279,6 +297,62 @@
                                         <div class="form-group">
                                             <label for="newDurationDays">Estimated Duration (days):</label>
                                             <input type="number" id="newDurationDays" name="duration_days" min="1" max="14" required>
+                                        </div>
+
+                                        <!-- Engineer Selection -->
+                                        <div class="form-group">
+                                            <label for="engineerId">Assign Engineer:</label>
+                                            <select id="engineerId" name="engineer_id" required>
+                                                <option value="">Select Engineer...</option>
+                                                <?php if (isset($data['engineers']) && !empty($data['engineers'])): ?>
+                                                    <?php foreach ($data['engineers'] as $engineer): ?>
+                                                        <option value="<?php echo $engineer->employee_id; ?>" <?php echo (isset($data['engineer']) && $data['engineer'] && $data['engineer']->employee_id == $engineer->employee_id) ? 'selected' : ''; ?>>
+                                                            <?php echo $engineer->name; ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </select>
+                                            <?php if (isset($data['engineer']) && $data['engineer']): ?>
+                                                <small>Currently assigned: <?php echo $data['engineer']->name; ?></small>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <!-- Technician Selection -->
+                                        <div class="form-group">
+                                            <label>Select Technicians (3-6 required):</label>
+                                            <div class="technician-selection">
+                                                <div class="selection-info">
+                                                    <span id="technicianCounter">0</span> technicians selected (min: 3, max: 6)
+                                                </div>
+                                                <div class="technicians-grid">
+                                                    <?php
+                                                    // Get currently assigned technicians
+                                                    $assignedTechnicians = [];
+                                                    if (isset($data['team_members']) && !empty($data['team_members'])) {
+                                                        foreach ($data['team_members'] as $member) {
+                                                            $assignedTechnicians[] = $member->employee_id;
+                                                        }
+                                                    }
+                                                    ?>
+
+                                                    <?php if (isset($data['technicians']) && !empty($data['technicians'])): ?>
+                                                        <?php foreach ($data['technicians'] as $technician): ?>
+                                                            <div class="technician-item <?php echo in_array($technician->employee_id, $assignedTechnicians) ? 'selected' : ''; ?>"
+                                                                data-id="<?php echo $technician->employee_id; ?>">
+                                                                <span class="technician-name"><?php echo $technician->name; ?></span>
+                                                                <input type="checkbox" name="technicians[]" value="<?php echo $technician->employee_id; ?>"
+                                                                    class="technician-checkbox" style="display:none;"
+                                                                    <?php echo in_array($technician->employee_id, $assignedTechnicians) ? 'checked' : ''; ?>>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    <?php else: ?>
+                                                        <p class="no-technicians">No technicians available</p>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div id="technicianError" class="error-message" style="display: none;">
+                                                    Please select between 3 and 6 technicians
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div class="form-actions">
@@ -628,6 +702,16 @@
                         });
                     }
                 });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize technician counter for reschedule form
+            const selectedTechnicians = document.querySelectorAll('.technician-item.selected');
+            const technicianCounter = document.getElementById('technicianCounter');
+
+            if (technicianCounter) {
+                technicianCounter.textContent = selectedTechnicians.length;
             }
         });
     </script>
