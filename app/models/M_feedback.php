@@ -117,6 +117,13 @@ class M_Feedback{
         return $this->db->resultSet();
     }
 
+    public function deleteFeedback($id) {
+        $this->db->query('DELETE FROM feedback WHERE id = :id');
+        $this->db->bind(':id', $id);
+        
+        return $this->db->execute();
+    }
+
 }
 
 // CREATE TABLE `feedback` (

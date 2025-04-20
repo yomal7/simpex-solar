@@ -20,6 +20,11 @@
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
+
+            <a href="<?php echo URLROOT ?>/engineer/siteVisits">
+                <span class="material-icons-sharp">location_on</span>
+                <h3>Site Visits</h3>
+            </a>
             <a href="<?php echo URLROOT?>/engineer/tasks" class="active">
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>

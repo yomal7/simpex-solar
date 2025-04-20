@@ -103,34 +103,38 @@
         </div>
 
         <!-- Add Coordinator Modal -->
-        <div id="addModal" class="modal">
+        <div id="addModal" class="modal <?php echo isset($data['show_add_modal']) && $data['show_add_modal'] ? 'show' : ''; ?>">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Add New Coordinator</h2>
                     <span class="close">&times;</span>
                 </div>
-                <form action="<?php echo URLROOT; ?>/operationsCoordinator/createPackage" method="POST" enctype="multipart/form-data" class="package-form">
+                <form action="<?php echo URLROOT; ?>/admin/addCoordinator" method="POST" class="package-form">
                     <div class="form-group">
                         <label for="name">Name</label>
-                        <input type="text" id="name" name="name" required>
+                        <input type="text" id="name" name="name" value="<?php echo isset($data['form_data']['name']) ? $data['form_data']['name'] : ''; ?>" required>
+                        <span class="error"><?php echo isset($data['form_data']['name_err']) ? $data['form_data']['name_err'] : ''; ?></span>
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
+                        <input type="email" id="email" name="email" value="<?php echo isset($data['form_data']['email']) ? $data['form_data']['email'] : ''; ?>" required>
+                        <span class="error"><?php echo isset($data['form_data']['email_err']) ? $data['form_data']['email_err'] : ''; ?></span>
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
                         <input type="password" id="password" name="password" required>
+                        <span class="error"><?php echo isset($data['form_data']['password_err']) ? $data['form_data']['password_err'] : ''; ?></span>
                     </div>
                     <div class="form-group">
                         <label for="role">Role</label>
                         <select id="role" name="role" required>
                             <option value="">Select Role</option>
-                            <option value="chiefCoordinator">Chief Coordinator</option>
-                            <option value="operationsCoordinator">Operations Coordinator</option>
-                            <option value="hRAdministrator">HR Administrator</option>
-                            <option value="supplierCoordinator">Supplier Coordinator</option>
+                            <option value="chiefCoordinator" <?php echo (isset($data['form_data']['role']) && $data['form_data']['role'] === 'chiefCoordinator') ? 'selected' : ''; ?>>Chief Coordinator</option>
+                            <option value="operationsCoordinator" <?php echo (isset($data['form_data']['role']) && $data['form_data']['role'] === 'operationsCoordinator') ? 'selected' : ''; ?>>Operations Coordinator</option>
+                            <option value="hRAdministrator" <?php echo (isset($data['form_data']['role']) && $data['form_data']['role'] === 'hRAdministrator') ? 'selected' : ''; ?>>HR Administrator</option>
+                            <option value="supplierCoordinator" <?php echo (isset($data['form_data']['role']) && $data['form_data']['role'] === 'supplierCoordinator') ? 'selected' : ''; ?>>Supplier Coordinator</option>
                         </select>
+                        <span class="error"><?php echo isset($data['form_data']['role_err']) ? $data['form_data']['role_err'] : ''; ?></span>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn-submit">Add Coordinator</button>

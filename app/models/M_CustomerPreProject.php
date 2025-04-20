@@ -6,8 +6,81 @@ class M_CustomerPreProject {
         $this->db = new Database;
     }
 
+    // public function submitQuotation($data) {
+    //     // Create pre-project
+    //     $this->db->query('INSERT INTO customerquotation (
+    //         pre_project_id,
+    //         user_id, 
+    //         package_id, 
+    //         address, 
+    //         monthly_consumption, 
+    //         nearest_city, 
+    //         customizations,
+    //         package_type,
+    //         status
+    //     ) VALUES (
+    //         :pre_project_id,
+    //         :user_id, 
+    //         :package_id, 
+    //         :address, 
+    //         :monthly_consumption, 
+    //         :nearest_city, 
+    //         :customizations,
+    //         :package_type,
+    //         "pending"
+    //     )');
+        
+    //     $this->db->bind(':pre_project_id', $preProjectId);
+    //     $this->db->bind(':user_id', $data['user_id']);
+    //     $this->db->bind(':package_id', $data['package_id']);
+    //     $this->db->bind(':address', $data['address']);
+    //     $this->db->bind(':monthly_consumption', $data['monthly_consumption']);
+    //     $this->db->bind(':nearest_city', $data['nearest_city']);
+    //     $this->db->bind(':customizations', $data['customizations']);
+    //     $this->db->bind(':package_type', $data['package_type']);
+        
+    //     if (!$this->db->execute()) {
+    //         return false;
+    //     }
+        
+    //     // Update user phone
+    //     $this->db->query('UPDATE users SET
+    //         phone = :phone
+    //         WHERE user_id = :user_id');
+        
+    //     $this->db->bind(':phone', $data['phone']);
+    //     $this->db->bind(':user_id', $data['user_id']);
+        
+    //     return $this->db->execute();
+    // }
+
     public function submitQuotation($data) {
-        // Create pre-project
+        // 1. First create the pre-project
+        $this->db->query('INSERT INTO pre_projects (
+            customer_id,
+            current_phase,
+            status,
+            created_at,
+            updated_at
+        ) VALUES (
+            :customer_id,
+            "quotation",
+            "active",
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )');
+        
+        $this->db->bind(':customer_id', $data['user_id']);
+        
+        if (!$this->db->execute()) {
+            error_log("Failed to create pre-project");
+            return false;
+        }
+        
+        // Get the newly created pre_project_id
+        $preProjectId = $this->db->lastInsertId();
+        
+        // 2. Now create the customer quotation with the pre_project_id
         $this->db->query('INSERT INTO customerquotation (
             pre_project_id,
             user_id, 
@@ -40,18 +113,26 @@ class M_CustomerPreProject {
         $this->db->bind(':package_type', $data['package_type']);
         
         if (!$this->db->execute()) {
+            error_log("Failed to create quotation");
             return false;
         }
         
-        // Update user phone
-        $this->db->query('UPDATE users SET
-            phone = :phone
-            WHERE user_id = :user_id');
+        // 3. Update user phone if provided
+        if (!empty($data['phone'])) {
+            $this->db->query('UPDATE users SET
+                phone = :phone
+                WHERE user_id = :user_id');
+            
+            $this->db->bind(':phone', $data['phone']);
+            $this->db->bind(':user_id', $data['user_id']);
+            
+            if (!$this->db->execute()) {
+                error_log("Failed to update phone number");
+                // Continue anyway since the main operations succeeded
+            }
+        }
         
-        $this->db->bind(':phone', $data['phone']);
-        $this->db->bind(':user_id', $data['user_id']);
-        
-        return $this->db->execute();
+        return true;
     }
 
     public function getQuotationById($id) {
