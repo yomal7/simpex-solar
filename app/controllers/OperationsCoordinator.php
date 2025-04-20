@@ -1098,12 +1098,15 @@ class OperationsCoordinator extends Controller
             // Get schedule data
             $schedule = $this->projectModel->getInstallationSchedule($installation->installation_id);
 
-            // Get engineer data if assigned - modified to use new method
+            // Get engineer data if assigned
             $engineer = $this->projectModel->getAssignedEngineer($installation->installation_id);
         }
 
         // Get engineers for assignment dropdown
         $engineers = $this->employeeModel->getEmployeesByRole('engineer');
+
+        // Get upcoming installations for the next month
+        $upcomingInstallations = $this->projectModel->getUpcomingInstallations();
 
         $data = [
             'project' => $project,
@@ -1111,10 +1114,38 @@ class OperationsCoordinator extends Controller
             'agreement' => $agreement,
             'schedule' => $schedule,
             'engineer' => $engineer,
-            'engineers' => $engineers
+            'engineers' => $engineers,
+            'upcoming_installations' => $upcomingInstallations
         ];
 
         $this->view('operationsCoordinator/v_installation', $data);
+    }
+
+    // Add a new method to get installation details for the modal
+    public function getInstallationDetails($installationId)
+    {
+        // Check if request is AJAX
+        if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get installation details
+        $installation = $this->projectModel->getInstallationById($installationId);
+        $schedule = $this->projectModel->getInstallationSchedule($installationId);
+        $engineer = $this->projectModel->getAssignedEngineer($installationId);
+        $teamMembers = $this->projectModel->getInstallationTeamMembers($installationId);
+
+        $response = [
+            'success' => true,
+            'installation' => $installation,
+            'schedule' => $schedule,
+            'engineer' => $engineer,
+            'team_members' => $teamMembers
+        ];
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+        exit;
     }
 
 

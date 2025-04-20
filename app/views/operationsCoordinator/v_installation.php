@@ -79,6 +79,57 @@
                     </div>
                 </div>
 
+                <div class="card upcoming-installations-card">
+                    <div class="card-header dropdown-toggle" onclick="toggleUpcomingInstallations()">
+                        <h2>Upcoming Installations</h2>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="card-body" id="upcomingInstallationsBody" style="display: none;">
+                        <?php if (isset($data['upcoming_installations']) && !empty($data['upcoming_installations'])): ?>
+                            <div class="table-responsive">
+                                <table class="installations-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Project ID</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>Engineer</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($data['upcoming_installations'] as $installation): ?>
+                                            <?php if ($installation->schedule_status != 'request'): ?>
+                                                <tr>
+                                                    <td><?php echo $installation->project_id; ?></td>
+                                                    <td><?php echo date('M d, Y', strtotime($installation->start_date)); ?></td>
+                                                    <td><?php echo date('M d, Y', strtotime($installation->end_date)); ?></td>
+                                                    <td><?php echo $installation->engineer_name ?? 'Not assigned'; ?></td>
+                                                    <td>
+                                                        <span class="status-pill <?php echo $installation->schedule_status; ?>">
+                                                            <?php echo ucfirst($installation->schedule_status); ?>
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn-sm btn-primary" onclick="viewInstallationDetails(<?php echo $installation->installation_id; ?>)">
+                                                            View More
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php else: ?>
+                            <div class="no-installations">
+                                <p>No upcoming installations scheduled for the next month.</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
                 <!-- Equipment Status Card -->
                 <?php if (!$data['project']->equipment_released): ?>
                     <div class="card equipment-status-card">
@@ -372,35 +423,171 @@
             document.getElementById('engineerModal').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
         }
+
+        // Toggle the upcoming installations dropdown
+
+        function toggleUpcomingInstallations() {
+            const body = document.getElementById('upcomingInstallationsBody');
+            const toggleIcon = document.querySelector('.toggle-icon');
+
+            if (body.style.display === 'none') {
+                body.style.display = 'block';
+                toggleIcon.textContent = '▲';
+            } else {
+                body.style.display = 'none';
+                toggleIcon.textContent = '▼';
+            }
+        }
+
+        // View installation details
+        function viewInstallationDetails(installationId) {
+            const modal = document.getElementById('installationDetailsModal');
+            const content = document.getElementById('installationDetailsContent');
+
+            // Show modal with loading state
+            modal.style.display = 'block';
+            content.innerHTML = '<div class="loading">Loading...</div>';
+
+            // Fetch installation details
+            fetch(`${URLROOT}/operationsCoordinator/getInstallationDetails/${installationId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Format installation details
+                        let html = `
+                    <div class="installation-detail-section">
+                        <h3>Project Information</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Project ID:</span>
+                            <span class="detail-value">${data.installation.project_id}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Status:</span>
+                            <span class="detail-value status-pill ${data.installation.status}">${data.installation.status.charAt(0).toUpperCase() + data.installation.status.slice(1)}</span>
+                        </div>
+                    </div>
+                    <div class="installation-detail-section">
+                        <h3>Schedule</h3>
+                        <div class="detail-row">
+                            <span class="detail-label">Start Date:</span>
+                            <span class="detail-value">${new Date(data.schedule.start_date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Start Time:</span>
+                            <span class="detail-value">${new Date('2000-01-01T' + data.schedule.start_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">End Date:</span>
+                            <span class="detail-value">${new Date(data.schedule.end_date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        </div>
+                    </div>
+                `;
+
+                        if (data.engineer) {
+                            html += `
+                        <div class="installation-detail-section">
+                            <h3>Lead Engineer</h3>
+                            <div class="detail-row">
+                                <span class="detail-label">Name:</span>
+                                <span class="detail-value">${data.engineer.name}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Phone:</span>
+                                <span class="detail-value">${data.engineer.phone}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Email:</span>
+                                <span class="detail-value">${data.engineer.email}</span>
+                            </div>
+                        </div>
+                    `;
+                        }
+
+                        if (data.team_members && data.team_members.length > 0) {
+                            html += `
+                        <div class="installation-detail-section">
+                            <h3>Team Members</h3>
+                            <div class="team-list">
+                    `;
+
+                            data.team_members.forEach(member => {
+                                html += `<div class="team-member">${member.name}</div>`;
+                            });
+
+                            html += `
+                            </div>
+                        </div>
+                    `;
+                        }
+
+                        content.innerHTML = html;
+                    } else {
+                        content.innerHTML = '<div class="error-message">Failed to load installation details.</div>';
+                    }
+                })
+                .catch(error => {
+                    content.innerHTML = '<div class="error-message">An error occurred while loading installation details.</div>';
+                    console.error('Error:', error);
+                });
+        }
+
+        // Close the installation details modal
+        function closeInstallationModal() {
+            document.getElementById('installationDetailsModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('installationDetailsModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
     </script>
 
-    <!-- Engineer Reassignment Modal -->
-    <div id="engineerModal" class="modal">
+    <!-- Installation Details Modal -->
+    <div id="installationDetailsModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeEngineerModal()">&times;</span>
-            <h3>Reassign Lead Engineer</h3>
-            <form action="<?php echo URLROOT; ?>/operationsCoordinator/reassignEngineer" method="POST">
-                <input type="hidden" name="installation_id" value="<?php echo $data['installation']->installation_id; ?>">
-                <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
-
-                <div class="form-group">
-                    <label>Select New Engineer:</label>
-                    <select name="engineer_id" required class="form-control">
-                        <option value="">Select Engineer...</option>
-                        <?php foreach ($data['engineers'] as $engineer): ?>
-                            <option value="<?php echo $engineer->employee_id; ?>">
-                                <?php echo $engineer->name; ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" class="btn-secondary" onclick="closeEngineerModal()">Cancel</button>
-                    <button type="submit" class="btn-primary">Reassign</button>
-                </div>
-            </form>
+            <span class="close" onclick="closeInstallationModal()">&times;</span>
+            <h2>Installation Details</h2>
+            <div id="installationDetailsContent">
+                <!-- Content will be loaded here dynamically -->
+                <div class="loading">Loading...</div>
+            </div>
         </div>
     </div>
+
+    <!-- Engineer Reassignment Modal -->
+    <?php if (isset($data['installation']) && is_object($data['installation'])): ?>
+        <div id="engineerModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeEngineerModal()">&times;</span>
+                <h3>Reassign Lead Engineer</h3>
+                <form action="<?php echo URLROOT; ?>/operationsCoordinator/reassignEngineer" method="POST">
+                    <input type="hidden" name="installation_id" value="<?php echo isset($data['installation']) && is_object($data['installation']) ? $data['installation']->installation_id : ''; ?>">
+                    <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
+
+                    <div class="form-group">
+                        <label>Select New Engineer:</label>
+                        <select name="engineer_id" required class="form-control">
+                            <option value="">Select Engineer...</option>
+                            <?php if (isset($data['engineers']) && !empty($data['engineers'])): ?>
+                                <?php foreach ($data['engineers'] as $engineer): ?>
+                                    <option value="<?php echo $engineer->employee_id; ?>">
+                                        <?php echo $engineer->name; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeEngineerModal()">Cancel</button>
+                        <button type="submit" class="btn-primary">Reassign</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <?php require APPROOT . '/views/operationsCoordinator/footer.php'; ?>

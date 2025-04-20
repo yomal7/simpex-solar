@@ -504,4 +504,42 @@ class M_CustomerProject
 
         return $this->db->execute();
     }
+
+    public function getUpcomingInstallations()
+    {
+        $this->db->query('SELECT ip.installation_id, ip.project_id, ip.status as phase_status, 
+                     insched.start_date, insched.start_time, insched.end_date, 
+                     insched.status as schedule_status,
+                     u.name AS engineer_name
+                     FROM installation_phase ip
+                     JOIN installation_schedule insched ON ip.installation_id = insched.installation_id
+                     LEFT JOIN installation_engineer ie ON ip.installation_id = ie.installation_id AND ie.assign = 1
+                     LEFT JOIN employees e ON ie.engineer_id = e.employee_id
+                     LEFT JOIN users u ON e.user_id = u.user_id
+                     WHERE insched.start_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 MONTH)
+                     AND insched.status IN ("pending", "accept")
+                     ORDER BY insched.start_date ASC');
+
+        return $this->db->resultSet();
+    }
+
+    /**
+     * Get installation team members
+     * 
+     * @param int $installationId Installation ID
+     * @return array Team members
+     */
+    public function getInstallationTeamMembers($installationId)
+    {
+        $this->db->query('SELECT ie.id, e.employee_id, u.name, u.email, u.phone
+                     FROM installation_employees ie
+                     JOIN employees e ON ie.employee_id = e.employee_id
+                     JOIN users u ON e.user_id = u.user_id
+                     WHERE ie.installation_id = :installation_id
+                     AND ie.assign = 1
+                     ORDER BY u.name');
+
+        $this->db->bind(':installation_id', $installationId);
+        return $this->db->resultSet();
+    }
 }
