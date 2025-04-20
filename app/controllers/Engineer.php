@@ -3,6 +3,7 @@
 class engineer extends Controller
 {
     private $engineerModel;
+    private $projectModel;
 
     public function __construct()
     {
