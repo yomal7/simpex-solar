@@ -308,4 +308,113 @@ class Mailer {
             return false;
         }
     }
+
+    public function sendFeedbackResponse($email, $name, $subject, $message) {
+        try {
+            // Get the logo path
+            $logoPath = dirname(APPROOT) . '/public/assets/simpex-logo.png';
+    
+            // Reset recipients
+            $this->mailer->clearAddresses();
+            
+            // Set email parameters
+            $this->mailer->addAddress($email, $name);
+            $this->mailer->isHTML(true);
+            $this->mailer->Subject = $subject;
+            
+            // Add logo as embedded image if the file exists
+            $logoTag = '';
+            if (file_exists($logoPath)) {
+                $this->mailer->addEmbeddedImage($logoPath, 'logo_id', 'simpex-logo.png');
+                $logoTag = '<img src="cid:logo_id" alt="Simpex Solar" class="logo">';
+            }
+            
+            // Email body
+            $body = "
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: 'Segoe UI', Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333333;
+                        background-color: #f7f7f7;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 20px auto;
+                        background-color: #ffffff;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                        overflow: hidden;
+                    }
+                    .header {
+                        background-color: #4CAF50;
+                        padding: 20px;
+                        text-align: center;
+                        color: white;
+                    }
+                    .logo {
+                        max-height: 60px;
+                        margin-bottom: 10px;
+                    }
+                    .content {
+                        padding: 30px;
+                        background-color: #ffffff;
+                    }
+                    h2 {
+                        color: #ffffff;
+                        margin: 0;
+                        font-size: 24px;
+                    }
+                    p {
+                        margin-bottom: 16px;
+                        color: #555555;
+                    }
+                    .footer {
+                        background-color: #f5f5f5;
+                        padding: 15px;
+                        text-align: center;
+                        font-size: 12px;
+                        color: #777777;
+                        border-top: 1px solid #eeeeee;
+                    }
+                    .highlight {
+                        font-weight: bold;
+                        color: #4CAF50;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class='container'>
+                    <div class='header'>
+                        $logoTag
+                        <h2>Feedback Response</h2>
+                    </div>
+                    <div class='content'>
+                        <p>Hello <span class='highlight'>$name</span>,</p>
+                        " . nl2br($message) . "
+                    </div>
+                    <div class='footer'>
+                        &copy; " . date('Y') . " " . SITE_NAME . ". All rights reserved.<br>
+                        Providing reliable solar energy solutions for a sustainable future.
+                    </div>
+                </div>
+            </body>
+            </html>";
+            
+            $this->mailer->Body = $body;
+            $this->mailer->AltBody = strip_tags($message);
+            
+            // Send email
+            $this->mailer->send();
+            return true;
+        } catch (Exception $e) {
+            // Log the error message
+            error_log('Mailer Error: ' . $this->mailer->ErrorInfo);
+            return false;
+        }
+    }
 }

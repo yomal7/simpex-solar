@@ -8,6 +8,7 @@
 
 <body>
 
+
     <div class="request-holiday-container">
 
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
@@ -23,6 +24,10 @@
             <a href="<?php echo URLROOT ?>/engineer/projects">
                 <span class="material-icons-sharp">receipt_long</span>
                 <h3>Projects</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/engineer/siteVisits">
+                <span class="material-icons-sharp">location_on</span>
+                <h3>Site Visits</h3>
             </a>
             <a href="<?php echo URLROOT ?>/engineer/tasks">
                 <span class="material-icons-sharp">task</span>

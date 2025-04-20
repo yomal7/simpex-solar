@@ -349,3 +349,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
     
 });
+
+// Basic JavaScript to handle modal visibility
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the modal
+    var addModal = document.getElementById("addModal");
+    
+    // Get the button that opens the modal
+    var addBtn = document.getElementById("addCoordinatorBtn");
+    
+    // Get the <span> element that closes the modal
+    var closeButtons = document.getElementsByClassName("close");
+    
+    // When the user clicks the button, open the modal 
+    addBtn.onclick = function() {
+        addModal.style.display = "block";
+    }
+    
+    // When the user clicks on <span> (x), close the modal
+    for (var i = 0; i < closeButtons.length; i++) {
+        closeButtons[i].onclick = function() {
+            this.closest('.modal').style.display = "none";
+        }
+    }
+    
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = "none";
+        }
+    }
+});

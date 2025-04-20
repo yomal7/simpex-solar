@@ -341,26 +341,25 @@ class OperationsCoordinator extends Controller
     //-----------------------------------------Site Visit----------------------------------------------
     //##################################################################################################
 
-    public function manageSiteVisit($preProjectId = null)
-    {
+    public function manageSiteVisit($preProjectId = null) {
         if ($preProjectId === null) {
             redirect('operationsCoordinator/preProjects');
         }
-
+    
         $project = $this->preProjectModel->getPreProjectById($preProjectId);
         if (!$project) {
             flash('project_message', 'Project not found', 'alert alert-danger');
             redirect('operationsCoordinator/preProjects');
         }
-
+    
         $siteVisit = $this->preProjectModel->getSiteVisitByPreProjectId($preProjectId);
-
+    
         $data = [
             'project' => $project,
             'site_visit' => $siteVisit,
             'title' => 'Manage Site Visit'
         ];
-
+    
         $this->view('operationsCoordinator/v_manageSiteVisit', $data);
     }
 
@@ -395,24 +394,24 @@ class OperationsCoordinator extends Controller
         redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
     }
 
-    public function completeSiteVisit()
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('operationsCoordinator/preProjects');
-            return;
-        }
+    // public function completeSiteVisit()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    //         redirect('operationsCoordinator/preProjects');
+    //         return;
+    //     }
 
-        $preProjectId = $_POST['pre_project_id'];
-        $notes = $_POST['site_notes'];
+    //     $preProjectId = $_POST['pre_project_id'];
+    //     $notes = $_POST['site_notes'];
 
-        if ($this->preProjectModel->completeSiteVisit($preProjectId, $notes)) {
-            flash('site_visit_message', 'Site visit completed successfully', 'success');
-        } else {
-            flash('site_visit_message', 'Failed to complete site visit', 'error');
-        }
+    //     if ($this->preProjectModel->completeSiteVisit($preProjectId, $notes)) {
+    //         flash('site_visit_message', 'Site visit completed successfully', 'success');
+    //     } else {
+    //         flash('site_visit_message', 'Failed to complete site visit', 'error');
+    //     }
 
-        redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
-    }
+    //     redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
+    // }
 
     public function handleReschedule()
     {
