@@ -659,14 +659,12 @@ class M_CustomerProject
                      u.email,
                      cq.nearest_city AS location,
                      cq.address,
-                     cq.system_capacity,
-                     cq.estimated_generation,
-                     (SELECT COUNT(*) FROM project_agreement_equipment 
-                      WHERE agreement_id = p.agreement_id 
-                      AND item_type = "panel") AS panel_count
+                     pa.system_capacity,
+                     pa.estimated_generation
                      FROM projects p
                      LEFT JOIN users u ON p.customer_id = u.user_id
                      LEFT JOIN customerquotation cq ON p.pre_project_id = cq.pre_project_id
+                     LEFT JOIN project_agreements pa ON p.agreement_id = pa.agreement_id
                      WHERE p.project_id = :project_id');
 
         $this->db->bind(':project_id', $projectId);

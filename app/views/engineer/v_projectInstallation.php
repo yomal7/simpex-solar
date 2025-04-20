@@ -41,7 +41,7 @@
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Installation Address:</span>
-                                    <span class="info-value"><?php echo isset($data['project']) ? $data['project']->location : 'Not available'; ?></span>
+                                    <span class="info-value"><?php echo isset($data['project']) ? $data['project']->address : 'Not available'; ?></span>
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Contact Number:</span>
@@ -58,10 +58,6 @@
                                 <div class="info-item">
                                     <span class="info-label">Estimated Generation:</span>
                                     <span class="info-value"><?php echo $data['project']->estimated_generation ?? 'Not specified'; ?> kWh/month</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="info-label">Panel Count:</span>
-                                    <span class="info-value"><?php echo $data['project']->panel_count ?? 'Not specified'; ?></span>
                                 </div>
                             </div>
                         </div>
@@ -241,13 +237,6 @@
                                         </button>
                                     <?php elseif ($data['installation']->step_4): ?>
                                         <span class="completion-date">Completed: <?php echo isset($data['installation']->step_4_date) ? date('M d, Y', strtotime($data['installation']->step_4_date)) : date('M d, Y'); ?></span>
-
-                                        <!-- Show complete installation button if all steps are completed -->
-                                        <?php if ($data['installation']->status != 'completed'): ?>
-                                            <button class="btn-complete-installation" id="btn-complete-installation" data-id="<?php echo $data['installation']->installation_id; ?>">
-                                                <i class="material-icons-sharp">done_all</i> Complete Installation
-                                            </button>
-                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -381,18 +370,6 @@
                 });
             }
 
-            // Complete installation button
-            const completeInstallationBtn = document.getElementById('btn-complete-installation');
-            if (completeInstallationBtn) {
-                completeInstallationBtn.addEventListener('click', function() {
-                    showConfirmationModal(
-                        'Complete Installation',
-                        'Are you sure you want to mark the entire installation as completed? This cannot be undone.',
-                        () => completeInstallation(this.dataset.id)
-                    );
-                });
-            }
-
             // Notes form submission
             const notesForm = document.getElementById('notes-form');
             if (notesForm) {
@@ -473,32 +450,6 @@
                         location.reload();
                     } else {
                         alert('Failed to complete step: ' + data.message);
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('An error occurred while processing your request');
-                }
-            }
-
-            // Function to complete installation
-            async function completeInstallation(installationId) {
-                try {
-                    const response = await fetch(`${URLROOT}/engineer/completeInstallation`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            installation_id: installationId
-                        })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Failed to complete installation: ' + data.message);
                     }
                 } catch (error) {
                     console.error('Error:', error);

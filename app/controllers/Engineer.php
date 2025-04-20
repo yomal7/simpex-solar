@@ -149,19 +149,44 @@ class engineer extends Controller
         if (!$installation) {
             flash('installation_message', 'Installation not found', 'alert alert-danger');
             redirect('engineer/projects');
+            return;
         }
 
         // Get project details with customer information
         $project = $this->projectModel->getProjectWithCustomerInfo($installation->project_id);
 
+        if (!$project) {
+            // Create a default project object with minimal information
+            $project = (object)[
+                'project_id' => $installation->project_id,
+                'customer_name' => 'Not available',
+                'location' => 'No location data',
+                'phone' => 'Not available',
+                'system_capacity' => 'N/A',
+                'estimated_generation' => 'N/A'
+            ];
+        }
+
         // Get schedule details
         $schedule = $this->projectModel->getInstallationSchedule($installationId);
+        if (!$schedule) {
+            $schedule = (object)[
+                'start_date' => date('Y-m-d'),
+                'start_time' => '09:00:00',
+                'end_date' => date('Y-m-d', strtotime('+1 day'))
+            ];
+        }
 
         // Get engineer data
         $engineer = $this->projectModel->getAssignedEngineer($installationId);
+        if (!$engineer) {
+            $engineer = (object)[
+                'name' => $_SESSION['user_name'] ?? 'Current Engineer'
+            ];
+        }
 
         // Get team members
-        $teamMembers = $this->projectModel->getInstallationTeamMembers($installationId);
+        $teamMembers = $this->projectModel->getInstallationTeamMembers($installationId) ?? [];
 
         $data = [
             'installation' => $installation,
