@@ -103,8 +103,8 @@
                         <div class="card-header">
                             <h2>Installation Management</h2>
                             <?php if (isset($data['installation']) && is_object($data['installation'])): ?>
-                                <span class="status-badge <?php echo $data['installation']->status; ?>">
-                                    <?php echo ucfirst($data['installation']->status); ?>
+                                <span class="status-badge <?php echo $data['schedule']->status; ?>">
+                                    <?php echo ucfirst($data['schedule']->status); ?>
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -247,6 +247,80 @@
                                         </div>
                                     </div>
 
+                                    <!-- Team Management Section -->
+                                    <div class="team-management">
+                                        <h4>Installation Team</h4>
+
+                                        <!-- Engineer Assignment -->
+                                        <div class="form-group">
+                                            <label>Lead Engineer:</label>
+                                            <?php if (isset($data['engineer']) && $data['engineer']): ?>
+                                                <div class="assigned-engineer">
+                                                    <span><?php echo $data['engineer']->name; ?></span>
+                                                    <button type="button" class="btn-sm btn-secondary" onclick="showEngineerReassign()">
+                                                        Change
+                                                    </button>
+                                                </div>
+                                            <?php else: ?>
+                                                <form action="<?php echo URLROOT; ?>/operationsCoordinator/reassignEngineer" method="POST">
+                                                    <input type="hidden" name="installation_id" value="<?php echo $data['installation']->installation_id; ?>">
+                                                    <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
+                                                    <div class="form-row">
+                                                        <select name="engineer_id" required class="form-control">
+                                                            <option value="">Select Engineer...</option>
+                                                            <?php foreach ($data['engineers'] as $engineer): ?>
+                                                                <option value="<?php echo $engineer->employee_id; ?>">
+                                                                    <?php echo $engineer->name; ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                        <button type="submit" class="btn-sm btn-primary">Assign</button>
+                                                    </div>
+                                                </form>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <!-- Team Members -->
+                                        <div class="team-members">
+                                            <h5>Team Members</h5>
+                                            <?php if (isset($data['team_members']) && !empty($data['team_members'])): ?>
+                                                <div class="team-list">
+                                                    <?php foreach ($data['team_members'] as $member): ?>
+                                                        <div class="team-member">
+                                                            <span><?php echo $member->name; ?></span>
+                                                            <form action="<?php echo URLROOT; ?>/operationsCoordinator/removeTeamMember" method="POST" class="inline-form">
+                                                                <input type="hidden" name="id" value="<?php echo $member->id; ?>">
+                                                                <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
+                                                                <button type="submit" class="btn-sm btn-danger">Remove</button>
+                                                            </form>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php else: ?>
+                                                <p>No team members assigned yet.</p>
+                                            <?php endif; ?>
+
+                                            <!-- Add Team Member Form -->
+                                            <form action="<?php echo URLROOT; ?>/operationsCoordinator/addTeamMember" method="POST" class="add-member-form">
+                                                <input type="hidden" name="installation_id" value="<?php echo $data['installation']->installation_id; ?>">
+                                                <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
+                                                <div class="form-row">
+                                                    <select name="employee_id" required class="form-control">
+                                                        <option value="">Add Team Member...</option>
+                                                        <?php if (isset($data['technicians']) && !empty($data['technicians'])): ?>
+                                                            <?php foreach ($data['technicians'] as $tech): ?>
+                                                                <option value="<?php echo $tech->employee_id; ?>">
+                                                                    <?php echo $tech->name; ?> (Technician)
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        <?php endif; ?>
+                                                    </select>
+                                                    <button type="submit" class="btn-sm btn-primary">Add</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
                                     <?php if ($data['installation']->step_01 && $data['installation']->step_02 && $data['installation']->step_03 && $data['installation']->step_04): ?>
                                         <!-- All steps completed, show complete installation button -->
                                         <div class="complete-installation">
@@ -287,6 +361,46 @@
                 });
             }
         });
+
+        // Add these functions to your existing script
+        function showEngineerReassign() {
+            document.getElementById('engineerModal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closeEngineerModal() {
+            document.getElementById('engineerModal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
     </script>
+
+    <!-- Engineer Reassignment Modal -->
+    <div id="engineerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEngineerModal()">&times;</span>
+            <h3>Reassign Lead Engineer</h3>
+            <form action="<?php echo URLROOT; ?>/operationsCoordinator/reassignEngineer" method="POST">
+                <input type="hidden" name="installation_id" value="<?php echo $data['installation']->installation_id; ?>">
+                <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
+
+                <div class="form-group">
+                    <label>Select New Engineer:</label>
+                    <select name="engineer_id" required class="form-control">
+                        <option value="">Select Engineer...</option>
+                        <?php foreach ($data['engineers'] as $engineer): ?>
+                            <option value="<?php echo $engineer->employee_id; ?>">
+                                <?php echo $engineer->name; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeEngineerModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Reassign</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <?php require APPROOT . '/views/operationsCoordinator/footer.php'; ?>

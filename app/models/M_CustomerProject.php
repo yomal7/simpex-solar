@@ -370,12 +370,11 @@ class M_CustomerProject
      */
     public function createInstallationPhase($data)
     {
-        $this->db->query('INSERT INTO installation_phase (project_id, status, engineer_id) 
-                     VALUES (:project_id, :status, :engineer_id)');
+        $this->db->query('INSERT INTO installation_phase (project_id, status) 
+                     VALUES (:project_id, :status)');
 
         $this->db->bind(':project_id', $data['project_id']);
         $this->db->bind(':status', $data['status']);
-        $this->db->bind(':engineer_id', $data['engineer_id']);
 
         if ($this->db->execute()) {
             return $this->db->lastInsertId();
@@ -384,6 +383,47 @@ class M_CustomerProject
         return false;
     }
 
+    public function assignEngineerToInstallation($installationId, $engineerId)
+    {
+        $this->db->query('INSERT INTO installation_engineer (installation_id, engineer_id) 
+                     VALUES (:installation_id, :engineer_id)');
+
+        $this->db->bind(':installation_id', $installationId);
+        $this->db->bind(':engineer_id', $engineerId);
+
+        return $this->db->execute();
+    }
+
+    public function getAssignedEngineer($installationId)
+    {
+        $this->db->query('SELECT e.*, u.name, u.email, u.phone
+                     FROM installation_engineer ie
+                     JOIN employees e ON ie.engineer_id = e.employee_id
+                     JOIN users u ON e.user_id = u.user_id
+                     WHERE ie.installation_id = :installation_id
+                     AND ie.assign = TRUE
+                     ORDER BY ie.created_at DESC
+                     LIMIT 1');
+
+        $this->db->bind(':installation_id', $installationId);
+        return $this->db->single();
+    }
+
+    public function reassignEngineer($installationId, $engineerId)
+    {
+        // First set all current assignments to false
+        $this->db->query('UPDATE installation_engineer 
+                     SET assign = FALSE, 
+                         updated_at = CURRENT_TIMESTAMP
+                     WHERE installation_id = :installation_id 
+                     AND assign = TRUE');
+
+        $this->db->bind(':installation_id', $installationId);
+        $this->db->execute();
+
+        // Then create a new assignment
+        return $this->assignEngineerToInstallation($installationId, $engineerId);
+    }
     /**
      * Create installation schedule
      * 

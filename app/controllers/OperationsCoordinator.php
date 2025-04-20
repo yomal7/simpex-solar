@@ -1098,10 +1098,8 @@ class OperationsCoordinator extends Controller
             // Get schedule data
             $schedule = $this->projectModel->getInstallationSchedule($installation->installation_id);
 
-            // Get engineer data if assigned
-            if ($installation->engineer_id) {
-                $engineer = $this->employeeModel->getEmployeeById($installation->engineer_id);
-            }
+            // Get engineer data if assigned - modified to use new method
+            $engineer = $this->projectModel->getAssignedEngineer($installation->installation_id);
         }
 
         // Get engineers for assignment dropdown
@@ -1118,6 +1116,7 @@ class OperationsCoordinator extends Controller
 
         $this->view('operationsCoordinator/v_installation', $data);
     }
+
 
     /**
      * Schedule a new installation
@@ -1146,17 +1145,24 @@ class OperationsCoordinator extends Controller
             return;
         }
 
-        // Create installation phase record
+        // Create installation phase record (without engineer_id now)
         $installationId = $this->projectModel->createInstallationPhase([
             'project_id' => $projectId,
-            'status' => 'initial',
-            'engineer_id' => $engineerId
+            'status' => 'initial'
         ]);
 
         if (!$installationId) {
             flash('installation_message', 'Failed to create installation record', 'alert alert-danger');
             redirect('operationsCoordinator/installation/' . $projectId);
             return;
+        }
+
+        // Assign engineer to installation
+        $engineerAssigned = $this->projectModel->assignEngineerToInstallation($installationId, $engineerId);
+
+        if (!$engineerAssigned) {
+            flash('installation_message', 'Failed to assign engineer to installation', 'alert alert-warning');
+            // Continue anyway as the installation record is created
         }
 
         // Create installation schedule
@@ -1172,6 +1178,25 @@ class OperationsCoordinator extends Controller
             flash('installation_message', 'Installation scheduled successfully', 'alert alert-success');
         } else {
             flash('installation_message', 'Failed to schedule installation', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    public function addTeamMember()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $installationId = $_POST['installation_id'];
+        $employeeId = $_POST['employee_id'];
+        $projectId = $_POST['project_id'];
+
+        if ($this->projectModel->addEmployeeToInstallation($installationId, $employeeId)) {
+            flash('installation_message', 'Team member added successfully', 'alert alert-success');
+        } else {
+            flash('installation_message', 'Failed to add team member', 'alert alert-danger');
         }
 
         redirect('operationsCoordinator/installation/' . $projectId);
@@ -1210,6 +1235,25 @@ class OperationsCoordinator extends Controller
             flash('installation_message', 'Installation rescheduled successfully', 'alert alert-success');
         } else {
             flash('installation_message', 'Failed to reschedule installation', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    public function reassignEngineer()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $installationId = $_POST['installation_id'];
+        $engineerId = $_POST['engineer_id'];
+        $projectId = $_POST['project_id'];
+
+        if ($this->projectModel->reassignEngineer($installationId, $engineerId)) {
+            flash('installation_message', 'Engineer reassigned successfully', 'alert alert-success');
+        } else {
+            flash('installation_message', 'Failed to reassign engineer', 'alert alert-danger');
         }
 
         redirect('operationsCoordinator/installation/' . $projectId);
