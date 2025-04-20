@@ -29,6 +29,10 @@
                 <span class="material-icons-sharp">inventory</span>
                 <h3>Inventory</h3>
             </a>
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/chat">
+                <span class="material-icons-sharp">chat</span>
+                <h3>Chat</h3>
+            </a>
             <a href="<?php echo URLROOT ?>/supplierCoordinator/settings" class="active">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>

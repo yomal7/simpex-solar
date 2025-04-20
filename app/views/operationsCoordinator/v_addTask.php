@@ -33,6 +33,10 @@
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>
             </a>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/chat">
+                <span class="material-icons-sharp">chat</span>
+                <h3>Chat</h3>
+            </a>
             <a href="#">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>

@@ -33,6 +33,10 @@
                 <span class="material-icons-sharp">date_range</span>
                 <h3>Holiday</h3>
             </a>
+            <a href="<?php echo URLROOT ?>/hRAdministrator/chat">
+                <span class="material-icons-sharp">chat</span>
+                <h3>Chat</h3>
+            </a>
             <a href="#">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>

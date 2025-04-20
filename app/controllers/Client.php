@@ -6,6 +6,7 @@ class Client extends Controller
     private $shopModel;
     private $clientSidePreProjectModel;
     private $customerProjectModel;
+    private $chatModel;
 
     public function __construct()
     {
@@ -18,6 +19,7 @@ class Client extends Controller
         $this->clientSidePreProjectModel = $this->model('M_clientSidePreProject');
         $this->customerProjectModel = $this->model('M_CustomerProject');
         $this->shopModel = $this->model('M_Shop');
+        $this->chatModel = $this->model('M_Chat');
     }
 
     public function index()
@@ -840,5 +842,147 @@ class Client extends Controller
             }
             exit;
         }
+    }
+
+    public function chat()
+    {
+        // Get coordinator information
+        $coordinators = [
+            'operations' => $this->clientModel->getOperationsCoordinator(),
+            'supplier' => $this->clientModel->getSupplierCoordinator(),
+            'hr' => $this->clientModel->getHRAdministrator()
+        ];
+        
+        // Get unread message counts for each coordinator
+        $unreadCounts = [
+            'operations' => $this->chatModel->getUnreadCount($coordinators['operations']->user_id, $_SESSION['user_id']),
+            'supplier' => $this->chatModel->getUnreadCount($coordinators['supplier']->user_id, $_SESSION['user_id']),
+            'hr' => $this->chatModel->getUnreadCount($coordinators['hr']->user_id, $_SESSION['user_id'])
+        ];
+
+        $data = [
+            'title' => 'Chat with Coordinators',
+            'coordinators' => $coordinators,
+            'unread_counts' => $unreadCounts
+        ];
+
+        $this->view('client/v_chat', $data);
+    }
+
+    public function getChatHistory($coordinatorType)
+    {
+        if (!in_array($coordinatorType, ['operations', 'supplier', 'hr'])) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Invalid coordinator type']);
+            return;
+        }
+        
+        // Get coordinator ID based on type
+        $coordinator = null;
+        if ($coordinatorType == 'operations') {
+            $coordinator = $this->clientModel->getOperationsCoordinator();
+        } elseif ($coordinatorType == 'supplier') {
+            $coordinator = $this->clientModel->getSupplierCoordinator();
+        } elseif ($coordinatorType == 'hr') {
+            $coordinator = $this->clientModel->getHRAdministrator();
+        }
+        
+        if (!$coordinator) {
+            header('Content-Type: application/json');
+            echo json_encode([]);
+            return;
+        }
+        
+        $messages = $this->chatModel->getClientChats($coordinator->user_id, $_SESSION['user_id']);
+        
+        // Mark messages as read after retrieving them
+        $this->chatModel->markMessagesAsRead($coordinator->user_id, $_SESSION['user_id']);
+
+        header('Content-Type: application/json');
+        echo json_encode($messages);
+    }
+    
+    public function saveMessage()
+    {
+        // Handle AJAX request to save a new message
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (empty($data['to_user_id']) || empty($data['message'])) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Missing required fields']);
+            return;
+        }
+
+        // Get coordinator role based on the coordinator type
+        $receiverRole = 'operationsCoordinator'; // Default
+        if (isset($data['recipient_type'])) {
+            if ($data['recipient_type'] == 'supplier') {
+                $receiverRole = 'supplierCoordinator';
+            } elseif ($data['recipient_type'] == 'hr') {
+                $receiverRole = 'hRAdministrator';
+            }
+        }
+
+        $messageData = [
+            'sender_id' => $_SESSION['user_id'],
+            'sender_role' => 'customer',
+            'receiver_id' => $data['to_user_id'],
+            'receiver_role' => $receiverRole,
+            'message' => $data['message']
+        ];
+
+        if ($this->chatModel->saveMessage($messageData)) {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'success']);
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Failed to save message']);
+        }
+    }
+
+    public function markMessagesAsRead()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (empty($data['coordinator_type'])) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Coordinator type required']);
+            return;
+        }
+
+        // Get coordinator based on type
+        $coordinator = null;
+        $coordinatorType = $data['coordinator_type'];
+        
+        if ($coordinatorType == 'operations') {
+            $coordinator = $this->clientModel->getOperationsCoordinator();
+        } elseif ($coordinatorType == 'supplier') {
+            $coordinator = $this->clientModel->getSupplierCoordinator();
+        } elseif ($coordinatorType == 'hr') {
+            $coordinator = $this->clientModel->getHRAdministrator();
+        }
+        
+        if (!$coordinator) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Coordinator not found']);
+            return;
+        }
+
+        $success = $this->chatModel->markMessagesAsRead($coordinator->user_id, $_SESSION['user_id']);
+        
+        header('Content-Type: application/json');
+        echo json_encode(['status' => $success ? 'success' : 'error']);
     }
 }

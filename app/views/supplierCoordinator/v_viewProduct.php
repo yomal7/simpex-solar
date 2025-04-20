@@ -31,6 +31,10 @@
                 <span class="material-icons-sharp">group</span>
                 <h3>Employees</h3>
             </a>
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/chat">
+                <span class="material-icons-sharp">chat</span>
+                <h3>Chat</h3>
+            </a>
             <a href="#">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>

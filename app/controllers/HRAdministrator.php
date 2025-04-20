@@ -4,7 +4,8 @@ class HRAdministrator extends Controller
 {
     private $employeeModel;
     private $userModel;
-
+    private $chatModel;
+    private $hrModel;
 
     public function __construct()
     {
@@ -15,6 +16,8 @@ class HRAdministrator extends Controller
         }
         $this->employeeModel = $this->model('M_Employee');
         $this->userModel = $this->model("M_Users");
+        $this->chatModel = $this->model('M_Chat');
+        $this->hrModel = $this->model('M_HR');
     }
 
     public function index()
@@ -175,7 +178,7 @@ class HRAdministrator extends Controller
                 'email_err' => '',
                 'phone_err' => '',
             ];
-            
+
             // Validate Email
             if (empty($data['email'])) {
                 $data['email_err'] = 'Please enter email';
@@ -217,7 +220,7 @@ class HRAdministrator extends Controller
         } else {
             // Get existing employee from model
             $employee = $this->employeeModel->getEmployeeById($employeeId);
-            
+
             $data = [
                 'employee_id' => $employeeId,
                 'user_id' => $employee->user_id,
@@ -265,5 +268,101 @@ class HRAdministrator extends Controller
 
         $data = [];
         $this->view('hRAdministrator/v_holiday', $data);
+    }
+
+    public function chat()
+    {
+        // Get clients who have chat history with this coordinator
+        $data = [
+            'title' => 'Client Messages',
+            'clients' => $this->hrModel->getClientsWithChats()
+        ];
+
+        $this->view('hRAdministrator/v_chat', $data);
+    }
+
+    public function getClientChats()
+    {
+        // Get client ID from query string
+        $clientId = isset($_GET['client_id']) ? $_GET['client_id'] : null;
+    
+        if (!$clientId) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Client ID required']);
+            return;
+        }
+    
+        // Get chat history between this coordinator and the specified client
+        $messages = $this->chatModel->getClientChats($_SESSION['user_id'], $clientId);
+    
+        // Mark messages as read after retrieving them
+        $this->chatModel->markMessagesAsRead($clientId, $_SESSION['user_id']);
+    
+        header('Content-Type: application/json');
+        echo json_encode($messages);
+    }
+
+    public function getAllClientChats()
+    {
+        // Get all clients with chat history and return as JSON
+        $clients = $this->hrModel->getClientsWithChats();
+        header('Content-Type: application/json');
+        echo json_encode($clients);
+    }
+
+    public function saveMessage()
+    {
+        // Handle AJAX request to save a new message
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (empty($data['to_user_id']) || empty($data['message'])) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Missing required fields']);
+            return;
+        }
+
+        $messageData = [
+            'sender_id' => $_SESSION['user_id'],
+            'sender_role' => 'supplierCoordinator',
+            'receiver_id' => $data['to_user_id'],
+            'receiver_role' => 'customer',
+            'message' => $data['message']
+        ];
+
+        if ($this->chatModel->saveMessage($messageData)) {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'success']);
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Failed to save message']);
+        }
+    }
+
+    public function markMessagesAsRead()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (empty($data['client_id'])) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Client ID required']);
+            return;
+        }
+
+        $success = $this->chatModel->markMessagesAsRead($data['client_id'], $_SESSION['user_id']);
+        
+        header('Content-Type: application/json');
+        echo json_encode(['status' => $success ? 'success' : 'error']);
     }
 }
