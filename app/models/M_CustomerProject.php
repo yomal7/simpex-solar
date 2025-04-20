@@ -608,4 +608,68 @@ class M_CustomerProject
 
         return $this->db->resultSet();
     }
+
+    public function updateInstallationStatus($installationId, $status)
+    {
+        $this->db->query('UPDATE installation_phase 
+                     SET status = :status, 
+                         updated_at = NOW()
+                     WHERE installation_id = :installation_id');
+
+        $this->db->bind(':installation_id', $installationId);
+        $this->db->bind(':status', $status);
+
+        return $this->db->execute();
+    }
+
+    public function completeInstallationStep($installationId, $step)
+    {
+        $column = 'step_' . $step;
+        $dateColumn = 'step_' . $step . '_date';
+
+        $this->db->query("UPDATE installation_phase 
+                     SET $column = TRUE,
+                         $dateColumn = NOW(),
+                         updated_at = NOW()
+                     WHERE installation_id = :installation_id");
+
+        $this->db->bind(':installation_id', $installationId);
+
+        return $this->db->execute();
+    }
+
+    public function saveInstallationNotes($installationId, $notes)
+    {
+        $this->db->query('UPDATE installation_phase 
+                     SET notes = :notes,
+                         updated_at = NOW()
+                     WHERE installation_id = :installation_id');
+
+        $this->db->bind(':installation_id', $installationId);
+        $this->db->bind(':notes', $notes);
+
+        return $this->db->execute();
+    }
+
+    public function getProjectWithCustomerInfo($projectId)
+    {
+        $this->db->query('SELECT p.*, 
+                     u.name AS customer_name,
+                     u.phone,
+                     u.email,
+                     cq.nearest_city AS location,
+                     cq.address,
+                     cq.system_capacity,
+                     cq.estimated_generation,
+                     (SELECT COUNT(*) FROM project_agreement_equipment 
+                      WHERE agreement_id = p.agreement_id 
+                      AND item_type = "panel") AS panel_count
+                     FROM projects p
+                     LEFT JOIN users u ON p.customer_id = u.user_id
+                     LEFT JOIN customerquotation cq ON p.pre_project_id = cq.pre_project_id
+                     WHERE p.project_id = :project_id');
+
+        $this->db->bind(':project_id', $projectId);
+        return $this->db->single();
+    }
 }

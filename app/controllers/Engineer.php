@@ -140,4 +140,129 @@ class engineer extends Controller
 
         $this->view('engineer/v_projects', $data);
     }
+
+    public function viewInstallation($installationId)
+    {
+        // Get installation details
+        $installation = $this->projectModel->getInstallationById($installationId);
+
+        if (!$installation) {
+            flash('installation_message', 'Installation not found', 'alert alert-danger');
+            redirect('engineer/projects');
+        }
+
+        // Get project details with customer information
+        $project = $this->projectModel->getProjectWithCustomerInfo($installation->project_id);
+
+        // Get schedule details
+        $schedule = $this->projectModel->getInstallationSchedule($installationId);
+
+        // Get engineer data
+        $engineer = $this->projectModel->getAssignedEngineer($installationId);
+
+        // Get team members
+        $teamMembers = $this->projectModel->getInstallationTeamMembers($installationId);
+
+        $data = [
+            'installation' => $installation,
+            'project' => $project,
+            'schedule' => $schedule,
+            'engineer' => $engineer,
+            'team_members' => $teamMembers
+        ];
+
+        $this->view('engineer/v_projectInstallation', $data);
+    }
+
+    public function startInstallation()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            return;
+        }
+
+        // Get JSON data
+        $data = json_decode(file_get_contents('php://input'));
+
+        if (!$data || !isset($data->installation_id)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid data']);
+            return;
+        }
+
+        $result = $this->projectModel->updateInstallationStatus($data->installation_id, 'active');
+
+        if ($result) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to update installation status']);
+        }
+    }
+
+    public function completeInstallationStep()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            return;
+        }
+
+        // Get JSON data
+        $data = json_decode(file_get_contents('php://input'));
+
+        if (!$data || !isset($data->installation_id) || !isset($data->step)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid data']);
+            return;
+        }
+
+        $result = $this->projectModel->completeInstallationStep($data->installation_id, $data->step);
+
+        if ($result) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to complete installation step']);
+        }
+    }
+
+    public function saveInstallationNotes()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            return;
+        }
+
+        // Get JSON data
+        $data = json_decode(file_get_contents('php://input'));
+
+        if (!$data || !isset($data->installation_id) || !isset($data->notes)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid data']);
+            return;
+        }
+
+        // Validate engineer has access to this installation
+        $engineerId = $this->projectModel->getEngineerId($_SESSION['user_id'])->employee_id;
+        $assignedInstallations = $this->projectModel->getAssignedInstallations($engineerId);
+
+        $hasAccess = false;
+        foreach ($assignedInstallations as $installation) {
+            if ($installation->installation_id == $data->installation_id) {
+                $hasAccess = true;
+                break;
+            }
+        }
+
+        if (!$hasAccess) {
+            echo json_encode(['success' => false, 'message' => 'You do not have access to this installation']);
+            return;
+        }
+
+        $result = $this->projectModel->saveInstallationNotes($data->installation_id, $data->notes);
+
+        if ($result) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to save notes']);
+        }
+    }
 }
