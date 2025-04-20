@@ -109,7 +109,7 @@
                             <?php endif; ?>
                         </div>
                         <div class="card-body">
-                            <?php if (!isset($data['installation'])): ?>
+                            <?php if (!$data['installation']): ?>
                                 <!-- No installation record yet, show scheduling form -->
                                 <form action="<?php echo URLROOT; ?>/operationsCoordinator/scheduleInstallation" method="POST" class="installation-form" id="installationForm">
                                     <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
