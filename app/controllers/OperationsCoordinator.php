@@ -1105,6 +1105,9 @@ class OperationsCoordinator extends Controller
         // Get engineers for assignment dropdown
         $engineers = $this->employeeModel->getEmployeesByRole('engineer');
 
+        // Get technicians for selection
+        $technicians = $this->employeeModel->getEmployeesByRole('technician');
+
         // Get upcoming installations for the next month
         $upcomingInstallations = $this->projectModel->getUpcomingInstallations();
 
@@ -1115,6 +1118,7 @@ class OperationsCoordinator extends Controller
             'schedule' => $schedule,
             'engineer' => $engineer,
             'engineers' => $engineers,
+            'technicians' => $technicians,
             'upcoming_installations' => $upcomingInstallations
         ];
 
@@ -1164,6 +1168,14 @@ class OperationsCoordinator extends Controller
         $startTime = $_POST['start_time'];
         $durationDays = $_POST['duration_days'];
         $engineerId = $_POST['engineer_id'];
+        $technicians = isset($_POST['technicians']) ? $_POST['technicians'] : [];
+
+        // Validate technicians count
+        if (count($technicians) < 3 || count($technicians) > 6) {
+            flash('installation_message', 'Please select between 3 and 6 technicians', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
 
         // Calculate end date
         $endDate = date('Y-m-d', strtotime($startDate . ' + ' . $durationDays . ' days'));
@@ -1176,7 +1188,7 @@ class OperationsCoordinator extends Controller
             return;
         }
 
-        // Create installation phase record (without engineer_id now)
+        // Create installation phase record
         $installationId = $this->projectModel->createInstallationPhase([
             'project_id' => $projectId,
             'status' => 'initial'
@@ -1190,10 +1202,20 @@ class OperationsCoordinator extends Controller
 
         // Assign engineer to installation
         $engineerAssigned = $this->projectModel->assignEngineerToInstallation($installationId, $engineerId);
-
         if (!$engineerAssigned) {
-            flash('installation_message', 'Failed to assign engineer to installation', 'alert alert-warning');
-            // Continue anyway as the installation record is created
+            flash('installation_message', 'Failed to assign engineer', 'alert alert-warning');
+        }
+
+        // Assign technicians to installation
+        $techniciansAssigned = true;
+        foreach ($technicians as $technicianId) {
+            if (!$this->projectModel->assignTechnicianToInstallation($installationId, $technicianId)) {
+                $techniciansAssigned = false;
+            }
+        }
+
+        if (!$techniciansAssigned) {
+            flash('installation_message', 'Some technicians could not be assigned', 'alert alert-warning');
         }
 
         // Create installation schedule

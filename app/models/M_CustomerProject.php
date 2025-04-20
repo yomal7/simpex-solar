@@ -542,4 +542,16 @@ class M_CustomerProject
         $this->db->bind(':installation_id', $installationId);
         return $this->db->resultSet();
     }
+
+    public function assignTechnicianToInstallation($installationId, $technicianId)
+    {
+        $this->db->query('INSERT INTO installation_employees 
+                      (installation_id, employee_id, assign, created_at, updated_at) 
+                      VALUES (:installation_id, :employee_id, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)');
+
+        $this->db->bind(':installation_id', $installationId);
+        $this->db->bind(':employee_id', $technicianId);
+
+        return $this->db->execute();
+    }
 }

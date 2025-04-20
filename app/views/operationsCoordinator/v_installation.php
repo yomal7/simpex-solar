@@ -195,6 +195,30 @@
                                         </select>
                                     </div>
 
+                                    <div class="form-group">
+                                        <label>Select Technicians (3-6 required):</label>
+                                        <div class="technician-selection">
+                                            <div class="selection-info">
+                                                <span id="technicianCounter">0</span> technicians selected (min: 3, max: 6)
+                                            </div>
+                                            <div class="technicians-grid">
+                                                <?php if (isset($data['technicians']) && !empty($data['technicians'])): ?>
+                                                    <?php foreach ($data['technicians'] as $technician): ?>
+                                                        <div class="technician-item" data-id="<?php echo $technician->employee_id; ?>">
+                                                            <span class="technician-name"><?php echo $technician->name; ?></span>
+                                                            <input type="checkbox" name="technicians[]" value="<?php echo $technician->employee_id; ?>" class="technician-checkbox" style="display:none;">
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <p class="no-technicians">No technicians available</p>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div id="technicianError" class="error-message" style="display: none;">
+                                                Please select between 3 and 6 technicians
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="form-actions">
                                         <button type="submit" class="btn-primary">Schedule Installation</button>
                                     </div>
@@ -543,6 +567,69 @@
                 modal.style.display = 'none';
             }
         }
+
+        // Add at the end of your existing script before the closing tag
+        document.addEventListener('DOMContentLoaded', function() {
+            // Technician selection
+            const technicianItems = document.querySelectorAll('.technician-item');
+            const technicianCounter = document.getElementById('technicianCounter');
+            const technicianError = document.getElementById('technicianError');
+            const installationForm = document.getElementById('installationForm');
+
+            // Track selected technicians
+            let selectedCount = 0;
+
+            // Add click event to technician items
+            technicianItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const checkbox = this.querySelector('.technician-checkbox');
+
+                    // Toggle selection
+                    if (this.classList.contains('selected')) {
+                        this.classList.remove('selected');
+                        checkbox.checked = false;
+                        selectedCount--;
+                    } else {
+                        // Check if maximum reached
+                        if (selectedCount >= 6) {
+                            technicianError.textContent = 'Maximum 6 technicians allowed';
+                            technicianError.style.display = 'block';
+                            return;
+                        }
+
+                        this.classList.add('selected');
+                        checkbox.checked = true;
+                        selectedCount++;
+                    }
+
+                    // Update counter
+                    technicianCounter.textContent = selectedCount;
+
+                    // Show/hide error message
+                    if (selectedCount < 3 || selectedCount > 6) {
+                        technicianError.style.display = 'block';
+                    } else {
+                        technicianError.style.display = 'none';
+                    }
+                });
+            });
+
+            // Form validation before submit
+            if (installationForm) {
+                installationForm.addEventListener('submit', function(e) {
+                    if (selectedCount < 3 || selectedCount > 6) {
+                        e.preventDefault();
+                        technicianError.style.display = 'block';
+                        technicianError.textContent = 'Please select between 3 and 6 technicians';
+                        // Scroll to error
+                        technicianError.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                    }
+                });
+            }
+        });
     </script>
 
     <!-- Installation Details Modal -->
