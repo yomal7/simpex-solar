@@ -78,57 +78,58 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="card upcoming-installations-card">
-                    <div class="card-header dropdown-toggle" onclick="toggleUpcomingInstallations()">
-                        <h2>Upcoming Installations</h2>
-                        <span class="toggle-icon">▼</span>
+                <?php if ($data['installation']->status != 'completed'): ?>
+                    <div class="card upcoming-installations-card">
+                        <div class="card-header dropdown-toggle" onclick="toggleUpcomingInstallations()">
+                            <h2>Upcoming Installations</h2>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="card-body" id="upcomingInstallationsBody" style="display: none;">
+                            <?php if (isset($data['upcoming_installations']) && !empty($data['upcoming_installations'])): ?>
+                                <div class="table-responsive">
+                                    <table class="installations-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Project ID</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
+                                                <th>Engineer</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($data['upcoming_installations'] as $installation): ?>
+                                                <?php if ($installation->schedule_status != 'request'): ?>
+                                                    <tr>
+                                                        <td><?php echo $installation->project_id; ?></td>
+                                                        <td><?php echo date('M d, Y', strtotime($installation->start_date)); ?></td>
+                                                        <td><?php echo date('M d, Y', strtotime($installation->end_date)); ?></td>
+                                                        <td><?php echo $installation->engineer_name ?? 'Not assigned'; ?></td>
+                                                        <td>
+                                                            <span class="status-pill <?php echo $installation->schedule_status; ?>">
+                                                                <?php echo ucfirst($installation->schedule_status); ?>
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <button class="btn-sm btn-primary" onclick="viewInstallationDetails(<?php echo $installation->installation_id; ?>)">
+                                                                View More
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php else: ?>
+                                <div class="no-installations">
+                                    <p>No upcoming installations scheduled for the next month.</p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    <div class="card-body" id="upcomingInstallationsBody" style="display: none;">
-                        <?php if (isset($data['upcoming_installations']) && !empty($data['upcoming_installations'])): ?>
-                            <div class="table-responsive">
-                                <table class="installations-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Project ID</th>
-                                            <th>Start Date</th>
-                                            <th>End Date</th>
-                                            <th>Engineer</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($data['upcoming_installations'] as $installation): ?>
-                                            <?php if ($installation->schedule_status != 'request'): ?>
-                                                <tr>
-                                                    <td><?php echo $installation->project_id; ?></td>
-                                                    <td><?php echo date('M d, Y', strtotime($installation->start_date)); ?></td>
-                                                    <td><?php echo date('M d, Y', strtotime($installation->end_date)); ?></td>
-                                                    <td><?php echo $installation->engineer_name ?? 'Not assigned'; ?></td>
-                                                    <td>
-                                                        <span class="status-pill <?php echo $installation->schedule_status; ?>">
-                                                            <?php echo ucfirst($installation->schedule_status); ?>
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <button class="btn-sm btn-primary" onclick="viewInstallationDetails(<?php echo $installation->installation_id; ?>)">
-                                                            View More
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            <?php endif; ?>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php else: ?>
-                            <div class="no-installations">
-                                <p>No upcoming installations scheduled for the next month.</p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
+                <?php endif; ?>
 
                 <!-- Equipment Status Card -->
                 <?php if (!$data['project']->equipment_released): ?>
@@ -388,89 +389,88 @@
                                         </div>
                                     </div>
 
-                                    <!-- Progress tracking for steps -->
-                                    <div class="installation-progress">
-                                        <h4>Installation Progress</h4>
-                                        <div class="progress-steps">
-                                            <!-- Step sections go here -->
-                                        </div>
-                                    </div>
-
                                     <!-- Team Management Section -->
-                                    <div class="team-management">
-                                        <h4>Installation Team</h4>
+                                    <?php if ($data['installation']->status != 'completed'): ?>
+                                        <div class="team-management-dropdown">
+                                            <div class="dropdown-header" onclick="toggleTeamManagement()">
+                                                <h4>Installation Team</h4>
+                                                <span class="dropdown-icon material-icons-sharp">expand_more</span>
+                                            </div>
 
-                                        <!-- Engineer Assignment -->
-                                        <div class="form-group">
-                                            <label>Lead Engineer:</label>
-                                            <?php if (isset($data['engineer']) && $data['engineer']): ?>
-                                                <div class="assigned-engineer">
-                                                    <span><?php echo $data['engineer']->name; ?></span>
-                                                    <button type="button" class="btn-sm btn-secondary" onclick="showEngineerReassign()">
-                                                        Change
-                                                    </button>
-                                                </div>
-                                            <?php else: ?>
-                                                <form action="<?php echo URLROOT; ?>/operationsCoordinator/reassignEngineer" method="POST">
-                                                    <input type="hidden" name="installation_id" value="<?php echo $data['installation']->installation_id; ?>">
-                                                    <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
-                                                    <div class="form-row">
-                                                        <select name="engineer_id" required class="form-control">
-                                                            <option value="">Select Engineer...</option>
-                                                            <?php foreach ($data['engineers'] as $engineer): ?>
-                                                                <option value="<?php echo $engineer->employee_id; ?>">
-                                                                    <?php echo $engineer->name; ?>
-                                                                </option>
-                                                            <?php endforeach; ?>
-                                                        </select>
-                                                        <button type="submit" class="btn-sm btn-primary">Assign</button>
-                                                    </div>
-                                                </form>
-                                            <?php endif; ?>
-                                        </div>
-
-                                        <!-- Team Members -->
-                                        <div class="team-members">
-                                            <h5>Team Members</h5>
-                                            <?php if (isset($data['team_members']) && !empty($data['team_members'])): ?>
-                                                <div class="team-list">
-                                                    <?php foreach ($data['team_members'] as $member): ?>
-                                                        <div class="team-member">
-                                                            <span><?php echo $member->name; ?></span>
-                                                            <form action="<?php echo URLROOT; ?>/operationsCoordinator/removeTeamMember" method="POST" class="inline-form">
-                                                                <input type="hidden" name="id" value="<?php echo $member->id; ?>">
-                                                                <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
-                                                                <button type="submit" class="btn-sm btn-danger">Remove</button>
-                                                            </form>
+                                            <div class="dropdown-content" id="teamManagementContent">
+                                                <!-- Engineer Assignment -->
+                                                <div class="form-group">
+                                                    <label>Lead Engineer:</label>
+                                                    <?php if (isset($data['engineer']) && $data['engineer']): ?>
+                                                        <div class="assigned-engineer">
+                                                            <span><?php echo $data['engineer']->name; ?></span>
+                                                            <button type="button" class="btn-sm btn-secondary" onclick="showEngineerReassign()">
+                                                                Change
+                                                            </button>
                                                         </div>
-                                                    <?php endforeach; ?>
+                                                    <?php else: ?>
+                                                        <form action="<?php echo URLROOT; ?>/operationsCoordinator/reassignEngineer" method="POST">
+                                                            <input type="hidden" name="installation_id" value="<?php echo $data['installation']->installation_id; ?>">
+                                                            <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
+                                                            <div class="form-row">
+                                                                <select name="engineer_id" required class="form-control">
+                                                                    <option value="">Select Engineer...</option>
+                                                                    <?php foreach ($data['engineers'] as $engineer): ?>
+                                                                        <option value="<?php echo $engineer->employee_id; ?>">
+                                                                            <?php echo $engineer->name; ?>
+                                                                        </option>
+                                                                    <?php endforeach; ?>
+                                                                </select>
+                                                                <button type="submit" class="btn-sm btn-primary">Assign</button>
+                                                            </div>
+                                                        </form>
+                                                    <?php endif; ?>
                                                 </div>
-                                            <?php else: ?>
-                                                <p>No team members assigned yet.</p>
-                                            <?php endif; ?>
 
-                                            <!-- Add Team Member Form -->
-                                            <form action="<?php echo URLROOT; ?>/operationsCoordinator/addTeamMember" method="POST" class="add-member-form">
-                                                <input type="hidden" name="installation_id" value="<?php echo $data['installation']->installation_id; ?>">
-                                                <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
-                                                <div class="form-row">
-                                                    <select name="employee_id" required class="form-control">
-                                                        <option value="">Add Team Member...</option>
-                                                        <?php if (isset($data['technicians']) && !empty($data['technicians'])): ?>
-                                                            <?php foreach ($data['technicians'] as $tech): ?>
-                                                                <option value="<?php echo $tech->employee_id; ?>">
-                                                                    <?php echo $tech->name; ?> (Technician)
-                                                                </option>
+                                                <!-- Team Members -->
+                                                <div class="team-members">
+                                                    <h5>Team Members</h5>
+                                                    <?php if (isset($data['team_members']) && !empty($data['team_members'])): ?>
+                                                        <div class="team-list">
+                                                            <?php foreach ($data['team_members'] as $member): ?>
+                                                                <div class="team-member">
+                                                                    <span><?php echo $member->name; ?></span>
+                                                                    <form action="<?php echo URLROOT; ?>/operationsCoordinator/removeTeamMember" method="POST" class="inline-form">
+                                                                        <input type="hidden" name="id" value="<?php echo $member->id; ?>">
+                                                                        <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
+                                                                        <button type="submit" class="btn-sm btn-danger">Remove</button>
+                                                                    </form>
+                                                                </div>
                                                             <?php endforeach; ?>
-                                                        <?php endif; ?>
-                                                    </select>
-                                                    <button type="submit" class="btn-sm btn-primary">Add</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <p>No team members assigned yet.</p>
+                                                    <?php endif; ?>
 
-                                    <?php if ($data['installation']->step_01 && $data['installation']->step_02 && $data['installation']->step_03 && $data['installation']->step_04): ?>
+                                                    <!-- Add Team Member Form -->
+                                                    <form action="<?php echo URLROOT; ?>/operationsCoordinator/addTeamMember" method="POST" class="add-member-form">
+                                                        <input type="hidden" name="installation_id" value="<?php echo $data['installation']->installation_id; ?>">
+                                                        <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
+                                                        <div class="form-row">
+                                                            <select name="employee_id" required class="form-control">
+                                                                <option value="">Add Team Member...</option>
+                                                                <?php if (isset($data['technicians']) && !empty($data['technicians'])): ?>
+                                                                    <?php foreach ($data['technicians'] as $tech): ?>
+                                                                        <option value="<?php echo $tech->employee_id; ?>">
+                                                                            <?php echo $tech->name; ?> (Technician)
+                                                                        </option>
+                                                                    <?php endforeach; ?>
+                                                                <?php endif; ?>
+                                                            </select>
+                                                            <button type="submit" class="btn-sm btn-primary">Add</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if ($data['installation']->step_1 && $data['installation']->step_2 && $data['installation']->step_3 && $data['installation']->step_4 && $data['installation']->status != 'completed'): ?>
                                         <!-- All steps completed, show complete installation button -->
                                         <div class="complete-installation">
                                             <form action="<?php echo URLROOT; ?>/operationsCoordinator/completeInstallation" method="POST">
@@ -480,6 +480,111 @@
                                             </form>
                                         </div>
                                     <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (isset($data['installation']) && ($data['installation']->status == 'active' || $data['installation']->status == 'completed')): ?>
+                    <div class="card progress-card">
+                        <div class="card-header">
+                            <h2>Installation Progress</h2>
+                            <span class="status-badge <?php echo $data['installation']->status; ?>">
+                                <?php echo ucfirst($data['installation']->status); ?>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <?php if ($data['installation']->status == 'completed'): ?>
+                                <!-- Installation completed view -->
+                                <div class="installation-completed">
+                                    <div class="completion-icon">
+                                        <i class="material-icons-sharp">task_alt</i>
+                                    </div>
+                                    <h3>Installation Successfully Completed</h3>
+                                    <p class="completion-date">Completed on: <?php echo date('F j, Y', strtotime($data['installation']->updated_at)); ?></p>
+
+                                    <?php if (!empty($data['installation']->notes)): ?>
+                                        <div class="installation-notes">
+                                            <h4>Engineer's Notes:</h4>
+                                            <p><?php echo nl2br($data['installation']->notes); ?></p>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php else: ?>
+                                <!-- Active installation progress view -->
+                                <div class="progress-steps">
+                                    <!-- Step 1: Mounting Panel Structure -->
+                                    <div class="progress-step <?php echo $data['installation']->step_1 ? 'completed' : 'pending'; ?>">
+                                        <div class="step-indicator">
+                                            <?php if ($data['installation']->step_1): ?>
+                                                <i class="material-icons-sharp check-icon">check_circle</i>
+                                            <?php else: ?>
+                                                <span class="step-number">1</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="step-content">
+                                            <h3>Mounting Panel Structure</h3>
+                                            <p>Installation of mounting brackets and support structure</p>
+                                            <?php if ($data['installation']->step_1): ?>
+                                                <span class="step-date">Completed: <?php echo date('M d, Y', strtotime($data['installation']->step_1_date)); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 2: Placing and Fixing Solar Panels -->
+                                    <div class="progress-step <?php echo $data['installation']->step_2 ? 'completed' : 'pending'; ?>">
+                                        <div class="step-indicator">
+                                            <?php if ($data['installation']->step_2): ?>
+                                                <i class="material-icons-sharp check-icon">check_circle</i>
+                                            <?php else: ?>
+                                                <span class="step-number">2</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="step-content">
+                                            <h3>Placing Solar Panels</h3>
+                                            <p>Placing and fixing solar panels on the mounting structure</p>
+                                            <?php if ($data['installation']->step_2): ?>
+                                                <span class="step-date">Completed: <?php echo date('M d, Y', strtotime($data['installation']->step_2_date)); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 3: Wiring and Electrical Connections -->
+                                    <div class="progress-step <?php echo $data['installation']->step_3 ? 'completed' : 'pending'; ?>">
+                                        <div class="step-indicator">
+                                            <?php if ($data['installation']->step_3): ?>
+                                                <i class="material-icons-sharp check-icon">check_circle</i>
+                                            <?php else: ?>
+                                                <span class="step-number">3</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="step-content">
+                                            <h3>Wiring and Connections</h3>
+                                            <p>Installing wiring systems and connecting the electrical components</p>
+                                            <?php if ($data['installation']->step_3): ?>
+                                                <span class="step-date">Completed: <?php echo date('M d, Y', strtotime($data['installation']->step_3_date)); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 4: System Testing and Commissioning -->
+                                    <div class="progress-step <?php echo $data['installation']->step_4 ? 'completed' : 'pending'; ?>">
+                                        <div class="step-indicator">
+                                            <?php if ($data['installation']->step_4): ?>
+                                                <i class="material-icons-sharp check-icon">check_circle</i>
+                                            <?php else: ?>
+                                                <span class="step-number">4</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="step-content">
+                                            <h3>System Testing</h3>
+                                            <p>Testing system operation and performance verification</p>
+                                            <?php if ($data['installation']->step_4): ?>
+                                                <span class="step-date">Completed: <?php echo date('M d, Y', strtotime($data['installation']->step_4_date)); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -537,6 +642,17 @@
             }
         }
 
+        function toggleTeamManagement() {
+            const content = document.getElementById('teamManagementContent');
+            const icon = document.querySelector('.dropdown-icon');
+
+            content.classList.toggle('show');
+            icon.classList.toggle('rotate');
+        }
+
+        toggleTeamManagement()
+
+
         // View installation details
         function viewInstallationDetails(installationId) {
             const modal = document.getElementById('installationDetailsModal');
@@ -588,14 +704,6 @@
                             <div class="detail-row">
                                 <span class="detail-label">Name:</span>
                                 <span class="detail-value">${data.engineer.name}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Phone:</span>
-                                <span class="detail-value">${data.engineer.phone}</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Email:</span>
-                                <span class="detail-value">${data.engineer.email}</span>
                             </div>
                         </div>
                     `;
@@ -728,37 +836,6 @@
         </div>
     </div>
 
-    <!-- Engineer Reassignment Modal -->
-    <?php if (isset($data['installation']) && is_object($data['installation'])): ?>
-        <div id="engineerModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeEngineerModal()">&times;</span>
-                <h3>Reassign Lead Engineer</h3>
-                <form action="<?php echo URLROOT; ?>/operationsCoordinator/reassignEngineer" method="POST">
-                    <input type="hidden" name="installation_id" value="<?php echo isset($data['installation']) && is_object($data['installation']) ? $data['installation']->installation_id : ''; ?>">
-                    <input type="hidden" name="project_id" value="<?php echo $data['project']->project_id; ?>">
 
-                    <div class="form-group">
-                        <label>Select New Engineer:</label>
-                        <select name="engineer_id" required class="form-control">
-                            <option value="">Select Engineer...</option>
-                            <?php if (isset($data['engineers']) && !empty($data['engineers'])): ?>
-                                <?php foreach ($data['engineers'] as $engineer): ?>
-                                    <option value="<?php echo $engineer->employee_id; ?>">
-                                        <?php echo $engineer->name; ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="closeEngineerModal()">Cancel</button>
-                        <button type="submit" class="btn-primary">Reassign</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    <?php endif; ?>
 
     <?php require APPROOT . '/views/operationsCoordinator/footer.php'; ?>
