@@ -19,6 +19,10 @@
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
+            <a href="<?php echo URLROOT ?>/engineer/projects">
+                <span class="material-icons-sharp">receipt_long</span>
+                <h3>Projects</h3>
+            </a>
             <a href="<?php echo URLROOT ?>/engineer/tasks">
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>

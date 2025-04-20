@@ -565,4 +565,47 @@ class M_CustomerProject
         $this->db->bind(':installation_id', $installationId);
         return $this->db->execute();
     }
+
+    public function getEngineerID($userId)
+    {
+        $this->db->query('SELECT employee_id FROM employees WHERE user_id = :user_id AND role = "engineer"');
+        $this->db->bind(':user_id', $userId);
+        return $this->db->single();
+    }
+
+    public function getAssignedInstallations($EngineerId)
+    {
+        $this->db->query('SELECT installation_id FROM installation_engineer WHERE engineer_id = :engineer_id AND assign = 1');
+        $this->db->bind(':engineer_id', $EngineerId);
+        return $this->db->resultSet();
+    }
+
+    public function getEngineerProjects($installationIds)
+    {
+        // Create placeholder string for IN clause
+        $placeholders = rtrim(str_repeat('?,', count($installationIds)), ',');
+
+        // Query to get project details - filter by schedule status = 'accept'
+        $this->db->query('SELECT DISTINCT
+                 ip.installation_id, ip.project_id, ip.status AS installation_status,
+                 ins.start_date, ins.start_time, ins.end_date, ins.status AS schedule_status,
+                 p.current_phase,
+                 u.name AS customer_name,
+                 IFNULL(cq.nearest_city, "No Location") AS location
+                 FROM installation_phase ip
+                 JOIN projects p ON ip.project_id = p.project_id
+                 LEFT JOIN installation_schedule ins ON ip.installation_id = ins.installation_id AND ins.status = "accept"
+                 LEFT JOIN users u ON p.customer_id = u.user_id
+                 LEFT JOIN customerquotation cq ON p.pre_project_id = cq.pre_project_id
+                 WHERE ip.installation_id IN (' . $placeholders . ')
+                 ORDER BY ins.start_date');
+
+        // Bind installation IDs
+        $paramIndex = 1;
+        foreach ($installationIds as $id) {
+            $this->db->bind($paramIndex++, $id);
+        }
+
+        return $this->db->resultSet();
+    }
 }
