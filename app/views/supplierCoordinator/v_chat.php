@@ -4,7 +4,7 @@
 
 <body data-user-role="supplierCoordinator" data-user-id="<?php echo $_SESSION['user_id']; ?>" data-urlroot="<?php echo URLROOT; ?>">
 
-<div class="dashboard-container">
+    <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
         <!-- Sidebar remains the same -->
@@ -43,9 +43,8 @@
                 <h3>Logout</h3>
             </a>
         </div>
-
-
-<div class="main-content">
+        
+        <div class="main-content">
             <div class="chat-container">
                 <div class="chat-sidebar">
                     <div class="chat-search">

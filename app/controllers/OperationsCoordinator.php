@@ -23,6 +23,19 @@ class OperationsCoordinator extends Controller
         $this->preProjectModel = $this->model('M_CustomerPreProject');
         $this->operationsCoordinatorModel = $this->model('M_OperationsCoordinator');
         $this->chatModel = $this->model('M_Chat');
+
+        // Check for unread messages on every page load
+        $clients = $this->operationsCoordinatorModel->getClientsWithChats();
+        $totalUnreadCount = 0;
+        if ($clients) {
+            foreach ($clients as $client) {
+                if (isset($client->unread_count)) {
+                    $totalUnreadCount += $client->unread_count;
+                }
+            }
+        }
+        // Store the count in session for access across all views
+        $_SESSION['total_unread_count'] = $totalUnreadCount;
     }
 
     public function index()
@@ -1272,9 +1285,20 @@ class OperationsCoordinator extends Controller
     public function chat()
     {
         // Get clients who have chat history with this coordinator
+        $clients = $this->operationsCoordinatorModel->getClientsWithChats();
+
+        // Calculate total unread messages
+        $totalUnreadCount = 0;
+        foreach ($clients as $client) {
+            if (isset($client->unread_count)) {
+                $totalUnreadCount += $client->unread_count;
+            }
+        }
+        // Get clients who have chat history with this coordinator
         $data = [
             'title' => 'Client Messages',
-            'clients' => $this->operationsCoordinatorModel->getClientsWithChats()
+            'clients' => $clients,
+            'total_unread_count' => $totalUnreadCount
         ];
 
         $this->view('operationsCoordinator/v_chat', $data);
@@ -1284,19 +1308,19 @@ class OperationsCoordinator extends Controller
     {
         // Get client ID from query string
         $clientId = isset($_GET['client_id']) ? $_GET['client_id'] : null;
-    
+
         if (!$clientId) {
             header('Content-Type: application/json');
             echo json_encode(['error' => 'Client ID required']);
             return;
         }
-    
+
         // Get chat history between this coordinator and the specified client
         $messages = $this->chatModel->getClientChats($_SESSION['user_id'], $clientId);
-    
+
         // Mark messages as read after retrieving them
         $this->chatModel->markMessagesAsRead($clientId, $_SESSION['user_id']);
-    
+
         header('Content-Type: application/json');
         echo json_encode($messages);
     }
@@ -1360,8 +1384,26 @@ class OperationsCoordinator extends Controller
         }
 
         $success = $this->chatModel->markMessagesAsRead($data['client_id'], $_SESSION['user_id']);
-        
+
         header('Content-Type: application/json');
         echo json_encode(['status' => $success ? 'success' : 'error']);
+    }
+
+    public function getUnreadStatus()
+    {
+        // Get clients who have chat history with this coordinator
+        $clients = $this->operationsCoordinatorModel->getClientsWithChats();
+        $totalUnreadCount = 0;
+
+        if ($clients) {
+            foreach ($clients as $client) {
+                if (isset($client->unread_count)) {
+                    $totalUnreadCount += $client->unread_count;
+                }
+            }
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(['hasUnread' => ($totalUnreadCount > 0)]);
     }
 }

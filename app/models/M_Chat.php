@@ -6,13 +6,7 @@ class M_Chat {
         $this->db = new Database;
     }
 
-    /**
-     * Get chat history between two users
-     * 
-     * @param int $user1Id First user ID
-     * @param int $user2Id Second user ID
-     * @return array Chat messages
-     */
+  
     public function getClientChats($user1Id, $user2Id)
     {
         // Get all messages between these two users
@@ -27,12 +21,7 @@ class M_Chat {
         return $this->db->resultSet();
     }
     
-    /**
-     * Save a new message to the database
-     * 
-     * @param array $data Message data
-     * @return bool Success status
-     */
+
     public function saveMessage($data)
     {
         $this->db->query('INSERT INTO messages (sender_id, sender_role, receiver_id, receiver_role, message, is_read) 
@@ -47,13 +36,7 @@ class M_Chat {
         return $this->db->execute();
     }
     
-    /**
-     * Mark messages as read
-     * 
-     * @param int $senderId Sender ID
-     * @param int $receiverId Receiver ID
-     * @return bool Success status
-     */
+
     public function markMessagesAsRead($senderId, $receiverId)
     {
         $this->db->query('UPDATE messages SET is_read = 1 
@@ -65,13 +48,7 @@ class M_Chat {
         return $this->db->execute();
     }
     
-    /**
-     * Get unread message count
-     * 
-     * @param int $senderId Sender ID
-     * @param int $receiverId Receiver ID
-     * @return int Unread message count
-     */
+
     public function getUnreadCount($senderId, $receiverId)
     {
         $this->db->query('SELECT COUNT(*) as count FROM messages 
@@ -84,13 +61,6 @@ class M_Chat {
         return $result->count;
     }
     
-    /**
-     * Get the last message between two users
-     * 
-     * @param int $user1Id First user ID
-     * @param int $user2Id Second user ID
-     * @return object|null Last message
-     */
     public function getLastMessage($user1Id, $user2Id)
     {
         $this->db->query('SELECT * FROM messages 

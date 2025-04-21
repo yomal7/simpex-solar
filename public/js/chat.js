@@ -53,6 +53,29 @@ function formatMessageDate(timestamp) {
     }
 }
 
+// Update sidebar notification dot visibility
+function updateSidebarNotificationDot(show) {
+  const notificationDot = document.querySelector('.sidebar a[href*="/chat"] .notification-dot');
+  if (notificationDot) {
+      notificationDot.style.display = show ? 'block' : 'none';
+  }
+}
+
+// Calculate total unread count across all clients
+function updateTotalUnreadCount() {
+  let totalUnread = 0;
+  
+  // Count all unread messages from client badges
+  document.querySelectorAll('.unread-count').forEach(element => {
+      totalUnread += parseInt(element.textContent || '0', 10);
+  });
+  
+  // Update sidebar notification dot
+  updateSidebarNotificationDot(totalUnread > 0);
+  
+  return totalUnread;
+}
+
 // Document ready function
 document.addEventListener("DOMContentLoaded", function () {
   // Set up client search functionality
@@ -99,6 +122,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const unreadBadge = this.querySelector(".unread-count");
       if (unreadBadge) {
         unreadBadge.remove();
+        // Update notification dot after removing badge
+        updateTotalUnreadCount();
       }
     });
   });
@@ -116,6 +141,9 @@ document.addEventListener("DOMContentLoaded", function () {
       sendMessage();
     }
   });
+
+  // Initialize notification dot state
+  updateTotalUnreadCount();
 });
 
 function loadChatHistory(clientId) {
@@ -182,6 +210,9 @@ function loadChatHistory(clientId) {
   
     // Mark messages as read
     markMessagesAsRead(clientId);
+
+    // Update notification dot after marking messages as read
+    setTimeout(updateTotalUnreadCount, 300);
   }
 
 // Function to mark messages as read
@@ -383,6 +414,9 @@ function updateUnreadCount(userId) {
       const clientList = document.getElementById("clientList");
       clientList.insertBefore(contactItem, clientList.firstChild);
     }
+
+    // Update sidebar notification dot
+    updateTotalUnreadCount()
   } else {
     // This is a new client, reload the entire client list
     refreshClientList();
@@ -446,6 +480,8 @@ function refreshClientList() {
             const unreadBadge = this.querySelector(".unread-count");
             if (unreadBadge) {
               unreadBadge.remove();
+              // Update notification dot after removing badge
+              updateTotalUnreadCount();
             }
           });
 
@@ -454,6 +490,9 @@ function refreshClientList() {
       } else {
         clientList.innerHTML = '<p class="no-chats">No chat history found</p>';
       }
+
+      // Update the notification dot when client list refreshes
+      updateTotalUnreadCount();
     })
     .catch((error) => {
       console.error("Error refreshing client list:", error);
@@ -464,6 +503,9 @@ function refreshClientList() {
 document.addEventListener("DOMContentLoaded", function () {
   if ("WebSocket" in window) {
     connectWebSocket();
+
+    // Initialize notification dot state
+    updateTotalUnreadCount();
   } else {
     console.log("WebSockets are not supported in this browser.");
     // Fall back to polling for updates every few seconds

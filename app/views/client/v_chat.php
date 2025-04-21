@@ -113,9 +113,43 @@
                 });
             }
 
+            // Add formatMessageDate function after formatMessageTime
+            function formatMessageDate(timestamp) {
+                const date = new Date(timestamp);
+
+                // Add the same time zone adjustment as formatMessageTime
+                date.setHours(date.getHours() + 5);
+                date.setMinutes(date.getMinutes() + 30);
+
+                // Get today and yesterday with consistent time parts
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+
+                // Reset time parts of the message date for comparison
+                const compareDate = new Date(date);
+                compareDate.setHours(0, 0, 0, 0);
+
+                // Format date based on when it was sent
+                if (compareDate.getTime() === today.getTime()) {
+                    return "Today";
+                } else if (compareDate.getTime() === yesterday.getTime()) {
+                    return "Yesterday";
+                } else {
+                    // Format as full date: January 15, 2025
+                    return date.toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                    });
+                }
+            }
+
             // Add click event listeners to contact items
             document.addEventListener('DOMContentLoaded', function() {
-                
+
                 const contactItems = document.querySelectorAll('.contact-item');
 
                 contactItems.forEach(item => {
@@ -172,7 +206,6 @@
                 }
             });
 
-            // Function to load chat history
             function loadChatHistory(coordinatorType) {
                 const chatMessages = document.getElementById('chatMessages');
                 chatMessages.innerHTML = '<div class="loading-message">Loading messages...</div>';
@@ -183,12 +216,38 @@
                         chatMessages.innerHTML = '';
 
                         if (data && data.length > 0) {
+                            // Sort messages by timestamp to ensure chronological order
+                            data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+                            let currentDateStr = null;
+
                             data.forEach(message => {
+                                // Parse the timestamp and apply timezone adjustment
+                                const messageDate = new Date(message.timestamp);
+                                messageDate.setHours(messageDate.getHours() + 5);
+                                messageDate.setMinutes(messageDate.getMinutes() + 30);
+
+                                // Format date for comparison (YYYY-MM-DD)
+                                const year = messageDate.getFullYear();
+                                const month = String(messageDate.getMonth() + 1).padStart(2, '0');
+                                const day = String(messageDate.getDate()).padStart(2, '0');
+                                const dateStr = `${year}-${month}-${day}`;
+
+                                // Add date separator if this is a new date
+                                if (currentDateStr !== dateStr) {
+                                    currentDateStr = dateStr;
+                                    const dateDiv = document.createElement('div');
+                                    dateDiv.className = 'date-separator';
+                                    dateDiv.innerHTML = `<span>${formatMessageDate(message.timestamp)}</span>`;
+                                    chatMessages.appendChild(dateDiv);
+                                }
+
+                                // Create message element
                                 const isFromMe = message.sender_id == USER_ID;
                                 const messageDiv = document.createElement('div');
                                 messageDiv.className = isFromMe ? 'message sent' : 'message received';
 
-                                const formattedTime = formatMessageTime(message.timestamp)
+                                const formattedTime = formatMessageTime(message.timestamp);
 
                                 messageDiv.innerHTML = `
                             <div class="message-content">${message.message}</div>
@@ -245,6 +304,18 @@
 
                 // Add message to chat immediately (optimistic UI)
                 const chatMessages = document.getElementById('chatMessages');
+
+                // Check if we need to add a date separator first
+                const lastDateSeparator = chatMessages.querySelector('.date-separator:last-child span');
+                const needsDateSeparator = !lastDateSeparator || lastDateSeparator.textContent !== 'Today';
+
+                if (needsDateSeparator) {
+                    const dateDiv = document.createElement('div');
+                    dateDiv.className = 'date-separator';
+                    dateDiv.innerHTML = '<span>Today</span>';
+                    chatMessages.appendChild(dateDiv);
+                }
+
                 const messageDiv = document.createElement('div');
                 messageDiv.className = 'message sent';
 
@@ -263,7 +334,7 @@
                 // Scroll to the bottom
                 chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                
+
 
                 // Send message to server
                 fetch(`${URLROOT}/client/saveMessage`, {
@@ -332,6 +403,18 @@
                         if (currentRecipientId && data.from_user_id == currentRecipientId) {
                             // Add message to chat
                             const chatMessages = document.getElementById('chatMessages');
+
+                            // Check if we need to add a date separator
+                            const lastDateSeparator = chatMessages.querySelector('.date-separator:last-child span');
+                            const needsDateSeparator = !lastDateSeparator || lastDateSeparator.textContent !== 'Today';
+
+                            if (needsDateSeparator) {
+                                const dateDiv = document.createElement('div');
+                                dateDiv.className = 'date-separator';
+                                dateDiv.innerHTML = '<span>Today</span>';
+                                chatMessages.appendChild(dateDiv);
+                            }
+
                             const messageDiv = document.createElement('div');
                             messageDiv.className = 'message received';
 
