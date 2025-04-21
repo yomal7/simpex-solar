@@ -90,11 +90,31 @@
                     </table>
                 </div>
 
-                <?php if ($data['order']->status == 'pending' && $data['order']->payment_method == 'bank_deposit'): ?>
+                <?php if (is_null($data['payment'])): ?>
                     <div class="payment-pending">
                         <h3>Payment Pending</h3>
-                        <p>Please upload your bank deposit slip to proceed with your order.</p>
-                        <a href="<?php echo URLROOT; ?>/store/payment/<?php echo $data['order']->id; ?>" class="upload-slip-btn">Upload Payment Slip</a>
+                        <p>Please Confirm your Payment.</p>
+                        <a href="<?php echo URLROOT; ?>/store/payment/<?php echo $data['order']->id; ?>" class="payment-btn">Proceed to payment</a>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (!is_null($data['payment']) && $data['payment']->status == 'rejected' && $data['payment']->payment_method == 'bank_deposit'): ?>
+                    <div class="reject-payment">
+                        <h3>Your Payment is Rejected</h3>
+                        <p>Rejected Reason : <?php echo $data['payment']->rejection_reason; ?>.</p>
+                        <a href="<?php echo URLROOT; ?>/store/payment/<?php echo $data['order']->id; ?>" class="upload-slip-btn">Upload Slip</a>
+                    </div>
+                <?php endif; ?>
+                <?php if (!is_null($data['payment']) && $data['payment']->status == 'pending_verification' && $data['payment']->payment_method == 'bank_deposit'): ?>
+                    <div class="payment-verifying">
+                        <h3>Your Payment is being verifing.</h3>
+                        <p>Please awite.</p>
+                    </div>
+                <?php endif; ?>
+                <?php if (!is_null($data['payment']) && $data['payment']->status == 'approved' && $data['payment']->payment_method == 'bank_deposit'): ?>
+                    <div class="payment-confirm">
+                        <h3>Your Payment has confirmed.</h3>
+                        <p></p>
                     </div>
                 <?php endif; ?>
             </div>

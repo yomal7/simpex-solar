@@ -1,0 +1,19 @@
+<br />
+<b>Fatal error</b>:  Uncaught Exception: The PHP GD extension is required, but is not installed. in C:\xampp\htdocs\simpex-solar\app\libraries\dompdf\vendor\dompdf\dompdf\lib\Cpdf.php:5835
+Stack trace:
+#0 C:\xampp\htdocs\simpex-solar\app\libraries\dompdf\vendor\dompdf\dompdf\src\Adapter\CPDF.php(668): Dompdf\Cpdf-&gt;addPngFromFile('C:\\Users\\Oshada...', 237.64, 677.8742519685, 150.0, 115.0)
+#1 C:\xampp\htdocs\simpex-solar\app\libraries\dompdf\vendor\dompdf\dompdf\src\Renderer\Image.php(63): Dompdf\Adapter\CPDF-&gt;image('C:\\Users\\Oshada...', 237.64, 49.015748031496, 150.0, 115.0, 'normal')
+#2 C:\xampp\htdocs\simpex-solar\app\libraries\dompdf\vendor\dompdf\dompdf\src\Renderer.php(305): Dompdf\Renderer\Image-&gt;render(Object(Dompdf\FrameDecorator\Image))
+#3 C:\xampp\htdocs\simpex-solar\app\libraries\dompdf\vendor\dompdf\dompdf\src\Renderer.php(140): Dompdf\Renderer-&gt;_render_frame('image', Object(Dompdf\FrameDecorator\Image))
+#4 C:\xampp\htdocs\simpex-solar\app\libraries\dompdf\vendor\dompdf\dompdf\src\Renderer.php(207): Dompdf\Renderer-&gt;render(Object(Dompdf\FrameDecorator\Image))
+#5 C:\xampp\htdocs\simpex-solar\app\libraries\dompdf\vendor\dompdf\dompdf\src\Renderer.php(207): Dompdf\Renderer-&gt;render(Object(Dompdf\FrameDecorator\Block))
+#6 C:\xampp\htdocs\simpex-solar\app\libraries\dompdf\vendor\dompdf\dompdf\src\Renderer.php(207): Dompdf\Renderer-&gt;render(Object(Dompdf\FrameDecorator\Block))
+#7 C:\xampp\htdocs\simpex-solar\app\libraries\dompdf\vendor\dompdf\dompdf\src\FrameReflower\Page.php(149): Dompdf\Renderer-&gt;render(Object(Dompdf\FrameDecorator\Block))
+#8 C:\xampp\htdocs\simpex-solar\app\libraries\dompdf\vendor\dompdf\dompdf\src\FrameDecorator\AbstractFrameDecorator.php(905): Dompdf\FrameReflower\Page-&gt;reflow(NULL)
+#9 C:\xampp\htdocs\simpex-solar\app\libraries\dompdf\vendor\dompdf\dompdf\src\Dompdf.php(808): Dompdf\FrameDecorator\AbstractFrameDecorator-&gt;reflow()
+#10 C:\xampp\htdocs\simpex-solar\app\libraries\PdfGenerator.php(803): Dompdf\Dompdf-&gt;render()
+#11 C:\xampp\htdocs\simpex-solar\app\controllers\store.php(434): PdfGenerator-&gt;generateBankDepositSlipOrders(Array)
+#12 C:\xampp\htdocs\simpex-solar\app\libraries\Core.php(48): Store-&gt;generateBankSlip()
+#13 C:\xampp\htdocs\simpex-solar\public\index.php(5): Core-&gt;__construct()
+#14 {main}
+  thrown in <b>C:\xampp\htdocs\simpex-solar\app\libraries\dompdf\vendor\dompdf\dompdf\lib\Cpdf.php</b> on line <b>5835</b><br />

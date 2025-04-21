@@ -614,4 +614,193 @@ class PdfGenerator
 
         return $result;
     }
+
+    public function generateBankDepositSlipOrders($data)
+    {
+        $order = $data['order'];
+        $bank = $data['bank'];
+        $user = $data['user'];
+        $logoPath = URLROOT . '/public/assets/simpex-logo.png';
+
+        $html = '
+    <html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                color: #333;
+                line-height: 1.5;
+                margin: 0;
+                padding: 0;
+            }
+            .container {
+                width: 100%;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #4caf50;
+            }
+            .logo {
+                max-width: 200px;
+                margin-bottom: 10px;
+            }
+            h1 {
+                color: #4caf50;
+                font-size: 24px;
+                margin: 0 0 10px;
+            }
+            .slip-title {
+                font-size: 18px;
+                margin-bottom: 5px;
+                color: #666;
+            }
+            .section {
+                margin-bottom: 30px;
+            }
+            .section-title {
+                font-size: 16px;
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #4caf50;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 5px;
+            }
+            .row {
+                display: block;
+                margin-bottom: 8px;
+            }
+            .label {
+                font-weight: bold;
+                color: #666;
+                display: inline-block;
+                width: 150px;
+            }
+            .value {
+                display: inline-block;
+            }
+            .bank-info {
+                padding: 15px;
+                background: #f9f9f9;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                margin-bottom: 20px;
+            }
+            .amount {
+                font-size: 20px;
+                font-weight: bold;
+                color: #4caf50;
+                margin: 15px 0;
+            }
+            .customer-field {
+                padding: 10px;
+                border: 1px dashed #999;
+                margin: 15px 0;
+                background: #f9f9f9;
+            }
+            .customer-field p {
+                margin: 0 0 10px;
+                color: #666;
+                font-style: italic;
+            }
+            .footer {
+                border-top: 1px solid #eee;
+                padding-top: 10px;
+                margin-top: 30px;
+                font-size: 12px;
+                color: #999;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <img src="' . $logoPath . '" alt="SimplEx Solar Logo" class="logo">
+                <h1>SimplEx Solar Solutions</h1>
+                <div class="slip-title">Bank Deposit Slip</div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Order Information</div>
+                <div class="row">
+                    <span class="label">Order Number:</span>
+                    <span class="value">' . $order->order_number . '</span>
+                </div>
+                <div class="row">
+                    <span class="label">Date:</span>
+                    <span class="value">' . date('F j, Y') . '</span>
+                </div>
+                <div class="row">
+                    <span class="label">Customer Name:</span>
+                    <span class="value">' . htmlspecialchars($user->name) . '</span>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Bank Account Details</div>
+                <div class="bank-info">
+                    <div class="row">
+                        <span class="label">Bank:</span>
+                        <span class="value">' . htmlspecialchars($bank['bank_name']) . '</span>
+                    </div>
+                    <div class="row">
+                        <span class="label">Account Name:</span>
+                        <span class="value">' . htmlspecialchars($bank['account_name']) . '</span>
+                    </div>
+                    <div class="row">
+                        <span class="label">Account Number:</span>
+                        <span class="value">' . htmlspecialchars($bank['account_number']) . '</span>
+                    </div>
+                    <div class="row">
+                        <span class="label">Branch:</span>
+                        <span class="value">' . htmlspecialchars($bank['branch']) . '</span>
+                    </div>
+                    ' . (isset($bank['branch_code']) ? '
+                    <div class="row">
+                        <span class="label">Branch Code:</span>
+                        <span class="value">' . htmlspecialchars($bank['branch_code']) . '</span>
+                    </div>
+                    ' : '') . '
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Payment Details</div>
+                <div class="amount">
+                    Amount to Pay: Rs. ' . number_format($order->total_amount, 2) . '
+                </div>
+                <div class="row">
+                    <span class="label">Amount in Words:</span>
+                    <span class="value">' . $this->numberToWords($order->total_amount) . ' Rupees Only</span>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Depositor Information (To be filled by customer)</div>
+                <div class="customer-field">
+                    <p>Depositor\'s Name: ____________________________________</p>
+                    <p>Depositor\'s Phone: ___________________________________</p>
+                    <p>Date of Deposit: ______________________________________</p>
+                    <p>Signature: ____________________________________________</p>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>Please bring this slip when making your deposit. Upload a copy of the completed slip to confirm your payment.</p>
+                <p>If you have any questions, please contact us at: support@simplexsolar.com</p>
+            </div>
+        </div>
+    </body>
+    </html>';
+
+        $this->dompdf->loadHtml($html);
+        $this->dompdf->setPaper('A4', 'portrait');
+        $this->dompdf->render();
+        return $this->dompdf->output();
+    }
 }

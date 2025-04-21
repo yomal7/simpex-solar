@@ -530,6 +530,21 @@ class M_Shop
         return $result->total ?? 0;
     }
 
+    // Get order payment
+    // public function getOrderPayment($orderId)
+    // {
+    //     $this->db->query('SELECT * FROM payments WHERE order_id = :order_id');
+    //     $this->db->bind(':order_id', $orderId);
+    //     return $this->db->single();
+    // }
+    public function getOrderPayment($orderId)
+    {
+        $this->db->query('SELECT * FROM payments WHERE order_id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        $result = $this->db->single();
+        return $result ?: null; // Return null if no record is found
+    }
+
     // Update order status
     public function updateOrderStatus($orderId, $status)
     {
@@ -708,5 +723,36 @@ class M_Shop
         }
 
         return $formattedOrders;
+    }
+
+    // Record that a bank slip was downloaded
+    public function recordSlipDownload($orderId, $bankId)
+    {
+        // Check if record already exists
+        $this->db->query('SELECT id FROM slip_download WHERE order_id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        $existing = $this->db->single();
+
+        if ($existing) {
+            // Update existing record
+            $this->db->query('UPDATE slip_download SET bank_id = :bank_id, downloaded_at = CURRENT_TIMESTAMP WHERE order_id = :order_id');
+            $this->db->bind(':bank_id', $bankId);
+            $this->db->bind(':order_id', $orderId);
+        } else {
+            // Create new record
+            $this->db->query('INSERT INTO slip_download (order_id, bank_id) VALUES (:order_id, :bank_id)');
+            $this->db->bind(':order_id', $orderId);
+            $this->db->bind(':bank_id', $bankId);
+        }
+
+        return $this->db->execute();
+    }
+
+    // Get slip download record
+    public function getSlipDownload($orderId)
+    {
+        $this->db->query('SELECT * FROM slip_download WHERE order_id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        return $this->db->single();
     }
 }

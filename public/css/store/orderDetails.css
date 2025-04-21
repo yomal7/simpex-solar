@@ -168,6 +168,85 @@
   color: #856404;
 }
 
+.payment-btn {
+  background: #856404;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.3s ease;
+}
+
+.payment-btn:hover {
+  background: #704b00;
+}
+
+.reject-payment {
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+  color: #c62828;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.reject-payment h3 {
+  margin: 0 0 10px;
+  color: #c62828;
+  font-weight: 600;
+}
+
+.reject-payment p {
+  margin: 0 0 15px;
+  color: #d32f2f;
+}
+
+/* Styling for payments being verified */
+.payment-verifying {
+  background: #e3f2fd;
+  border: 1px solid #bbdefb;
+  color: #1565c0;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.payment-verifying h3 {
+  margin: 0 0 10px;
+  color: #1565c0;
+  font-weight: 600;
+}
+
+.payment-verifying p {
+  margin: 0 0 15px;
+  color: #1976d2;
+}
+
+/* Styling for confirmed payments */
+.payment-confirm {
+  background: #e8f5e9;
+  border: 1px solid #c8e6c9;
+  color: #2e7d32;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.payment-confirm h3 {
+  margin: 0 0 10px;
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.payment-confirm p {
+  margin: 0 0 15px;
+  color: #388e3c;
+}
+
 .upload-slip-btn {
   background: #856404;
   color: white;

@@ -5,12 +5,14 @@ class Store extends Controller
     private $shopModel;
     private $cartModel;
     private $paymentModel;
+    private $userModel;
 
     public function __construct()
     {
         $this->shopModel = $this->model('M_Shop');
         $this->cartModel = $this->model('M_Cart');
         $this->paymentModel = $this->model('M_Payment');
+        $this->userModel = $this->model('M_Users');
     }
 
     // Display all products
@@ -260,13 +262,15 @@ class Store extends Controller
         }
 
         $order = $this->shopModel->getOrderById($orderId);
+        $payment = $this->shopModel->getOrderPayment($orderId);
 
         if (!$order || $order->user_id != $_SESSION['user_id']) {
             redirect('store');
         }
 
         $data = [
-            'order' => $order
+            'order' => $order,
+            'payment' => $payment
         ];
 
         $this->view('store/v_payment', $data);
@@ -373,12 +377,129 @@ class Store extends Controller
         }
 
         $orderItems = $this->shopModel->getOrderItems($orderId);
+        $payment = $this->shopModel->getOrderPayment($orderId);
 
         $data = [
             'order' => $order,
-            'orderItems' => $orderItems
+            'orderItems' => $orderItems,
+            'payment' => $payment
         ];
 
         $this->view('store/v_orderDetails', $data);
+    }
+
+    // Generate bank slip
+    public function generateBankSlip()
+    {
+        if (!isLoggedIn()) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        // Get POST data
+        $data = json_decode(file_get_contents('php://input'));
+
+        if (!isset($data->order_id) || !isset($data->bank_id)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing required fields']);
+            return;
+        }
+
+        // Get order details
+        $order = $this->shopModel->getOrderById($data->order_id);
+        if (!$order || $order->user_id != $_SESSION['user_id']) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Order not found']);
+            return;
+        }
+
+        // Get bank details
+        $bankAccounts = BANK_ACCOUNTS;
+        if (!isset($bankAccounts[$data->bank_id])) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Bank not found']);
+            return;
+        }
+        $bank = $bankAccounts[$data->bank_id];
+
+        // Get user data
+        $user = $this->userModel->getUserById($_SESSION['user_id']);
+
+        // Generate PDF
+        $pdfGenerator = new PdfGenerator();
+        $pdfData = [
+            'order' => $order,
+            'bank' => $bank,
+            'user' => $user
+        ];
+        $pdf = $pdfGenerator->generateBankDepositSlipOrders($pdfData);
+
+        // Output PDF
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="bank_slip_order_' . $order->order_number . '.pdf"');
+        echo $pdf;
+    }
+
+    // Record slip download
+    public function recordSlipDownload()
+    {
+        if (!isLoggedIn()) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        // Get POST data
+        $data = json_decode(file_get_contents('php://input'));
+
+        if (!isset($data->order_id) || !isset($data->bank_id)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing required fields']);
+            return;
+        }
+
+        // Get order details
+        $order = $this->shopModel->getOrderById($data->order_id);
+        if (!$order || $order->user_id != $_SESSION['user_id']) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Order not found']);
+            return;
+        }
+
+        // Record the download
+        $result = $this->shopModel->recordSlipDownload($data->order_id, $data->bank_id);
+
+        echo json_encode(['success' => $result]);
+    }
+
+    // Check if slip was already downloaded
+    public function checkSlipDownload($orderId)
+    {
+        if (!isLoggedIn()) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        // Get order details
+        $order = $this->shopModel->getOrderById($orderId);
+        if (!$order || $order->user_id != $_SESSION['user_id']) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Order not found']);
+            return;
+        }
+
+        // Check if slip was downloaded
+        $download = $this->shopModel->getSlipDownload($orderId);
+
+        if ($download) {
+            echo json_encode([
+                'downloaded' => true,
+                'bank_id' => $download->bank_id
+            ]);
+        } else {
+            echo json_encode(['downloaded' => false]);
+        }
     }
 }
