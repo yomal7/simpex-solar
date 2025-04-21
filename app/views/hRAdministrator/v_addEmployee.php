@@ -49,7 +49,7 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="name">Name</label>
-                            <input type="text" name="name" id="name" placeholder="Name" value="<?php $data['name']; ?>">
+                            <input type="text" name="name" id="name" placeholder="Name" value="<?php echo $data['name']; ?>">
                             <span class="form-invalid"><?php echo isset($data['name_err']) ? $data['name_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
@@ -65,22 +65,22 @@
                         </div>
                         <div class="form-group">
                             <label for="email">Email</label>
-                            <input type="email" name="email" id="email" placeholder="Email" value="<?php $data['email']; ?>">
+                            <input type="email" name="email" id="email" placeholder="Email" value="<?php echo $data['email']; ?>">
                             <span class="form-invalid"><?php echo isset($data['email_err']) ? $data['email_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
                             <label for="phone">Phone No</label>
-                            <input type="number" name="phone" id="phone" placeholder="Phone No" value="<?php $data['phone']; ?>">
+                            <input type="number" name="phone" id="phone" placeholder="Phone No" value="<?php echo $data['phone']; ?>">
                             <span class="form-invalid"><?php echo isset($data['phone_err']) ? $data['phone_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input type="password" name="password" id="password" placeholder="Password" value="<?php $data['password']; ?>">
+                            <input type="password" name="password" id="password" placeholder="Password" value="<?php echo $data['password']; ?>">
                             <span class="form-invalid"><?php echo isset($data['password_err']) ? $data['password_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
                             <label for="confirm_password">Confirm Password</label>
-                            <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" value="<?php $data['confirm_password']; ?>">
+                            <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" value="<?php echo $data['confirm_password']; ?>">
                             <span class="form-invalid"><?php echo isset($data['confirm_password_err']) ? $data['confirm_password_err'] : ''; ?></span>
                         </div>
                     </div>

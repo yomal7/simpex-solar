@@ -4,6 +4,7 @@ class HRAdministrator extends Controller
 {
     private $employeeModel;
     private $userModel;
+    private $attendanceModel;
 
 
     public function __construct()
@@ -15,6 +16,7 @@ class HRAdministrator extends Controller
         }
         $this->employeeModel = $this->model('M_Employee');
         $this->userModel = $this->model("M_Users");
+        $this->attendanceModel = $this->model('M_Attendance');
     }
 
     public function index()
@@ -253,10 +255,28 @@ class HRAdministrator extends Controller
         }
     }
 
-    public function attendance()
-    {
+    // view attendance records by date
+    public function attendance() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            $date = trim($_POST['attendance_date']);
+        } else {
+            // Default to today's date when first accessing the page
+            $date = date('Y-m-d'); // Current date in YYYY-MM-DD format
+        }
 
-        $data = [];
+        // Fetch attendance records for the selected date or today's date
+        $attendanceRecords = $this->attendanceModel->getAttendanceByDate($date);
+        
+        // Add status to each record based on time_in
+        foreach ($attendanceRecords as $record) {
+            $record->status = !empty($record->time_in) ? 'Present' : 'Absent';
+        }
+        
+        $data = [
+            'attendanceRecords' => $attendanceRecords,
+            'date' => $date
+        ];
         $this->view('hRAdministrator/v_attendance', $data);
     }
 
