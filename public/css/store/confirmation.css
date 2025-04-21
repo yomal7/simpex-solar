@@ -1,4 +1,11 @@
 /* public/css/store/confirmation.css */
+.content {
+  margin-left: 250px;
+  transition: all 0.3s ease;
+  min-height: 100vh;
+  padding: 70px 20px 20px 20px;
+  background: #f9f9f9;
+}
 
 .confirmation-container {
   max-width: 800px;
@@ -122,5 +129,14 @@
   .continue-shopping-btn {
     width: 100%;
     text-align: center;
+  }
+
+  .content {
+    margin-left: 0;
+  }
+
+  .confirmation-container {
+    padding: 15px;
+    margin: 20px auto;
   }
 }

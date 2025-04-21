@@ -1,4 +1,11 @@
 /* public/css/store/cart.css */
+.content {
+  margin-left: 250px;
+  transition: all 0.3s ease;
+  min-height: 100vh;
+  padding: 70px 20px 20px 20px;
+  background: #f9f9f9;
+}
 
 .cart-container {
   max-width: 1200px;
@@ -202,5 +209,13 @@
   .cart-summary {
     margin-left: 0;
     margin-top: 20px;
+  }
+
+  .content {
+    margin-left: 0;
+  }
+
+  .cart-container {
+    padding: 10px;
   }
 }

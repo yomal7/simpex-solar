@@ -156,6 +156,34 @@ class Store extends Controller
         }
     }
 
+    public function paymentCheckout($orderId)
+    {
+        if (!isLoggedIn()) {
+            redirect('users/index');
+        }
+
+        $orderItems = $this->shopModel->getOrderItems($orderId);
+        $order = $this->shopModel->getOrderById($orderId);
+
+        if (empty($orderItems) || !$order) {
+            flash('cart_message', 'Order not found', 'alert alert-danger');
+            redirect('store/orders');
+        }
+
+        $total = $this->shopModel->getOrderTotal($orderId);
+
+        $data = [
+            'orderItems' => $orderItems,
+            'orderId' => $orderId,
+            'shipping_address' => $order->shipping_address,
+            'contact_phone' => $order->contact_phone,
+            'payment_method' => $order->payment_method,
+            'total' => $total
+        ];
+
+        $this->view('store/v_paymentCheckout', $data);
+    }
+
     // Process order
     public function processOrder()
     {
@@ -191,6 +219,36 @@ class Store extends Controller
                 flash('order_message', 'Failed to create order', 'alert alert-danger');
                 redirect('store/cart');
             }
+        }
+    }
+
+    public function updateOrder($orderId)
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $shippingAddress = $_POST['shipping_address'];
+            $contactPhone = $_POST['contact_phone'];
+            $paymentMethod = $_POST['payment_method'];
+
+            if (empty($shippingAddress) || empty($contactPhone) || empty($paymentMethod)) {
+                flash('order_message', 'Please fill in all fields', 'alert alert-danger');
+                redirect('store/paymentCheckout/' . $orderId);
+            }
+
+            $data = [
+                'shipping_address' => $shippingAddress,
+                'contact_phone' => $contactPhone,
+                'payment_method' => $paymentMethod
+            ];
+
+            if ($this->shopModel->updateOrder($orderId, $data)) {
+                flash('order_message', 'Order updated successfully');
+                redirect('store/payment/' . $orderId);
+            } else {
+                flash('order_message', 'Failed to update order', 'alert alert-danger');
+                redirect('store/orderDetails/' . $orderId);
+            }
+        } else {
+            redirect('store/orders');
         }
     }
 

@@ -1,4 +1,11 @@
 /* public/css/store/checkout.css */
+.content {
+  margin-left: 250px;
+  transition: all 0.3s ease;
+  min-height: 100vh;
+  padding: 70px 20px 20px 20px;
+  background: #f9f9f9;
+}
 
 .checkout-container {
   max-width: 1200px;
@@ -157,5 +164,13 @@
 
   .order-summary {
     position: static;
+  }
+
+  .content {
+    margin-left: 0;
+  }
+
+  .checkout-container {
+    padding: 10px;
   }
 }

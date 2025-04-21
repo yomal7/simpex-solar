@@ -1,4 +1,4 @@
-<?php require APPROOT . '/views/blog/header.php'; ?>
+<?php require APPROOT . '/views/client/header.php'; ?>
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/shop/navbarfooter.css">
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/store/cart.css">
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -8,64 +8,106 @@
 <body>
     <?php require APPROOT . '/views/inc/components/topnavbar.php'; ?>
 
-    <div class="cart-container">
-        <h1>Shopping Cart</h1>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul class="side-menu">
+            <li>
+                <a href="<?php echo URLROOT; ?>/store" style="background-color: rgb(192, 236, 192);" class="back-buttons">
+                    <i class='bx bx-arrow-back'></i>Back to Store
+                </a>
+            </li>
+            <li>
+                <a href="<?php echo URLROOT; ?>/users/logout" class="logout">
+                    <i class='bx bx-log-out-circle'></i>Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+    <!-- End of Sidebar -->
 
-        <?php flash('cart_message'); ?>
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Navbar -->
+        <nav>
+            <i class='bx bx-menu'></i>
+        </nav>
+        <!-- End of Navbar -->
 
-        <?php if (!empty($data['cartItems'])): ?>
-            <div class="cart-items">
-                <?php foreach ($data['cartItems'] as $item): ?>
-                    <div class="cart-item">
-                        <div class="item-image">
-                            <img src="<?php echo !empty($item->image1) ? URLROOT . '/public/uploads/store/' . $item->image1 : URLROOT . '/public/assets/default-product.png'; ?>"
-                                alt="<?php echo htmlspecialchars($item->name); ?>">
-                        </div>
-                        <div class="item-details">
-                            <h3><?php echo htmlspecialchars($item->name); ?></h3>
-                            <p class="price">Rs. <?php echo number_format($item->price_at_time, 2); ?></p>
-                        </div>
-                        <div class="item-quantity">
-                            <form action="<?php echo URLROOT; ?>/store/updateCart" method="POST" class="update-form">
-                                <input type="hidden" name="cart_id" value="<?php echo $item->id; ?>">
-                                <input type="number" name="quantity" value="<?php echo $item->quantity; ?>" min="1" max="99">
-                                <button type="submit" class="update-btn">Update</button>
-                            </form>
-                        </div>
-                        <div class="item-total">
-                            Rs. <?php echo number_format($item->price_at_time * $item->quantity, 2); ?>
-                        </div>
-                        <div class="item-remove">
-                            <a href="<?php echo URLROOT; ?>/store/removeFromCart/<?php echo $item->id; ?>"
-                                class="remove-btn"
-                                onclick="return confirm('Are you sure you want to remove this item?');">Remove</a>
-                        </div>
+        <main>
+            <div class="cart-container">
+                <h1>Shopping Cart</h1>
+
+                <?php flash('cart_message'); ?>
+
+                <?php if (!empty($data['cartItems'])): ?>
+                    <div class="cart-items">
+                        <?php foreach ($data['cartItems'] as $item): ?>
+                            <div class="cart-item">
+                                <div class="item-image">
+                                    <img src="<?php echo !empty($item->image1) ? URLROOT . '/public/uploads/store/' . $item->image1 : URLROOT . '/public/assets/default-product.png'; ?>"
+                                        alt="<?php echo htmlspecialchars($item->name); ?>">
+                                </div>
+                                <div class="item-details">
+                                    <h3><?php echo htmlspecialchars($item->name); ?></h3>
+                                    <p class="price">Rs. <?php echo number_format($item->price_at_time, 2); ?></p>
+                                </div>
+                                <div class="item-quantity">
+                                    <form action="<?php echo URLROOT; ?>/store/updateCart" method="POST" class="update-form">
+                                        <input type="hidden" name="cart_id" value="<?php echo $item->id; ?>">
+                                        <input type="number" name="quantity" value="<?php echo $item->quantity; ?>" min="1" max="99">
+                                        <button type="submit" class="update-btn">Update</button>
+                                    </form>
+                                </div>
+                                <div class="item-total">
+                                    Rs. <?php echo number_format($item->price_at_time * $item->quantity, 2); ?>
+                                </div>
+                                <div class="item-remove">
+                                    <a href="<?php echo URLROOT; ?>/store/removeFromCart/<?php echo $item->id; ?>"
+                                        class="remove-btn"
+                                        onclick="return confirm('Are you sure you want to remove this item?');">Remove</a>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
-                <?php endforeach; ?>
-            </div>
 
-            <div class="cart-summary">
-                <h3>Order Summary</h3>
-                <div class="summary-row">
-                    <span>Subtotal</span>
-                    <span>Rs. <?php echo number_format($data['total'], 2); ?></span>
-                </div>
-                <div class="summary-row total">
-                    <span>Total</span>
-                    <span>Rs. <?php echo number_format($data['total'], 2); ?></span>
-                </div>
+                    <div class="cart-summary">
+                        <h3>Order Summary</h3>
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span>Rs. <?php echo number_format($data['total'], 2); ?></span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total</span>
+                            <span>Rs. <?php echo number_format($data['total'], 2); ?></span>
+                        </div>
 
-                <form action="<?php echo URLROOT; ?>/store/checkout" method="POST">
-                    <button type="submit" class="checkout-btn">Proceed to Checkout</button>
-                </form>
+                        <form action="<?php echo URLROOT; ?>/store/checkout" method="POST">
+                            <button type="submit" class="checkout-btn">Proceed to Checkout</button>
+                        </form>
+                    </div>
+                <?php else: ?>
+                    <div class="empty-cart">
+                        <p>Your cart is empty.</p>
+                        <a href="<?php echo URLROOT; ?>/store" class="continue-shopping">Continue Shopping</a>
+                    </div>
+                <?php endif; ?>
             </div>
-        <?php else: ?>
-            <div class="empty-cart">
-                <p>Your cart is empty.</p>
-                <a href="<?php echo URLROOT; ?>/store" class="continue-shopping">Continue Shopping</a>
-            </div>
-        <?php endif; ?>
+        </main>
     </div>
 
-    <?php require APPROOT . '/views/inc/components/bottomfooter.php'; ?>
+    <script>
+        // Toggle sidebar function
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.querySelector('.bx-menu');
+            const sidebar = document.querySelector('.sidebar');
+
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('close');
+            });
+        });
+    </script>
+
     <?php require APPROOT . '/views/store/footer.php'; ?>
+</body>
+
+</html>

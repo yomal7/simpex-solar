@@ -519,6 +519,17 @@ class M_Shop
         return $this->db->resultSet();
     }
 
+    // Get order total
+    public function getOrderTotal($orderId)
+    {
+        $this->db->query('SELECT SUM(quantity * price_at_time) as total 
+                     FROM order_items 
+                     WHERE order_id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        $result = $this->db->single();
+        return $result->total ?? 0;
+    }
+
     // Update order status
     public function updateOrderStatus($orderId, $status)
     {
@@ -528,6 +539,24 @@ class M_Shop
                      WHERE id = :id');
 
         $this->db->bind(':status', $status);
+        $this->db->bind(':id', $orderId);
+
+        return $this->db->execute();
+    }
+
+    // Update order details
+    public function updateOrder($orderId, $data)
+    {
+        $this->db->query('UPDATE orders 
+                     SET shipping_address = :shipping_address, 
+                         contact_phone = :contact_phone, 
+                         payment_method = :payment_method, 
+                         updated_at = CURRENT_TIMESTAMP 
+                     WHERE id = :id');
+
+        $this->db->bind(':shipping_address', $data['shipping_address']);
+        $this->db->bind(':contact_phone', $data['contact_phone']);
+        $this->db->bind(':payment_method', $data['payment_method']);
         $this->db->bind(':id', $orderId);
 
         return $this->db->execute();
