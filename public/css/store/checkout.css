@@ -1,0 +1,161 @@
+/* public/css/store/checkout.css */
+
+.checkout-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+.checkout-container h1 {
+  font-size: 32px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 30px;
+}
+
+.order-summary {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  position: sticky;
+  top: 20px;
+  align-self: start;
+}
+
+.order-summary h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.summary-item {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.summary-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.item-info h4 {
+  margin: 0 0 5px;
+  font-size: 16px;
+  color: #333;
+}
+
+.item-info p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #eee;
+}
+
+.checkout-form {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.checkout-form h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.form-group textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+.payment-methods {
+  margin-bottom: 30px;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.payment-option:hover {
+  border-color: #4caf50;
+}
+
+.payment-option input[type="radio"] {
+  margin-right: 10px;
+}
+
+.payment-option span {
+  font-size: 16px;
+}
+
+.place-order-btn {
+  background: #4caf50;
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.3s ease;
+}
+
+.place-order-btn:hover {
+  background: #45a049;
+}
+
+@media (max-width: 768px) {
+  .checkout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .order-summary {
+    position: static;
+  }
+}

@@ -7,6 +7,8 @@ class SupplierCoordinator extends Controller
     private $inventoryModel;
     private $shopModel;
     private $projectModel;
+    private $paymentModel;
+    private $orderModel;
 
     public function __construct()
     {
@@ -18,6 +20,8 @@ class SupplierCoordinator extends Controller
         $this->inventoryModel = $this->model('M_Inventory');
         $this->shopModel = $this->model('M_Shop');
         $this->projectModel = $this->model('M_CustomerProject');
+        $this->paymentModel = $this->model('M_Payment');
+        $this->orderModel = $this->model('M_Order');
     }
 
     public function index()
@@ -949,18 +953,18 @@ class SupplierCoordinator extends Controller
         redirect('supplierCoordinator/shop');
     }
 
-    public function viewOrder($id)
-    {
-        $order = $this->shopModel->getOrderDetails($id);
-        if ($order) {
-            $data = [
-                'order' => $order
-            ];
-            $this->view('supplierCoordinator/v_requestOrders', $data);
-        } else {
-            redirect('supplierCoordinator/dashboard');
-        }
-    }
+    // public function viewOrder($id)
+    // {
+    //     $order = $this->shopModel->getOrderDetails($id);
+    //     if ($order) {
+    //         $data = [
+    //             'order' => $order
+    //         ];
+    //         $this->view('supplierCoordinator/v_requestOrders', $data);
+    //     } else {
+    //         redirect('supplierCoordinator/dashboard');
+    //     }
+    // }
 
     public function approveOrder()
     {
@@ -1088,5 +1092,149 @@ class SupplierCoordinator extends Controller
         ];
 
         $this->view('supplierCoordinator/v_projectEquipments', $data);
+    }
+
+    //################################################################################################
+    //-------------------------------------Shop----------------------------------------------
+    //################################################################################################
+
+    public function orders()
+    {
+        $data = [
+            'orders' => $this->shopModel->getAllOrders(),
+            'pendingCount' => $this->orderModel->getOrderCountByStatus('pending'),
+            'processingCount' => $this->orderModel->getOrderCountByStatus('processing'),
+            'shippedCount' => $this->orderModel->getOrderCountByStatus('shipped')
+        ];
+
+        $this->view('supplierCoordinator/v_orders', $data);
+    }
+
+    // public function viewOrder($orderId)
+    // {
+    //     $order = $this->shopModel->getOrderById($orderId);
+    //     $orderItems = $this->shopModel->getOrderItems($orderId);
+    //     $payment = $this->paymentModel->getPaymentByOrderId($orderId);
+
+    //     if (!$order) {
+    //         flash('order_message', 'Order not found', 'alert alert-danger');
+    //         redirect('supplierCoordinator/orders');
+    //     }
+
+    //     $data = [
+    //         'order' => $order,
+    //         'orderItems' => $orderItems,
+    //         'payment' => $payment
+    //     ];
+
+    //     $this->view('supplierCoordinator/v_orderDetails', $data);
+    // }
+
+    public function updateOrderStatus()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $orderId = $_POST['order_id'];
+            $status = $_POST['status'];
+
+            if ($this->shopModel->updateOrderStatus($orderId, $status)) {
+                flash('order_message', 'Order status updated successfully');
+            } else {
+                flash('order_message', 'Failed to update order status', 'alert alert-danger');
+            }
+
+            redirect('supplierCoordinator/viewOrder/' . $orderId);
+        }
+    }
+
+    public function verifyPayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $paymentId = $_POST['payment_id'];
+            $action = $_POST['action'];
+
+            if ($action == 'approve') {
+                if ($this->paymentModel->approvePayment($paymentId)) {
+                    // Update order status to processing
+                    $payment = $this->paymentModel->getPaymentById($paymentId);
+                    $this->shopModel->updateOrderStatus($payment->order_id, 'processing');
+
+                    flash('payment_message', 'Payment approved successfully');
+                } else {
+                    flash('payment_message', 'Failed to approve payment', 'alert alert-danger');
+                }
+            } else if ($action == 'reject') {
+                $reason = $_POST['rejection_reason'];
+                if ($this->paymentModel->rejectPayment($paymentId, $reason)) {
+                    flash('payment_message', 'Payment rejected successfully');
+                } else {
+                    flash('payment_message', 'Failed to reject payment', 'alert alert-danger');
+                }
+            }
+
+            redirect('supplierCoordinator/orders');
+        }
+    }
+
+    // Filter orders by status
+    public function filterOrders()
+    {
+        if (isset($_GET['status'])) {
+            $status = $_GET['status'];
+            $orders = $this->shopModel->getOrdersByStatus($status);
+
+            $data = [
+                'orders' => $orders,
+                'activeStatus' => $status
+            ];
+
+            $this->view('supplierCoordinator/v_orders', $data);
+        } else {
+            redirect('supplierCoordinator/orders');
+        }
+    }
+
+    // Generate order report
+    public function generateOrderReport()
+    {
+        $data = [
+            'totalOrders' => $this->orderModel->getTotalOrders(),
+            'totalRevenue' => $this->orderModel->getTotalRevenue(),
+            'ordersByStatus' => $this->orderModel->getOrdersCountByStatus(),
+            'topProducts' => $this->orderModel->getTopSellingProducts(10),
+            'recentOrders' => $this->shopModel->getRecentOrders(10)
+        ];
+
+        $this->view('supplierCoordinator/v_orderReport', $data);
+    }
+
+    // Excel/CSV export of orders
+    public function exportOrders()
+    {
+        $orders = $this->shopModel->getAllOrders();
+
+        // Generate CSV file
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="orders_export_' . date('Y-m-d') . '.csv"');
+
+        $output = fopen('php://output', 'w');
+
+        // CSV header
+        fputcsv($output, ['Order ID', 'Order Number', 'Customer Name', 'Total Amount', 'Payment Method', 'Status', 'Date']);
+
+        // CSV data
+        foreach ($orders as $order) {
+            fputcsv($output, [
+                $order->id,
+                $order->order_number,
+                $order->customer_name,
+                $order->total_amount,
+                $order->payment_method,
+                $order->status,
+                date('Y-m-d H:i', strtotime($order->created_at))
+            ]);
+        }
+
+        fclose($output);
+        exit;
     }
 }

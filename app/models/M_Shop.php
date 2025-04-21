@@ -229,19 +229,19 @@ class M_Shop
         }
     }
 
-    public function getUserOrders($userId)
-    {
-        $this->db->query("SELECT 
-        so.*, p.name AS product_name
-        FROM store_orders so
-        JOIN products p ON so.product_id = p.id
-        WHERE so.user_id = :user_id 
-        AND so.deleted_at IS NULL
-        ORDER BY so.created_at DESC");
+    // public function getUserOrders($userId)
+    // {
+    //     $this->db->query("SELECT 
+    //     so.*, p.name AS product_name
+    //     FROM store_orders so
+    //     JOIN products p ON so.product_id = p.id
+    //     WHERE so.user_id = :user_id 
+    //     AND so.deleted_at IS NULL
+    //     ORDER BY so.created_at DESC");
 
-        $this->db->bind(':user_id', $userId);
-        return $this->db->resultSet();
-    }
+    //     $this->db->bind(':user_id', $userId);
+    //     return $this->db->resultSet();
+    // }
 
     public function getPendingOrders()
     {
@@ -416,5 +416,142 @@ class M_Shop
             error_log('Payment processing error: ' . $e->getMessage());
             return false;
         }
+    }
+
+    //new funtions
+    // Create order
+    public function createOrder($orderData, $cartItems)
+    {
+        // Generate order number
+        $orderNumber = 'ORD' . date('Ymd') . rand(1000, 9999);
+
+        // Insert order
+        $this->db->query('INSERT INTO orders (user_id, order_number, total_amount, shipping_address, 
+                                           contact_phone, payment_method, status) 
+                         VALUES (:user_id, :order_number, :total_amount, :shipping_address, 
+                                :contact_phone, :payment_method, :status)');
+
+        $this->db->bind(':user_id', $orderData['user_id']);
+        $this->db->bind(':order_number', $orderNumber);
+        $this->db->bind(':total_amount', $orderData['total_amount']);
+        $this->db->bind(':shipping_address', $orderData['shipping_address']);
+        $this->db->bind(':contact_phone', $orderData['contact_phone']);
+        $this->db->bind(':payment_method', $orderData['payment_method']);
+        $this->db->bind(':status', 'pending');
+
+        if (!$this->db->execute()) {
+            return false;
+        }
+
+        $orderId = $this->db->lastInsertId();
+
+        // Insert order items
+        $allItemsInserted = true;
+        foreach ($cartItems as $item) {
+            $this->db->query('INSERT INTO order_items (order_id, product_id, quantity, price_at_time) 
+                             VALUES (:order_id, :product_id, :quantity, :price_at_time)');
+
+            $this->db->bind(':order_id', $orderId);
+            $this->db->bind(':product_id', $item->product_id);
+            $this->db->bind(':quantity', $item->quantity);
+            $this->db->bind(':price_at_time', $item->price_at_time);
+
+            if (!$this->db->execute()) {
+                $allItemsInserted = false;
+                break;
+            }
+        }
+
+        // If any order item failed to insert, you might want to manually delete the order
+        if (!$allItemsInserted) {
+            $this->deleteOrder($orderId);
+            return false;
+        }
+
+        return $orderId;
+    }
+
+    // Helper function to delete an order if item insertion fails
+    private function deleteOrder($orderId)
+    {
+        // Delete any already inserted order items
+        $this->db->query('DELETE FROM order_items WHERE order_id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        $this->db->execute();
+
+        // Delete the order
+        $this->db->query('DELETE FROM orders WHERE id = :id');
+        $this->db->bind(':id', $orderId);
+        $this->db->execute();
+    }
+
+    // Get order by ID
+    public function getOrderById($orderId)
+    {
+        $this->db->query('SELECT o.*, u.name as customer_name, u.email 
+                     FROM orders o 
+                     JOIN users u ON o.user_id = u.user_id 
+                     WHERE o.id = :id');
+        $this->db->bind(':id', $orderId);
+        return $this->db->single();
+    }
+
+    // Get user orders
+    public function getUserOrders($userId)
+    {
+        $this->db->query('SELECT o.*, 
+                     (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as total_items 
+                     FROM orders o 
+                     WHERE o.user_id = :user_id 
+                     ORDER BY o.created_at DESC');
+        $this->db->bind(':user_id', $userId);
+        return $this->db->resultSet();
+    }
+
+    // Get order items
+    public function getOrderItems($orderId)
+    {
+        $this->db->query('SELECT oi.*, p.name, p.image1 
+                     FROM order_items oi 
+                     JOIN products p ON oi.product_id = p.id 
+                     WHERE oi.order_id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        return $this->db->resultSet();
+    }
+
+    // Update order status
+    public function updateOrderStatus($orderId, $status)
+    {
+        $this->db->query('UPDATE orders 
+                     SET status = :status, 
+                         updated_at = CURRENT_TIMESTAMP 
+                     WHERE id = :id');
+
+        $this->db->bind(':status', $status);
+        $this->db->bind(':id', $orderId);
+
+        return $this->db->execute();
+    }
+
+    // Get orders by status
+    public function getOrdersByStatus($status)
+    {
+        $this->db->query('SELECT o.*, u.name as customer_name 
+                     FROM orders o 
+                     JOIN users u ON o.user_id = u.user_id 
+                     WHERE o.status = :status 
+                     ORDER BY o.created_at DESC');
+        $this->db->bind(':status', $status);
+        return $this->db->resultSet();
+    }
+
+    // Get all orders (for admin)
+    public function getAllOrders()
+    {
+        $this->db->query('SELECT o.*, u.name as customer_name 
+                     FROM orders o 
+                     JOIN users u ON o.user_id = u.user_id 
+                     ORDER BY o.created_at DESC');
+        return $this->db->resultSet();
     }
 }

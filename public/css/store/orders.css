@@ -1,0 +1,141 @@
+/* public/css/store/orders.css */
+
+.orders-container {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+.orders-container h1 {
+  font-size: 32px;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.orders-list {
+  display: grid;
+  gap: 20px;
+}
+
+.order-card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.order-info h3 {
+  margin: 0 0 5px;
+  font-size: 18px;
+  color: #333;
+}
+
+.order-info p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.order-status {
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.order-status.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.order-status.processing {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.order-status.shipped {
+  background: #d4edda;
+  color: #155724;
+}
+
+.order-status.delivered {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.order-status.cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.order-details {
+  margin-bottom: 15px;
+}
+
+.order-details p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.order-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.view-details-btn {
+  background: #4caf50;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.3s ease;
+}
+
+.view-details-btn:hover {
+  background: #45a049;
+}
+
+.no-orders {
+  text-align: center;
+  padding: 50px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.no-orders p {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.continue-shopping {
+  background: #4caf50;
+  color: white;
+  padding: 10px 25px;
+  border-radius: 5px;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.3s ease;
+}
+
+.continue-shopping:hover {
+  background: #45a049;
+}
+
+@media (max-width: 768px) {
+  .order-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
