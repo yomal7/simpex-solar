@@ -20,6 +20,19 @@ class SupplierCoordinator extends Controller
         $this->shopModel = $this->model('M_Shop');
         $this->chatModel = $this->model('M_Chat');
         $this->supplierCoordinatorModel = $this->model('M_SupplierCoordinator');
+
+        // Check for unread messages on every page load
+        $clients = $this->supplierCoordinatorModel->getClientsWithChats();
+        $totalUnreadCount = 0;
+        if ($clients) {
+            foreach ($clients as $client) {
+                if (isset($client->unread_count)) {
+                    $totalUnreadCount += $client->unread_count;
+                }
+            }
+        }
+        // Store the count in session for access across all views
+        $_SESSION['total_unread_count'] = $totalUnreadCount;
     }
 
     public function index()
@@ -1005,9 +1018,20 @@ class SupplierCoordinator extends Controller
     public function chat()
     {
         // Get clients who have chat history with this coordinator
+        $clients = $this->supplierCoordinatorModel->getClientsWithChats();
+
+        // Calculate total unread messages
+        $totalUnreadCount = 0;
+        foreach ($clients as $client) {
+            if (isset($client->unread_count)) {
+                $totalUnreadCount += $client->unread_count;
+            }
+        }
+        // Get clients who have chat history with this coordinator
         $data = [
             'title' => 'Client Messages',
-            'clients' => $this->supplierCoordinatorModel->getClientsWithChats()
+            'clients' => $clients,
+            'total_unread_count' => $totalUnreadCount
         ];
 
         $this->view('supplierCoordinator/v_chat', $data);
@@ -1096,5 +1120,23 @@ class SupplierCoordinator extends Controller
         
         header('Content-Type: application/json');
         echo json_encode(['status' => $success ? 'success' : 'error']);
+    }
+
+    public function getUnreadStatus()
+    {
+        // Get clients who have chat history with this coordinator
+        $clients = $this->supplierCoordinatorModel->getClientsWithChats();
+        $totalUnreadCount = 0;
+
+        if ($clients) {
+            foreach ($clients as $client) {
+                if (isset($client->unread_count)) {
+                    $totalUnreadCount += $client->unread_count;
+                }
+            }
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(['hasUnread' => ($totalUnreadCount > 0)]);
     }
 }

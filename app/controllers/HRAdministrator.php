@@ -18,6 +18,19 @@ class HRAdministrator extends Controller
         $this->userModel = $this->model("M_Users");
         $this->chatModel = $this->model('M_Chat');
         $this->hrModel = $this->model('M_HR');
+        
+        // Check for unread messages on every page load
+        $clients = $this->hrModel->getClientsWithChats();
+        $totalUnreadCount = 0;
+        if ($clients) {
+            foreach ($clients as $client) {
+                if (isset($client->unread_count)) {
+                    $totalUnreadCount += $client->unread_count;
+                }
+            }
+        }
+        // Store the count in session for access across all views
+        $_SESSION['total_unread_count'] = $totalUnreadCount;
     }
 
     public function index()
@@ -364,5 +377,33 @@ class HRAdministrator extends Controller
         
         header('Content-Type: application/json');
         echo json_encode(['status' => $success ? 'success' : 'error']);
+    }
+
+    public function getUnreadStatus()
+    {
+        // Get clients who have chat history with this coordinator
+        $clients = $this->hrModel->getClientsWithChats();
+
+        // Calculate total unread messages
+        $totalUnreadCount = 0;
+        foreach ($clients as $client) {
+            if (isset($client->unread_count)) {
+                $totalUnreadCount += $client->unread_count;
+            }
+        }
+        // Get clients who have chat history with this coordinator
+        $clients = $this->hrModel->getClientsWithChats();
+        $totalUnreadCount = 0;
+
+        if ($clients) {
+            foreach ($clients as $client) {
+                if (isset($client->unread_count)) {
+                    $totalUnreadCount += $client->unread_count;
+                }
+            }
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(['hasUnread' => ($totalUnreadCount > 0)]);
     }
 }
