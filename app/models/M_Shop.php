@@ -554,4 +554,130 @@ class M_Shop
                      ORDER BY o.created_at DESC');
         return $this->db->resultSet();
     }
+
+    public function getRecentOrders($limit = 10, $startDate = null, $endDate = null)
+    {
+        $sql = "SELECT 
+            so.id, 
+            so.product_id,
+            so.user_id,
+            so.quantity,
+            so.price, 
+            so.delivery_fee,
+            so.discount,
+            so.status,
+            so.created_at,
+            p.name AS product_name,
+            u.name AS customer_name
+        FROM store_orders so
+        JOIN products p ON so.product_id = p.id
+        JOIN users u ON so.user_id = u.user_id
+        WHERE so.deleted_at IS NULL ";
+
+        // Add date filters if provided
+        if ($startDate && $endDate) {
+            $sql .= "AND so.created_at BETWEEN :start_date AND :end_date ";
+        } elseif ($startDate) {
+            $sql .= "AND so.created_at >= :start_date ";
+        } elseif ($endDate) {
+            $sql .= "AND so.created_at <= :end_date ";
+        }
+
+        $sql .= "ORDER BY so.created_at DESC LIMIT :limit";
+
+        $this->db->query($sql);
+
+        // Bind parameters
+        if ($startDate) {
+            $this->db->bind(':start_date', $startDate . ' 00:00:00');
+        }
+        if ($endDate) {
+            $this->db->bind(':end_date', $endDate . ' 23:59:59');
+        }
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+
+        return $this->db->resultSet();
+    }
+
+    /**
+     * Get order statistics
+     *
+     * @return array Order statistics
+     */
+    public function getOrderStats()
+    {
+        // Get total number of orders
+        $this->db->query("SELECT COUNT(*) as total FROM store_orders WHERE deleted_at IS NULL");
+        $totalOrders = $this->db->single()->total;
+
+        // Get total revenue
+        $this->db->query("SELECT SUM(price * quantity + delivery_fee - IFNULL(discount, 0)) as total 
+                     FROM store_orders WHERE deleted_at IS NULL");
+        $totalRevenue = $this->db->single()->total ?? 0;
+
+        // Get orders by status
+        $this->db->query("SELECT status, COUNT(*) as count 
+                     FROM store_orders 
+                     WHERE deleted_at IS NULL 
+                     GROUP BY status");
+        $ordersByStatus = [];
+        foreach ($this->db->resultSet() as $row) {
+            $ordersByStatus[$row->status] = $row->count;
+        }
+
+        return [
+            'totalOrders' => $totalOrders,
+            'totalRevenue' => $totalRevenue,
+            'ordersByStatus' => $ordersByStatus
+        ];
+    }
+
+    /**
+     * Get top selling products
+     *
+     * @param int $limit Number of products to retrieve
+     * @return array Top selling products
+     */
+    public function getTopSellingProducts($limit = 5)
+    {
+        $this->db->query("SELECT 
+                        p.id,
+                        p.name,
+                        SUM(so.quantity) as units_sold,
+                        SUM(so.price * so.quantity) as total_revenue
+                     FROM store_orders so
+                     JOIN products p ON so.product_id = p.id
+                     WHERE so.deleted_at IS NULL
+                     GROUP BY p.id, p.name
+                     ORDER BY units_sold DESC
+                     LIMIT :limit");
+
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        return $this->db->resultSet();
+    }
+
+    /**
+     * Format recent orders for report display
+     *
+     * @param int $limit Number of orders to retrieve
+     * @return array Formatted recent orders
+     */
+    public function getFormattedRecentOrders($limit = 10)
+    {
+        $orders = $this->getRecentOrders($limit);
+        $formattedOrders = [];
+
+        foreach ($orders as $order) {
+            $formattedOrder = new stdClass();
+            $formattedOrder->order_number = 'ORD' . str_pad($order->id, 5, '0', STR_PAD_LEFT);
+            $formattedOrder->customer_name = $order->customer_name;
+            $formattedOrder->total_amount = ($order->price * $order->quantity) + $order->delivery_fee - ($order->discount ?? 0);
+            $formattedOrder->status = $order->status;
+            $formattedOrder->created_at = $order->created_at;
+
+            $formattedOrders[] = $formattedOrder;
+        }
+
+        return $formattedOrders;
+    }
 }

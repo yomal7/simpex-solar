@@ -1196,12 +1196,21 @@ class SupplierCoordinator extends Controller
     // Generate order report
     public function generateOrderReport()
     {
+        // Get order statistics
+        $orderStats = $this->shopModel->getOrderStats();
+
+        // Get top selling products
+        $topProducts = $this->shopModel->getTopSellingProducts(5);
+
+        // Get recent orders formatted for display
+        $recentOrders = $this->shopModel->getFormattedRecentOrders(10);
+
         $data = [
-            'totalOrders' => $this->orderModel->getTotalOrders(),
-            'totalRevenue' => $this->orderModel->getTotalRevenue(),
-            'ordersByStatus' => $this->orderModel->getOrdersCountByStatus(),
-            'topProducts' => $this->orderModel->getTopSellingProducts(10),
-            'recentOrders' => $this->shopModel->getRecentOrders(10)
+            'totalOrders' => $orderStats['totalOrders'],
+            'totalRevenue' => $orderStats['totalRevenue'],
+            'ordersByStatus' => $orderStats['ordersByStatus'],
+            'topProducts' => $topProducts,
+            'recentOrders' => $recentOrders
         ];
 
         $this->view('supplierCoordinator/v_orderReport', $data);
@@ -1210,30 +1219,38 @@ class SupplierCoordinator extends Controller
     // Excel/CSV export of orders
     public function exportOrders()
     {
-        $orders = $this->shopModel->getAllOrders();
+        // Get orders data
+        $orders = $this->shopModel->getRecentOrders(100); // Get up to 100 orders for export
 
-        // Generate CSV file
+        // Set headers for CSV download
         header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="orders_export_' . date('Y-m-d') . '.csv"');
+        header('Content-Disposition: attachment; filename="orders-export-' . date('Y-m-d') . '.csv"');
 
+        // Create a file pointer connected to the output stream
         $output = fopen('php://output', 'w');
 
-        // CSV header
-        fputcsv($output, ['Order ID', 'Order Number', 'Customer Name', 'Total Amount', 'Payment Method', 'Status', 'Date']);
+        // Output CSV header row
+        fputcsv($output, ['Order ID', 'Customer', 'Product', 'Quantity', 'Unit Price', 'Delivery Fee', 'Discount', 'Total', 'Status', 'Date']);
 
-        // CSV data
+        // Output each order as a CSV row
         foreach ($orders as $order) {
+            $total = ($order->price * $order->quantity) + $order->delivery_fee - ($order->discount ?? 0);
+
             fputcsv($output, [
                 $order->id,
-                $order->order_number,
                 $order->customer_name,
-                $order->total_amount,
-                $order->payment_method,
+                $order->product_name,
+                $order->quantity,
+                $order->price,
+                $order->delivery_fee,
+                $order->discount ?? 0,
+                $total,
                 $order->status,
-                date('Y-m-d H:i', strtotime($order->created_at))
+                $order->created_at
             ]);
         }
 
+        // Close the file pointer
         fclose($output);
         exit;
     }
