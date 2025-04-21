@@ -1,4 +1,11 @@
 /* public/css/store/orderDetails.css */
+.content {
+  margin-left: 250px;
+  transition: all 0.3s ease;
+  min-height: 100vh;
+  padding: 70px 20px 20px 20px;
+  background: #f9f9f9;
+}
 
 .order-details-container {
   max-width: 1000px;
@@ -189,5 +196,11 @@
   .order-items table {
     display: block;
     overflow-x: auto;
+  }
+  .content {
+    margin-left: 0;
+  }
+  .order-details-container {
+    padding: 10px;
   }
 }
