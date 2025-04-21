@@ -1,7 +1,7 @@
 <?php require APPROOT.'/views/operationsCoordinator/header.php';?>
     <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/manageAproject.css">
 </head>
-<body>
+<body data-user-role="hRAdministrator" data-user-id="<?php echo $_SESSION['user_id']; ?>" data-urlroot="<?php echo URLROOT; ?>">
     <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
@@ -28,9 +28,10 @@
                 <span class="material-icons-sharp">date_range</span>
                 <h3>Holiday</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/hRAdministrator/chat">
+            <a href="<?php echo URLROOT ?>/hRAdministrator/chat" class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'chat') !== false) ? 'active' : ''; ?>">
                 <span class="material-icons-sharp">chat</span>
                 <h3>Chat</h3>
+                <span class="notification-dot" style="display: <?php echo (isset($_SESSION['total_unread_count']) && $_SESSION['total_unread_count'] > 0) ? 'block' : 'none'; ?>;"></span>
             </a>
             <a href="#">
                 <span class="material-icons-sharp">settings</span>
