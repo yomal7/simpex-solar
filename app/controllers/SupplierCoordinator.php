@@ -1110,25 +1110,25 @@ class SupplierCoordinator extends Controller
         $this->view('supplierCoordinator/v_orders', $data);
     }
 
-    // public function viewOrder($orderId)
-    // {
-    //     $order = $this->shopModel->getOrderById($orderId);
-    //     $orderItems = $this->shopModel->getOrderItems($orderId);
-    //     $payment = $this->paymentModel->getPaymentByOrderId($orderId);
+    public function viewOrder($orderId)
+    {
+        $order = $this->shopModel->getOrderById($orderId);
+        $orderItems = $this->shopModel->getOrderItems($orderId);
+        $payment = $this->paymentModel->getPaymentByOrderId($orderId);
 
-    //     if (!$order) {
-    //         flash('order_message', 'Order not found', 'alert alert-danger');
-    //         redirect('supplierCoordinator/orders');
-    //     }
+        if (!$order) {
+            flash('order_message', 'Order not found', 'alert alert-danger');
+            redirect('supplierCoordinator/orders');
+        }
 
-    //     $data = [
-    //         'order' => $order,
-    //         'orderItems' => $orderItems,
-    //         'payment' => $payment
-    //     ];
+        $data = [
+            'order' => $order,
+            'orderItems' => $orderItems,
+            'payment' => $payment
+        ];
 
-    //     $this->view('supplierCoordinator/v_orderDetails', $data);
-    // }
+        $this->view('supplierCoordinator/v_orderDetails', $data);
+    }
 
     public function updateOrderStatus()
     {
