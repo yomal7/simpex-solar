@@ -20,6 +20,11 @@ class Client extends Controller
         $this->customerProjectModel = $this->model('M_CustomerProject');
         $this->shopModel = $this->model('M_Shop');
         $this->chatModel = $this->model('M_Chat');
+
+        // Set total unread count for notification badge
+        if (!isset($_GET['getUnreadStatus'])) { // Skip for AJAX requests
+            $_SESSION['total_unread_count'] = $this->chatModel->getTotalUnreadMessages($_SESSION['user_id']);
+        }
     }
 
     public function index()
@@ -852,7 +857,7 @@ class Client extends Controller
             'supplier' => $this->clientModel->getSupplierCoordinator(),
             'hr' => $this->clientModel->getHRAdministrator()
         ];
-        
+
         // Get unread message counts for each coordinator
         $unreadCounts = [
             'operations' => $this->chatModel->getUnreadCount($coordinators['operations']->user_id, $_SESSION['user_id']),
@@ -876,7 +881,7 @@ class Client extends Controller
             echo json_encode(['error' => 'Invalid coordinator type']);
             return;
         }
-        
+
         // Get coordinator ID based on type
         $coordinator = null;
         if ($coordinatorType == 'operations') {
@@ -886,22 +891,22 @@ class Client extends Controller
         } elseif ($coordinatorType == 'hr') {
             $coordinator = $this->clientModel->getHRAdministrator();
         }
-        
+
         if (!$coordinator) {
             header('Content-Type: application/json');
             echo json_encode([]);
             return;
         }
-        
+
         $messages = $this->chatModel->getClientChats($coordinator->user_id, $_SESSION['user_id']);
-        
+
         // Mark messages as read after retrieving them
         $this->chatModel->markMessagesAsRead($coordinator->user_id, $_SESSION['user_id']);
 
         header('Content-Type: application/json');
         echo json_encode($messages);
     }
-    
+
     public function saveMessage()
     {
         // Handle AJAX request to save a new message
@@ -955,7 +960,7 @@ class Client extends Controller
         }
 
         $data = json_decode(file_get_contents('php://input'), true);
-        
+
         if (empty($data['coordinator_type'])) {
             header('Content-Type: application/json');
             echo json_encode(['error' => 'Coordinator type required']);
@@ -965,7 +970,7 @@ class Client extends Controller
         // Get coordinator based on type
         $coordinator = null;
         $coordinatorType = $data['coordinator_type'];
-        
+
         if ($coordinatorType == 'operations') {
             $coordinator = $this->clientModel->getOperationsCoordinator();
         } elseif ($coordinatorType == 'supplier') {
@@ -973,7 +978,7 @@ class Client extends Controller
         } elseif ($coordinatorType == 'hr') {
             $coordinator = $this->clientModel->getHRAdministrator();
         }
-        
+
         if (!$coordinator) {
             header('Content-Type: application/json');
             echo json_encode(['error' => 'Coordinator not found']);
@@ -981,8 +986,40 @@ class Client extends Controller
         }
 
         $success = $this->chatModel->markMessagesAsRead($coordinator->user_id, $_SESSION['user_id']);
-        
+
         header('Content-Type: application/json');
         echo json_encode(['status' => $success ? 'success' : 'error']);
     }
+
+    // private function getTotalUnreadCount()
+    // {
+    //     $total = 0;
+    //     $coordinators = [
+    //         'operations' => $this->clientModel->getOperationsCoordinator(),
+    //         'supplier' => $this->clientModel->getSupplierCoordinator(),
+    //         'hr' => $this->clientModel->getHRAdministrator()
+    //     ];
+
+    //     foreach ($coordinators as $coordinator) {
+    //         if ($coordinator) {
+    //             $total += $this->chatModel->getUnreadCount($coordinator->user_id, $_SESSION['user_id']);
+    //         }
+    //     }
+
+    //     return $total;
+    // }
+
+    public function getUnreadStatus()
+    {
+        // Get the total unread count directly from the chat model
+        $count = $this->chatModel->getTotalUnreadMessages($_SESSION['user_id']);
+        
+        // Store the count in session for access across all views
+        $_SESSION['total_unread_count'] = $count;
+        
+        // Return JSON response
+        header('Content-Type: application/json');
+        echo json_encode(['hasUnread' => ($count > 0)]);
+    }
 }
+

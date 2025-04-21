@@ -3,7 +3,7 @@
 
 </head>
 
-<body>
+<body data-user-role="customer" data-user-id="<?php echo $_SESSION['user_id']; ?>" data-urlroot="<?php echo URLROOT; ?>">
 
     <?php require APPROOT . '/views/inc/components/topnavbar.php'; ?>
 
@@ -17,7 +17,12 @@
             <li><a href="<?php echo URLROOT; ?>/client/dashboard"><i class='bx bxs-dashboard'></i>Dashboard</a></li>
             <li><a href="<?php echo URLROOT; ?>/client/operationDashboard"><i class='bx bx-analyse'></i>Quotations and Projects</a></li>
             <li><a href="<?php echo URLROOT; ?>/client/shop"><i class='bx bx-store-alt'></i>Shop</a></li>
-            <li class="active"><a href="<?php echo URLROOT; ?>/client/chat"><i class='bx bx-message-square-dots'></i>Chat</a></li>
+            <li class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'chat') !== false) ? 'active' : ''; ?>">
+                <a href="<?php echo URLROOT; ?>/client/chat">
+                    <i class='bx bx-message-square-dots'></i>Chat
+                    <span class="notification-dot" style="display: <?php echo (isset($_SESSION['total_unread_count']) && $_SESSION['total_unread_count'] > 0) ? 'block' : 'none'; ?>;"></span>
+                </a>
+            </li>
             <!-- <li><a href="#"><i class='bx bx-group'></i>Users</a></li> -->
             <li><a href="<?php echo URLROOT; ?>/client/settings"><i class='bx bx-cog'></i>Settings</a></li>
         </ul>
@@ -99,6 +104,13 @@
             let currentRecipientId = null;
             let currentRecipientType = null;
 
+            // Track unread counts
+            let unreadCounts = {
+                operations: <?php echo $data['unread_counts']['operations'] ?? 0; ?>,
+                supplier: <?php echo $data['unread_counts']['supplier'] ?? 0; ?>,
+                hr: <?php echo $data['unread_counts']['hr'] ?? 0; ?>
+            };
+
             function formatMessageTime(timestamp) {
                 const date = new Date(timestamp);
 
@@ -145,6 +157,26 @@
                         year: "numeric",
                     });
                 }
+            }
+
+            // New function to update sidebar notification dot
+            function updateSidebarNotificationDot(show) {
+                const notificationDot = document.querySelector('.sidebar a[href*="/chat"] .notification-dot');
+                if (notificationDot) {
+                    notificationDot.style.display = show ? 'block' : 'none';
+                }
+            }
+
+            // Function to check total unread messages and update notification dot
+            function updateNotificationStatus() {
+                let totalUnread = 0;
+                Object.values(unreadCounts).forEach(count => {
+                    totalUnread += count;
+                });
+
+                console.log("Total unread messages:", totalUnread);
+                updateSidebarNotificationDot(totalUnread > 0);
+                return totalUnread;
             }
 
             // Add click event listeners to contact items
@@ -276,230 +308,235 @@
                 if (badge) {
                     // Instead of just hiding, remove it completely from the DOM
                     badge.parentNode.removeChild(badge);
+
+                    // Update our tracking of unread counts
+                    unreadCounts[coordinatorType] = 0;
+
+                    // Check if all messages are read now and update dot
+                    updateNotificationStatus();
                 }
 
-                // Send request to mark messages as read in database
-                fetch(`${URLROOT}/client/markMessagesAsRead`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        coordinator_type: coordinatorType
-                    })
-                });
-            }
-
-            // Function to send a message
-            function sendMessage() {
-                const messageInput = document.getElementById('messageInput');
-                const message = messageInput.value.trim();
-
-                if (!message || !currentRecipientId) {
-                    return;
-                }
-
-                // Clear input field
-                messageInput.value = '';
-
-                // Add message to chat immediately (optimistic UI)
-                const chatMessages = document.getElementById('chatMessages');
-
-                // Check if we need to add a date separator first
-                const lastDateSeparator = chatMessages.querySelector('.date-separator:last-child span');
-                const needsDateSeparator = !lastDateSeparator || lastDateSeparator.textContent !== 'Today';
-
-                if (needsDateSeparator) {
-                    const dateDiv = document.createElement('div');
-                    dateDiv.className = 'date-separator';
-                    dateDiv.innerHTML = '<span>Today</span>';
-                    chatMessages.appendChild(dateDiv);
-                }
-
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'message sent';
-
-                const formattedTime = new Date().toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                messageDiv.innerHTML = `
-            <div class="message-content">${message}</div>
-            <div class="message-time">${formattedTime}</div>
-        `;
-
-                chatMessages.appendChild(messageDiv);
-
-                // Scroll to the bottom
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-
-
-
-                // Send message to server
-                fetch(`${URLROOT}/client/saveMessage`, {
+                    // Send request to mark messages as read in database
+                    fetch(`${URLROOT}/client/markMessagesAsRead`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            to_user_id: currentRecipientId,
-                            message: message,
-                            recipient_type: currentRecipientType
+                            coordinator_type: coordinatorType
                         })
-                    })
-                    .then(response => response.json())
-                    .catch(error => {
-                        console.error('Error sending message:', error);
+                    });
+                }
+
+                // Function to send a message
+                function sendMessage() {
+                    const messageInput = document.getElementById('messageInput');
+                    const message = messageInput.value.trim();
+
+                    if (!message || !currentRecipientId) {
+                        return;
+                    }
+
+                    // Clear input field
+                    messageInput.value = '';
+
+                    // Add message to chat immediately (optimistic UI)
+                    const chatMessages = document.getElementById('chatMessages');
+
+                    // Check if we need to add a date separator first
+                    const lastDateSeparator = chatMessages.querySelector('.date-separator:last-child span');
+                    const needsDateSeparator = !lastDateSeparator || lastDateSeparator.textContent !== 'Today';
+
+                    if (needsDateSeparator) {
+                        const dateDiv = document.createElement('div');
+                        dateDiv.className = 'date-separator';
+                        dateDiv.innerHTML = '<span>Today</span>';
+                        chatMessages.appendChild(dateDiv);
+                    }
+
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message sent';
+
+                    const formattedTime = new Date().toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
                     });
 
-                // Also send through WebSocket for real-time updates
-                if (socket && socket.readyState === WebSocket.OPEN) {
-                    socket.send(JSON.stringify({
-                        type: 'message',
-                        from_user_id: USER_ID,
-                        from_role: USER_ROLE,
-                        to_user_id: currentRecipientId,
-                        to_role: currentRecipientType + 'Coordinator',
-                        message: message
-                    }));
-                }
-            }
+                    messageDiv.innerHTML = `
+            <div class="message-content">${message}</div>
+            <div class="message-time">${formattedTime}</div>
+        `;
 
-            // WebSocket connection
-            let socket = null;
+                    chatMessages.appendChild(messageDiv);
 
-            function connectWebSocket() {
-                // Create WebSocket connection
-                socket = new WebSocket('ws://localhost:8080');
+                    // Scroll to the bottom
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                socket.onopen = function() {
-                    console.log('WebSocket connection established');
 
-                    // Register with the WebSocket server
-                    socket.send(JSON.stringify({
-                        type: 'register',
-                        user_id: USER_ID,
-                        user_role: USER_ROLE
-                    }));
-                };
 
-                socket.onmessage = function(event) {
-                    const data = JSON.parse(event.data);
-                    console.log('WebSocket message received:', data);
-
-                    if (data.type === 'message') {
-                        // Figure out which coordinator this is from
-                        let coordinatorType = null;
-                        const contactItems = document.querySelectorAll('.contact-item');
-
-                        contactItems.forEach(item => {
-                            if (item.getAttribute('data-id') === data.from_user_id) {
-                                coordinatorType = item.getAttribute('data-role');
-                            }
+                    // Send message to server
+                    fetch(`${URLROOT}/client/saveMessage`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                to_user_id: currentRecipientId,
+                                message: message,
+                                recipient_type: currentRecipientType
+                            })
+                        })
+                        .then(response => response.json())
+                        .catch(error => {
+                            console.error('Error sending message:', error);
                         });
 
-                        // Only display the message if it's from the current chat
-                        if (currentRecipientId && data.from_user_id == currentRecipientId) {
-                            // Add message to chat
-                            const chatMessages = document.getElementById('chatMessages');
+                    // Also send through WebSocket for real-time updates
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        socket.send(JSON.stringify({
+                            type: 'message',
+                            from_user_id: USER_ID,
+                            from_role: USER_ROLE,
+                            to_user_id: currentRecipientId,
+                            to_role: currentRecipientType + 'Coordinator',
+                            message: message
+                        }));
+                    }
+                }
 
-                            // Check if we need to add a date separator
-                            const lastDateSeparator = chatMessages.querySelector('.date-separator:last-child span');
-                            const needsDateSeparator = !lastDateSeparator || lastDateSeparator.textContent !== 'Today';
+                // WebSocket connection
+                let socket = null;
 
-                            if (needsDateSeparator) {
-                                const dateDiv = document.createElement('div');
-                                dateDiv.className = 'date-separator';
-                                dateDiv.innerHTML = '<span>Today</span>';
-                                chatMessages.appendChild(dateDiv);
-                            }
+                function connectWebSocket() {
+                    // Create WebSocket connection
+                    socket = new WebSocket('ws://localhost:8080');
 
-                            const messageDiv = document.createElement('div');
-                            messageDiv.className = 'message received';
+                    socket.onopen = function() {
+                        console.log('WebSocket connection established');
 
-                            const formattedTime = new Date().toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit'
+                        // Register with the WebSocket server
+                        socket.send(JSON.stringify({
+                            type: 'register',
+                            user_id: USER_ID,
+                            user_role: USER_ROLE
+                        }));
+                    };
+
+                    socket.onmessage = function(event) {
+                        const data = JSON.parse(event.data);
+                        console.log('WebSocket message received:', data);
+
+                        if (data.type === 'message') {
+                            // Figure out which coordinator this is from
+                            let coordinatorType = null;
+                            const contactItems = document.querySelectorAll('.contact-item');
+
+                            contactItems.forEach(item => {
+                                if (item.getAttribute('data-id') === data.from_user_id) {
+                                    coordinatorType = item.getAttribute('data-role');
+                                }
                             });
 
-                            messageDiv.innerHTML = `
+                            // Only display the message if it's from the current chat
+                            if (currentRecipientId && data.from_user_id == currentRecipientId) {
+                                // Add message to chat
+                                const chatMessages = document.getElementById('chatMessages');
+
+                                // Check if we need to add a date separator
+                                const lastDateSeparator = chatMessages.querySelector('.date-separator:last-child span');
+                                const needsDateSeparator = !lastDateSeparator || lastDateSeparator.textContent !== 'Today';
+
+                                if (needsDateSeparator) {
+                                    const dateDiv = document.createElement('div');
+                                    dateDiv.className = 'date-separator';
+                                    dateDiv.innerHTML = '<span>Today</span>';
+                                    chatMessages.appendChild(dateDiv);
+                                }
+
+                                const messageDiv = document.createElement('div');
+                                messageDiv.className = 'message received';
+
+                                const formattedTime = new Date().toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                });
+
+                                messageDiv.innerHTML = `
                         <div class="message-content">${data.message}</div>
                         <div class="message-time">${formattedTime}</div>
                     `;
 
-                            chatMessages.appendChild(messageDiv);
+                                chatMessages.appendChild(messageDiv);
 
-                            // Scroll to the bottom
-                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                                // Scroll to the bottom
+                                chatMessages.scrollTop = chatMessages.scrollHeight;
 
-                            // Mark this message as read since we're viewing it
-                            fetch(`${URLROOT}/client/markMessagesAsRead`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    coordinator_type: currentRecipientType
-                                })
-                            });
-                        } else if (coordinatorType) {
-                            // Show notification for message from someone else
-                            updateUnreadCount(coordinatorType);
+                                // Mark this message as read since we're viewing it
+                                markMessagesAsRead(currentRecipientType);
+                            } else if (coordinatorType) {
+                                // Show notification for message from someone else
+                                updateUnreadCount(coordinatorType, data.from_user_id);
+                                updateSidebarNotificationDot(true); // Show notification dot in sidebar
+                            }
                         }
+                    };
+
+                    socket.onclose = function() {
+                        console.log('WebSocket connection closed');
+                        // Try to reconnect after a delay
+                        setTimeout(connectWebSocket, 5000);
+                    };
+
+                    socket.onerror = function(error) {
+                        console.error('WebSocket error:', error);
+                    };
+                }
+
+                // Update unread count badge
+                function updateUnreadCount(coordinatorType) {
+                    // Find the contact that matches this coordinator type
+                    const contactItem = document.querySelector(`.contact-item[data-role="${coordinatorType}"]`);
+
+                    if (contactItem) {
+                        let badge = contactItem.querySelector(`.unread-badge[data-coordinator="${coordinatorType}"]`);
+
+                        if (badge) {
+                            // Update existing badge
+                            const count = parseInt(badge.textContent || '0');
+                            badge.textContent = count + 1;
+                            unreadCounts[coordinatorType] = count + 1;
+
+                        } else {
+                            // Create new badge
+                            badge = document.createElement('span');
+                            badge.className = 'unread-badge';
+                            badge.setAttribute('data-coordinator', coordinatorType);
+                            badge.textContent = '1';
+                            contactItem.appendChild(badge);
+                            unreadCounts[coordinatorType] = 1;
+                        }
+
+                        // Update notification dot visiblr
+                        updateSidebarNotificationDot(true); // Show notification dot in sidebar
                     }
-                };
+                }
 
-                socket.onclose = function() {
-                    console.log('WebSocket connection closed');
-                    // Try to reconnect after a delay
-                    setTimeout(connectWebSocket, 5000);
-                };
-
-                socket.onerror = function(error) {
-                    console.error('WebSocket error:', error);
-                };
-            }
-
-            // Update unread count badge
-            function updateUnreadCount(coordinatorType) {
-                // Find the contact that matches this coordinator type
-                const contactItem = document.querySelector(`.contact-item[data-role="${coordinatorType}"]`);
-
-                if (contactItem) {
-                    let badge = contactItem.querySelector(`.unread-badge[data-coordinator="${coordinatorType}"]`);
-
-                    if (badge) {
-                        // Update existing badge
-                        const count = parseInt(badge.textContent || '0');
-                        badge.textContent = count + 1;
+                // Connect to WebSocket when page loads
+                document.addEventListener('DOMContentLoaded', function() {
+                    if ('WebSocket' in window) {
+                        connectWebSocket();
                     } else {
-                        // Create new badge
-                        badge = document.createElement('span');
-                        badge.className = 'unread-badge';
-                        badge.setAttribute('data-coordinator', coordinatorType);
-                        badge.textContent = '1';
-                        contactItem.appendChild(badge);
+                        console.log('WebSockets are not supported in this browser.');
+                        // Fall back to polling for messages every few seconds
+                        setInterval(function() {
+                            if (currentRecipientType) {
+                                loadChatHistory(currentRecipientType);
+                            }
+                        }, 5000); // Poll every 5 seconds
                     }
-                }
-            }
-
-            // Connect to WebSocket when page loads
-            document.addEventListener('DOMContentLoaded', function() {
-                if ('WebSocket' in window) {
-                    connectWebSocket();
-                } else {
-                    console.log('WebSockets are not supported in this browser.');
-                    // Fall back to polling for messages every few seconds
-                    setInterval(function() {
-                        if (currentRecipientType) {
-                            loadChatHistory(currentRecipientType);
-                        }
-                        // Refresh last messages periodically even without WebSockets
-                        loadLastMessages();
-                    }, 5000); // Poll every 5 seconds
-                }
-            });
+                
+                    updateSidebarNotificationDot(totalUnread > 0);
+                });
         </script>
 
     </div> <!-- End of content div -->

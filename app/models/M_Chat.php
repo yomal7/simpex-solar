@@ -73,4 +73,13 @@ class M_Chat {
         
         return $this->db->single();
     }
+
+    public function getTotalUnreadMessages($userId) {
+        $this->db->query('SELECT COUNT(*) as count FROM messages 
+                          WHERE receiver_id = :receiver_id 
+                          AND is_read = 0');
+        $this->db->bind(':receiver_id', $userId);
+        $result = $this->db->single();
+        return $result->count;
+    }
 }

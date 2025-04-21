@@ -1,14 +1,14 @@
-<?php require APPROOT.'/views/client/header.php';?>
+<?php require APPROOT . '/views/client/header.php'; ?>
 
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/client/dashboard.css">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/client/dashboard.css">
 
 </head>
 
-<body>
+<body data-user-id="<?php echo $_SESSION['user_id']; ?>" data-user-role="customer" data-urlroot="<?php echo URLROOT; ?>">
 
-    <?php require APPROOT.'/views/inc/components/topnavbar.php'; ?>
+    <?php require APPROOT . '/views/inc/components/topnavbar.php'; ?>
 
     <!-- Sidebar -->
     <div class="sidebar">
@@ -17,12 +17,17 @@
             <div class="logo-name"><span>Asmr</span>Prog</div>
         </a> -->
         <ul class="side-menu">
-            <li class="active" ><a href="<?php echo URLROOT; ?>/client/dashboard"><i class='bx bxs-dashboard'></i>Dashboard</a></li>
-            <li ><a href="<?php echo URLROOT; ?>/client/operationDashboard"><i class='bx bx-analyse'></i>Quotations and Projects</a></li>
-            <li ><a href="<?php echo URLROOT; ?>/client/shop"><i class='bx bx-store-alt'></i>Shop</a></li>
-            <li><a href="<?php echo URLROOT; ?>/client/chat"><i class='bx bx-message-square-dots'></i>Chat</a></li>
+            <li class="active"><a href="<?php echo URLROOT; ?>/client/dashboard"><i class='bx bxs-dashboard'></i>Dashboard</a></li>
+            <li><a href="<?php echo URLROOT; ?>/client/operationDashboard"><i class='bx bx-analyse'></i>Quotations and Projects</a></li>
+            <li><a href="<?php echo URLROOT; ?>/client/shop"><i class='bx bx-store-alt'></i>Shop</a></li>
+            <li>
+                <a href="<?php echo URLROOT; ?>/client/chat">
+                    <i class='bx bx-message-square-dots'></i>Chat
+                    <span class="notification-dot" style="display: <?php echo (isset($_SESSION['total_unread_count']) && $_SESSION['total_unread_count'] > 0) ? 'block' : 'none'; ?>;"></span>
+                </a>
+            </li>
             <!-- <li><a href="#"><i class='bx bx-group'></i>Users</a></li> -->
-            <li ><a href="<?php echo URLROOT; ?>/client/settings"><i class='bx bx-cog'></i>Settings</a></li>
+            <li><a href="<?php echo URLROOT; ?>/client/settings"><i class='bx bx-cog'></i>Settings</a></li>
         </ul>
         <ul class="side-menu">
             <li>
@@ -43,9 +48,9 @@
         </nav>
 
         <!-- End of Navbar -->
-         
+
         <main>
-            
+
             <div class="header">
                 <div class="left">
                     <h1>Dashboard</h1>
@@ -53,37 +58,37 @@
             </div>
 
             <!-- Insights -->
-                <!-- header bar -->
+            <!-- header bar -->
 
-                <div class="header-container">
-                    <div class="profile-card">
-                        <div class="background-image"></div>
-                        <div class="overlay"></div>
-                        <div class="profile-content">
-                            <div class="profile-picture">
-                                <img src="<?php echo URLROOT; ?>/public/assets/profile.png" alt="Profile Picture">
-                                <div class="edit-icon">
-                                    ✏️
-                                </div>
-                            </div>
-                            <div class="greeting">
-                                <h1 class="greeting-text">
-                                    <span id="greeting-message" style="color: black;"></span>,
-                                    <span class="user-name">Saman</span>
-                                </h1>
-                                <p class="welcome-back">Welcome back to your dashboard</p>
+            <div class="header-container">
+                <div class="profile-card">
+                    <div class="background-image"></div>
+                    <div class="overlay"></div>
+                    <div class="profile-content">
+                        <div class="profile-picture">
+                            <img src="<?php echo URLROOT; ?>/public/assets/profile.png" alt="Profile Picture">
+                            <div class="edit-icon">
+                                ✏️
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="progress-card">
-                        <h3 class="progress-title">Project Progress</h3>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" id="progressBar"></div>
+                        <div class="greeting">
+                            <h1 class="greeting-text">
+                                <span id="greeting-message" style="color: black;"></span>,
+                                <span class="user-name">Saman</span>
+                            </h1>
+                            <p class="welcome-back">Welcome back to your dashboard</p>
                         </div>
-                        <p class="progress-text"><span id="progressText">0</span>% Completed</p>
                     </div>
                 </div>
+
+                <div class="progress-card">
+                    <h3 class="progress-title">Project Progress</h3>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <p class="progress-text"><span id="progressText">0</span>% Completed</p>
+                </div>
+            </div>
 
 
             <ul class="insights">
@@ -208,6 +213,6 @@
         </main>
 
     </div>
-    
+
     <script src="<?php echo URLROOT; ?>/js/client/dashboard.js"></script>
-<?php require APPROOT.'/views/client/footer.php';?> 
+    <?php require APPROOT . '/views/client/footer.php'; ?>
