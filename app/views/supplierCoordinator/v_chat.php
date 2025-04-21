@@ -33,6 +33,7 @@
             <a href="<?php echo URLROOT ?>/supplierCoordinator/chat" class="active">
                 <span class="material-icons-sharp">chat</span>
                 <h3>Chat</h3>
+                <span class="notification-dot" style="display: <?php echo (isset($data['total_unread_count']) && $data['total_unread_count'] > 0) ? 'block' : 'none'; ?>;"></span>
             </a>
             <a href="<?php echo URLROOT ?>/supplierCoordinator/settings">
                 <span class="material-icons-sharp">settings</span>
