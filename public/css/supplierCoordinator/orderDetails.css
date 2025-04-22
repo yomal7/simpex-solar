@@ -399,6 +399,45 @@
   background-color: #5a6268;
 }
 
+/* Delivery Section */
+.delivery-section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--light-gray);
+}
+
+.delivery-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  color: var(--dark-color);
+}
+
+.delivery-assignment {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.delivery-status {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.delivery-status.pending {
+  background: var(--primary-light);
+}
+
+.delivery-status.completed {
+  background: var(--secondary-light);
+}
+
+.waiting-message {
+  color: var(--primary-color);
+  font-style: italic;
+}
+
 /* Responsive Design */
 @media (max-width: 992px) {
   .order-details-container {

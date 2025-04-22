@@ -1113,18 +1113,33 @@ class SupplierCoordinator extends Controller
     public function viewOrder($orderId)
     {
         $order = $this->shopModel->getOrderById($orderId);
-        $orderItems = $this->shopModel->getOrderItems($orderId);
-        $payment = $this->paymentModel->getPaymentByOrderId($orderId);
 
         if (!$order) {
             flash('order_message', 'Order not found', 'alert alert-danger');
             redirect('supplierCoordinator/orders');
         }
 
+        $orderItems = $this->shopModel->getOrderItems($orderId);
+        $payment = $this->shopModel->getOrderPayment($orderId);
+
+        // Get delivery persons if order is in processing status
+        $deliveryPersons = [];
+        if ($order->status == 'processing') {
+            $deliveryPersons = $this->shopModel->getDeliveryPersons();
+        }
+
+        // Get assigned delivery person if any
+        $deliveryPerson = null;
+        if (!is_null($order->deliver_id)) {
+            $deliveryPerson = $this->shopModel->getOrderDeliveryPerson($orderId);
+        }
+
         $data = [
             'order' => $order,
             'orderItems' => $orderItems,
-            'payment' => $payment
+            'payment' => $payment,
+            'delivery_persons' => $deliveryPersons,
+            'delivery_person' => $deliveryPerson
         ];
 
         $this->view('supplierCoordinator/v_orderDetails', $data);
@@ -1325,5 +1340,23 @@ class SupplierCoordinator extends Controller
         // Close the file pointer
         fclose($output);
         exit;
+    }
+
+    public function assignDeliveryPerson()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $orderId = $_POST['order_id'];
+            $deliveryPersonId = $_POST['delivery_person_id'];
+
+            if ($this->shopModel->assignDeliveryPerson($orderId, $deliveryPersonId)) {
+                flash('order_message', 'Delivery person assigned successfully', 'alert alert-success');
+            } else {
+                flash('order_message', 'Failed to assign delivery person', 'alert alert-danger');
+            }
+
+            redirect('supplierCoordinator/viewOrder/' . $orderId);
+        } else {
+            redirect('supplierCoordinator/orders');
+        }
     }
 }

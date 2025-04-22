@@ -101,8 +101,61 @@
                         <h2>Shipping Information</h2>
                     </div>
                     <div class="card-body">
-                        <div class="address-block">
-                            <?php echo nl2br(htmlspecialchars($data['order']->shipping_address)); ?>
+                        <!-- Address and other shipping details -->
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Address:</label>
+                                <div class="address-block">
+                                    <?php echo nl2br(htmlspecialchars($data['order']->shipping_address)); ?>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <label>Contact Phone:</label>
+                                <span><?php echo htmlspecialchars($data['order']->contact_phone); ?></span>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Person Assignment Section -->
+                        <div class="delivery-section">
+                            <?php if ($data['order']->status == 'processing'): ?>
+                                <!-- Show delivery person selection -->
+                                <div class="delivery-assignment">
+                                    <h3>Assign Delivery Person</h3>
+                                    <form action="<?php echo URLROOT; ?>/supplierCoordinator/assignDeliveryPerson" method="POST" id="assignDeliveryForm">
+                                        <input type="hidden" name="order_id" value="<?php echo $data['order']->id; ?>">
+                                        <div class="form-group">
+                                            <label for="delivery_person_id">Select Delivery Person:</label>
+                                            <select name="delivery_person_id" id="delivery_person_id" class="form-control" required>
+                                                <option value="">Select a delivery person</option>
+                                                <?php foreach ($data['delivery_persons'] as $person): ?>
+                                                    <option value="<?php echo $person->employee_id; ?>"><?php echo htmlspecialchars($person->name); ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <button type="button" onclick="confirmAssignment()" class="btn update-btn">Assign & Update to Shipped</button>
+                                    </form>
+                                </div>
+                            <?php elseif ($data['order']->status == 'shipped' && is_null($data['order']->delivered_at)): ?>
+                                <!-- Show waiting for delivery confirmation -->
+                                <div class="delivery-status pending">
+                                    <h3>Delivery Status</h3>
+                                    <p><span class="status-badge processing">Out for Delivery</span></p>
+                                    <?php if (isset($data['delivery_person']) && $data['delivery_person']): ?>
+                                        <p>Delivery Person: <strong><?php echo htmlspecialchars($data['delivery_person']->name); ?></strong></p>
+                                    <?php endif; ?>
+                                    <p class="waiting-message">Waiting for delivery confirmation...</p>
+                                </div>
+                            <?php elseif ($data['order']->status == 'delivered' || !is_null($data['order']->delivered_at)): ?>
+                                <!-- Show delivery confirmation -->
+                                <div class="delivery-status completed">
+                                    <h3>Delivery Status</h3>
+                                    <p><span class="status-badge delivered">Delivered</span></p>
+                                    <?php if (isset($data['delivery_person']) && $data['delivery_person']): ?>
+                                        <p>Delivered by: <strong><?php echo htmlspecialchars($data['delivery_person']->name); ?></strong></p>
+                                    <?php endif; ?>
+                                    <p>Delivered on: <?php echo date('F j, Y g:i A', strtotime($data['order']->delivered_at)); ?></p>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -280,6 +333,21 @@
             closeApproveModal();
             closeRejectModal();
         });
+
+        function confirmAssignment() {
+            const deliveryPersonSelect = document.getElementById('delivery_person_id');
+            if (!deliveryPersonSelect.value) {
+                alert('Please select a delivery person');
+                return;
+            }
+
+            const selectedOption = deliveryPersonSelect.options[deliveryPersonSelect.selectedIndex];
+            const confirmMessage = `Are you sure you want to assign ${selectedOption.text} to deliver this order?\n\nThis will change the order status to "Shipped".`;
+
+            if (confirm(confirmMessage)) {
+                document.getElementById('assignDeliveryForm').submit();
+            }
+        }
     </script>
 
     <?php require APPROOT . '/views/supplierCoordinator/footer.php'; ?>

@@ -755,4 +755,42 @@ class M_Shop
         $this->db->bind(':order_id', $orderId);
         return $this->db->single();
     }
+
+    //Delivery
+    public function getDeliveryPersons()
+    {
+        $this->db->query('SELECT e.employee_id, u.name 
+                     FROM employees e 
+                     JOIN users u ON e.user_id = u.user_id 
+                     WHERE e.role = "deliveryPerson"');
+        return $this->db->resultSet();
+    }
+
+    /**
+     * Assign delivery person to order
+     */
+    public function assignDeliveryPerson($orderId, $deliveryPersonId)
+    {
+        $this->db->query('UPDATE orders 
+                     SET deliver_id = :deliver_id, 
+                         status = "shipped" 
+                     WHERE id = :order_id');
+        $this->db->bind(':deliver_id', $deliveryPersonId);
+        $this->db->bind(':order_id', $orderId);
+        return $this->db->execute();
+    }
+
+    /**
+     * Get delivery person information for an order
+     */
+    public function getOrderDeliveryPerson($orderId)
+    {
+        $this->db->query('SELECT e.employee_id, u.name 
+                     FROM orders o
+                     JOIN employees e ON o.deliver_id = e.employee_id
+                     JOIN users u ON e.user_id = u.user_id
+                     WHERE o.id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        return $this->db->single();
+    }
 }
