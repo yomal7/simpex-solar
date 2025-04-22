@@ -670,4 +670,17 @@ class M_CustomerProject
         $this->db->bind(':project_id', $projectId);
         return $this->db->single();
     }
+
+    public function getTechnicianID($userId)
+    {
+        $this->db->query('SELECT employee_id FROM employees WHERE user_id = :user_id AND role = "technician"');
+        $this->db->bind(':user_id', $userId);
+        return $this->db->single();
+    }
+
+    public function getAssignedInstallationsByTechnician($technicianId){
+        $this->db->query('SELECT installation_id FROM installation_employees WHERE employee_id = :technician_id AND assign = 1');
+        $this->db->bind(':technician_id', $technicianId);
+        return $this->db->resultSet();
+    }
 }

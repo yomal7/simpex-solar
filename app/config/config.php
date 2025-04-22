@@ -1,5 +1,7 @@
 <?php
 
+// Set default timezone
+date_default_timezone_set('Asia/Colombo');
 
 //Database Configuration
 define('DB_HOST', 'mysolardb.cvggoaa6op0w.eu-north-1.rds.amazonaws.com');
