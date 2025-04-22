@@ -1,184 +1,358 @@
-<?php require APPROOT.'/views/client/header.php';?>
-
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/client/finalPayment.css">
+<?php require APPROOT . '/views/client/header.php'; ?>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/client/finalPayment.css">
+<!-- <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/client/firstPayment.css"> -->
 </head>
-<body>
-    <?php require APPROOT.'/views/inc/components/topnavbar.php'; ?>
 
+<body>
+    <?php require APPROOT . '/views/inc/components/topnavbar.php'; ?>
     <!-- Sidebar -->
     <div class="sidebar">
-        <!-- <a href="#" class="logo">
-            <i class='bx bx-code-alt'></i>
-            <div class="logo-name"><span>Asmr</span>Prog</div>
-        </a> -->
         <ul class="side-menu">
             <li>
-                <a href="<?php echo URLROOT; ?>/client/project" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a></li>
+                <a href="<?php echo URLROOT; ?>/client/project" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a>
             </li>
         </ul>
     </div>
     <!-- End of Sidebar -->
 
     <div class="content">
-            <!-- Navbar -->
-            <nav>
-                <i class='bx bx-menu'></i>
-            </nav>
+        <!-- Navbar -->
+        <nav style="background-color: white;">
+            <i class='bx bx-menu'></i>
+        </nav>
+        <!-- End of Navbar -->
 
-            <!-- End of Navbar -->
-            
-        
         <div class="container">
+            <?php flash('payment_message'); ?>
 
             <div class="status-bar">
-                <h2>Payment Status</h2>
-                <div class="status-indicator" id="statusIndicator">Pending</div>
+                <h2>Final Payment Status</h2>
+                <div class="status-indicator <?php echo (isset($data['payment']) && is_object($data['payment']) && $data['payment']->payment_status) ? 'paid' : 'pending'; ?>">
+                    <?php echo (isset($data['payment']) && is_object($data['payment']) && $data['payment']->payment_status) ? 'Paid' : 'Pending'; ?>
+                </div>
+            </div>
+
+            <div class="payment-details-card">
+                <h2>Project Cost Details</h2>
+                <div class="cost-breakdown">
+                    <div class="cost-row">
+                        <span class="cost-label">Base Price:</span>
+                        <span class="cost-value">Rs. <?php echo number_format($data['base_price'], 2); ?></span>
+                    </div>
+                    <div class="cost-row">
+                        <span class="cost-label">Service Charge:</span>
+                        <span class="cost-value">Rs. <?php echo number_format($data['service_charge'], 2); ?></span>
+                    </div>
+                    <div class="cost-row">
+                        <span class="cost-label">Total Project Cost:</span>
+                        <span class="cost-value">Rs. <?php echo number_format($data['total_price'], 2); ?></span>
+                    </div>
+                    <div class="cost-row">
+                        <span class="cost-label">First Payment (Already Paid):</span>
+                        <span class="cost-value">Rs. <?php echo number_format($data['first_payment_amount'], 2); ?></span>
+                    </div>
+                    <div class="cost-row total">
+                        <span class="cost-label">Remaining Balance:</span>
+                        <span class="cost-value">Rs. <?php echo number_format($data['payment_amount'], 2); ?></span>
+                    </div>
+                </div>
             </div>
 
             <div class="payment-container">
                 <div class="amount-display">
-                    <h3>Amount Due for final payment</h3>
-                    <div class="amount">$2,500.00</div>
+                    <h3>Final Payment (Remaining Balance)</h3>
+                    <div class="amount">Rs. <?php echo number_format($data['payment_amount'], 2); ?></div>
+                    <p class="payment-note">This final payment completes your solar installation project.</p>
                 </div>
 
-                <div class="payment-options">
-                    <div class="payment-option" onclick="showOnlinePayment()">
-                        <i class="material-icons">credit_card</i>
-                        <h3>Online Banking</h3>
-                        <p>Pay securely using your bank account</p>
+                <?php if (!isset($data['payment']) || !is_object($data['payment']) || !$data['payment']->payment_status): ?>
+                    <!-- Payment Methods Accordion -->
+                    <!-- Bank Deposit Method -->
+                    <div class="payment-method">
+                        <div class="method-header" onclick="toggleMethod('bank-deposit')">
+                            <h4><i class="fas fa-university"></i> Bank Deposit</h4>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                        <div class="method-content" id="bank-deposit">
+                            <p>Make a bank deposit and upload your payment slip.</p>
+
+                            <?php if (isset($data['bank_slip']) && is_object($data['bank_slip'])): ?>
+                                <div class="slip-status">
+                                    <p>Slip Status: <strong><?php echo ucfirst($data['bank_slip']->status); ?></strong></p>
+
+                                    <?php if ($data['bank_slip']->status == 'pending' && $data['bank_slip']->slip_file): ?>
+                                        <div class="processing-message">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                            <p>Your payment slip is being processed. Please check back later.</p>
+                                        </div>
+                                    <?php elseif ($data['bank_slip']->status == 'reject'): ?>
+                                        <p class="rejection-reason">Reason: <?php echo $data['bank_slip']->reject_reason; ?></p>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if (
+                                !isset($data['bank_slip']) || !is_object($data['bank_slip']) ||
+                                ($data['bank_slip']->slip_downloaded && !$data['bank_slip']->slip_file) ||
+                                $data['bank_slip']->status == 'reject'
+                            ): ?>
+
+                                <?php if (!isset($data['bank_slip']) || !is_object($data['bank_slip']) || !$data['bank_slip']->slip_downloaded): ?>
+                                    <h4>Select Bank Account and Payment Amount</h4>
+                                    <form action="<?php echo URLROOT; ?>/client/generateFinalBankSlip" method="post" id="bankForm">
+                                        <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
+                                        <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
+                                        <input type="hidden" name="payment_phase" value="final_payment">
+
+                                        <div class="form-group">
+                                            <label for="bank_account">Bank Account:</label>
+                                            <select name="bank_account" id="bank_account" required>
+                                                <option value="">-- Select Bank --</option>
+                                                <?php foreach (BANK_ACCOUNTS as $index => $bank): ?>
+                                                    <option value="<?php echo $index; ?>"><?php echo $bank['bank_name']; ?> - <?php echo $bank['branch']; ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="amount">Payment Amount (Rs.):</label>
+                                            <input type="number" id="amount" name="amount"
+                                                value="<?php echo $data['payment_amount']; ?>"
+                                                min="<?php echo $data['payment_amount']; ?>"
+                                                max="<?php echo $data['payment_amount']; ?>"
+                                                step="0.01" readonly required>
+                                            <small>Final payment amount: Rs. <?php echo number_format($data['payment_amount'], 2); ?></small>
+                                        </div>
+
+                                        <div class="selected-bank-details" id="selectedBankDetails">
+                                            <!-- Bank details will be shown here -->
+                                        </div>
+
+                                        <div class="action-buttons">
+                                            <button type="submit" class="btn btn-secondary">
+                                                <i class="fas fa-download"></i> Download Payment Slip
+                                            </button>
+                                        </div>
+                                    </form>
+                                <?php endif; ?>
+
+
+                                <?php if ((isset($data['bank_slip']) && is_object($data['bank_slip']) &&
+                                    $data['bank_slip']->slip_downloaded && !$data['bank_slip']->slip_file) || (isset($data['bank_slip']) && is_object($data['bank_slip']) && $data['bank_slip']->status == 'reject')): ?>
+                                    <form action="<?php echo URLROOT; ?>/client/uploadFinalBankSlip" method="post" enctype="multipart/form-data" class="upload-form">
+                                        <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
+                                        <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
+                                        <input type="hidden" name="payment_phase" value="final_payment">
+                                        <input type="hidden" name="payment_id" value="<?php echo isset($data['payment']) && is_object($data['payment']) ? $data['payment']->id : ''; ?>">
+                                        <input type="hidden" name="amount" value="<?php echo isset($data['payment']) && is_object($data['payment']) ? $data['payment']->amount : $data['payment_amount']; ?>">
+                                        <input type="hidden" name="slip_id" value="<?php echo $data['bank_slip']->id; ?>">
+
+                                        <div class="form-group">
+                                            <label for="payment_slip">Upload Signed Payment Slip:</label>
+                                            <input type="file" id="payment_slip" name="payment_slip" accept="image/*,.pdf" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Upload Slip</button>
+                                    </form>
+                                <?php endif; ?>
+                                
+                            <?php endif; ?>
+                        </div>
                     </div>
 
-                    <div class="payment-option" onclick="showUploadSlip()">
-                        <i class="material-icons">upload_file</i>
-                        <h3>Upload Payment Slip</h3>
-                        <p>Upload your payment confirmation</p>
+                    <!-- Online Payment Method -->
+                    <div class="payment-method">
+                        <div class="method-header" onclick="toggleMethod('online-payment')">
+                            <h4><i class="fas fa-credit-card"></i> Online Payment</h4>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                        <div class="method-content" id="online-payment">
+                            <p>Pay securely online with your credit/debit card or bank account.</p>
+                            <div class="action-buttons">
+                                <form action="<?php echo URLROOT; ?>/client/processFinalOnlinePayment" method="post">
+                                    <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
+                                    <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
+                                    <input type="hidden" name="payment_phase" value="final_payment">
+                                    <input type="hidden" name="amount" value="<?php echo $data['payment_amount']; ?>">
+                                    <button type="submit" class="btn btn-primary">Proceed to Payment</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cash Payment Method -->
+                    <div class="payment-method">
+                        <div class="method-header" onclick="toggleMethod('cash-payment')">
+                            <h4><i class="fas fa-money-bill-wave"></i> Cash Payment</h4>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                        <div class="method-content" id="cash-payment">
+                            <?php if (
+                                isset($data['payment']) && is_object($data['payment']) &&
+                                $data['payment']->payment_method == 'cash' &&
+                                !$data['payment']->payment_status
+                            ): ?>
+                                <div class="cash-payment-info">
+                                    <h4>Payment Details</h4>
+                                    <p>You have chosen to pay by cash. Please visit our office with the amount below:</p>
+                                    <div class="amount-to-pay">Rs. <?php echo number_format($data['payment']->amount, 2); ?></div>
+
+                                    <div class="office-details">
+                                        <h5>Office Details</h5>
+                                        <p><i class="fas fa-map-marker-alt"></i> Address: <?php echo address; ?></p>
+                                        <p><i class="fas fa-clock"></i> Business Hours: Monday to Friday, 9:00 AM - 5:00 PM</p>
+                                        <p><i class="fas fa-phone"></i> Phone: 011-2345678</p>
+                                    </div>
+
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn btn-secondary" onclick="changePaymentMethod()">
+                                            <i class="fas fa-exchange-alt"></i> Change Payment Method
+                                        </button>
+                                    </div>
+                                </div>
+                            <?php else: ?>
+                                <p>Visit our office and pay in cash.</p>
+                                <div class="office-details">
+                                    <h5>Office Details</h5>
+                                    <p><i class="fas fa-map-marker-alt"></i> Address: <?php echo address; ?></p>
+                                    <p><i class="fas fa-clock"></i> Business Hours: Monday to Friday, 9:00 AM - 5:00 PM</p>
+                                    <p><i class="fas fa-phone"></i> Phone: 011-2345678</p>
+                                </div>
+                                <div class="action-buttons">
+                                    <button type="button" class="btn btn-primary" onclick="confirmCashPayment()">
+                                        <i class="fas fa-money-bill-wave"></i> I'll Pay in Cash
+                                    </button>
+                                </div>
+
+                                <!-- Hidden form for cash payment submission -->
+                                <form id="cashPaymentForm" action="<?php echo URLROOT; ?>/client/recordFinalCashPayment" method="post" style="display: none;">
+                                    <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
+                                    <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
+                                    <input type="hidden" name="payment_phase" value="final_payment">
+                                    <input type="hidden" name="amount" value="<?php echo $data['payment_amount']; ?>">
+                                </form>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+            </div>
+            <?php else: ?>
+                <div class="payment-success">
+                    <div class="success-icon">✓</div>
+                    <h3>Final Payment Complete</h3>
+                    <p>Your final payment has been received. Thank you!</p>
+                    <p>Amount Paid: Rs. <?php echo number_format($data['payment']->amount, 2); ?></p>
+                    <p>Payment Method: <?php echo ucfirst(str_replace('_', ' ', $data['payment']->payment_method)); ?></p>
+                    <p>Payment Date: <?php echo date('F j, Y', strtotime($data['payment']->created_at)); ?></p>
+                    
+                    <!-- Replace this section with your new message -->
+                    <div class="project-complete-message">
+                        <h4><i class="fas fa-check-circle"></i> Payment Complete - Engineer Approval Phase</h4>
+                        <p>Thank you for completing your final payment. Your project has now moved to the Engineer Approval phase.</p>
+                        <p>An engineer will review and approve your installation to ensure everything meets quality and safety standards.</p>
                     </div>
                 </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmationModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h3>Confirm Cash Payment</h3>
+            <p>Are you sure you want to pay Rs. <?php echo number_format($data['payment_amount'], 2); ?> in cash at our office?</p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitCashPayment()">Confirm</button>
             </div>
         </div>
+    </div>
+    <div class="overlay" id="overlay" onclick="closeModal()"></div>
 
-        <!-- Online Payment Popup -->
-        <div class="popup" id="onlinePaymentPopup">
-            <h2>Online Payment</h2>
-            <form id="paymentForm" onsubmit="handlePaymentSubmit(event)">
-                <div class="online-payment-container">
-                    <div class="row">
-                        <!-- Billing Address Section -->
-                        <div class="col">
-                            <h3 class="title">Billing Address</h3>
-                            <div class="inputBox">
-                                <label for="name">Full Name:</label>
-                                <input type="text" id="name" placeholder="Enter your full name" required>
-                            </div>
-                            <div class="inputBox">
-                                <label for="email">Email:</label>
-                                <input type="email" id="email" placeholder="Enter email address" required>
-                            </div>
-                            <div class="inputBox">
-                                <label for="address">Address:</label>
-                                <input type="text" id="address" placeholder="Enter address" required>
-                            </div>
-                            <div class="inputBox">
-                                <label for="city">City:</label>
-                                <input type="text" id="city" placeholder="Enter city" required>
-                            </div>
-                            <div class="flex">
-                                <div class="inputBox">
-                                    <label for="state">State:</label>
-                                    <input type="text" id="state" placeholder="Enter state" required>
-                                </div>
-                                <div class="inputBox">
-                                    <label for="zip">Zip Code:</label>
-                                    <input type="number" id="zip" placeholder="123456" required>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Payment Details Section -->
-                        <div class="col">
-                            <h3 class="title">Payment</h3>
-                            <div class="inputBox">
-                                <label for="cardName">Name On Card:</label>
-                                <input type="text" id="cardName" placeholder="Enter card name" required>
-                            </div>
-                            <div class="inputBox">
-                                <label for="cardNum">Credit Card Number:</label>
-                                <input type="text" id="cardNum" placeholder="1111 2222 3333 4444" maxlength="19" required>
-                            </div>
-                            <div class="inputBox">
-                                <label for="expMonth">Exp Month:</label>
-                                <select id="expMonth" required>
-                                    <option value="">Choose month</option>
-                                    <option value="">Choose month</option>
-                                    <option value="01">January</option>
-                                    <option value="02">February</option>
-                                    <option value="03">March</option>
-                                    <option value="04">April</option>
-                                    <option value="05">May</option>
-                                    <option value="06">June</option>
-                                    <option value="07">July</option>
-                                    <option value="08">August</option>
-                                    <option value="09">September</option>
-                                    <option value="10">October</option>
-                                    <option value="11">November</option>
-                                    <option value="12">December</option>
-                                </select>
-                            </div>
-                            <div class="flex">
-                                <div class="inputBox">
-                                    <label for="expYear">Exp Year:</label>
-                                    <select id="expYear" required>
-                                        <option value="">Choose Year</option>
-                                        <option value="">Choose Year</option>
-                                        <option value="2024">2024</option>
-                                        <option value="2025">2025</option>
-                                        <option value="2026">2026</option>
-                                        <option value="2027">2027</option>
-                                        <option value="2028">2028</option>
-                                    </select>
-                                </div>
-                                <div class="inputBox">
-                                    <label for="cvv">CVV:</label>
-                                    <input type="number" id="cvv" placeholder="123" required>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <input type="submit" value="Proceed to Checkout" class="submit_btn">
-                    <button type="button" class="payment-btn btn-secondary" onclick="closePopup('onlinePaymentPopup')">Cancel</button>
+    <script>
+        function toggleMethod(methodId) {
+            const methodContent = document.getElementById(methodId);
+            const allContents = document.querySelectorAll('.method-content');
+            const allIcons = document.querySelectorAll('.toggle-icon');
+
+            // Close all other method contents
+            allContents.forEach(content => {
+                if (content.id !== methodId) {
+                    content.style.display = 'none';
+                }
+            });
+
+            // Reset all toggle icons
+            allIcons.forEach(icon => {
+                icon.textContent = '+';
+            });
+
+            // Toggle the clicked method
+            if (methodContent.style.display === 'block') {
+                methodContent.style.display = 'none';
+                event.currentTarget.querySelector('.toggle-icon').textContent = '+';
+            } else {
+                methodContent.style.display = 'block';
+                event.currentTarget.querySelector('.toggle-icon').textContent = '-';
+            }
+        }
+
+        // Bank account details display
+        const bankSelect = document.getElementById('bank_account');
+        const bankDetails = document.getElementById('selectedBankDetails');
+        const bankAccounts = <?php echo json_encode(BANK_ACCOUNTS); ?>;
+
+        if (bankSelect) {
+            bankSelect.addEventListener('change', function() {
+                const selectedIndex = this.value;
+                if (selectedIndex !== '') {
+                    const bank = bankAccounts[selectedIndex];
+                    const amount = document.getElementById('amount').value;
+                    bankDetails.innerHTML = `
+                <div class="bank-details">
+                    <h5>${bank.bank_name} Details</h5>
+                    <p><strong>Account Name:</strong> ${bank.account_name}</p>
+                    <p><strong>Account Number:</strong> ${bank.account_number}</p>
+                    <p><strong>Branch:</strong> ${bank.branch} (${bank.branch_code})</p>
+                    <p><strong>Amount to Pay:</strong> Rs. ${parseFloat(amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
                 </div>
-            </form>
-    </div>
+            `;
+                } else {
+                    bankDetails.innerHTML = '';
+                }
+            });
 
+            // Modal functions
+            function openModal() {
+                document.getElementById('confirmationModal').style.display = 'block';
+                document.getElementById('overlay').style.display = 'block';
+            }
 
-    <!-- Upload Slip Popup -->
-    <div class="popup" id="uploadSlipPopup">
-        <h2>Upload Payment Slip</h2>
-        <div class="upload-area" onclick="triggerFileInput()">
-            <i class="material-icons">cloud_upload</i>
-            <p>Click or drag to upload payment slip</p>
-        </div>
-        <input type="file" id="slipInput" accept="image/*" style="display: none" onchange="handleFileUpload(event)">
-        <button class="payment-btn btn-secondary" onclick="closePopup('uploadSlipPopup')">Cancel</button>
-    </div>
+            function closeModal() {
+                document.getElementById('confirmationModal').style.display = 'none';
+                document.getElementById('overlay').style.display = 'none';
+            }
 
-    <!-- Success Popup -->
-    <div class="popup success-popup-class" id="successPopup">
-        <div class="success-circle">
-            <i class="material-icons">check</i>
-        </div>
-        <h2>Payment Successful!</h2>
-        <p style="margin-top: 10px;">Your payment has been processed successfully.</p>
-        <button class="payment-btn btn-primary success-popup-btn" onclick="closePopup('successPopup')">Close</button>
-    </div>
+            // Cash payment functions
+            function confirmCashPayment() {
+                openModal();
+            }
 
-    <div class="overlay" id="overlay"></div>
-    <div id="toastContainer" class="toast-container"></div>
+            function submitCashPayment() {
+                document.getElementById('cashPaymentForm').submit();
+                closeModal();
+            }
 
-
-    <script src="<?php echo URLROOT; ?>/js/client/finalPayment.js"></script>
-<?php require APPROOT.'/views/client/footer.php';?>
+            function changePaymentMethod() {
+                if (confirm('Are you sure you want to change your payment method? This will cancel your current payment method selection.')) {
+                    window.location.href = `${URLROOT}/client/cancelFinalPayment/<?php echo $data['pre_project_id']; ?>`;
+                }
+            }
+        }
+    </script>
+    <script src="<?php echo URLROOT; ?>/js/client/clientFinalPayment.js"></script>
+    <?php require APPROOT . '/views/client/footer.php'; ?>

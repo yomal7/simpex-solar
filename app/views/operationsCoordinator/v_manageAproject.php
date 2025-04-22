@@ -154,6 +154,8 @@
                                 onclick="window.location.href='<?php echo URLROOT ?>/operationsCoordinator/documentSubmission/<?php echo $data['project']->project_id; ?>'"
                                 <?php elseif ($phase === 'first_payment'): ?>
                                 onclick="window.location.href='<?php echo URLROOT ?>/operationsCoordinator/firstPayment/<?php echo $data['project']->project_id; ?>'"
+                                <?php elseif ($phase === 'final_payment'): ?>
+                                onclick="window.location.href='<?php echo URLROOT ?>/operationsCoordinator/finalPayment/<?php echo $data['project']->project_id; ?>'"
                                 <?php else: ?>
                                 data-url="<?php echo $url; ?>"
                                 <?php endif; ?>>
