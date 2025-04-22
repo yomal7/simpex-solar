@@ -16,27 +16,23 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="#" class="active">
-                <span class="material-icons-sharp">business</span>
-                <h3>Coordinators</h3>
+            <a href="<?php echo URLROOT; ?>/admin/createBlog">
+                <span class="material-icons-sharp">post_add</span>
+                <h3>Create Blog</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">person</span>
-                <h3>Customers</h3>
+            <a href="<?php echo URLROOT; ?>/admin/drafts">
+                <span class="material-icons-sharp">drafts</span>
+                <h3>Draft Blogs</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">receipt_long</span>
-                <h3>Projects</h3>
+            <a href="<?php echo URLROOT; ?>/admin/published" >
+                <span class="material-icons-sharp">article</span>
+                <h3>Published Blogs</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">inventory</span>
-                <h3>Inventory</h3>
+            <a href="<?php echo URLROOT; ?>/admin/addCoordinator" class="active">
+                <span class="material-icons-sharp">supervisor_account</span>
+                <h3>Manage Coordinators</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">group</span>
-                <h3>Employees</h3>
-            </a>
-            <a href="#">
+            <a href="<?php echo URLROOT; ?>/admin/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
@@ -79,10 +75,16 @@
                                         <p class="email"><?php echo $coordinator->email; ?></p>
                                     </div>
                                     <div class="actions">
-                                        <button class="btn-edit" onclick="openEditModal('<?php echo $coordinator->user_id; ?>', '<?php echo $coordinator->name; ?>', '<?php echo $coordinator->email; ?>', '<?php echo $coordinator->role; ?>')">
+                                        <button class="btn-edit" data-action="edit" 
+                                                data-userid="<?php echo $coordinator->user_id; ?>"
+                                                data-name="<?php echo $coordinator->name; ?>"
+                                                data-email="<?php echo $coordinator->email; ?>"
+                                                data-role="<?php echo $coordinator->role; ?>">
                                             <span class="material-icons-sharp">edit</span>
                                         </button>
-                                        <button class="btn-delete" onclick="openDeleteModal('<?php echo $coordinator->user_id; ?>', '<?php echo $coordinator->name; ?>')">
+                                        <button class="btn-delete" data-action="delete"
+                                                data-userid="<?php echo $coordinator->user_id; ?>"
+                                                data-name="<?php echo $coordinator->name; ?>">
                                             <span class="material-icons-sharp">delete</span>
                                         </button>
                                     </div>
@@ -101,34 +103,38 @@
         </div>
 
         <!-- Add Coordinator Modal -->
-        <div id="addModal" class="modal">
+        <div id="addModal" class="modal <?php echo isset($data['show_add_modal']) && $data['show_add_modal'] ? 'show' : ''; ?>">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Add New Coordinator</h2>
                     <span class="close">&times;</span>
                 </div>
-                <form action="<?php echo URLROOT; ?>/operationsCoordinator/createPackage" method="POST" enctype="multipart/form-data" class="package-form">
+                <form action="<?php echo URLROOT; ?>/admin/addCoordinator" method="POST" class="package-form">
                     <div class="form-group">
                         <label for="name">Name</label>
-                        <input type="text" id="name" name="name" required>
+                        <input type="text" id="name" name="name" value="<?php echo isset($data['form_data']['name']) ? $data['form_data']['name'] : ''; ?>" required>
+                        <span class="error"><?php echo isset($data['form_data']['name_err']) ? $data['form_data']['name_err'] : ''; ?></span>
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
+                        <input type="email" id="email" name="email" value="<?php echo isset($data['form_data']['email']) ? $data['form_data']['email'] : ''; ?>" required>
+                        <span class="error"><?php echo isset($data['form_data']['email_err']) ? $data['form_data']['email_err'] : ''; ?></span>
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
                         <input type="password" id="password" name="password" required>
+                        <span class="error"><?php echo isset($data['form_data']['password_err']) ? $data['form_data']['password_err'] : ''; ?></span>
                     </div>
                     <div class="form-group">
                         <label for="role">Role</label>
                         <select id="role" name="role" required>
                             <option value="">Select Role</option>
-                            <option value="chiefCoordinator">Chief Coordinator</option>
-                            <option value="operationsCoordinator">Operations Coordinator</option>
-                            <option value="hRAdministrator">HR Administrator</option>
-                            <option value="supplierCoordinator">Supplier Coordinator</option>
+                            <option value="chiefCoordinator" <?php echo (isset($data['form_data']['role']) && $data['form_data']['role'] === 'chiefCoordinator') ? 'selected' : ''; ?>>Chief Coordinator</option>
+                            <option value="operationsCoordinator" <?php echo (isset($data['form_data']['role']) && $data['form_data']['role'] === 'operationsCoordinator') ? 'selected' : ''; ?>>Operations Coordinator</option>
+                            <option value="hRAdministrator" <?php echo (isset($data['form_data']['role']) && $data['form_data']['role'] === 'hRAdministrator') ? 'selected' : ''; ?>>HR Administrator</option>
+                            <option value="supplierCoordinator" <?php echo (isset($data['form_data']['role']) && $data['form_data']['role'] === 'supplierCoordinator') ? 'selected' : ''; ?>>Supplier Coordinator</option>
                         </select>
+                        <span class="error"><?php echo isset($data['form_data']['role_err']) ? $data['form_data']['role_err'] : ''; ?></span>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn-submit">Add Coordinator</button>
@@ -155,12 +161,12 @@
                         <input type="email" id="edit_email" name="email" required>
                     </div>
                     <div class="form-group">
-                        <label for="type">Package Type</label>
+                        <!-- <label for="type">Package Type</label>
                         <select name="type" id="type" class="form-control" required>
                             <option value="on-grid" <?php echo ($data['type'] === 'on-grid') ? 'selected' : ''; ?>>On Grid</option>
                             <option value="off-grid" <?php echo ($data['type'] === 'off-grid') ? 'selected' : ''; ?>>Off Grid</option>
                             <option value="hybrid" <?php echo ($data['type'] === 'hybrid') ? 'selected' : ''; ?>>Hybrid</option>
-                        </select>
+                        </select> -->
                         <span class="error"><?php echo $data['errors']['type'] ?? ''; ?></span>
                     </div>
                     <div class="form-actions">

@@ -1,0 +1,221 @@
+.visit-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.visit-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.visit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.visit-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.customer-details h3 {
+    color: #2e7d32;
+    margin: 0 0 10px 0;
+}
+
+.customer-details p, .visit-details p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.customer-details i, .visit-details i {
+    width: 20px;
+    color: #2e7d32;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-badge.scheduled {
+    background-color: #ffecb3;
+    color: #ff8f00;
+}
+
+.status-badge.confirmed {
+    background-color: #c8e6c9;
+    color: #2e7d32;
+}
+
+.visit-actions {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.btn-primary {
+    display: inline-block;
+    background-color: #2e7d32;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #1b5e20;
+}
+
+.btn-primary i {
+    margin-right: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: block;
+    }
+    
+    .sidebar {
+        width: 0;
+        padding-top: 60px;
+    }
+    
+    .sidebar.show {
+        width: 240px;
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .visit-cards {
+        grid-template-columns: 1fr;
+    }
+
+
+    
+}
+
+.no-visits {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 60px 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    margin: 40px auto;
+    max-width: 500px;
+    position: relative;
+    border: 1px dashed #e0e0e0;
+}
+
+.no-visits:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(to right, #2e7d32, #43a047);
+    border-radius: 12px 12px 0 0;
+}
+
+.no-visits span.material-icons-sharp {
+    font-size: 72px;
+    color: #e0e0e0;
+    margin-bottom: 20px;
+    display: block;
+    animation: pulse 2s infinite ease-in-out;
+}
+
+.no-visits p {
+    font-size: 18px;
+    color: #757575;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.no-visits .empty-state-actions {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 80%;
+}
+
+.no-visits .info-text {
+    font-size: 14px;
+    color: #9e9e9e;
+    margin-top: 20px;
+    max-width: 80%;
+    line-height: 1.6;
+}
+
+.no-visits .refresh-btn {
+    background-color: #f5f5f5;
+    color: #333;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.2s ease;
+}
+
+.no-visits .refresh-btn:hover {
+    background-color: #e8e8e8;
+}
+
+.no-visits .refresh-btn i {
+    font-size: 18px;
+}
+
+/* Animation for the icon */
+@keyframes pulse {
+    0% {
+        opacity: 0.6;
+        transform: scale(0.95);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    100% {
+        opacity: 0.6;
+        transform: scale(0.95);
+    }
+}
+
+/* Add styles for empty state background pattern */
+.no-visits {
+    background-image: radial-gradient(#e8f5e9 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-color: #fff;
+
+}

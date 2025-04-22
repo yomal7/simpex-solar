@@ -1,69 +1,76 @@
-const thumbnails = document.querySelectorAll('.thumbnail');
-const mainImage = document.getElementById('mainImage');
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("purchaseForm");
+  const deliveryOptions = document.querySelectorAll('input[name="delivery"]');
+  const deliveryOptionInput = document.getElementById("deliveryOption");
+  const quantityInput = document.getElementById("quantity");
+  const decreaseBtn = document.getElementById("decreaseQuantity");
+  const increaseBtn = document.getElementById("increaseQuantity");
 
-thumbnails.forEach(thumbnail => {
-    thumbnail.addEventListener('click', () => {
-        // Remove active class from all thumbnails
-        thumbnails.forEach(t => t.classList.remove('active'));
-        // Add active class to clicked thumbnail
-        thumbnail.classList.add('active');
-        // Update main image
-        mainImage.src = thumbnail.src;
+  // Set initial delivery option
+  deliveryOptionInput.value = document.querySelector(
+    'input[name="delivery"]:checked'
+  ).value;
+
+  // Handle delivery option changes
+  deliveryOptions.forEach((option) => {
+    option.addEventListener("change", function () {
+      deliveryOptionInput.value = this.value;
+      console.log("Delivery option changed to:", this.value);
     });
+  });
+
+  // Handle quantity controls
+  decreaseBtn.addEventListener("click", () => {
+    if (quantityInput.value > 1) {
+      quantityInput.value = parseInt(quantityInput.value) - 1;
+    }
+  });
+
+  increaseBtn.addEventListener("click", () => {
+    quantityInput.value = parseInt(quantityInput.value) + 1;
+  });
+
+  // Handle form submission
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const productId = form.dataset.productId;
+    const quantity = quantityInput.value;
+    const deliveryOption = document.querySelector(
+      'input[name="delivery"]:checked'
+    ).value;
+
+    console.log("Selected delivery option:", deliveryOption);
+
+    // Redirect to purchase request page with parameters
+    window.location.href = `${URLROOT}/shop/requestPurchase/${productId}?quantity=${quantity}&delivery=${deliveryOption}`;
+  });
+});
+
+const thumbnails = document.querySelectorAll(".thumbnail");
+const mainImage = document.getElementById("mainImage");
+
+thumbnails.forEach((thumbnail) => {
+  thumbnail.addEventListener("click", () => {
+    // Remove active class from all thumbnails
+    thumbnails.forEach((t) => t.classList.remove("active"));
+    // Add active class to clicked thumbnail
+    thumbnail.classList.add("active");
+    // Update main image
+    mainImage.src = thumbnail.src;
+  });
 });
 
 // Delivery Options
-const deliveryOptions = document.querySelectorAll('.delivery-option');
+const deliveryOptionsElements = document.querySelectorAll(".delivery-option");
 
-deliveryOptions.forEach(option => {
-    option.addEventListener('click', () => {
-        // Remove selected class from all options
-        deliveryOptions.forEach(opt => opt.classList.remove('selected'));
-        // Add selected class to clicked option
-        option.classList.add('selected');
-        // Check the radio input
-        option.querySelector('input[type="radio"]').checked = true;
-    });
-});
-
-// Quantity Controls
-const quantityInput = document.getElementById('quantity');
-const decreaseBtn = document.getElementById('decreaseQuantity');
-const increaseBtn = document.getElementById('increaseQuantity');
-
-decreaseBtn.addEventListener('click', () => {
-    const currentValue = parseInt(quantityInput.value);
-    if (currentValue > 1) {
-        quantityInput.value = currentValue - 1;
-    }
-});
-
-increaseBtn.addEventListener('click', () => {
-    const currentValue = parseInt(quantityInput.value);
-    quantityInput.value = currentValue + 1;
-});
-
-// Purchase Request
-const purchaseRequestBtn = document.getElementById('purchaseRequest');
-const successMessage = document.getElementById('successMessage');
-
-purchaseRequestBtn.addEventListener('click', () => {
-    // Add loading state
-    purchaseRequestBtn.disabled = true;
-    purchaseRequestBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-
-    // Simulate API call
-    setTimeout(() => {
-        // Show success message
-        successMessage.classList.add('show');
-        
-        // Reset button
-        purchaseRequestBtn.disabled = false;
-        purchaseRequestBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request to Purchase';
-
-        // Hide success message after 3 seconds
-        setTimeout(() => {
-            successMessage.classList.remove('show');
-        }, 3000);
-    }, 1500);
+deliveryOptionsElements.forEach((option) => {
+  option.addEventListener("click", () => {
+    // Remove selected class from all options
+    deliveryOptionsElements.forEach((opt) => opt.classList.remove("selected"));
+    // Add selected class to clicked option
+    option.classList.add("selected");
+    // Check the radio input
+    option.querySelector('input[type="radio"]').checked = true;
+  });
 });

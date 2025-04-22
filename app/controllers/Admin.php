@@ -86,7 +86,7 @@ class Admin extends Controller {
                 
                 if ($this->blogModel->createPost($data)) {
                     flash('blog_message', 'Post created successfully');
-                    redirect('admin/blogs');
+                    redirect('admin/published');
                 } else {
                     flash('blog_message', 'Something went wrong', 'alert alert-danger');
                     $this->view('admin/v_createBlog', $data);
@@ -125,35 +125,7 @@ class Admin extends Controller {
     }
     
     public function publishDraft($id) {
-        // Check if it's an AJAX request
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            
-            header('Content-Type: application/json');
-            
-            if (!$this->blogModel->getPostById($id)) {
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Draft not found'
-                ]);
-                return;
-            }
-            
-            if ($this->blogModel->publishDraft($id)) {
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Post published successfully'
-                ]);
-            } else {
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Failed to publish post'
-                ]);
-            }
-            return;
-        }
-        
-        // Handle regular POST request
+        // // Handle regular POST request
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($this->blogModel->publishDraft($id)) {
                 flash('draft_message', 'Post published successfully');
@@ -198,45 +170,6 @@ class Admin extends Controller {
     }
     
     public function deleteBlog($id) {
-        // Check if it's an AJAX request
-        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            
-            header('Content-Type: application/json');
-            
-            // Get post before deletion for cleanup
-            $post = $this->blogModel->getPostById($id);
-            
-            if (!$post) {
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Post not found'
-                ]);
-                return;
-            }
-    
-            // Delete the post
-            if ($this->blogModel->deletePost($id)) {
-                // Delete associated image if exists
-                if ($post->featured_image) {
-                    $imagePath = 'public/uploads/blog/' . $post->featured_image;
-                    if (file_exists($imagePath)) {
-                        unlink($imagePath);
-                    }
-                }
-    
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Post deleted successfully'
-                ]);
-            } else {
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Failed to delete post'
-                ]);
-            }
-            return;
-        }
     
         // Handle regular POST request
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -391,12 +324,32 @@ class Admin extends Controller {
 
     public function addCoordinator() {
         if($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('admin/coordinators');
+            // Show the coordinators page with the add form
+            $coordinators = $this->userModel->getCoordinators();
+            $coordinator_types = ['chiefCoordinator', 'operationsCoordinator', 'hRAdministrator', 'supplierCoordinator'];
+            
+            $data = [
+                'coordinators' => $coordinators,
+                'coordinator_types' => $coordinator_types,
+                'show_add_modal' => false, // Default don't show modal
+                'form_data' => [
+                    'name' => '',
+                    'email' => '',
+                    'role' => '',
+                    'name_err' => '',
+                    'email_err' => '',
+                    'password_err' => '',
+                    'role_err' => ''
+                ]
+            ];
+    
+            $this->view('admin/v_manageCoordinators', $data);
+            return;
         }
-
+    
         // Sanitize POST data
         $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-
+    
         $data = [
             'name' => trim($_POST['name']),
             'email' => trim($_POST['email']),
@@ -407,24 +360,24 @@ class Admin extends Controller {
             'password_err' => '',
             'role_err' => ''
         ];
-
+    
         // Validate role and check if coordinator already exists
         if($this->userModel->getCoordinatorByRole($data['role'])) {
             $data['role_err'] = 'A coordinator for this role already exists';
         }
-
+    
         // Validate email
         if($this->userModel->findUserByEmail($data['email'])) {
             $data['email_err'] = 'Email is already taken';
         }
-
+    
         // Make sure no errors
         if(empty($data['email_err']) && empty($data['name_err']) && 
            empty($data['password_err']) && empty($data['role_err'])) {
             
             // Hash Password
             $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-
+    
             if($this->userModel->register($data)) {
                 flash('coordinator_message', 'Coordinator added successfully', 'success');
                 redirect('admin/coordinators');
@@ -432,8 +385,19 @@ class Admin extends Controller {
                 die('Something went wrong');
             }
         } else {
-            flash('coordinator_message', 'Unable to add coordinator. Please check the errors', 'error');
-            redirect('admin/coordinators');
+            // Get all coordinators for the page
+            $coordinators = $this->userModel->getCoordinators();
+            $coordinator_types = ['chiefCoordinator', 'operationsCoordinator', 'hRAdministrator', 'supplierCoordinator'];
+            
+            // Prepare view data with form data and errors
+            $viewData = [
+                'coordinators' => $coordinators,
+                'coordinator_types' => $coordinator_types,
+                'show_add_modal' => true, // Tell view to show the modal
+                'form_data' => $data
+            ];
+    
+            $this->view('admin/v_manageCoordinators', $viewData);
         }
     }
 

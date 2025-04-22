@@ -2,6 +2,8 @@
     <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/admin/dashboard.css">
 </head>
 <body>
+
+
     <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
@@ -16,27 +18,23 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="#" class="active">
-                <span class="material-icons-sharp">create</span>
+            <a href="<?php echo URLROOT; ?>/admin/createBlog" class="active">
+                <span class="material-icons-sharp">post_add</span>
                 <h3>Create Blog</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">person</span>
-                <h3>Customers</h3>
+            <a href="<?php echo URLROOT; ?>/admin/drafts">
+                <span class="material-icons-sharp">drafts</span>
+                <h3>Draft Blogs</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">receipt_long</span>
-                <h3>Projects</h3>
+            <a href="<?php echo URLROOT; ?>/admin/published" >
+                <span class="material-icons-sharp">article</span>
+                <h3>Published Blogs</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">inventory</span>
-                <h3>Inventory</h3>
+            <a href="<?php echo URLROOT; ?>/admin/addCoordinator" >
+                <span class="material-icons-sharp">supervisor_account</span>
+                <h3>Manage Coordinators</h3>
             </a>
-            <a href="#">
-                <span class="material-icons-sharp">group</span>
-                <h3>Employees</h3>
-            </a>
-            <a href="#">
+            <a href="<?php echo URLROOT; ?>/admin/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
@@ -46,7 +44,8 @@
             </a>
         </div>
         <div class="main-content">
-        <div class="container">
+            <div class="container">
+                <?php require APPROOT . '/views/inc/components/flash.php'; ?>
                 <div class="content-wrapper">
                     <div class="page-header">
                         <h1>Create New Blog Post</h1>
@@ -110,6 +109,16 @@
         </div>    
         </div>
     </div>
-
+    <script src="<?php echo URLROOT; ?>/public/js/flash.js"></script>
+    <?php
+    // Add this code to handle flash messages
+    if($flashMessage = flash('flash_message')): ?>
+        <script>
+            showFlash(
+                <?php echo json_encode($flashMessage['message']); ?>,
+                <?php echo json_encode($flashMessage['type']); ?>
+            );
+        </script>
+    <?php endif; ?>
     <script src="<?php echo URLROOT; ?>/js/admin/dashboard.js"></script>
 <?php require APPROOT.'/views/admin/footer.php';?>

@@ -13,14 +13,63 @@
         <button class="nav-btn" data-type="hybrid">Hybrid</button>
     </div>
 
+    <div class="info-section">
+        <button class="info-toggle-btn" onclick="toggleInfo()">
+            No idea what to choose? 🤔 We got you covered! Get to know more about the different types of solar systems.
+            <svg class="toggle-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </button>
+        
+        <div class="info-content" id="infoContent">
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>Off-Grid Systems</h3>
+                    <p>Completely independent from the utility grid. Perfect for remote locations or those seeking energy independence. Includes battery storage for 24/7 power supply.</p>
+                </div>
+                <div class="info-card">
+                    <h3>On-Grid Systems</h3>
+                    <p>Connected to the utility grid. Excess power is fed back to the grid, potentially earning credits. Most economical option for urban areas.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Hybrid Systems</h3>
+                    <p>Best of both worlds. Connected to the grid but includes battery backup for power outages. Ideal for areas with unreliable grid power.</p>
+                </div>
+            </div>
+
+            <div class="tools-section">
+                <div class="video-container">
+                    <h3>Watch How Solar Works</h3>
+                    <div class="video-wrapper" id="videoWrapper">
+                        <!-- Replace VIDEO_ID with your actual YouTube video ID -->
+                        <!-- <iframe width="560" height="315" src="about:blank" data-src="https://youtu.be/pajmtcTTCJg?si=DXvpzs2L0WpEs7d6" frameborder="0" allowfullscreen></iframe> -->
+                            <iframe width="560" height="315" src="https://www.youtube.com/embed/pajmtcTTCJg?si=uLLyKxO9ITDEsT7t" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                </div>
+
+                <div class="calculator-container">
+                    <h3>Energy Calculator</h3>
+                    <div class="calculator-form">
+                        <label for="monthlyBill">Monthly Electricity Bill (Rs)</label>
+                        <input type="number" id="monthlyBill" placeholder="Enter amount" min="0">
+                        <button onclick="calculateEnergy()" class="calculate-btn">Calculate</button>
+                        <div class="result" id="calculatorResult">
+                            <p>Estimated Energy Usage: <span id="energyValue">0</span> kWh</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="packages-grid" id="packagesContainer">
         <?php foreach($data['packages'] as $package): ?>
             <div class="package-card" data-type="<?php echo $package->type; ?>">
                 <h2 class="package-name"><?php echo $package->title; ?></h2>
                 <img src="<?php echo URLROOT; ?>/public/<?php echo $package->image ?: 'default-package.jpg'; ?>"
-                     alt="<?php echo $package->title; ?>"
-                     class="package-image"
-                     onerror="this.src='<?php echo URLROOT; ?>/public/assets/product_poster.png'">
+                alt="<?php echo $package->title; ?>"
+                class="package-image"
+                onerror="this.src='<?php echo URLROOT; ?>/public/assets/product_poster.png'">
                 <div class="package-price">Rs <?php echo number_format($package->final_price, 2); ?></div>
                 <ul class="features-list">
                     <?php

@@ -16,26 +16,11 @@
                 alt="manager profile-picture"
                 class="profile-picture"
             />
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/dashboard" class="active">
-                <span class="material-icons-sharp">dashboard</span>
-                <h3>Dashboard</h3>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/managePackages" class="active">
+                <span class="material-icons-sharp">arrow_back</span>
+                <h3>back</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/projects">
-                <span class="material-icons-sharp">receipt_long</span>
-                <h3>Projects</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/managePackages">
-                <span class="material-icons-sharp">solar_power</span>
-                <h3>Packages</h3>
-            </a>
-            <a href="/tasks">
-                <span class="material-icons-sharp">task</span>
-                <h3>Tasks</h3>
-            </a>
-            <a href="#">
-                <span class="material-icons-sharp">settings</span>
-                <h3>Settings</h3>
-            </a>
+
             <a href="<?php echo URLROOT; ?>/users/logout">
                 <span class="material-icons-sharp">logout</span>
                 <h3>Logout</h3>
@@ -68,7 +53,7 @@
                             <div class="form-group">
                                 <label for="warranty_years">Warranty (Years)</label>
                                 <input type="number" name="warranty_years" id="warranty_years" 
-                                    class="form-control" value="<?php echo $data['warranty_years']; ?>" min="0">
+                                    class="form-control" value="<?php echo $data['warranty_years']; ?>" min="0" max="25" required>
                             </div>
 
                             <div class="form-group">
@@ -99,13 +84,17 @@
                                         <select name="item_id[]" class="form-control" required>
                                             <option value="">Choose equipment</option>
                                             <?php foreach($data['inventory_items'] as $item): ?>
+                                                <?php 
+                                                $eqItemId = is_object($equipment) ? $equipment->item_id : $equipment['item_id'];
+                                                ?>
                                                 <option value="<?php echo $item->item_id; ?>" 
                                                         data-price="<?php echo $item->price; ?>"
-                                                        <?php echo ($item->item_id === $equipment->item_id) ? 'selected' : ''; ?>>
+                                                        <?php echo ($item->item_id == $eqItemId) ? 'selected' : ''; ?>>
                                                     <?php echo $item->product_name; ?> (Stock: <?php echo $item->quantity; ?>)
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
+
                                     </div>
                                     <div class="form-group">
                                         <label>Quantity</label>

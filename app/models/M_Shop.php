@@ -79,20 +79,18 @@ class M_Shop
 
     public function getProductById($id)
     {
-        $this->db->query('SELECT p.*, s.name as supplier_name,
-                         GROUP_CONCAT(pf.feature) as features 
+        $this->db->query('SELECT p.*, s.name as supplier_name 
                          FROM products p 
                          LEFT JOIN suppliers s ON p.supplier_id = s.id 
-                         LEFT JOIN product_features pf ON p.id = pf.product_id 
-                         WHERE p.id = :id AND p.deleted_at IS NULL 
-                         GROUP BY p.id');
+                         WHERE p.id = :id AND p.deleted_at IS NULL');
         $this->db->bind(':id', $id);
         return $this->db->single();
     }
 
     public function getProductFeatures($productId)
     {
-        $this->db->query('SELECT feature FROM product_features WHERE product_id = :product_id');
+        $this->db->query('SELECT feature FROM product_features 
+                         WHERE product_id = :product_id');
         $this->db->bind(':product_id', $productId);
         return $this->db->resultSet();
     }
@@ -180,5 +178,243 @@ class M_Shop
                          WHERE product_id = :product_id');
         $this->db->bind(':product_id', $productId);
         return $this->db->execute();
+    }
+
+    public function addPreOrder($data)
+    {
+        // First get product price
+        $this->db->query("SELECT price FROM products WHERE id = :id");
+        $this->db->bind(':id', $data['product_id']);
+        $product = $this->db->single();
+
+        if (!$product) {
+            return false;
+        }
+
+        $this->db->query('INSERT INTO store_orders (
+        product_id, user_id, delivery_option, full_name, 
+        email, phone_number, street_address, city, 
+        province, postal_code, address_notes, quantity,
+        price, delivery_fee, status
+    ) VALUES (
+        :product_id, :user_id, :delivery_option, :full_name,
+        :email, :phone_number, :street_address, :city,
+        :province, :postal_code, :address_notes, :quantity,
+        :price, :delivery_fee, "pending"
+    )');
+
+        $delivery_fee = ($data['delivery_option'] === 'deliver') ? 450.00 : 0.00;
+
+        // Bind values
+        $this->db->bind(':product_id', $data['product_id']);
+        $this->db->bind(':user_id', $data['user_id']);
+        $this->db->bind(':delivery_option', $data['delivery_option']);
+        $this->db->bind(':full_name', $data['full_name']);
+        $this->db->bind(':email', $data['email']);
+        $this->db->bind(':phone_number', $data['phone_number']);
+        $this->db->bind(':street_address', $data['street_address']);
+        $this->db->bind(':city', $data['city']);
+        $this->db->bind(':province', $data['province']);
+        $this->db->bind(':postal_code', $data['postal_code']);
+        $this->db->bind(':address_notes', $data['address_notes']);
+        $this->db->bind(':quantity', $data['quantity']);
+        $this->db->bind(':price', $product->price);
+        $this->db->bind(':delivery_fee', $delivery_fee);
+
+        try {
+            return $this->db->execute();
+        } catch (PDOException $e) {
+            error_log('Database error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getUserOrders($userId)
+    {
+        $this->db->query("SELECT 
+        so.*, p.name AS product_name
+        FROM store_orders so
+        JOIN products p ON so.product_id = p.id
+        WHERE so.user_id = :user_id 
+        AND so.deleted_at IS NULL
+        ORDER BY so.created_at DESC");
+
+        $this->db->bind(':user_id', $userId);
+        return $this->db->resultSet();
+    }
+
+    public function getPendingOrders()
+    {
+        $this->db->query("
+        SELECT 
+            so.*, p.name AS product_name, p.price AS product_price 
+        FROM store_orders so
+        JOIN products p ON so.product_id = p.id
+        WHERE so.status = 'pending'
+        AND so.deleted_at IS NULL
+        ORDER BY so.created_at DESC
+    ");
+        return $this->db->resultSet();
+    }
+
+    public function getProcessingOrders()
+    {
+        $this->db->query("
+        SELECT 
+            so.*, p.name AS product_name
+        FROM store_orders so
+        JOIN products p ON so.product_id = p.id
+        WHERE so.status = 'processing'
+        AND so.deleted_at IS NULL
+        ORDER BY so.created_at DESC
+    ");
+        return $this->db->resultSet();
+    }
+
+    public function getActiveOrders()
+    {
+        $this->db->query("
+        SELECT 
+            so.*, p.name AS product_name
+        FROM store_orders so
+        JOIN products p ON so.product_id = p.id
+        WHERE so.status IN ('pending', 'approved', 'processing', 'ready for pickup', 'out for delivery')
+        AND so.deleted_at IS NULL
+        ORDER BY so.created_at DESC
+    ");
+        return $this->db->resultSet();
+    }
+
+    public function getOrderDetails($id)
+    {
+        $this->db->query("SELECT so.*, p.name as product_name, p.image1 
+                          FROM store_orders so
+                          JOIN products p ON so.product_id = p.id 
+                          WHERE so.id = :id");
+        $this->db->bind(':id', $id);
+        return $this->db->single();
+    }
+
+    public function approveOrder($data)
+    {
+        $this->db->query("UPDATE store_orders 
+                          SET status = 'approved',
+                              price = :price,
+                              delivery_fee = :delivery_fee,
+                              discount = :discount,
+                              updated_at = CURRENT_TIMESTAMP
+                          WHERE id = :id");
+
+        $this->db->bind(':id', $data->orderId);
+        $this->db->bind(':price', $data->price);
+        $this->db->bind(':delivery_fee', $data->delivery_fee);
+        $this->db->bind(':discount', $data->discount);
+
+        return $this->db->execute();
+    }
+
+    public function rejectOrder($orderId)
+    {
+        $this->db->query("UPDATE store_orders 
+                          SET status = 'rejected',
+                              updated_at = CURRENT_TIMESTAMP 
+                          WHERE id = :id");
+        $this->db->bind(':id', $orderId);
+        return $this->db->execute();
+    }
+
+    public function getOrderDetailsByID($id)
+    {
+        $this->db->query("SELECT so.*, p.name as product_name, p.image1
+                      FROM store_orders so
+                      JOIN products p ON so.product_id = p.id
+                      WHERE so.id = :id");
+        $this->db->bind(':id', $id);
+        return $this->db->single();
+    }
+
+    public function cancelOrder($orderId)
+    {
+        $this->db->query("UPDATE store_orders SET status = 'cancelled' WHERE id = :id");
+        $this->db->bind(':id', $orderId);
+        return $this->db->execute();
+    }
+
+    public function processPayment($orderId, $paymentMethod)
+    {
+        try {
+            // Update order status to processing for cash payments
+            if ($paymentMethod === 'cash') {
+                $this->db->query("UPDATE store_orders SET status = 'processing' WHERE id = :id");
+                $this->db->bind(':id', $orderId);
+
+                if (!$this->db->execute()) {
+                    return false;
+                }
+
+                // Create payment record
+                $this->db->query("INSERT INTO store_payments (order_id, payment_method, payment_status) 
+                             VALUES (:order_id, :payment_method, :payment_status)");
+
+                $this->db->bind(':order_id', $orderId);
+                $this->db->bind(':payment_method', 'cash');
+                $this->db->bind(':payment_status', false);
+
+                return $this->db->execute();
+            }
+            return true;
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return false;
+        }
+    }
+
+    public function uploadBankSlip($orderId, $filePath)
+    {
+        try {
+            // 1. Update order status to processing
+            $this->db->query("UPDATE store_orders 
+                         SET status = 'processing',
+                             updated_at = CURRENT_TIMESTAMP 
+                         WHERE id = :id");
+            $this->db->bind(':id', $orderId);
+
+            if (!$this->db->execute()) {
+                throw new Exception("Failed to update order status");
+            }
+
+            // 2. Create payment record
+            $this->db->query("INSERT INTO store_payments 
+                         (order_id, payment_method, payment_status) 
+                         VALUES 
+                         (:order_id, 'bank deposit', false)");
+
+            $this->db->bind(':order_id', $orderId);
+
+            if (!$this->db->execute()) {
+                throw new Exception("Failed to create payment record");
+            }
+
+            // Get payment ID for bank slip
+            $paymentId = $this->db->lastInsertId();
+
+            // 3. Create bank slip record
+            $this->db->query("INSERT INTO bank_slips 
+                         (payment_id, image, status) 
+                         VALUES 
+                         (:payment_id, :image, 'pending')");
+
+            $this->db->bind(':payment_id', $paymentId);
+            $this->db->bind(':image', $filePath);
+
+            if (!$this->db->execute()) {
+                throw new Exception("Failed to create bank slip record");
+            }
+
+            return true;
+        } catch (Exception $e) {
+            error_log('Payment processing error: ' . $e->getMessage());
+            return false;
+        }
     }
 }

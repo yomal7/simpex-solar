@@ -147,6 +147,47 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
+let postIdToDelete = null;
+
+// Function to show the delete confirmation modal
+function confirmDelete(postId, postTitle) {
+    postIdToDelete = postId;
+    
+    // Set the post title in the modal
+    document.getElementById('deletePostTitle').textContent = postTitle;
+    
+    // Show the modal
+    document.getElementById('deleteModal').style.display = 'block';
+}
+
+// Function to close the modal
+function closeModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+}
+
+// Function to actually delete the post
+function confirmDeletePost() {
+    if (!postIdToDelete) return;
+    
+    // Create a form element
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `${URLROOT}/admin/deleteBlog/${postIdToDelete}`;
+    document.body.appendChild(form);
+    
+    // Submit the form
+    form.submit();
+}
+
+// Close the modal if the user clicks outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('deleteModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
+
+
 // Add fadeOut animation
 const style = document.createElement('style');
 style.textContent = `

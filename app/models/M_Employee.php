@@ -74,7 +74,7 @@ class M_Employee
         $this->db->bind(':email', $data['email']);
         $this->db->bind(':phone', $data['phone']);
         $this->db->bind(':user_id', $data['user_id']);
-        
+
         if ($this->db->execute()) {
             return true;
         } else {
@@ -89,7 +89,8 @@ class M_Employee
         $this->db->execute();
     }
 
-    public function getEmployeeType() {
+    public function getEmployeeType()
+    {
         $this->db->query('SELECT role FROM employees WHERE user_id = :user_id');
         $this->db->bind(':user_id', $_SESSION['user_id']);
         
@@ -167,5 +168,22 @@ class M_Employee
         $this->db->bind(':status', $status);
         $this->db->bind(':id', $recordId);
         return $this->db->execute();
+    }
+
+    /**
+     * Get employees by role
+     * 
+     * @param string $role Role to filter by (engineer, technician, deliveryPerson)
+     * @return array Employees matching the role
+     */
+    public function getEmployeesByRole($role)
+    {
+        $this->db->query('SELECT e.*, u.name, u.email, u.phone
+                     FROM employees e
+                     LEFT JOIN users u ON e.user_id = u.user_id
+                     WHERE e.role = :role
+                     ORDER BY u.name');
+        $this->db->bind(':role', $role);
+        return $this->db->resultSet();
     }
 }

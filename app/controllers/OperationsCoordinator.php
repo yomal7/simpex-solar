@@ -6,6 +6,9 @@ class OperationsCoordinator extends Controller
     private $packageModel;
     private $inventoryModel;
     private $employeeModel;
+    private $preProjectModel;
+    private $projectModel;
+    private $operationsCoordinatorModel;
 
     public function __construct()
     {
@@ -17,6 +20,9 @@ class OperationsCoordinator extends Controller
         $this->packageModel = $this->model('M_Packages');
         $this->inventoryModel = $this->model('M_Inventory');
         $this->employeeModel = $this->model('M_Employee');
+        $this->preProjectModel = $this->model('M_CustomerPreProject');
+        $this->projectModel = $this->model('M_CustomerProject');
+        $this->operationsCoordinatorModel = $this->model('M_OperationsCoordinator');
     }
 
     public function index()
@@ -31,17 +37,1356 @@ class OperationsCoordinator extends Controller
         $this->view('operationsCoordinator/v_dashboard', $data);
     }
 
+
+
+    //################################################################################################
+    //-------------------------------------Add signature----------------------------------------------
+    //################################################################################################
+
+    public function signature()
+    {
+        $signature = $this->operationsCoordinatorModel->getSignatureByCoordinatorId($_SESSION['user_id']);
+
+        $data = [
+            'title' => 'Signature Upload',
+            'signature' => $signature,
+            'signature_err' => ''
+        ];
+
+        $this->view('operationsCoordinator/v_signature', $data);
+    }
+
+    public function uploadSignature()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/signature');
+        }
+
+        // Basic validation
+        if (!isset($_FILES['signature']) || $_FILES['signature']['error'] !== UPLOAD_ERR_OK) {
+            flash('signature_msg', 'Please select a signature image', 'error');
+            redirect('operationsCoordinator/signature');
+            return;
+        }
+
+        $file = $_FILES['signature'];
+
+        // Validate file
+        if (!$this->validateSignatureFile($file)) {
+            redirect('operationsCoordinator/signature');
+            return;
+        }
+
+        // Generate filename and set paths
+        $filename = uniqid() . '_' . time() . '_' . basename($file['name']);
+        $uploadDir = dirname(APPROOT) . '/public/uploads/signatures';
+        $uploadPath = $uploadDir . '/' . $filename;
+
+        // Create directory if needed
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        // Upload file
+        if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+            if ($this->operationsCoordinatorModel->updateSignature($_SESSION['user_id'], $filename)) {
+                flash('signature_msg', 'Signature uploaded successfully', 'success');
+            } else {
+                unlink($uploadPath);
+                flash('signature_msg', 'Failed to update signature in database', 'error');
+            }
+        } else {
+            flash('signature_msg', 'Failed to upload signature file', 'error');
+        }
+
+        redirect('operationsCoordinator/signature');
+    }
+
+    private function validateSignatureFile($file)
+    {
+        $allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+        $maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (!in_array($file['type'], $allowedTypes)) {
+            flash('signature_msg', 'Only PNG, JPEG, and JPG files are allowed', 'error');
+            return false;
+        }
+
+        if ($file['size'] > $maxSize) {
+            flash('signature_msg', 'File size must be less than 5MB', 'error');
+            return false;
+        }
+
+        return true;
+    }
+
+    public function deleteSignature()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/signature');
+        }
+
+        $signature = $this->operationsCoordinatorModel->getSignatureByCoordinatorId($_SESSION['user_id']);
+
+        if ($signature) {
+            $filePath = dirname(APPROOT) . '/public/uploads/signatures/' . $signature->signature_image;
+
+            if (file_exists($filePath) && unlink($filePath)) {
+                if ($this->operationsCoordinatorModel->deleteSignature($_SESSION['user_id'])) {
+                    flash('signature_msg', 'Signature deleted successfully', 'success');
+                } else {
+                    flash('signature_msg', 'Failed to update database', 'error');
+                }
+            } else {
+                flash('signature_msg', 'Failed to delete signature file', 'error');
+            }
+        }
+
+        redirect('operationsCoordinator/signature');
+    }
+
+
+
+    //PreProjects
+
+
+    public function preProjects()
+    {
+        $currentPhase = isset($_GET['phase']) ? $_GET['phase'] : 'all';
+
+        // Get project statistics
+        $stats = $this->preProjectModel->getPreProjectStats();
+
+        // Get pre-projects
+        $preProjects = $this->preProjectModel->getAllPreProjects($currentPhase);
+
+        $data = [
+            'stats' => $stats,
+            'preProjects' => $preProjects,
+            'current_phase' => $currentPhase
+        ];
+
+        $this->view('operationsCoordinator/v_preProjects', $data);
+    }
+
+
+    public function managePreProject($preProjectId = null)
+    {
+        if ($preProjectId === null) {
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        // Get project details
+        $project = $this->preProjectModel->getPreProjectById($preProjectId);
+
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        $data = [
+            'project' => $project,
+            'title' => 'Manage Project'
+        ];
+
+        $this->view('operationsCoordinator/v_manageApreProject', $data);
+    }
+
+    public function manageAgreement($preProjectId = null)
+    {
+        if ($preProjectId === null) {
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        // Check if there's a revision requested agreement
+        $revisionAgreement = $this->preProjectModel->getRevisionRequestedAgreement($preProjectId);
+
+        if ($revisionAgreement) {
+            // If there's a revision requested agreement, redirect to revision page
+            redirect("operationsCoordinator/agreementRevision/{$revisionAgreement->agreement_id}");
+        } else {
+            // If no revision requested agreement, redirect to create agreement
+            redirect("operationsCoordinator/createAgreement/$preProjectId");
+        }
+    }
+    //-------------------------------------------------------------------------------------------
+    //Review Quotation
+
+    public function manageQuotation($preProjectId = null)
+    {
+        if ($preProjectId === null) {
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        $project = $this->preProjectModel->getPreProjectById($preProjectId);
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        // Get quotation with package details
+        $quotation = $this->preProjectModel->getQuotationWithPackageDetails($preProjectId);
+
+        // Get package equipment
+        $packageEquipment = [];
+        if ($quotation && $quotation->package_id) {
+            $packageEquipment = $this->preProjectModel->getPackageEquipmentDetails($quotation->package_id);
+        }
+
+        error_log(print_r($quotation, true));
+        $data = [
+            'project' => $project,
+            'quotation' => $quotation,
+            'packageEquipment' => $packageEquipment,
+            'title' => 'Manage Quotation'
+        ];
+
+        $this->view('operationsCoordinator/v_manageQuotation', $data);
+    }
+
+    public function getPackageEquipment($packageId)
+    {
+        if (!$packageId) {
+            echo json_encode([]);
+            return;
+        }
+
+        $this->preProjectModel->query('SELECT 
+            pe.equipment_id,
+            pe.package_id,
+            pe.quantity,
+            i.id as item_id,
+            i.name as item_name,
+            i.price as unit_price
+            FROM packageequipment pe
+            JOIN inventory i ON pe.item_id = i.id
+            WHERE pe.package_id = :package_id
+            AND i.deleted_at IS NULL');
+
+        $this->preProjectModel->bind(':package_id', $packageId);
+        $equipment = $this->preProjectModel->resultSet();
+
+        header('Content-Type: application/json');
+        echo json_encode($equipment);
+    }
+
+
+    public function saveReviewedQuotation()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        $postData = json_decode(file_get_contents("php://input"), true);
+
+        if ($this->preProjectModel->createReviewedQuotation($postData)) {
+            $response = ['success' => true, 'message' => 'Quotation saved successfully'];
+
+            // Update quotation status
+            $this->preProjectModel->updateQuotationStatus(
+                $postData['quotation_id'],
+                $postData['status']
+            );
+        } else {
+            $response = ['success' => false, 'message' => 'Error saving quotation'];
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+    }
+
+    public function updateQuotationStatus()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        $postData = json_decode(file_get_contents("php://input"), true);
+
+        if ($this->preProjectModel->updateQuotationStatus($postData['quotation_id'], $postData['status'])) {
+            $response = ['success' => true];
+        } else {
+            $response = ['success' => false];
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+    }
+
+    public function getQuotationDetails($preProjectId)
+    {
+        if (!$preProjectId) {
+            echo json_encode(['success' => false, 'message' => 'Project ID is required']);
+            return;
+        }
+
+        $quotation = $this->preProjectModel->getQuotationWithPackageDetails($preProjectId);
+
+        if ($quotation) {
+            echo json_encode([
+                'success' => true,
+                'quotation' => [
+                    'package_name' => $quotation->package_name,
+                    'total_cost' => number_format($quotation->total_cost, 2),
+                    'status' => ucfirst($quotation->status),
+                    'review_date' => date('F j, Y', strtotime($quotation->review_date))
+                ]
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Quotation not found']);
+        }
+    }
+
+    //##################################################################################################
+    //-----------------------------------------Site Visit----------------------------------------------
+    //##################################################################################################
+
+    public function manageSiteVisit($preProjectId = null) {
+        if ($preProjectId === null) {
+            redirect('operationsCoordinator/preProjects');
+        }
+    
+        $project = $this->preProjectModel->getPreProjectById($preProjectId);
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/preProjects');
+        }
+    
+        $siteVisit = $this->preProjectModel->getSiteVisitByPreProjectId($preProjectId);
+    
+        $data = [
+            'project' => $project,
+            'site_visit' => $siteVisit,
+            'title' => 'Manage Site Visit'
+        ];
+    
+        $this->view('operationsCoordinator/v_manageSiteVisit', $data);
+    }
+
+    public function scheduleSiteVisit()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/preProjects');
+            return;
+        }
+
+        $preProjectId = $_POST['pre_project_id'];
+        $visitDate = $_POST['visit_date'];
+        $visitTime = $_POST['visit_time'];
+
+        // Validate time (8 AM to 4 PM)
+        $timeValue = strtotime($visitTime);
+        $startTime = strtotime('08:00:00');
+        $endTime = strtotime('16:00:00');
+
+        if ($timeValue < $startTime || $timeValue > $endTime) {
+            flash('site_visit_message', 'Site visit time must be between 8 AM and 4 PM', 'error');
+            redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
+            return;
+        }
+
+        if ($this->preProjectModel->scheduleSiteVisit($preProjectId, $visitDate, $visitTime)) {
+            flash('site_visit_message', 'Site visit scheduled successfully', 'success');
+        } else {
+            flash('site_visit_message', 'Failed to schedule site visit', 'error');
+        }
+
+        redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
+    }
+
+    // public function completeSiteVisit()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    //         redirect('operationsCoordinator/preProjects');
+    //         return;
+    //     }
+
+    //     $preProjectId = $_POST['pre_project_id'];
+    //     $notes = $_POST['site_notes'];
+
+    //     if ($this->preProjectModel->completeSiteVisit($preProjectId, $notes)) {
+    //         flash('site_visit_message', 'Site visit completed successfully', 'success');
+    //     } else {
+    //         flash('site_visit_message', 'Failed to complete site visit', 'error');
+    //     }
+
+    //     redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
+    // }
+
+    public function handleReschedule()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/preProjects');
+            return;
+        }
+
+        $visitId = $_POST['visit_id'];
+        $preProjectId = $_POST['pre_project_id'];
+        $newDate = $_POST['new_date'];
+        $newTime = $_POST['new_time'];
+
+        // Validate time (8 AM to 4 PM)
+        $timeValue = strtotime($newTime);
+        $startTime = strtotime('08:00:00');
+        $endTime = strtotime('16:00:00');
+
+        if ($timeValue < $startTime || $timeValue > $endTime) {
+            flash('site_visit_message', 'Site visit time must be between 8 AM and 4 PM', 'error');
+            redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
+            return;
+        }
+
+        if ($this->preProjectModel->handleReschedule($visitId, $newDate, $newTime)) {
+            flash('site_visit_message', 'Site visit rescheduled successfully', 'success');
+        } else {
+            flash('site_visit_message', 'Failed to reschedule site visit', 'error');
+        }
+
+        redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
+    }
+
+    public function getSiteVisitCalendar()
+    {
+        header('Content-Type: application/json');
+        $visits = $this->preProjectModel->getAllSiteVisits();
+        echo json_encode($visits);
+    }
+
+    //####################################################################################################
+    //-----------------------------------------Agreement phase--------------------------------------------
+    //####################################################################################################
+
+    public function createAgreement($preProjectId = null)
+    {
+        if ($preProjectId === null) {
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        // Get project details
+        $project = $this->preProjectModel->getPreProjectById($preProjectId);
+        $siteVisit = $this->preProjectModel->getSiteVisitByPreProjectId($preProjectId);
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        // Get reviewed quotation
+        $quotation = $this->preProjectModel->getReviwedQuotationByPreProjectId($preProjectId);
+
+        // Initialize equipment array
+        $equipment = [];
+
+        if ($quotation && !empty($quotation->review_id)) {
+            // Get equipment from reviewed quotation
+            $equipment = $this->preProjectModel->getReviewedEquipment($quotation->review_id);
+        }
+
+        // Get existing agreement if any
+        $agreement = $this->preProjectModel->getAgreementByPreProjectId($preProjectId);
+        if ($agreement) {
+            $equipment = $this->preProjectModel->getAgreementEquipment($agreement->agreement_id);
+        }
+
+        // Get coordinator signature
+        $coordinatorSignature = $this->preProjectModel->getCoordinatorSignature($_SESSION['user_id']);
+
+        $data = [
+            'project' => $project,
+            'quotation' => $quotation,
+            'agreement' => $agreement,
+            'equipment' => $equipment,
+            'coordinator_signature' => $coordinatorSignature,
+            'title' => 'Create Agreement',
+            'siteVisit' => $siteVisit
+        ];
+
+        $this->view('operationsCoordinator/v_manageAgreement', $data);
+    }
+
+    public function getInventory()
+    {
+        header('Content-Type: application/json');
+        $inventory = $this->preProjectModel->getAvailableInventory();
+        echo json_encode($inventory);
+    }
+
+    public function getAgreementEquipment($agreementId)
+    {
+        header('Content-Type: application/json');
+        $equipment = $this->preProjectModel->getAgreementEquipment($agreementId);
+        echo json_encode($equipment);
+    }
+
+    public function saveAgreement()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        // Get reviewed quotation
+        $reviewedQuotation = $this->preProjectModel->getReviewedQuotationByPreProjectId($_POST['pre_project_id']);
+        if (!$reviewedQuotation) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'No reviewed quotation found for this project'
+            ]);
+            return;
+        }
+
+        // Handle signature
+        $signatureId = null;
+        if (isset($_FILES['coordinator_signature']) && $_FILES['coordinator_signature']['error'] === 0) {
+            // New signature uploaded
+            $signaturePath = $this->handleSignatureUpload($_FILES['coordinator_signature']);
+            if ($signaturePath) {
+                $saved = $this->preProjectModel->saveCoordinatorSignature($_SESSION['user_id'], $signaturePath);
+                if ($saved) {
+                    $signature = $this->preProjectModel->getCoordinatorSignature($_SESSION['user_id']);
+                    $signatureId = $signature->signature_id;
+                }
+            }
+        } elseif (isset($_POST['use_existing_signature'])) {
+            // Use existing signature
+            $signature = $this->preProjectModel->getCoordinatorSignature($_SESSION['user_id']);
+            if ($signature) {
+                $signatureId = $signature->signature_id;
+            }
+        }
+
+        // Prepare data with proper review_id and signature
+        $data = [
+            'pre_project_id' => $_POST['pre_project_id'],
+            'review_id' => $reviewedQuotation->review_id,
+            'quotation_id' => $reviewedQuotation->quotation_id,
+            'system_capacity' => $_POST['system_capacity'],
+            'estimated_generation' => $_POST['estimated_generation'],
+            'base_price' => $_POST['base_price'],
+            'service_charge' => $_POST['service_charge'],
+            'total_price' => $_POST['total_price'],
+            'notes' => $_POST['notes'],
+            'coordinator_signature_id' => $signatureId,
+            'equipment' => json_decode($_POST['equipment'], true)
+        ];
+
+        $success = $this->preProjectModel->createAgreement($data);
+
+        header('Content-Type: application/json');
+        if ($success) {
+            // Update project phase
+            $this->preProjectModel->updatePreProjectPhase($data['pre_project_id'], 'agreement');
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Agreement saved successfully'
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Error saving agreement'
+            ]);
+        }
+    }
+
+    private function handleSignatureUpload($file)
+    {
+        $uploadDir = 'public/uploads/signatures/';
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        $fileName = uniqid('sig_') . '_' . basename($file['name']);
+        $uploadPath = $uploadDir . $fileName;
+
+        if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
+            return $uploadPath;
+        }
+        return false;
+    }
+
+    public function viewAgreement($preProjectId = null)
+    {
+        if ($preProjectId === null) {
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        $agreement = $this->preProjectModel->getAgreementByPreProjectId($preProjectId);
+        if (!$agreement) {
+            flash('project_message', 'Agreement not found', 'alert alert-danger');
+
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        $project = $this->preProjectModel->getPreProjectById($preProjectId);
+        $equipment = $this->preProjectModel->getAgreementEquipment($agreement->agreement_id);
+
+        $data = [
+            'project' => $project,
+            'agreement' => $agreement,
+            'equipment' => $equipment,
+            'title' => 'View Agreement'
+        ];
+
+        $this->view('operationsCoordinator/v_viewAgreement', $data);
+    }
+
+    public function agreementRevision($agreementId = null)
+    {
+
+        // Check if agreement ID is provided
+        if ($agreementId === null) {
+            error_log("Agreement revision failed: No agreement ID provided");
+            flash('agreement_message', 'Invalid agreement ID', 'alert alert-danger');
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        // Get agreement details
+        $agreement = $this->preProjectModel->getAgreementById($agreementId);
+
+        // Check if agreement exists
+        if (!$agreement) {
+            flash('agreement_message', 'Agreement not found', 'alert alert-danger');
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        // Check if agreement status is revision_requested
+        if ($agreement->status !== 'revision_requested') {
+            error_log("Agreement revision failed: Invalid status. Expected 'revision_requested', got: " . $agreement->status);
+            flash('agreement_message', 'Access denied. Agreement is not pending revision.', 'alert alert-danger');
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        // Get project details
+        $project = $this->preProjectModel->getPreProjectById($agreement->pre_project_id);
+
+        if (!$project) {
+            error_log("Agreement revision failed: Project not found for pre_project_id: " . $agreement->pre_project_id);
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        // Get equipment from existing agreement
+        $equipment = $this->preProjectModel->getAgreementEquipment($agreementId);
+
+        // Get coordinator signature
+        $coordinatorSignature = $this->preProjectModel->getCoordinatorSignature($_SESSION['user_id']);
+
+
+        $data = [
+            'project' => $project,
+            'agreement' => $agreement,
+            'equipment' => $equipment,
+            'coordinator_signature' => $coordinatorSignature,
+            'title' => 'Revise Agreement'
+        ];
+        $this->view('operationsCoordinator/v_reviseAgreement', $data);
+    }
+
+
+    public function updateAgreement($agreementId)
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/preProjects');
+        }
+
+        // First cancel the old agreement
+        if (!$this->preProjectModel->cancelAgreement($agreementId)) {
+            flash('agreement_message', 'Error updating old agreement', 'error');
+            redirect("operationsCoordinator/agreementRevision/$agreementId");
+            return;
+        }
+
+        // Get original agreement for reference
+        $originalAgreement = $this->preProjectModel->getAgreementById($agreementId);
+
+        // Prepare data for new agreement
+        $data = [
+            'pre_project_id' => $originalAgreement->pre_project_id,
+            'review_id' => $originalAgreement->review_id,
+            'quotation_id' => $originalAgreement->quotation_id,
+            'system_capacity' => $_POST['system_capacity'],
+            'estimated_generation' => $_POST['estimated_generation'],
+            'base_price' => $_POST['base_price'],
+            'service_charge' => $_POST['service_charge'],
+            'total_price' => $_POST['total_price'],
+            'notes' => $_POST['notes'],
+            'equipment' => json_decode($_POST['equipment'], true),
+            'coordinator_signature_id' => null
+        ];
+
+        // Handle signature
+        if (isset($_POST['use_existing_signature'])) {
+            $signature = $this->preProjectModel->getCoordinatorSignature($_SESSION['user_id']);
+            if ($signature) {
+                $data['coordinator_signature_id'] = $signature->signature_id;
+            }
+        }
+
+        // Create new agreement
+        $newAgreementId = $this->preProjectModel->createRevisedAgreement($data);
+
+        if ($newAgreementId) {
+            flash('agreement_message', 'Revised agreement created successfully', 'success');
+            redirect('operationsCoordinator/preProjects');
+        } else {
+            // If new agreement creation fails, revert old agreement status
+            $this->preProjectModel->updateAgreementStatus($agreementId, 'revision_requested');
+            flash('agreement_message', 'Error creating revised agreement', 'error');
+            redirect("operationsCoordinator/agreementRevision/$agreementId");
+        }
+    }
+
+    //####################################################################################################
+    //-----------------------------------------PROJECT----------------------------------------------------
+    //####################################################################################################
+
     public function projects()
     {
-        $data = [];
+        // Get project statistics using the exact phase names from the database enum
+        $stats = [
+            'document_submission' => $this->projectModel->getProjectCountByPhase('document_submission'),
+            'first_payment' => $this->projectModel->getProjectCountByPhase('first_payment'),
+            'installation' => $this->projectModel->getProjectCountByPhase('installation'),
+            'final_payment' => $this->projectModel->getProjectCountByPhase('final_payment'),
+            'engineer_approval' => $this->projectModel->getProjectCountByPhase('engineer_approval')
+        ];
+
+        // Get all projects with customer details
+        $projects = $this->projectModel->getAllProjectsWithCustomerDetails();
+
+        $data = [
+            'stats' => $stats,
+            'projects' => $projects
+        ];
+
         $this->view('operationsCoordinator/v_projects', $data);
     }
 
-    public function manageAproject()
+    public function projectDashboard($projectId)
     {
-        $data = [];
+
+        // Get project details with all required information
+        $project = $this->projectModel->getProjectById($projectId);
+
+        // If project doesn't exist, redirect
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get additional project data like customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+
+        // Merge project and customer details
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                if (!isset($project->$key)) {
+                    $project->$key = $value;
+                }
+            }
+        }
+
+        $data = [
+            'project' => $project
+        ];
+
         $this->view('operationsCoordinator/v_manageAproject', $data);
     }
+
+
+    public function manageAproject($projectId)
+    {
+        // Get project details with all required information
+        $project = $this->projectModel->getProjectById($projectId);
+
+        // If project doesn't exist, redirect
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get additional project data like customer details
+        $data = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+
+
+        $data = [
+            'project' => $project
+        ];
+
+        // Change this line to load v_manageAproject.php instead of v_projectDashboard.php
+        $this->view('operationsCoordinator/v_manageAproject', $data);
+    }
+
+    public function documentSubmission($projectId)
+    {
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+
+        // Merge project and customer details
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                $project->$key = $value;
+            }
+        }
+
+        // Get document submission if exists
+        $document = $this->projectModel->getDocumentSubmission($projectId);
+
+        $data = [
+            'project' => $project,
+            'document' => $document
+        ];
+
+        $this->view('operationsCoordinator/v_documentSubmission', $data);
+    }
+
+    public function acceptDocument()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get submitted data
+        $documentId = $_POST['document_id'];
+        $projectId = $_POST['project_id'];
+
+        // Get document details
+        $document = $this->projectModel->getDocumentById($documentId);
+
+        if (!$document) {
+            flash('document_message', 'Document not found', 'alert alert-danger');
+            redirect('operationsCoordinator/documentSubmission/' . $projectId);
+        }
+
+        // Update document status
+        if ($this->projectModel->updateDocumentStatus($documentId, 'accept')) {
+            // Move project to next phase (first_payment)
+            $this->projectModel->updateProjectsPhase($projectId, 'first_payment');
+            flash('document_message', 'Document approved successfully', 'alert alert-success');
+        } else {
+            flash('document_message', 'Failed to approve document', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/documentSubmission/' . $projectId);
+    }
+
+    /**
+     * Reject submitted document
+     */
+    public function rejectDocument()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get submitted data
+        $documentId = $_POST['document_id'];
+        $projectId = $_POST['project_id'];
+        $rejectionReason = $_POST['rejection_reason'];
+
+        // Validate rejection reason
+        if (empty($rejectionReason)) {
+            flash('document_message', 'Please provide a reason for rejection', 'alert alert-danger');
+            redirect('operationsCoordinator/documentSubmission/' . $projectId);
+            return;
+        }
+
+        // Get document details
+        $document = $this->projectModel->getDocumentById($documentId);
+
+        if (!$document) {
+            flash('document_message', 'Document not found', 'alert alert-danger');
+            redirect('operationsCoordinator/documentSubmission/' . $projectId);
+        }
+
+        // Update document status
+        if ($this->projectModel->updateDocumentStatus($documentId, 'reject', $rejectionReason)) {
+            flash('document_message', 'Document rejected successfully', 'alert alert-success');
+        } else {
+            flash('document_message', 'Failed to reject document', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/documentSubmission/' . $projectId);
+    }
+
+    /**
+     * Handle first payment management
+     * 
+     * @param int $projectId The project ID
+     * @return void
+     */
+    public function firstPayment($projectId = null)
+    {
+        if ($projectId === null) {
+            flash('payment_message', 'Project ID is required', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+        if (!$project) {
+            flash('payment_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                $project->$key = $value;
+            }
+        }
+
+        // Get payment details
+        $payment = $this->projectModel->getProjectPayment($projectId, 'first_payment');
+
+        // Get bank slip if payment method is bank deposit
+        $bankSlip = null;
+        if ($payment && $payment->payment_method == 'bank deposit') {
+            $bankSlip = $this->projectModel->getProjectBankSlip($projectId, 'first_payment');
+        }
+
+        // Get agreement to find pricing details
+        $agreement = $this->projectModel->getAgreementById($project->agreement_id);
+        $firstPaymentAmount = 0;
+
+        if ($agreement) {
+            // Calculate 25% payment amount
+            $firstPaymentAmount = $agreement->total_price * 0.25;
+        }
+
+        $data = [
+            'project' => $project,
+            'payment' => $payment,
+            'bank_slip' => $bankSlip,
+            'first_payment_amount' => $firstPaymentAmount,
+            'agreement' => $agreement
+        ];
+
+        $this->view('operationsCoordinator/v_firstPayment', $data);
+    }
+
+    /**
+     * Process cash payment
+     */
+    public function processPayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $paymentId = $_POST['payment_id'];
+        $amount = $_POST['amount'];
+
+        // Update payment status
+        if ($this->projectModel->updateProjectPayment($paymentId, [
+            'payment_status' => true,
+            'amount' => $amount
+        ])) {
+            // Update project phase to installation
+            $this->projectModel->updateProjectsPhase($projectId, 'installation');
+
+            flash('payment_message', 'Payment processed successfully', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to process payment', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/firstPayment/' . $projectId);
+    }
+
+
+    /**
+     * Accept bank slip
+     */
+    public function acceptBankSlip()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $paymentId = $_POST['payment_id'];
+        $slipId = $_POST['slip_id'];
+        $amount = $_POST['amount'];
+
+        // Update bank slip status
+        if ($this->projectModel->updateBankSlipStatus($slipId, 'accept')) {
+            // Update payment status
+            $this->projectModel->updateProjectPayment($paymentId, [
+                'payment_status' => true,
+                'amount' => $amount
+            ]);
+
+            // Update project phase to installation
+            $this->projectModel->updateProjectsPhase($projectId, 'installation');
+
+            flash('payment_message', 'Bank slip accepted and payment processed successfully', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to accept bank slip', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/firstPayment/' . $projectId);
+    }
+
+    /**
+     * Reject bank slip
+     */
+    public function rejectBankSlip()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $slipId = $_POST['slip_id'];
+        $rejectReason = $_POST['reject_reason'];
+
+        // Update bank slip status
+        if ($this->projectModel->updateBankSlipStatus($slipId, 'reject', $rejectReason)) {
+            flash('payment_message', 'Bank slip rejected successfully', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to reject bank slip', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/firstPayment/' . $projectId);
+    }
+
+
+    //################################################################################################
+    //-------------------------------------Installation----------------------------------------------
+    //################################################################################################
+
+    public function installation($projectId = null)
+    {
+        if (!$projectId) {
+            flash('installation_message', 'Project ID is required', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+        if (!$project) {
+            flash('installation_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        $agreement = $this->projectModel->getAgreementById($project->agreement_id);
+
+        // Get customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                $project->$key = $value;
+            }
+        }
+
+        // Get installation data if exists
+        $installation = $this->projectModel->getInstallationPhase($projectId);
+        $schedule = null;
+        $engineer = null;
+
+        if ($installation) {
+            // Get schedule data
+            $schedule = $this->projectModel->getInstallationSchedule($installation->installation_id);
+
+            // Get engineer data if assigned
+            $engineer = $this->projectModel->getAssignedEngineer($installation->installation_id);
+
+            // Get team members
+            $teamMembers = $this->projectModel->getInstallationTeamMembers($installation->installation_id);
+        }
+
+        // Get engineers for assignment dropdown
+        $engineers = $this->employeeModel->getEmployeesByRole('engineer');
+
+        // Get technicians for selection
+        $technicians = $this->employeeModel->getEmployeesByRole('technician');
+
+        // Get upcoming installations for the next month
+        $upcomingInstallations = $this->projectModel->getUpcomingInstallations();
+
+        $data = [
+            'project' => $project,
+            'installation' => $installation,
+            'agreement' => $agreement,
+            'schedule' => $schedule,
+            'engineer' => $engineer,
+            'engineers' => $engineers,
+            'technicians' => $technicians,
+            'team_members' => $teamMembers ?? [],
+            'upcoming_installations' => $upcomingInstallations
+        ];
+
+        $this->view('operationsCoordinator/v_installation', $data);
+    }
+    // Add a new method to get installation details for the modal
+    public function getInstallationDetails($installationId)
+    {
+        // Check if request is AJAX
+        if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get installation details
+        $installation = $this->projectModel->getInstallationById($installationId);
+        $schedule = $this->projectModel->getInstallationSchedule($installationId);
+        $engineer = $this->projectModel->getAssignedEngineer($installationId);
+        $teamMembers = $this->projectModel->getInstallationTeamMembers($installationId);
+
+        $response = [
+            'success' => true,
+            'installation' => $installation,
+            'schedule' => $schedule,
+            'engineer' => $engineer,
+            'team_members' => $teamMembers
+        ];
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+        exit;
+    }
+
+
+    /**
+     * Schedule a new installation
+     */
+    public function scheduleInstallation()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get form data
+        $projectId = $_POST['project_id'];
+        $startDate = $_POST['start_date'];
+        $startTime = $_POST['start_time'];
+        $durationDays = $_POST['duration_days'];
+        $engineerId = $_POST['engineer_id'];
+        $technicians = isset($_POST['technicians']) ? $_POST['technicians'] : [];
+
+        // Validate technicians count
+        if (count($technicians) < 3 || count($technicians) > 6) {
+            flash('installation_message', 'Please select between 3 and 6 technicians', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        // Calculate end date
+        $endDate = date('Y-m-d', strtotime($startDate . ' + ' . $durationDays . ' days'));
+
+        // Validate time (8am - 12pm)
+        $hour = (int)substr($startTime, 0, 2);
+        if ($hour < 8 || $hour > 12) {
+            flash('installation_message', 'Installation start time must be between 8:00 AM and 12:00 PM', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        // Create installation phase record
+        $installationId = $this->projectModel->createInstallationPhase([
+            'project_id' => $projectId,
+            'status' => 'initial'
+        ]);
+
+        if (!$installationId) {
+            flash('installation_message', 'Failed to create installation record', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        // Assign engineer to installation
+        $engineerAssigned = $this->projectModel->assignEngineerToInstallation($installationId, $engineerId);
+        if (!$engineerAssigned) {
+            flash('installation_message', 'Failed to assign engineer', 'alert alert-warning');
+        }
+
+        // Assign technicians to installation
+        $techniciansAssigned = true;
+        foreach ($technicians as $technicianId) {
+            if (!$this->projectModel->assignTechnicianToInstallation($installationId, $technicianId)) {
+                $techniciansAssigned = false;
+            }
+        }
+
+        if (!$techniciansAssigned) {
+            flash('installation_message', 'Some technicians could not be assigned', 'alert alert-warning');
+        }
+
+        // Create installation schedule
+        $scheduleCreated = $this->projectModel->createInstallationSchedule([
+            'installation_id' => $installationId,
+            'start_date' => $startDate,
+            'start_time' => $startTime,
+            'end_date' => $endDate,
+            'status' => 'pending'
+        ]);
+
+        if ($scheduleCreated) {
+            flash('installation_message', 'Installation scheduled successfully', 'alert alert-success');
+        } else {
+            flash('installation_message', 'Failed to schedule installation', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    public function addTeamMember()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $installationId = $_POST['installation_id'];
+        $employeeId = $_POST['employee_id'];
+        $projectId = $_POST['project_id'];
+
+        if ($this->projectModel->addEmployeeToInstallation($installationId, $employeeId)) {
+            flash('installation_message', 'Team member added successfully', 'alert alert-success');
+        } else {
+            flash('installation_message', 'Failed to add team member', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    /**
+     * Reschedule an installation
+     */
+    public function rescheduleInstallation()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get form data
+        $installationId = $_POST['installation_id'];
+        $scheduleId = $_POST['schedule_id'];
+        $projectId = $_POST['project_id'];
+        $startDate = $_POST['start_date'];
+        $startTime = $_POST['start_time'];
+        $durationDays = $_POST['duration_days'];
+        $engineerId = $_POST['engineer_id'];
+        $technicians = isset($_POST['technicians']) ? $_POST['technicians'] : [];
+
+        // Validate technicians count
+        if (count($technicians) < 3 || count($technicians) > 6) {
+            flash('installation_message', 'Please select between 3 and 6 technicians', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        // Calculate end date
+        $endDate = date('Y-m-d', strtotime($startDate . ' + ' . $durationDays . ' days'));
+
+        // Create new schedule
+        $scheduleCreated = $this->projectModel->createInstallationSchedule([
+            'installation_id' => $installationId,
+            'start_date' => $startDate,
+            'start_time' => $startTime,
+            'end_date' => $endDate,
+            'status' => 'pending'
+        ]);
+
+        if (!$scheduleCreated) {
+            flash('installation_message', 'Failed to reschedule installation', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        // Update engineer if changed
+        $engineerAssigned = $this->projectModel->reassignEngineer($installationId, $engineerId);
+
+        // Update technicians
+        // First remove all current technicians
+        $this->projectModel->removeAllTechnicians($installationId);
+
+        // Then add new ones
+        $techniciansAssigned = true;
+        foreach ($technicians as $technicianId) {
+            if (!$this->projectModel->assignTechnicianToInstallation($installationId, $technicianId)) {
+                $techniciansAssigned = false;
+            }
+        }
+
+        flash('installation_message', 'Installation rescheduled successfully', 'alert alert-success');
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    public function reassignEngineer()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $installationId = $_POST['installation_id'];
+        $engineerId = $_POST['engineer_id'];
+        $projectId = $_POST['project_id'];
+
+        if ($this->projectModel->reassignEngineer($installationId, $engineerId)) {
+            flash('installation_message', 'Engineer reassigned successfully', 'alert alert-success');
+        } else {
+            flash('installation_message', 'Failed to reassign engineer', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    public function completeInstallation()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $installationId = $_POST['installation_id'];
+        $projectId = $_POST['project_id'];
+
+        // Update installation status to completed
+        $installationUpdated = $this->projectModel->updateInstallationStatus($installationId, 'completed');
+
+        if ($installationUpdated) {
+            // Move project to final payment phase
+            $projectUpdated = $this->projectModel->updateProjectsPhase($projectId, 'final_payment');
+
+            if ($projectUpdated) {
+                flash('installation_message', 'Installation phase completed successfully', 'alert alert-success');
+            } else {
+                flash('installation_message', 'Installation completed but failed to update project phase', 'alert alert-warning');
+            }
+        } else {
+            flash('installation_message', 'Failed to complete installation', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    //--------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+    // View all tasks
 
     public function tasks()
     {
@@ -53,7 +1398,7 @@ class OperationsCoordinator extends Controller
         $this->view('operationsCoordinator/v_tasks', $data);
     }
 
-    // View Task
+    // View a task by ID
     public function viewTask($taskId)
     {
         // Fetch the task from the model
@@ -165,11 +1510,11 @@ class OperationsCoordinator extends Controller
     // Edit Task
     public function editTask($taskId)
     {
-        if($_SERVER['REQUEST_METHOD'] == 'POST'){
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
             $data = [
                 'id' => $taskId,
-                'title' => trim($_POST['title']),   
+                'title' => trim($_POST['title']),
                 'start_date' => trim($_POST['start_date']),
                 'end_date' => trim($_POST['end_date']),
                 'description' => trim($_POST['description']),
@@ -216,19 +1561,19 @@ class OperationsCoordinator extends Controller
             }
 
             // Make sure no errors
-            if(empty($data['title_err']) && empty($data['start_date_err']) && empty($data['end_date_err']) && empty($data['description_err']) && empty($data['project_id_err']) && empty($data['employee_id_err']) && empty($data['status_err'])){
+            if (empty($data['title_err']) && empty($data['start_date_err']) && empty($data['end_date_err']) && empty($data['description_err']) && empty($data['project_id_err']) && empty($data['employee_id_err']) && empty($data['status_err'])) {
                 // Validated
-                if($this->tasksModel->edit($data)){
-                    flash('task_msg', 'Task updated successfully'); 
+                if ($this->tasksModel->edit($data)) {
+                    flash('task_msg', 'Task updated successfully');
                     redirect('operationsCoordinator/tasks');
-                }else{
+                } else {
                     die('Something went wrong');
                 }
             } else {
                 // Load view with errors
                 $this->view('operationsCoordinator/v_editTask', $data);
             }
-        }else{
+        } else {
             $task = $this->tasksModel->getTaskById($taskId);
 
             $data = [
@@ -251,20 +1596,18 @@ class OperationsCoordinator extends Controller
             ];
 
             $this->view('operationsCoordinator/v_editTask', $data);
-
         }
-        
     }
- 
+
     // Delete TaskA
     public function deleteTask($taskId)
     {
         $task = $this->tasksModel->getTaskById($taskId);
-        
-        if($this->tasksModel->delete($taskId)){
+
+        if ($this->tasksModel->delete($taskId)) {
             flash('task_msg', 'Task removed successfully');
             redirect('operationsCoordinator/tasks');
-        }else{
+        } else {
             die('Something went wrong');
         }
     }
@@ -430,6 +1773,12 @@ class OperationsCoordinator extends Controller
                         }
                     }
                 }
+
+                // Convert all elements of equipment array to objects
+                foreach ($equipment as &$eq) {
+                    $eq = (object) $eq;
+                }
+                unset($eq); // Unset reference to avoid unintended modifications
             }
 
             // Process features
@@ -457,6 +1806,7 @@ class OperationsCoordinator extends Controller
                 'inventory_items' => $this->inventoryModel->getAllItems(),
                 'errors' => []
             ];
+
 
             // Validation
             if (empty($data['title'])) {

@@ -1,112 +1,55 @@
-const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-let selectedDate = new Date();
-let selectedTime = '14:30';
+function showRescheduleForm() {
+    document.getElementById('reschedulePopup').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
 
-function generateCalendar() {
-    const firstDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
-    const lastDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
-    const grid = document.getElementById('calendarGrid');
-    grid.innerHTML = '';
+function closeRescheduleForm() {
+    document.getElementById('reschedulePopup').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
 
-    // Add day headers
-    days.forEach(day => {
-        const dayHeader = document.createElement('div');
-        dayHeader.textContent = day;
-        dayHeader.className = 'calendar-day header';
-        grid.appendChild(dayHeader);
+// Date Range Validation
+function validateDateRange() {
+    const dateInput = document.querySelector('input[name="preferred_date"]');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const selectedDate = new Date(dateInput.value);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate <= today) {
+        alert('Please select a future date');
+        return false;
+    }
+
+    return true;
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup form validation
+    const rescheduleForm = document.querySelector('#reschedulePopup form');
+    if (rescheduleForm) {
+        rescheduleForm.addEventListener('submit', function(e) {
+            if (!validateDateRange()) {
+                e.preventDefault();
+            }
+        });
+    }
+
+    // Close popup when clicking overlay
+    document.getElementById('overlay').addEventListener('click', function() {
+        closeRescheduleForm();
     });
 
-    // Add empty cells for days before first day of month
-    for (let i = 0; i < firstDay.getDay(); i++) {
-        const emptyDay = document.createElement('div');
-        emptyDay.className = 'calendar-day';
-        grid.appendChild(emptyDay);
+    // Set minimum date for date input
+    const dateInput = document.querySelector('input[name="preferred_date"]');
+    if (dateInput) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        dateInput.min = tomorrow.toISOString().split('T')[0];
     }
-
-    // Add days of month
-    for (let i = 1; i <= lastDay.getDate(); i++) {
-        const dayElement = document.createElement('div');
-        dayElement.textContent = i;
-        dayElement.className = 'calendar-day';
-        
-        if (i === selectedDate.getDate()) {
-            dayElement.classList.add('active');
-        }
-
-        grid.appendChild(dayElement);
-    }
-
-    document.getElementById('currentMonth').textContent = 
-        `${months[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
-}
-
-function updateDisplays() {
-    document.getElementById('visitDate').textContent = 
-        `${months[selectedDate.getMonth()]} ${selectedDate.getDate()}`;
-    
-    const timeDisplay = new Date(`2024-01-01T${selectedTime}`);
-    document.getElementById('visitTime').textContent = 
-        timeDisplay.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-}
-
-function showDatePicker() {
-    const dateInput = document.getElementById('dateInput');
-    const timeInput = document.getElementById('timeInput');
-    
-    dateInput.value = selectedDate.toISOString().split('T')[0];
-    timeInput.value = selectedTime;
-
-    document.getElementById('overlay').classList.add('active');
-    document.getElementById('datePickerPopup').classList.add('active');
-}
-
-function closeDatePicker() {
-    document.getElementById('overlay').classList.remove('active');
-    document.getElementById('datePickerPopup').classList.remove('active');
-}
-
-function confirmDate() {
-    showToast('success', 'Visit schedule confirmed successfully!');
-}
-
-function confirmNewDate() {
-    const dateInput = document.getElementById('dateInput');
-    const timeInput = document.getElementById('timeInput');
-
-    if (dateInput.value && timeInput.value) {
-        selectedDate = new Date(dateInput.value);
-        selectedTime = timeInput.value;
-        
-        generateCalendar();
-        updateDisplays();
-        closeDatePicker();
-        showToast('success', 'Visit schedule updated successfully!');
-    }
-}
-function showToast(message, type = 'info') {
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    
-    const icon = type === 'success' ? '✓' :
-                type === 'error' ? '✕' :
-                type === 'warning' ? '⚠' : 'ℹ';
-    
-    toast.innerHTML = `
-        <span class="toast-icon">${icon}</span>
-        <span class="toast-message">${message}</span>
-        <div class="toast-progress">
-            <div class="toast-progress-bar"></div>
-        </div>
-    `;
-    
-    document.getElementById('toastContainer').appendChild(toast);
-    
-    setTimeout(() => {
-        toast.remove();
-    }, 3000);
-}
-
-// Initialize calendar and displays
-generateCalendar();
+});
 updateDisplays();

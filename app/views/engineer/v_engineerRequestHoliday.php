@@ -1,4 +1,5 @@
 <?php require APPROOT . '/views/engineer/header.php'; ?>
+<?php require APPROOT . '/views/engineer/header.php'; ?>
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -20,6 +21,14 @@
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
+            <a href="<?php echo URLROOT ?>/engineer/projects">
+                <span class="material-icons-sharp">receipt_long</span>
+                <h3>Projects</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/engineer/siteVisits">
+                <span class="material-icons-sharp">location_on</span>
+                <h3>Site Visits</h3>
+            </a>
             <a href="<?php echo URLROOT ?>/engineer/tasks">
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>
@@ -38,8 +47,8 @@
             </a>
         </div>
 
-        <div class="main-content">
-            <div class="container">
+<div class="main-content">
+    <div class="container">
 
                 <section class="request-holiday-form-container">
                     <h2 class="request-holiday-form-title">Request Leave Form</h2>

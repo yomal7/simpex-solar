@@ -91,7 +91,7 @@
                                 <i class="fas fa-user"></i>
                                 <div class="detail-content">
                                     <label>Assigned To</label>
-                                    <p><?php echo $data['task']->employee_name; ?></p>
+                                    <p><?php echo $data['task']->employee_id . ' - ' . $data['task']->employee_name . ' (' . $data['task']->employee_role . ' )'; ?></p>
                                 </div>
                             </div>
                         </div>

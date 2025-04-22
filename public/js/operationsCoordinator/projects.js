@@ -1,86 +1,120 @@
-const projects = [
-    {
-        id: 'PRJ001',
-        customerName: 'John Doe',
-        location: 'New York, NY',
-        phase: 'agreement'
-    },
-    {
-        id: 'PRJ002',
-        customerName: 'Jane Smith',
-        location: 'Los Angeles, CA',
-        phase: 'site-visit'
-    },
-    {
-        id: 'PRJ003',
-        customerName: 'Robert Johnson',
-        location: 'Chicago, IL',
-        phase: 'first-payment'
-    },
-    {
-        id: 'PRJ004',
-        customerName: 'Sarah Williams',
-        location: 'Houston, TX',
-        phase: 'installation'
-    },
-    {
-        id: 'PRJ005',
-        customerName: 'Michael Brown',
-        location: 'Phoenix, AZ',
-        phase: 'final-payment'
-    },
-    {
-        id: 'PRJ006',
-        customerName: 'Emily Davis',
-        location: 'Seattle, WA',
-        phase: 'engineer-approval'
-    }
-];
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("DOM loaded");
 
-function createProjectCard(project) {
-    return `
-        <div class="project-card" data-phase="${project.phase}" onclick="window.location.href='manageAproject'">
-            <div class="project-content">
-                <div class="project-id">#${project.id}</div>
-                <div class="customer-name">${project.customerName}</div>
-                <div class="project-location">
-                    📍 ${project.location}
-                </div>
-                <div class="project-phase">
-                    ${project.phase.replace('-', ' ').toUpperCase()}
-                </div>
-            </div>
-        </div>
-    `;
-}
+  // Cache DOM elements
+  const projectCards = document.querySelectorAll(".project-card");
+  const projectsGrid = document.getElementById("projectsGrid");
+  const searchInput = document.querySelector(".search-input");
+  const sortDropdown = document.querySelector(".sort-dropdown");
+  const filterButtons = document.querySelectorAll(".filter-btn");
+  const statCards = document.querySelectorAll(".stat-card");
 
-function renderProjects(phase = 'all') {
-    const projectsGrid = document.getElementById('projectsGrid');
-    projectsGrid.innerHTML = '';
-    
-    const filteredProjects = phase === 'all' 
-        ? projects 
-        : projects.filter(project => project.phase === phase);
-    
-    filteredProjects.forEach(project => {
-        projectsGrid.innerHTML += createProjectCard(project);
+  // Log for debugging
+  console.log("Stat cards found:", statCards.length);
+  console.log("Filter buttons found:", filterButtons.length);
+
+  // Filter functionality
+  function filterProjects(phase) {
+    console.log("Filtering projects for phase:", phase);
+    projectCards.forEach((card) => {
+      if (phase === "all" || card.dataset.phase === phase) {
+        card.style.display = "block";
+      } else {
+        card.style.display = "none";
+      }
     });
-}
+  }
 
-function navigateToProject(projectId) {
-    window.location.href = `/manageProject?id=${projectId}`;
-}
+  // Set active filter button
+  filterButtons.forEach((button) => {
+    button.addEventListener("click", function () {
+      console.log("Filter button clicked:", this.dataset.phase);
 
-// Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
-    renderProjects();
+      // Remove active class from all buttons
+      filterButtons.forEach((btn) => btn.classList.remove("active"));
 
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    filterButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            e.target.classList.add('active');
-            renderProjects(e.target.dataset.phase);
-        });
+      // Add active class to clicked button
+      this.classList.add("active");
+
+      // Filter projects
+      const phase = this.dataset.phase;
+      filterProjects(phase);
     });
+  });
+
+  // Stat card click handler
+  statCards.forEach((card) => {
+    card.addEventListener("click", function () {
+      const phase = this.dataset.phase;
+      console.log("Stat card clicked:", phase);
+
+      // Update active filter button
+      filterButtons.forEach((btn) => {
+        if (btn.dataset.phase === phase) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+
+      // Filter projects
+      filterProjects(phase);
+    });
+  });
+
+  // Search functionality
+  searchInput.addEventListener("input", function () {
+    const searchTerm = this.value.toLowerCase().trim();
+
+    projectCards.forEach((card) => {
+      const customerName = card
+        .querySelector(".customer-name")
+        .textContent.toLowerCase();
+      const projectId = card
+        .querySelector(".project-id")
+        .textContent.toLowerCase();
+      const location = card
+        .querySelector(".project-location")
+        .textContent.toLowerCase();
+
+      if (
+        customerName.includes(searchTerm) ||
+        projectId.includes(searchTerm) ||
+        location.includes(searchTerm)
+      ) {
+        card.style.display = "block";
+      } else {
+        card.style.display = "none";
+      }
+    });
+  });
+
+  // Sort functionality
+  sortDropdown.addEventListener("change", function () {
+    const sortValue = this.value;
+    const cards = Array.from(projectCards);
+
+    cards.sort((a, b) => {
+      const dateA = new Date(extractDate(a));
+      const dateB = new Date(extractDate(b));
+
+      return sortValue === "newest" ? dateB - dateA : dateA - dateB;
+    });
+
+    // Clear and repopulate the grid
+    projectsGrid.innerHTML = "";
+    cards.forEach((card) => projectsGrid.appendChild(card));
+  });
+
+  // Helper function to extract date from card
+  function extractDate(card) {
+    const dateText = card.querySelector(".project-date").textContent;
+    return dateText.replace("📅 ", "");
+  }
 });
+
+// Toggle sidebar function
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("active");
+  document.getElementById("overlay").classList.toggle("active");
+}
