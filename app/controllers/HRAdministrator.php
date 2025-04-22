@@ -519,8 +519,112 @@ class HRAdministrator extends Controller
 
     public function holiday()
     {
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            // $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $limit = 10;
+            $offset = ($page - 1) * $limit;
 
-        $data = [];
-        $this->view('hRAdministrator/v_holiday', $data);
+            // if (!$employee) {
+            //     flash('error_msg', 'Employee not found');
+            //     redirect('users/login');
+            // }
+
+            $data = [
+                'employee_id' => '',
+                'holidayRecords' => $this->employeeModel->getHolidayRecords($limit, $offset),
+                'totalRecords' => $this->employeeModel->getTotalHolidayRecords(),
+                'currentPage' => $page,
+                'totalPages' => ceil($this->employeeModel->getTotalHolidayRecords() / $limit),
+                'start_date' => '',
+                'end_date' => '',
+                'number_of_days' => '',
+                'reason' => '',
+                'status' => '',
+                'comment' => '',
+                'type' => '',
+                'start_date_err' => '',
+                'end_date_err' => '',
+                'days_err' => '',
+                'reason_err' => '',
+                'type_err' => '',
+                'comment_err' => ''
+            ];
+
+            $this->view('hRAdministrator/v_holiday', $data);
+        } 
+        
     }
+
+    public function details($recordId = null) {
+        // Validate recordId
+        if (!$recordId) {
+            redirect('hRAdministrator/holiday');
+        }
+    
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            $recordDetails = $this->employeeModel->getHolidayRecordById($recordId);
+            
+            if (!$recordDetails) {
+                flash('error_msg', 'Record not found');
+                redirect('hRAdministrator/holiday');
+            }
+
+            $data = [
+                'record' => $recordDetails,
+                'employeeDetails' => $this->employeeModel->getEmployeeById($recordDetails->employee_id),
+                'assignedTasksDetails' => $this->employeeModel->getAssignedTasksDetails($recordDetails->employee_id, $recordDetails->start_date, $recordDetails->end_date)
+            ];
+            
+            $this->view('hRAdministrator/v_holidayDetails', $data);
+
+        } else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        // Handle status update
+        if (isset($_POST['recordId']) && isset($_POST['status'])) {
+            $status = $_POST['status'];
+            
+            if ($this->employeeModel->updateStatus($_POST['recordId'], $status)) {
+                flash('success_msg', 'Leave request ' . strtolower($status));
+                redirect('hRAdministrator/details/' . $_POST['recordId']);
+            } else {
+                flash('error_msg', 'Failed to update status');
+                redirect('hRAdministrator/details/' . $_POST['recordId']);
+            }
+        }
+        
+        // Handle comment update
+        if (isset($_POST['comment'])) {
+            header('Content-Type: application/json');
+                $comment = trim($_POST['comment']);
+    
+                if (empty($comment)) {
+                    echo json_encode(['success' => false, 'message' => 'Comment cannot be empty']);
+                    return;
+                }
+    
+                if ($this->employeeModel->updateComment($recordId, $comment)) {
+                    echo json_encode(['success' => true, 'message' => 'Comment added/updated successfully']);
+                    return;
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Failed to update comment']);
+                    return;
+                }
+            }
+    
+            // Handle comment deletion
+            if (isset($_POST['action']) && $_POST['action'] === 'delete_comment') {
+                $result = $this->employeeModel->deleteComment($recordId);
+    
+                header('Content-Type: application/json');
+                if ($result) {
+                    echo json_encode(['success' => true]);
+                } else {
+                    echo json_encode(['success' => false]);
+                }
+                exit;
+            }
+        }
+        
+    }
+
 }
