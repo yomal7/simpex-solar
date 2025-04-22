@@ -81,4 +81,20 @@ class M_Attendance
         
         return $this->db->execute();
     }
+
+    // get monthly attendance records by employee id
+    public function getMonthlyAttendanceByEmployeeId($employeeId, $startDate, $endDate) {
+        $this->db->query('SELECT a.*, h.leave_type 
+                        FROM attendance a 
+                        LEFT JOIN holidayrecords h ON a.employee_id = h.employee_id AND a.date = h.start_date 
+                        WHERE a.employee_id = :employee_id 
+                        AND a.date BETWEEN :start_date AND :end_date 
+                        ORDER BY a.date ASC');
+        
+        $this->db->bind(':employee_id', $employeeId);
+        $this->db->bind(':start_date', $startDate);
+        $this->db->bind(':end_date', $endDate);
+        
+        return $this->db->resultSet();
+    }
 }

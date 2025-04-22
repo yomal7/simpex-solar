@@ -20,8 +20,8 @@ async function clockIn(buttonElement) {
         if (data.status === 'success') {
             // Update the UI
             const row = buttonElement.closest('tr');
-            const statusCell = row.querySelector('td:nth-child(4) span');
-            const timeInCell = row.querySelector('td:nth-child(5)');
+            const statusCell = row.querySelector('.status-cell span');
+            const timeInCell = row.querySelector('.time-in-cell');
             
             statusCell.textContent = 'Present';
             statusCell.className = 'attendance-status present';
@@ -65,7 +65,7 @@ async function clockOut(buttonElement) {
         if (data.status === 'success') {
             // Update the UI
             const row = buttonElement.closest('tr');
-            const timeOutCell = row.querySelector('td:nth-child(6)');
+            const timeOutCell = row.querySelector('.time-out-cell');
             
             timeOutCell.textContent = data.time;
             
