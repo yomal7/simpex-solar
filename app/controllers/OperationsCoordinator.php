@@ -1214,9 +1214,312 @@ class OperationsCoordinator extends Controller
     }
 
 
+    //################################################################################################
+    //-------------------------------------Installation----------------------------------------------
+    //################################################################################################
+
+    public function installation($projectId = null)
+    {
+        if (!$projectId) {
+            flash('installation_message', 'Project ID is required', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+        if (!$project) {
+            flash('installation_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        $agreement = $this->projectModel->getAgreementById($project->agreement_id);
+
+        // Get customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                $project->$key = $value;
+            }
+        }
+
+        // Get installation data if exists
+        $installation = $this->projectModel->getInstallationPhase($projectId);
+        $schedule = null;
+        $engineer = null;
+
+        if ($installation) {
+            // Get schedule data
+            $schedule = $this->projectModel->getInstallationSchedule($installation->installation_id);
+
+            // Get engineer data if assigned
+            $engineer = $this->projectModel->getAssignedEngineer($installation->installation_id);
+
+            // Get team members
+            $teamMembers = $this->projectModel->getInstallationTeamMembers($installation->installation_id);
+        }
+
+        // Get engineers for assignment dropdown
+        $engineers = $this->employeeModel->getEmployeesByRole('engineer');
+
+        // Get technicians for selection
+        $technicians = $this->employeeModel->getEmployeesByRole('technician');
+
+        // Get upcoming installations for the next month
+        $upcomingInstallations = $this->projectModel->getUpcomingInstallations();
+
+        $data = [
+            'project' => $project,
+            'installation' => $installation,
+            'agreement' => $agreement,
+            'schedule' => $schedule,
+            'engineer' => $engineer,
+            'engineers' => $engineers,
+            'technicians' => $technicians,
+            'team_members' => $teamMembers ?? [],
+            'upcoming_installations' => $upcomingInstallations
+        ];
+
+        $this->view('operationsCoordinator/v_installation', $data);
+    }
+    // Add a new method to get installation details for the modal
+    public function getInstallationDetails($installationId)
+    {
+        // Check if request is AJAX
+        if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get installation details
+        $installation = $this->projectModel->getInstallationById($installationId);
+        $schedule = $this->projectModel->getInstallationSchedule($installationId);
+        $engineer = $this->projectModel->getAssignedEngineer($installationId);
+        $teamMembers = $this->projectModel->getInstallationTeamMembers($installationId);
+
+        $response = [
+            'success' => true,
+            'installation' => $installation,
+            'schedule' => $schedule,
+            'engineer' => $engineer,
+            'team_members' => $teamMembers
+        ];
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+        exit;
+    }
 
 
+    /**
+     * Schedule a new installation
+     */
+    public function scheduleInstallation()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
 
+        // Get form data
+        $projectId = $_POST['project_id'];
+        $startDate = $_POST['start_date'];
+        $startTime = $_POST['start_time'];
+        $durationDays = $_POST['duration_days'];
+        $engineerId = $_POST['engineer_id'];
+        $technicians = isset($_POST['technicians']) ? $_POST['technicians'] : [];
+
+        // Validate technicians count
+        if (count($technicians) < 3 || count($technicians) > 6) {
+            flash('installation_message', 'Please select between 3 and 6 technicians', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        // Calculate end date
+        $endDate = date('Y-m-d', strtotime($startDate . ' + ' . $durationDays . ' days'));
+
+        // Validate time (8am - 12pm)
+        $hour = (int)substr($startTime, 0, 2);
+        if ($hour < 8 || $hour > 12) {
+            flash('installation_message', 'Installation start time must be between 8:00 AM and 12:00 PM', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        // Create installation phase record
+        $installationId = $this->projectModel->createInstallationPhase([
+            'project_id' => $projectId,
+            'status' => 'initial'
+        ]);
+
+        if (!$installationId) {
+            flash('installation_message', 'Failed to create installation record', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        // Assign engineer to installation
+        $engineerAssigned = $this->projectModel->assignEngineerToInstallation($installationId, $engineerId);
+        if (!$engineerAssigned) {
+            flash('installation_message', 'Failed to assign engineer', 'alert alert-warning');
+        }
+
+        // Assign technicians to installation
+        $techniciansAssigned = true;
+        foreach ($technicians as $technicianId) {
+            if (!$this->projectModel->assignTechnicianToInstallation($installationId, $technicianId)) {
+                $techniciansAssigned = false;
+            }
+        }
+
+        if (!$techniciansAssigned) {
+            flash('installation_message', 'Some technicians could not be assigned', 'alert alert-warning');
+        }
+
+        // Create installation schedule
+        $scheduleCreated = $this->projectModel->createInstallationSchedule([
+            'installation_id' => $installationId,
+            'start_date' => $startDate,
+            'start_time' => $startTime,
+            'end_date' => $endDate,
+            'status' => 'pending'
+        ]);
+
+        if ($scheduleCreated) {
+            flash('installation_message', 'Installation scheduled successfully', 'alert alert-success');
+        } else {
+            flash('installation_message', 'Failed to schedule installation', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    public function addTeamMember()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $installationId = $_POST['installation_id'];
+        $employeeId = $_POST['employee_id'];
+        $projectId = $_POST['project_id'];
+
+        if ($this->projectModel->addEmployeeToInstallation($installationId, $employeeId)) {
+            flash('installation_message', 'Team member added successfully', 'alert alert-success');
+        } else {
+            flash('installation_message', 'Failed to add team member', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    /**
+     * Reschedule an installation
+     */
+    public function rescheduleInstallation()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get form data
+        $installationId = $_POST['installation_id'];
+        $scheduleId = $_POST['schedule_id'];
+        $projectId = $_POST['project_id'];
+        $startDate = $_POST['start_date'];
+        $startTime = $_POST['start_time'];
+        $durationDays = $_POST['duration_days'];
+        $engineerId = $_POST['engineer_id'];
+        $technicians = isset($_POST['technicians']) ? $_POST['technicians'] : [];
+
+        // Validate technicians count
+        if (count($technicians) < 3 || count($technicians) > 6) {
+            flash('installation_message', 'Please select between 3 and 6 technicians', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        // Calculate end date
+        $endDate = date('Y-m-d', strtotime($startDate . ' + ' . $durationDays . ' days'));
+
+        // Create new schedule
+        $scheduleCreated = $this->projectModel->createInstallationSchedule([
+            'installation_id' => $installationId,
+            'start_date' => $startDate,
+            'start_time' => $startTime,
+            'end_date' => $endDate,
+            'status' => 'pending'
+        ]);
+
+        if (!$scheduleCreated) {
+            flash('installation_message', 'Failed to reschedule installation', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        // Update engineer if changed
+        $engineerAssigned = $this->projectModel->reassignEngineer($installationId, $engineerId);
+
+        // Update technicians
+        // First remove all current technicians
+        $this->projectModel->removeAllTechnicians($installationId);
+
+        // Then add new ones
+        $techniciansAssigned = true;
+        foreach ($technicians as $technicianId) {
+            if (!$this->projectModel->assignTechnicianToInstallation($installationId, $technicianId)) {
+                $techniciansAssigned = false;
+            }
+        }
+
+        flash('installation_message', 'Installation rescheduled successfully', 'alert alert-success');
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    public function reassignEngineer()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $installationId = $_POST['installation_id'];
+        $engineerId = $_POST['engineer_id'];
+        $projectId = $_POST['project_id'];
+
+        if ($this->projectModel->reassignEngineer($installationId, $engineerId)) {
+            flash('installation_message', 'Engineer reassigned successfully', 'alert alert-success');
+        } else {
+            flash('installation_message', 'Failed to reassign engineer', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    public function completeInstallation()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $installationId = $_POST['installation_id'];
+        $projectId = $_POST['project_id'];
+
+        // Update installation status to completed
+        $installationUpdated = $this->projectModel->updateInstallationStatus($installationId, 'completed');
+
+        if ($installationUpdated) {
+            // Move project to final payment phase
+            $projectUpdated = $this->projectModel->updateProjectsPhase($projectId, 'final_payment');
+
+            if ($projectUpdated) {
+                flash('installation_message', 'Installation phase completed successfully', 'alert alert-success');
+            } else {
+                flash('installation_message', 'Installation completed but failed to update project phase', 'alert alert-warning');
+            }
+        } else {
+            flash('installation_message', 'Failed to complete installation', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
 
 
 
