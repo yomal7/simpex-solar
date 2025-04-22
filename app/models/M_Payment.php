@@ -85,4 +85,19 @@ class M_Payment
         $this->db->bind(':id', $paymentId);
         return $this->db->single();
     }
+
+    // Update payment slip
+    public function updatePaymentSlip($orderId, $fileName)
+    {
+        $this->db->query('UPDATE payments 
+                         SET bank_slip = :bank_slip, 
+                             status = "pending_verification", 
+                             updated_at = CURRENT_TIMESTAMP 
+                         WHERE order_id = :order_id');
+
+        $this->db->bind(':bank_slip', $fileName);
+        $this->db->bind(':order_id', $orderId);
+
+        return $this->db->execute();
+    }
 }

@@ -162,7 +162,7 @@
 
                         <div class="upload-section">
                             <h4>Upload New Bank Slip</h4>
-                            <form action="<?php echo URLROOT; ?>/store/processPayment" method="POST" enctype="multipart/form-data" id="rejected-upload-form">
+                            <form action="<?php echo URLROOT; ?>/store/updatePaymentSlip" method="POST" enctype="multipart/form-data" id="rejected-upload-form">
                                 <input type="hidden" name="order_id" value="<?php echo $data['order']->id; ?>">
                                 <input type="hidden" name="payment_method" value="bank_deposit">
                                 <input type="hidden" name="resubmission" value="true">

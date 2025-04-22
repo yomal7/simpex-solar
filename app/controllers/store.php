@@ -327,6 +327,34 @@ class Store extends Controller
         }
     }
 
+    // Process payment
+    public function updatePaymentSlip()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $orderId = $_POST['order_id'];
+            $paymentMethod = $_POST['payment_method'];
+
+            if ($paymentMethod != 'bank_deposit') {
+                flash('order_message', 'Invalid payment method', 'alert alert-danger');
+                redirect('store/payment/' . $orderId);
+            }
+
+            if (isset($_FILES['bank_slip']) && $_FILES['bank_slip']['error'] == 0) {
+                $uploadDir = 'uploads/bank_slips/';
+                $fileName = time() . '_' . basename($_FILES['bank_slip']['name']);
+                $targetPath = $uploadDir . $fileName;
+
+                if (move_uploaded_file($_FILES['bank_slip']['tmp_name'], $targetPath)) {
+
+                    if ($this->paymentModel->updatePaymentSlip($orderId, $fileName)) {
+                        flash('order_message', 'Payment slip updated successfully. We will verify and process your order.');
+                        redirect('store/orderConfirmation/' . $orderId);
+                    }
+                }
+            }
+        }
+    }
+
     // Order confirmation
     public function orderConfirmation($orderId)
     {
