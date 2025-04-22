@@ -139,8 +139,6 @@ class M_CustomerProject
         return $this->db->execute();
     }
 
-
-    // M_CustomerProject.php
     public function updateProjectsPhase($projectId, $phase)
     {
         $this->db->query('UPDATE projects SET 
