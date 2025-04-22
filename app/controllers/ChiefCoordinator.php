@@ -1,6 +1,10 @@
 <?php
 class ChiefCoordinator extends Controller {
     private $feedbackModel;
+    private $chiefCoordinatorModel;
+    private $projectModel;
+    private $shopModel;
+    private $employeeModel;
     private $mailer;
     
     public function __construct() {
@@ -11,13 +15,132 @@ class ChiefCoordinator extends Controller {
         }
         
         $this->feedbackModel = $this->model('M_Feedback');
+        $this->chiefCoordinatorModel = $this->model('M_ChiefCoordinator');
+        $this->projectModel = $this->model('M_CustomerPreProject');
+        $this->shopModel = $this->model('M_Shop');
+        $this->employeeModel = $this->model('M_Employee');
         require_once APPROOT . '/libraries/Mailer.php';
         $this->mailer = new Mailer();
     }
-    
-    // Dashboard
+
     public function index() {
-        redirect('chiefCoordinator/feedbacks');
+        // Get project statistics
+        $projectStats = $this->chiefCoordinatorModel->getProjectStats();
+        $monthlyProjectStats = $this->chiefCoordinatorModel->getMonthlyProjectStats();
+        
+        // Get payment statistics
+        $paymentStats = $this->chiefCoordinatorModel->getPaymentStats();
+        $monthlyPaymentStats = $this->chiefCoordinatorModel->getMonthlyPaymentStats();
+        
+        // Get store statistics
+        $storeStats = $this->chiefCoordinatorModel->getStoreStats();
+        $monthlyStoreStats = $this->chiefCoordinatorModel->getMonthlyStoreStats();
+        
+        // Get employee statistics
+        $employeeStats = $this->chiefCoordinatorModel->getEmployeeStats();
+        $attendanceStats = $this->chiefCoordinatorModel->getMonthlyAttendanceStats();
+        $leaveStats = $this->chiefCoordinatorModel->getMonthlyLeaveStats();
+        
+        $data = [
+            'title' => 'Dashboard',
+            'projectStats' => $projectStats,
+            'monthlyProjectStats' => $monthlyProjectStats,
+            'paymentStats' => $paymentStats,
+            'monthlyPaymentStats' => $monthlyPaymentStats,
+            'storeStats' => $storeStats,
+            'monthlyStoreStats' => $monthlyStoreStats,
+            'employeeStats' => $employeeStats,
+            'attendanceStats' => $attendanceStats,
+            'leaveStats' => $leaveStats
+        ];
+        
+        $this->view('chiefCoordinator/v_dashboard', $data);
+    }
+    
+    public function projectDetails() {
+        $monthlyProjectStats = $this->chiefCoordinatorModel->getMonthlyProjectStats();
+        $projectStatusStats = $this->chiefCoordinatorModel->getProjectStatusStats();
+        $projectPhaseStats = $this->chiefCoordinatorModel->getProjectPhaseStats();
+        
+        $data = [
+            'title' => 'Project Details',
+            'monthlyProjectStats' => $monthlyProjectStats,
+            'projectStatusStats' => $projectStatusStats,
+            'projectPhaseStats' => $projectPhaseStats
+        ];
+        
+        $this->view('chiefCoordinator/v_projectDetails', $data);
+    }
+    
+    public function paymentDetails() {
+        $monthlyPaymentStats = $this->chiefCoordinatorModel->getMonthlyPaymentStats();
+        $paymentMethodStats = $this->chiefCoordinatorModel->getPaymentMethodStats();
+        
+        $data = [
+            'title' => 'Payment Details',
+            'monthlyPaymentStats' => $monthlyPaymentStats,
+            'paymentMethodStats' => $paymentMethodStats
+        ];
+        
+        $this->view('chiefCoordinator/v_paymentDetails', $data);
+    }
+    
+    public function storeDetails() {
+        $monthlyStoreStats = $this->chiefCoordinatorModel->getMonthlyStoreStats();
+        $productCategoryStats = $this->chiefCoordinatorModel->getProductCategoryStats();
+        
+        $data = [
+            'title' => 'Store Details',
+            'monthlyStoreStats' => $monthlyStoreStats,
+            'productCategoryStats' => $productCategoryStats
+        ];
+        
+        $this->view('chiefCoordinator/v_storeDetails', $data);
+    }
+    
+    public function employeeDetails() {
+        $attendanceStats = $this->chiefCoordinatorModel->getMonthlyAttendanceStats();
+        $leaveStats = $this->chiefCoordinatorModel->getMonthlyLeaveStats();
+        $employeeRoleStats = $this->chiefCoordinatorModel->getEmployeeRoleStats();
+        
+        $data = [
+            'title' => 'Employee Details',
+            'attendanceStats' => $attendanceStats,
+            'leaveStats' => $leaveStats,
+            'employeeRoleStats' => $employeeRoleStats
+        ];
+        
+        $this->view('chiefCoordinator/v_employeeDetails', $data);
+    }
+    
+    public function printDashboard() {
+        // Get all stats for printing
+        $projectStats = $this->chiefCoordinatorModel->getProjectStats();
+        $paymentStats = $this->chiefCoordinatorModel->getPaymentStats();
+        $storeStats = $this->chiefCoordinatorModel->getStoreStats();
+        $employeeStats = $this->chiefCoordinatorModel->getEmployeeStats();
+        
+        // Monthly data
+        $monthlyProjectStats = $this->chiefCoordinatorModel->getMonthlyProjectStats();
+        $monthlyPaymentStats = $this->chiefCoordinatorModel->getMonthlyPaymentStats();
+        $monthlyStoreStats = $this->chiefCoordinatorModel->getMonthlyStoreStats();
+        $attendanceStats = $this->chiefCoordinatorModel->getMonthlyAttendanceStats();
+        $leaveStats = $this->chiefCoordinatorModel->getMonthlyLeaveStats();
+        
+        $data = [
+            'title' => 'Print Dashboard',
+            'projectStats' => $projectStats,
+            'paymentStats' => $paymentStats,
+            'storeStats' => $storeStats,
+            'employeeStats' => $employeeStats,
+            'monthlyProjectStats' => $monthlyProjectStats,
+            'monthlyPaymentStats' => $monthlyPaymentStats,
+            'monthlyStoreStats' => $monthlyStoreStats,
+            'attendanceStats' => $attendanceStats,
+            'leaveStats' => $leaveStats
+        ];
+        
+        $this->view('chiefCoordinator/v_printDashboard', $data);
     }
     
     // View all feedbacks
