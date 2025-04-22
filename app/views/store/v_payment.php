@@ -43,11 +43,13 @@
                     <p>Shipping Address: <?php echo nl2br(htmlspecialchars($data['order']->shipping_address)); ?></p>
                     <p>Contact Phone: <?php echo htmlspecialchars($data['order']->contact_phone); ?></p>
 
-                    <div class="order-actions">
-                        <a href="<?php echo URLROOT; ?>/store/paymentCheckout/<?php echo $data['order']->id; ?>" class="edit-details-btn">
-                            <i class='bx bx-edit'></i> Change Order Details
-                        </a>
-                    </div>
+                    <?php if (is_null($data['payment'])): ?>
+                        <div class="order-actions">
+                            <a href="<?php echo URLROOT; ?>/store/paymentCheckout/<?php echo $data['order']->id; ?>" class="edit-details-btn">
+                                <i class='bx bx-edit'></i> Change Order Details
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="warning-message">

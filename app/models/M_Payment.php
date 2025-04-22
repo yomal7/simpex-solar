@@ -91,7 +91,8 @@ class M_Payment
     {
         $this->db->query('UPDATE payments 
                          SET bank_slip = :bank_slip, 
-                             status = "pending_verification", 
+                             status = "pending_verification",
+                             rejection_reason = NULL, 
                              updated_at = CURRENT_TIMESTAMP 
                          WHERE order_id = :order_id');
 
