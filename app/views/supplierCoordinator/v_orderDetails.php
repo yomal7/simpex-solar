@@ -16,33 +16,9 @@
                 src="<?php echo URLROOT; ?>/public/assets/profile.png"
                 alt="manager profile-picture"
                 class="profile-picture" />
-            <a href="<?php echo URLROOT ?>/supplierCoordinator/dashboard">
-                <span class="material-icons-sharp">dashboard</span>
-                <h3>Dashboard</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/supplierCoordinator/shop">
-                <span class="material-icons-sharp">storefront</span>
-                <h3>Shop</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/supplierCoordinator/orders" class="active">
-                <span class="material-icons-sharp">shopping_cart</span>
-                <h3>Orders</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/supplierCoordinator/projects">
-                <span class="material-icons-sharp">assignment</span>
-                <h3>Projects</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/supplierCoordinator/suppliers">
-                <span class="material-icons-sharp">business</span>
-                <h3>Suppliers</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/supplierCoordinator/inventory">
-                <span class="material-icons-sharp">inventory</span>
-                <h3>Inventory</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/supplierCoordinator/settings">
-                <span class="material-icons-sharp">settings</span>
-                <h3>Settings</h3>
+            <a href="<?php echo URLROOT; ?>/supplierCoordinator/orders" class="back-button">
+                <span class="material-icons-sharp">arrow_back</span>
+                Back to Orders
             </a>
             <a href="<?php echo URLROOT; ?>/users/logout">
                 <span class="material-icons-sharp">logout</span>
@@ -53,10 +29,6 @@
         <div class="main-content">
             <div class="page-header">
                 <h1>Order #<?php echo $data['order']->order_number; ?></h1>
-                <a href="<?php echo URLROOT; ?>/supplierCoordinator/orders" class="back-button">
-                    <span class="material-icons-sharp">arrow_back</span>
-                    Back to Orders
-                </a>
             </div>
 
             <div class="message"><?php flash('order_message'); ?></div>
@@ -201,25 +173,14 @@
                                     </div>
 
                                     <?php if ($data['payment']->status == 'pending_verification'): ?>
-                                        <form action="<?php echo URLROOT; ?>/supplierCoordinator/verifyPayment" method="POST" class="payment-verification-form">
-                                            <input type="hidden" name="payment_id" value="<?php echo $data['payment']->id; ?>">
-                                            <div class="verification-actions">
-                                                <button type="submit" name="action" value="approve" class="btn approve-btn">
-                                                    <span class="material-icons-sharp">check_circle</span> Approve Payment
-                                                </button>
-                                                <button type="button" onclick="showRejectForm()" class="btn reject-btn">
-                                                    <span class="material-icons-sharp">cancel</span> Reject Payment
-                                                </button>
-                                            </div>
-
-                                            <div id="rejectForm" style="display: none;" class="reject-form">
-                                                <div class="form-group">
-                                                    <label for="rejection_reason">Rejection Reason:</label>
-                                                    <textarea name="rejection_reason" id="rejection_reason" rows="3" class="form-control" required></textarea>
-                                                </div>
-                                                <button type="submit" name="action" value="reject" class="btn reject-confirm-btn">Confirm Rejection</button>
-                                            </div>
-                                        </form>
+                                        <div class="verification-actions">
+                                            <button type="button" onclick="showApproveModal()" class="btn approve-btn">
+                                                <span class="material-icons-sharp">check_circle</span> Approve Payment
+                                            </button>
+                                            <button type="button" onclick="showRejectModal()" class="btn reject-btn">
+                                                <span class="material-icons-sharp">cancel</span> Reject Payment
+                                            </button>
+                                        </div>
                                     <?php endif; ?>
                                 </div>
                             <?php endif; ?>
@@ -239,6 +200,45 @@
         </div>
     </div>
 
+    <!-- Approval Confirmation Modal -->
+    <div id="approveModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeApproveModal()">&times;</span>
+            <h3>Confirm Payment Approval</h3>
+            <p>Are you sure you want to approve this payment?</p>
+            <form action="<?php echo URLROOT; ?>/supplierCoordinator/approvePayment" method="POST">
+                <input type="hidden" name="payment_id" value="<?php echo $data['payment']->id; ?>">
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeApproveModal()">Cancel</button>
+                    <button type="submit" class="btn approve-btn">Confirm Approval</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rejection Confirmation Modal -->
+    <div id="rejectModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeRejectModal()">&times;</span>
+            <h3>Confirm Payment Rejection</h3>
+            <p>Please provide a reason for rejecting this payment:</p>
+            <form action="<?php echo URLROOT; ?>/supplierCoordinator/rejectPayment" method="POST">
+                <input type="hidden" name="payment_id" value="<?php echo $data['payment']->id; ?>">
+                <div class="form-group">
+                    <label for="rejection_reason">Rejection Reason:</label>
+                    <textarea name="rejection_reason" id="rejection_reason" rows="3" class="form-control" required></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeRejectModal()">Cancel</button>
+                    <button type="submit" class="btn reject-btn">Confirm Rejection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <div id="modalBackdrop" class="modal-backdrop" style="display: none;"></div>
+
     <script>
         function showRejectForm() {
             document.getElementById('rejectForm').style.display = 'block';
@@ -248,6 +248,38 @@
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('active');
         }
+
+        // Modal functions
+        function showApproveModal() {
+            document.getElementById('approveModal').style.display = 'flex';
+            document.getElementById('modalBackdrop').style.display = 'block';
+        }
+
+        function closeApproveModal() {
+            document.getElementById('approveModal').style.display = 'none';
+            document.getElementById('modalBackdrop').style.display = 'none';
+        }
+
+        function showRejectModal() {
+            document.getElementById('rejectModal').style.display = 'flex';
+            document.getElementById('modalBackdrop').style.display = 'block';
+
+            // Focus on the textarea
+            setTimeout(() => {
+                document.getElementById('rejection_reason').focus();
+            }, 100);
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+            document.getElementById('modalBackdrop').style.display = 'none';
+        }
+
+        // Close modals if backdrop is clicked
+        document.getElementById('modalBackdrop').addEventListener('click', function() {
+            closeApproveModal();
+            closeRejectModal();
+        });
     </script>
 
     <?php require APPROOT . '/views/supplierCoordinator/footer.php'; ?>

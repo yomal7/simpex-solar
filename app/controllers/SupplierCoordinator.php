@@ -1146,31 +1146,103 @@ class SupplierCoordinator extends Controller
         }
     }
 
-    public function verifyPayment()
+    // public function verifyPayment()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    //         $paymentId = $_POST['payment_id'];
+    //         $action = $_POST['action'];
+
+    //         // For approve action
+    //         if ($action == 'approve') {
+    //             if ($this->paymentModel->approvePayment($paymentId)) {
+    //                 // Also update the order status if needed
+    //                 $payment = $this->paymentModel->getPaymentById($paymentId);
+    //                 if ($payment) {
+    //                     $this->shopModel->updateOrderStatus($payment->order_id, 'processing');
+    //                 }
+    //                 flash('payment_message', 'Payment approved successfully', 'alert alert-success');
+    //             } else {
+    //                 flash('payment_message', 'Failed to approve payment', 'alert alert-danger');
+    //             }
+    //         }
+    //         // For reject action
+    //         else if ($action == 'reject') {
+    //             $rejectionReason = $_POST['rejection_reason'];
+    //             if ($this->paymentModel->rejectPayment($paymentId, $rejectionReason)) {
+    //                 flash('payment_message', 'Payment rejected successfully', 'alert alert-success');
+    //             } else {
+    //                 flash('payment_message', 'Failed to reject payment', 'alert alert-danger');
+    //             }
+    //         }
+
+    //         // Redirect back to orders page
+    //         redirect('supplierCoordinator/orders');
+    //     } else {
+    //         redirect('supplierCoordinator/orders');
+    //     }
+    // }
+
+    public function approvePayment()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $paymentId = $_POST['payment_id'];
-            $action = $_POST['action'];
 
-            if ($action == 'approve') {
-                if ($this->paymentModel->approvePayment($paymentId)) {
-                    // Update order status to processing
-                    $payment = $this->paymentModel->getPaymentById($paymentId);
+            if ($this->paymentModel->approvePayment($paymentId)) {
+                // Also update the order status if needed
+                $payment = $this->paymentModel->getPaymentById($paymentId);
+                if ($payment) {
                     $this->shopModel->updateOrderStatus($payment->order_id, 'processing');
-
-                    flash('payment_message', 'Payment approved successfully');
-                } else {
-                    flash('payment_message', 'Failed to approve payment', 'alert alert-danger');
                 }
-            } else if ($action == 'reject') {
-                $reason = $_POST['rejection_reason'];
-                if ($this->paymentModel->rejectPayment($paymentId, $reason)) {
-                    flash('payment_message', 'Payment rejected successfully');
-                } else {
-                    flash('payment_message', 'Failed to reject payment', 'alert alert-danger');
-                }
+                flash('payment_message', 'Payment approved successfully', 'alert alert-success');
+            } else {
+                flash('payment_message', 'Failed to approve payment', 'alert alert-danger');
             }
 
+            // Get the order ID to redirect back to the order details
+            $payment = $this->paymentModel->getPaymentById($paymentId);
+            if ($payment) {
+                redirect('supplierCoordinator/viewOrder/' . $payment->order_id);
+            } else {
+                redirect('supplierCoordinator/orders');
+            }
+        } else {
+            redirect('supplierCoordinator/orders');
+        }
+    }
+
+    public function rejectPayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $paymentId = $_POST['payment_id'];
+            $rejectionReason = trim($_POST['rejection_reason']);
+
+            if (empty($rejectionReason)) {
+                flash('payment_message', 'Rejection reason is required', 'alert alert-danger');
+
+                // Get the order ID to redirect back to the order details
+                $payment = $this->paymentModel->getPaymentById($paymentId);
+                if ($payment) {
+                    redirect('supplierCoordinator/viewOrder/' . $payment->order_id);
+                } else {
+                    redirect('supplierCoordinator/orders');
+                }
+                return;
+            }
+
+            if ($this->paymentModel->rejectPayment($paymentId, $rejectionReason)) {
+                flash('payment_message', 'Payment rejected successfully', 'alert alert-success');
+            } else {
+                flash('payment_message', 'Failed to reject payment', 'alert alert-danger');
+            }
+
+            // Get the order ID to redirect back to the order details
+            $payment = $this->paymentModel->getPaymentById($paymentId);
+            if ($payment) {
+                redirect('supplierCoordinator/viewOrder/' . $payment->order_id);
+            } else {
+                redirect('supplierCoordinator/orders');
+            }
+        } else {
             redirect('supplierCoordinator/orders');
         }
     }
