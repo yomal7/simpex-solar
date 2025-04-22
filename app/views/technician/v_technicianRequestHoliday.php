@@ -26,7 +26,7 @@
             </a>
             <a href="<?php echo URLROOT ?>/technician/requestHoliday" class="active">
                 <span class="material-icons-sharp">event</span>
-                <h3>Request Holiday</h3>
+                <h3>Request Leave</h3>
             </a>
             <a href="<?php echo URLROOT ?>/technician/settings">
                 <span class="material-icons-sharp">settings</span>

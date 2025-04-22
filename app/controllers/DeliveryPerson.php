@@ -2,8 +2,9 @@
 
 class DeliveryPerson extends Controller
 {
-    private $deliveryPersonModel;
     private $employeeModel;
+    private $leavesModel;
+    private $tasksModel;
 
     public function __construct()
     {
@@ -12,19 +13,20 @@ class DeliveryPerson extends Controller
             redirect('users/login');
         }
         $this->employeeModel = $this->model('M_Employee');
-        $this->deliveryPersonModel = $this->model('M_DeliveryPerson');
+        $this->leavesModel = $this->model('M_Leaves');
+        $this->tasksModel = $this->model('M_Tasks');
     }
 
     public function index()
     {
-        //$deliveryPerson = $this->deliveryPersonModel->getDeliveryPersonByUserId($_SESSION['user_id']);
+        //$deliveryPerson = $this->leavesModel->getDeliveryPersonByUserId($_SESSION['user_id']);
         $data = [];
         $this->view('deliveryPerson/v_deliveryPersonDashboard', $data);
     }
 
     public function dashboard()
     {
-        //$deliveryPerson = $this->deliveryPersonModel->getDeliveryPersonByUserId($_SESSION['user_id']);
+        //$deliveryPerson = $this->leavesModel->getDeliveryPersonByUserId($_SESSION['user_id']);
         $data = [];
         $this->view('deliveryPerson/v_deliveryPersonDashboard', $data);
     }
@@ -46,10 +48,10 @@ class DeliveryPerson extends Controller
 
             $data = [
                 'employee' => $employee,
-                'holidayRecords' => $this->deliveryPersonModel->getHolidayRecords($employee->employee_id, $limit, $offset),
-                'totalRecords' => $this->deliveryPersonModel->getTotalHolidayRecords($employee->employee_id),
+                'holidayRecords' => $this->leavesModel->getHolidayRecords($employee->employee_id, $limit, $offset),
+                'totalRecords' => $this->leavesModel->getTotalHolidayRecords($employee->employee_id),
                 'currentPage' => $page,
-                'totalPages' => ceil($this->deliveryPersonModel->getTotalHolidayRecords($employee->employee_id) / $limit),
+                'totalPages' => ceil($this->leavesModel->getTotalHolidayRecords($employee->employee_id) / $limit),
                 'start_date' => '',
                 'end_date' => '',
                 'number_of_days' => '',
@@ -71,7 +73,7 @@ class DeliveryPerson extends Controller
 
             $data = [
                 'employee' => $employee,
-                'holidayRecords' => $this->deliveryPersonModel->getHolidayRecords($employee->employee_id),
+                'holidayRecords' => $this->leavesModel->getHolidayRecords($employee->employee_id),
                 'employee_id' => $employee->employee_id,
                 'start_date' => trim($_POST['startDate']),
                 'end_date' => trim($_POST['endDate']),
@@ -131,7 +133,7 @@ class DeliveryPerson extends Controller
                     'status' => $data['status']
                 ];
 
-                if ($this->deliveryPersonModel->addHolidayRecords($holidayData)) {
+                if ($this->leavesModel->addHolidayRecords($holidayData)) {
                     echo json_encode([
                         'success' => true,
                         'message' => 'Holiday request submitted successfully'
@@ -154,7 +156,7 @@ class DeliveryPerson extends Controller
 
     public function tasks()
     {
-        //$deliveryPerson = $this->deliveryPersonModel->getDeliveryPersonByUserId($_SESSION['employee_id']);
+        //$deliveryPerson = $this->leavesModel->getDeliveryPersonByUserId($_SESSION['employee_id']);
         $data = [];
         $this->view('deliveryPerson/v_deliveryPersonTasks', $data);
     }

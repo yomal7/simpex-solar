@@ -1,6 +1,6 @@
 <?php
 
-class M_DeliveryPerson
+class M_Leaves
 {
     private $db;
 
@@ -11,7 +11,7 @@ class M_DeliveryPerson
 
     public function getHolidayRecords($employee_id, $limit = 5, $offset = 0)
     {
-        $this->db->query('SELECT * FROM holidayrecords 
+        $this->db->query('SELECT * FROM leaverecords 
         WHERE employee_id = :employee_id 
         ORDER BY created_at DESC 
         LIMIT :limit OFFSET :offset');
@@ -25,14 +25,14 @@ class M_DeliveryPerson
 
     public function getTotalHolidayRecords($employee_id)
     {
-        $this->db->query('SELECT COUNT(*) AS total FROM holidayrecords WHERE employee_id = :employee_id');
+        $this->db->query('SELECT COUNT(*) AS total FROM leaverecords WHERE employee_id = :employee_id');
         $this->db->bind(':employee_id', $employee_id);
         return $this->db->single()->total;
     }
 
     public function addHolidayRecords($data)
     {
-        $this->db->query('INSERT INTO holidayrecords (employee_id, start_date, end_date, number_of_days, reason, status, leave_type) 
+        $this->db->query('INSERT INTO leaverecords (employee_id, start_date, end_date, number_of_days, reason, status, leave_type) 
                               VALUES (:employee_id, :start_date, :end_date, :number_of_days, :reason, :status, :leave_type)');
 
         $this->db->bind(':employee_id', $data['employee_id']);
@@ -44,27 +44,5 @@ class M_DeliveryPerson
         $this->db->bind(':leave_type', $data['leave_type']);
 
         return $this->db->execute();
-    }
-
-
-    public function getTasks($employee_id, $limit = 10, $offset = 0)
-    {
-        $this->db->query('SELECT * FROM tasks 
-        WHERE employee_id = :employee_id
-        ORDER BY end_date DESC
-        LIMIT :limit OFFSET :offset');
-
-        $this->db->bind(':limit', $limit);
-        $this->db->bind(':offset', $offset);
-        $this->db->bind('employee_id', $employee_id);
-
-        return $this->db->resultSet();
-    }
-
-    public function getTotalProjectTasks($employee_id)
-    {
-        $this->db->query('SELECT COUNT(*) AS total FROM tasks WHERE employee_id = :employee_id');
-        $this->db->bind(':employee_id', $employee_id);
-        return $this->db->single()->total;
     }
 }

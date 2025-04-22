@@ -2,8 +2,10 @@
 
 class technician extends Controller
 {
-    private $technicianModel;
     private $employeeModel;
+    private $leavesModel;
+    private $tasksModel;
+
 
     public function __construct()
     {
@@ -12,12 +14,13 @@ class technician extends Controller
             redirect('users/login');
         }
         $this->employeeModel = $this->model('M_Employee');
-        $this->technicianModel = $this->model('M_Technician');
+        $this->leavesModel = $this->model('M_Leaves');
+        $this->tasksModel = $this->model('M_Tasks');
     }
 
     public function index()
     {
-        //$technician = $this->technicianModel->getTechnicianByUserId($_SESSION['employee_id']);
+        //$technician = $this->leavesModel->getTechnicianByUserId($_SESSION['employee_id']);
         $data = [];
         $this->view('technician/v_technicianDashboard', $data);
     }
@@ -32,7 +35,7 @@ class technician extends Controller
     }
 
     // Fetch tasks for the technician
-    $tasks = $this->technicianModel->getTotalProjectTasksById($employee->employee_id);
+    $tasks = $this->tasksModel->getTotalProjectTasksById($employee->employee_id);
 
     // Prepare data for view
     $data = [
@@ -58,10 +61,10 @@ class technician extends Controller
 
             $data = [
                 'employee' => $employee,
-                'holidayRecords' => $this->technicianModel->getHolidayRecords($employee->employee_id, $limit, $offset),
-                'totalRecords' => $this->technicianModel->getTotalHolidayRecords($employee->employee_id),
+                'holidayRecords' => $this->leavesModel->getHolidayRecords($employee->employee_id, $limit, $offset),
+                'totalRecords' => $this->leavesModel->getTotalHolidayRecords($employee->employee_id),
                 'currentPage' => $page,
-                'totalPages' => ceil($this->technicianModel->getTotalHolidayRecords($employee->employee_id) / $limit),
+                'totalPages' => ceil($this->leavesModel->getTotalHolidayRecords($employee->employee_id) / $limit),
                 'start_date' => '',
                 'end_date' => '',
                 'number_of_days' => '',
@@ -85,7 +88,7 @@ class technician extends Controller
 
             $data = [
                 'employee' => $employee,
-                'holidayRecords' => $this->technicianModel->getHolidayRecords($employee->employee_id),
+                'holidayRecords' => $this->leavesModel->getHolidayRecords($employee->employee_id),
                 'employee_id' => $employee->employee_id,
                 'start_date' => trim($_POST['startDate']),
                 'end_date' => trim($_POST['endDate']),
@@ -143,7 +146,7 @@ class technician extends Controller
                     'status' => $data['status']
                 ];
 
-                if ($this->technicianModel->addHolidayRecords($holidayData)) {
+                if ($this->leavesModel->addHolidayRecords($holidayData)) {
                     echo json_encode([
                         'success' => true,
                         'message' => 'Holiday request submitted successfully'
@@ -180,10 +183,10 @@ class technician extends Controller
 
         $data = [
             'employee' => $employee,
-            'projectTasks' => $this->technicianModel->getProjectTasks($employee->employee_id, $limit, $offset),
-            'totalTasks' => $this->technicianModel->getTotalProjectTasks($employee->employee_id),
+            'projectTasks' => $this->tasksModel->getProjectTasks($employee->employee_id, $limit, $offset),
+            'totalTasks' => $this->tasksModel->getTotalProjectTasks($employee->employee_id),
             'currentPage' => $page,
-            'totalPages' => ceil($this->technicianModel->getTotalProjectTasks($employee->employee_id) / $limit),
+            'totalPages' => ceil($this->tasksModel->getTotalProjectTasks($employee->employee_id) / $limit),
             'id' => '',
             'start_date' => '',
             'end_date' => '',
@@ -215,7 +218,7 @@ class technician extends Controller
 
         if ($status !== null) {
             // Handle status update
-            if ($this->technicianModel->updateTaskStatus($taskId, $status)) {
+            if ($this->tasksModel->updateTaskStatus($taskId, $status)) {
                 echo json_encode([
                     'success' => true,
                     'message' => 'Task status updated successfully'
@@ -239,7 +242,7 @@ public function details($taskId = null) {
     }
 
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-        $taskDetails = $this->technicianModel->getProjectTasksById($taskId);
+        $taskDetails = $this->tasksModel->getProjectTasksById($taskId);
 
         // Debug
         error_log("Task Details: " . print_r($taskDetails, true));
@@ -261,7 +264,7 @@ public function details($taskId = null) {
                 return;
             }
 
-            if ($this->technicianModel->updateTaskComment($taskId, $comment)) {
+            if ($this->tasksModel->updateTaskComment($taskId, $comment)) {
                 echo json_encode(['success' => true, 'message' => 'Comment added/updated successfully']);
                 return;
             } else {
@@ -272,7 +275,7 @@ public function details($taskId = null) {
 
         // Handle comment deletion
         if (isset($_POST['action']) && $_POST['action'] === 'delete_comment') {
-            $result = $this->technicianModel->deleteTaskComment($taskId);
+            $result = $this->tasksModel->deleteTaskComment($taskId);
 
             header('Content-Type: application/json');
             if ($result) {

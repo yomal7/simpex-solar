@@ -1,8 +1,9 @@
 <?php
 
 class engineer extends Controller {
-    private $engineerModel;
     private $employeeModel;
+    private $leavesModel;
+    private $tasksModel;
 
     public function __construct()
     {
@@ -11,18 +12,19 @@ class engineer extends Controller {
             redirect('users/login');
         }
         $this->employeeModel = $this->model('M_Employee');
-        $this->engineerModel = $this->model('M_Engineer');
+        $this->leavesModel = $this->model('M_Leaves');
+        $this->tasksModel = $this->model('M_Tasks');
     }
 
 
     public function index() {
-        //$engineer = $this->engineerModel->getEngineerByUserId($_SESSION['employee_id']);
+        //$engineer = $this->leavesModel->getEngineerByUserId($_SESSION['employee_id']);
         $data = [];
         $this->view('engineer/v_engineerDashboard', $data);
     }
 
     public function dashboard() {
-        //$engineer = $this->engineerModel->getEngineerByUserId($_SESSION['employee_id']);
+        //$engineer = $this->leavesModel->getEngineerByUserId($_SESSION['employee_id']);
         $data = [];
         $this->view('engineer/v_engineerDashboard', $data);
     }
@@ -42,10 +44,10 @@ class engineer extends Controller {
 
             $data = [
                 'employee' => $employee,
-                'holidayRecords' => $this->engineerModel->getHolidayRecords($employee->employee_id, $limit, $offset),
-                'totalRecords' => $this->engineerModel->getTotalHolidayRecords($employee->employee_id),
+                'holidayRecords' => $this->leavesModel->getHolidayRecords($employee->employee_id, $limit, $offset),
+                'totalRecords' => $this->leavesModel->getTotalHolidayRecords($employee->employee_id),
                 'currentPage' => $page,
-                'totalPages' => ceil($this->engineerModel->getTotalHolidayRecords($employee->employee_id) / $limit),
+                'totalPages' => ceil($this->leavesModel->getTotalHolidayRecords($employee->employee_id) / $limit),
                 'start_date' => '',
                 'end_date' => '',
                 'number_of_days' => '',
@@ -67,7 +69,7 @@ class engineer extends Controller {
 
             $data = [
                 'employee' => $employee,
-                'holidayRecords' => $this->engineerModel->getHolidayRecords($employee->employee_id),
+                'holidayRecords' => $this->leavesModel->getHolidayRecords($employee->employee_id),
                 'employee_id' => $employee->employee_id,
                 'start_date' => trim($_POST['startDate']),
                 'end_date' => trim($_POST['endDate']),
@@ -127,7 +129,7 @@ class engineer extends Controller {
                     'status' => $data['status']
                 ];
 
-                if ($this->engineerModel->addHolidayRecords($holidayData)) {
+                if ($this->leavesModel->addHolidayRecords($holidayData)) {
                     echo json_encode([
                         'success' => true,
                         'message' => 'Holiday request submitted successfully'
@@ -148,7 +150,7 @@ class engineer extends Controller {
     }
 
     // public function tasks() {
-    //     //$engineer = $this->engineerModel->getEngineerByUserId($_SESSION['employee_id']);
+    //     //$engineer = $this->tasksModel->getEngineerByUserId($_SESSION['employee_id']);
     //     $data = [];
     //     $this->view('engineer/v_engineerTasks', $data);
     // }
