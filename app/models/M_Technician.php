@@ -1,82 +1,103 @@
 <?php
 
-    class M_Technician {
-        private $db;
+class M_Technician
+{
+    private $db;
 
-        public function __construct() {
-            $this->db = new Database;
-        }
+    public function __construct()
+    {
+        $this->db = new Database;
+    }
 
-        // public function getTasks($employee_id) {
-        //     $this->db->query('SELECT * FROM tasks WHERE employee_id = :employee_id');
-        //     $this->db->bind(':employee_id', $employee_id);
+    // public function getTasks($employee_id) {
+    //     $this->db->query('SELECT * FROM tasks WHERE employee_id = :employee_id');
+    //     $this->db->bind(':employee_id', $employee_id);
 
-        //     return $this->db->resultSet();
-        // }
+    //     return $this->db->resultSet();
+    // }
 
-        public function getHolidayRecords($employee_id) {
-            $this->db->query('SELECT * FROM holidayrecords WHERE employee_id = :employee_id');
-            $this->db->bind(':employee_id', $employee_id);
+    public function getHolidayRecords($employee_id)
+    {
+        $this->db->query('SELECT * FROM holidayrecords WHERE employee_id = :employee_id');
+        $this->db->bind(':employee_id', $employee_id);
 
-            return $this->db->resultSet();
-        }
+        return $this->db->resultSet();
+    }
 
-        public function addHolidayRecords($data) {
-            $this->db->query('INSERT INTO holidayrecords (employee_id, start_date, end_date, number_of_days, reason, status, leave_type) 
+    public function addHolidayRecords($data)
+    {
+        $this->db->query('INSERT INTO holidayrecords (employee_id, start_date, end_date, number_of_days, reason, status, leave_type) 
                               VALUES (:employee_id, :start_date, :end_date, :number_of_days, :reason, :status, :leave_type)');
-            $this->db->bind(':employee_id', $data['employee_id']);
-            $this->db->bind(':start_date', $data['start_date']);
-            $this->db->bind(':end_date', $data['end_date']);
-            $this->db->bind(':number_of_days', $data['number_of_days']);
-            $this->db->bind(':reason', $data['reason']);
-            $this->db->bind(':status', 'pending'); // Default status is 'pending'
-            $this->db->bind(':leave_type', $data['leave_type']);
-    
-            return $this->db->execute();
-        } 
+        $this->db->bind(':employee_id', $data['employee_id']);
+        $this->db->bind(':start_date', $data['start_date']);
+        $this->db->bind(':end_date', $data['end_date']);
+        $this->db->bind(':number_of_days', $data['number_of_days']);
+        $this->db->bind(':reason', $data['reason']);
+        $this->db->bind(':status', 'pending'); // Default status is 'pending'
+        $this->db->bind(':leave_type', $data['leave_type']);
 
-        public function getTasks($employee_id) {
-            $this->db->query('SELECT * FROM tasks WHERE employee_id = :employee_id');
-            $this->db->bind('employee_id', $employee_id);
+        return $this->db->execute();
+    }
 
-            return $this->db->resultSet();
-        }
+    public function getTasks($employee_id)
+    {
+        $this->db->query('SELECT * FROM tasks WHERE employee_id = :employee_id');
+        $this->db->bind('employee_id', $employee_id);
 
-
-
+        return $this->db->resultSet();
+    }
 
 
+    public function getTechnicianID($userId)
+    {
+        $this->db->query('SELECT employee_id FROM employees WHERE user_id = :user_id AND role = "technician"');
+        $this->db->bind(':user_id', $userId);
+        return $this->db->single();
+    }
+
+    public function getAssignedInstallations($technicianId)
+    {
+        $this->db->query('SELECT installation_id FROM installation_employees WHERE employee_id = :technician_id AND assign = 1');
+        $this->db->bind(':technician_id', $technicianId);
+        return $this->db->resultSet();
+    }
+
+    public function getTechnicianProjects($installationIds) {
+        $this->db->query('SELECT project_id FROM installation_phase WHERE installation_id = :installation_id');
+        $this->db->bind('installation_id', $installationIds);
+        return $this->db->resultSet();
+    }
 
 
 
 
 
-        // public function getDeliveryPersonByUserId($userId) {
-        //     $this->db->query('SELECT * FROM clients WHERE user_id = :user_id');
-        //     $this->db->bind(':user_id', $userId);
 
-        //     return $this->db->single();
-        // }
+    // public function getDeliveryPersonByUserId($userId) {
+    //     $this->db->query('SELECT * FROM clients WHERE user_id = :user_id');
+    //     $this->db->bind(':user_id', $userId);
 
-        // public function getRecentTasks($clientId) {
-        //     $this->db->query('SELECT * FROM tasks WHERE client_id = :client_id ORDER BY created_at DESC LIMIT 5');
-        //     $this->db->bind(':client_id', $clientId);
+    //     return $this->db->single();
+    // }
 
-        //     return $this->db->resultSet();
-        // }
+    // public function getRecentTasks($clientId) {
+    //     $this->db->query('SELECT * FROM tasks WHERE client_id = :client_id ORDER BY created_at DESC LIMIT 5');
+    //     $this->db->bind(':client_id', $clientId);
 
-        // public function getAllTasks($clientId) {
-        //     $this->db->query('SELECT * FROM tasks WHERE client_id = :client_id ORDER BY created_at DESC');
-        //     $this->db->bind(':client_id', $clientId);
+    //     return $this->db->resultSet();
+    // }
 
-        //     return $this->db->resultSet();
-        // }
+    // public function getAllTasks($clientId) {
+    //     $this->db->query('SELECT * FROM tasks WHERE client_id = :client_id ORDER BY created_at DESC');
+    //     $this->db->bind(':client_id', $clientId);
 
-        // public function getProjectById($projectId) {
-        //     $this->db->query('SELECT * FROM projects WHERE id = :id');
-        //     $this->db->bind(':id', $projectId);
+    //     return $this->db->resultSet();
+    // }
 
-        //     return $this->db->single();
-        // }
+    // public function getProjectById($projectId) {
+    //     $this->db->query('SELECT * FROM projects WHERE id = :id');
+    //     $this->db->bind(':id', $projectId);
+
+    //     return $this->db->single();
+    // }
 }
-?>
