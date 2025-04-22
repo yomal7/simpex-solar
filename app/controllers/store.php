@@ -319,6 +319,8 @@ class Store extends Controller
                     ];
 
                     if ($this->paymentModel->createPayment($paymentData)) {
+                        $payment = $this->paymentModel->getPaymentByOrderId($orderId);
+                        $this->shopModel->updateOrderStatus($payment->order_id, 'processing');
                         flash('order_message', 'Order placed successfully. Please pay when you receive the delivery.');
                         redirect('store/orderConfirmation/' . $orderId);
                     }
