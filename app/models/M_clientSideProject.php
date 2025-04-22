@@ -65,7 +65,7 @@ class M_clientSideProject
         return $this->db->single();
     }
 
-    /**
+    /**  M_clientSideProject.php
      * Get project payment by phase
      * 
      * @param int $projectId Project ID
@@ -320,6 +320,25 @@ class M_clientSideProject
         return $this->db->execute();
     }
 
+    
+
+    /**
+     * Update project phase after payment
+     * 
+     * @param int $projectId The project ID
+     * @param string $phase The new project phase
+     * @return bool Success status
+     */
+    public function updateProjectPhase($projectId, $phase)
+    {
+        $this->db->query('UPDATE projects 
+                        SET current_phase = :phase,
+                            updated_at = CURRENT_TIMESTAMP
+                        WHERE project_id = :project_id');
+                        
+        $this->db->bind(':project_id', $projectId);
+        $this->db->bind(':phase', $phase);
+        
     public function getInstallationPhase($projectId)
     {
         $this->db->query('SELECT * FROM installation_phase WHERE project_id = :project_id');
@@ -369,6 +388,7 @@ class M_clientSideProject
                      WHERE id = :schedule_id');
         $this->db->bind(':schedule_id', $scheduleId);
         $this->db->bind(':reason', $reason);
+
         return $this->db->execute();
     }
 }
