@@ -29,6 +29,10 @@ class Employee extends Controller {
             case 'deliveryPerson':
                 redirect('deliveryPerson/index');
                 break;
+
+            case 'clerk':
+                redirect('clerk/index');
+                break;
                 
             default:
                 // If no valid employee type, redirect to login page
