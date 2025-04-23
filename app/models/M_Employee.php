@@ -99,7 +99,7 @@ class M_Employee
     
     public function getHolidayRecords($limit = 10, $offset = 0)
     {
-        $this->db->query('SELECT * FROM holidayrecords 
+        $this->db->query('SELECT * FROM leaverecords 
         ORDER BY 
         CASE 
             WHEN status = "pending" THEN 0 
@@ -117,13 +117,13 @@ class M_Employee
 
     public function getTotalHolidayRecords()
     {
-        $this->db->query('SELECT COUNT(*) AS total FROM holidayrecords');
+        $this->db->query('SELECT COUNT(*) AS total FROM leaverecords');
         return $this->db->single()->total;
     }
 
     public function getHolidayRecordById($recordId)
     {
-        $this->db->query('SELECT * FROM holidayrecords WHERE id = :id');
+        $this->db->query('SELECT * FROM leaverecords WHERE id = :id');
         $this->db->bind(':id', $recordId);
 
         return $this->db->single();
@@ -131,7 +131,7 @@ class M_Employee
 
     public function updateComment($id, $comment)
     {
-        $this->db->query('UPDATE holidayrecords SET comment = :comment WHERE id = :id');
+        $this->db->query('UPDATE leaverecords SET comment = :comment WHERE id = :id');
         $this->db->bind(':comment', $comment);
         $this->db->bind(':id', $id);
         return $this->db->execute();
@@ -139,7 +139,7 @@ class M_Employee
 
     public function deleteComment($recordId)
     {
-        $this->db->query('UPDATE holidayrecords SET comment = NULL WHERE id = :id');
+        $this->db->query('UPDATE leaverecords SET comment = NULL WHERE id = :id');
         $this->db->bind(':id', $recordId);
         return $this->db->execute();
     }
@@ -147,7 +147,7 @@ class M_Employee
     public function getAssignedTasksDetails($employee_id, $start_date, $end_date)
     {
         $this->db->query('SELECT t.* 
-        FROM taskss t
+        FROM tasks t
         WHERE t.employee_id = :employee_id 
         AND (
             (t.start_date BETWEEN :start_date AND :end_date)
@@ -164,7 +164,7 @@ class M_Employee
 
     public function updateStatus($recordId, $status)
     {
-        $this->db->query('UPDATE holidayrecords SET status = :status WHERE id = :id');
+        $this->db->query('UPDATE leaverecords SET status = :status WHERE id = :id');
         $this->db->bind(':status', $status);
         $this->db->bind(':id', $recordId);
         return $this->db->execute();
