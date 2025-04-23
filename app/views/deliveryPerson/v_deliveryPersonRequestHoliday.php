@@ -20,6 +20,10 @@
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
+            <a href="<?php echo URLROOT ?>/deliveryPerson/orders" class="active">
+                <span class="material-icons-sharp">local_shipping</span>
+                <h3>Orders</h3>
+            </a>
             <a href="<?php echo URLROOT ?>/deliveryPerson/tasks">
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>
@@ -144,10 +148,10 @@
     <div class="overlay" id="overlay"></div>
 
 
-<script>
-    // Assuming you have the employee ID from the PHP session
-    const employeeId = <?php echo $data['employee']->employee_id ?? 0; ?>;
-</script>
-<script src="<?php echo URLROOT; ?>/js/deliveryPerson/requestHoliday.js"></script>
+    <script>
+        // Assuming you have the employee ID from the PHP session
+        const employeeId = <?php echo $data['employee']->employee_id ?? 0; ?>;
+    </script>
+    <script src="<?php echo URLROOT; ?>/js/deliveryPerson/requestHoliday.js"></script>
 
-<?php require APPROOT . '/views/deliveryPerson/footer.php'; ?>
+    <?php require APPROOT . '/views/deliveryPerson/footer.php'; ?>
