@@ -1,296 +1,300 @@
 <?php
+// File: app/models/M_ChiefCoordinator.php
+
 class M_ChiefCoordinator {
     private $db;
 
     public function __construct() {
         $this->db = new Database;
     }
-    
-    // Project Statistics
-    public function getProjectStats() {
-        // Get total projects count
-        $this->db->query('SELECT 
-            IFNULL((SELECT COUNT(*) FROM projects WHERE deleted_at IS NULL), 0) +
-            IFNULL((SELECT COUNT(*) FROM pre_projects WHERE status != "cancelled"), 0) 
-            AS total_projects');
-        $result = $this->db->single();
-        $totalProjects = $result ? $result->total_projects : 0;
+
+    public function getPreProjectStats() {
+        // Get count of pre-projects by status
+        $this->db->query('SELECT status, COUNT(*) as count FROM pre_projects GROUP BY status');
+        $statusStats = $this->db->resultSet();
         
-        // Get active projects count
-        $this->db->query('SELECT 
-            IFNULL((SELECT COUNT(*) FROM projects WHERE status = "active" AND deleted_at IS NULL), 0) +
-            IFNULL((SELECT COUNT(*) FROM pre_projects WHERE status = "active"), 0) 
-            AS active_projects');
-        $result = $this->db->single();
-        $activeProjects = $result ? $result->active_projects : 0;
+        // Get count of pre-projects by phase
+        $this->db->query('SELECT current_phase, COUNT(*) as count FROM pre_projects WHERE status = "active" GROUP BY current_phase');
+        $phaseStats = $this->db->resultSet();
         
-        // Get completed projects count
-        $this->db->query('SELECT 
-            IFNULL((SELECT COUNT(*) FROM projects WHERE status = "completed" AND deleted_at IS NULL), 0) +
-            IFNULL((SELECT COUNT(*) FROM pre_projects WHERE status = "completed"), 0) 
-            AS completed_projects');
-        $result = $this->db->single();
-        $completedProjects = $result ? $result->completed_projects : 0;
+        // Get quotation stats
+        $this->db->query('SELECT status, COUNT(*) as count FROM customerquotation GROUP BY status');
+        $quotationStats = $this->db->resultSet();
         
-        // Get cancelled projects count
-        $this->db->query('SELECT 
-            IFNULL((SELECT COUNT(*) FROM projects WHERE status = "cancelled" AND deleted_at IS NULL), 0) +
-            IFNULL((SELECT COUNT(*) FROM pre_projects WHERE status = "cancelled"), 0) 
-            AS cancelled_projects');
-        $result = $this->db->single();
-        $cancelledProjects = $result ? $result->cancelled_projects : 0;
+        // Get monthly stats for the current year
+        $this->db->query('SELECT MONTH(created_at) as month, COUNT(*) as count FROM pre_projects 
+                         WHERE YEAR(created_at) = YEAR(CURRENT_DATE) GROUP BY MONTH(created_at)');
+        $monthlyStats = $this->db->resultSet();
         
         return [
-            'total' => $totalProjects,
-            'active' => $activeProjects,
-            'completed' => $completedProjects,
-            'cancelled' => $cancelledProjects
+            'status_stats' => $statusStats,
+            'phase_stats' => $phaseStats,
+            'quotation_stats' => $quotationStats,
+            'monthly_stats' => $monthlyStats
         ];
     }
     
-    public function getMonthlyProjectStats() {
-        $this->db->query('SELECT 
-            DATE_FORMAT(created_at, "%Y-%m") AS month,
-            COUNT(*) AS count
-            FROM (
-                SELECT created_at FROM projects WHERE deleted_at IS NULL
-                UNION ALL
-                SELECT created_at FROM pre_projects
-            ) AS combined_projects
-            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
-            GROUP BY DATE_FORMAT(created_at, "%Y-%m")
-            ORDER BY month');
+    public function getAllPreProjects($page = 1, $limit = 10) {
+        // Calculate offset for pagination
+        $offset = ($page - 1) * $limit;
         
-        return $this->db->resultSet();
+        // Get pre-projects with pagination
+        $this->db->query('SELECT p.*, u.name as customer_name, 
+                         (SELECT COUNT(*) FROM customerquotation WHERE pre_project_id = p.pre_project_id) as quotation_count
+                         FROM pre_projects p
+                         JOIN users u ON p.customer_id = u.user_id
+                         ORDER BY p.created_at DESC
+                         LIMIT :limit OFFSET :offset');
+        
+        $this->db->bind(':limit', $limit);
+        $this->db->bind(':offset', $offset);
+        
+        $preProjects = $this->db->resultSet();
+        
+        // Get total count for pagination
+        $this->db->query('SELECT COUNT(*) as total FROM pre_projects');
+        $totalCount = $this->db->single()->total;
+        
+        return [
+            'pre_projects' => $preProjects,
+            'total' => $totalCount,
+            'page' => $page,
+            'limit' => $limit,
+            'total_pages' => ceil($totalCount / $limit)
+        ];
     }
     
-    public function getProjectStatusStats() {
-        $this->db->query('SELECT 
-            "Active" AS status, COUNT(*) AS count
-            FROM (
-                SELECT status FROM projects WHERE status = "active" AND deleted_at IS NULL
-                UNION ALL
-                SELECT status FROM pre_projects WHERE status = "active"
-            ) AS active_projects
-            UNION
-            SELECT "Completed" AS status, COUNT(*) AS count
-            FROM (
-                SELECT status FROM projects WHERE status = "completed" AND deleted_at IS NULL
-                UNION ALL
-                SELECT status FROM pre_projects WHERE status = "completed"
-            ) AS completed_projects
-            UNION
-            SELECT "Cancelled" AS status, COUNT(*) AS count
-            FROM (
-                SELECT status FROM projects WHERE status = "cancelled" AND deleted_at IS NULL
-                UNION ALL
-                SELECT status FROM pre_projects WHERE status = "cancelled"
-            ) AS cancelled_projects');
+    public function getRecentQuotations($page = 1, $limit = 10) {
+        // Calculate offset for pagination
+        $offset = ($page - 1) * $limit;
         
-        return $this->db->resultSet();
+        $this->db->query('SELECT cq.*, u.name as customer_name, p.title as package_name
+                         FROM customerquotation cq
+                         JOIN users u ON cq.user_id = u.user_id
+                         LEFT JOIN package p ON cq.package_id = p.package_id
+                         ORDER BY cq.created_at DESC
+                         LIMIT :limit OFFSET :offset');
+        
+        $this->db->bind(':limit', $limit);
+        $this->db->bind(':offset', $offset);
+        
+        $quotations = $this->db->resultSet();
+        
+        // Get total count for pagination
+        $this->db->query('SELECT COUNT(*) as total FROM customerquotation');
+        $totalCount = $this->db->single()->total;
+        
+        return [
+            'quotations' => $quotations,
+            'total' => $totalCount,
+            'page' => $page,
+            'limit' => $limit,
+            'total_pages' => ceil($totalCount / $limit)
+        ];
     }
-    
-    public function getProjectPhaseStats() {
-        // For pre_projects
-        $this->db->query('SELECT 
-            current_phase, COUNT(*) as count
-            FROM pre_projects
-            WHERE status = "active"
-            GROUP BY current_phase');
+
+    // public function getProjects($page = 1, $limit = 10, $timeframe = 'all', $phase = 'all', $status = 'all') {
+    //     // Calculate offset for pagination
+    //     $offset = ($page - 1) * $limit;
         
-        $preProjectPhases = $this->db->resultSet();
+    //     // Base query with necessary JOINs
+    //     $query = 'SELECT p.*, 
+    //               COALESCE(u.name, "Unknown") as customer_name,
+    //               COALESCE(pk.title, "N/A") as package_name
+    //               FROM projects p
+    //               LEFT JOIN users u ON p.customer_id = u.user_id
+    //               LEFT JOIN package pk ON p.package_id = pk.package_id
+    //               ORDER BY p.created_at DESC 
+    //               LIMIT :limit OFFSET :offset';
         
-        // For projects
-        $this->db->query('SELECT 
-            current_phase, COUNT(*) as count
-            FROM projects
-            WHERE status = "active" AND deleted_at IS NULL
-            GROUP BY current_phase');
+    //     $this->db->query($query);
+    //     $this->db->bind(':limit', $limit);
+    //     $this->db->bind(':offset', $offset);
         
-        $projectPhases = $this->db->resultSet();
+    //     $projects = $this->db->resultSet();
         
-        // Combine results
-        $phaseStats = [];
+    //     // Get total count
+    //     $this->db->query('SELECT COUNT(*) as total FROM projects');
+    //     $totalCount = $this->db->single()->total;
         
-        foreach ($preProjectPhases as $phase) {
-            if (!isset($phaseStats[$phase->current_phase])) {
-                $phaseStats[$phase->current_phase] = 0;
+    //     return [
+    //         'projects' => $projects,
+    //         'total' => $totalCount,
+    //         'page' => $page,
+    //         'limit' => $limit,
+    //         'total_pages' => ceil($totalCount / $limit)
+    //     ];
+    // }
+
+    public function getProjects($page = 1, $limit = 10, $timeframe = 'all', $phase = 'all', $status = 'all') {
+        // Calculate offset for pagination
+        $offset = ($page - 1) * $limit;
+        
+        // Base query with necessary JOINs
+        $query = 'SELECT p.*, 
+        COALESCE(u.name, "Unknown") as customer_name,
+        COALESCE(pk.title, "N/A") as package_name
+        FROM projects p
+        LEFT JOIN users u ON p.customer_id = u.user_id
+        LEFT JOIN package pk ON p.package_id = pk.package_id
+        WHERE 1=1'; // This allows us to conditionally add WHERE clauses
+        
+        // Add timeframe filter
+        if ($timeframe != 'all') {
+            switch ($timeframe) {
+                case 'today':
+                    $query .= ' AND DATE(p.created_at) = CURDATE()';
+                    break;
+                case 'week':
+                    $query .= ' AND YEARWEEK(p.created_at, 1) = YEARWEEK(CURDATE(), 1)';
+                    break;
+                case 'month':
+                    $query .= ' AND MONTH(p.created_at) = MONTH(CURDATE()) AND YEAR(p.created_at) = YEAR(CURDATE())';
+                    break;
+                case 'year':
+                    $query .= ' AND YEAR(p.created_at) = YEAR(CURDATE())';
+                    break;
             }
-            $phaseStats[$phase->current_phase] += $phase->count;
         }
         
-        foreach ($projectPhases as $phase) {
-            if (!isset($phaseStats[$phase->current_phase])) {
-                $phaseStats[$phase->current_phase] = 0;
+        // Add phase filter
+        if ($phase != 'all') {
+            $query .= ' AND p.current_phase = :phase';
+        }
+        
+        // Add status filter
+        if ($status != 'all') {
+            $query .= ' AND p.status = :status';
+        }
+        
+        // Add ordering and limit
+        $query .= ' ORDER BY p.created_at DESC LIMIT :limit OFFSET :offset';
+        
+        $this->db->query($query);
+        
+        // Bind parameters if set
+        if ($phase != 'all') {
+            $this->db->bind(':phase', $phase);
+        }
+        
+        if ($status != 'all') {
+            $this->db->bind(':status', $status);
+        }
+        
+        $this->db->bind(':limit', $limit);
+        $this->db->bind(':offset', $offset);
+        
+        $projects = $this->db->resultSet();
+        
+        // Get total count for pagination (with filters but no limit)
+        $countQuery = 'SELECT COUNT(*) as total FROM projects p WHERE 1=1';
+        
+        // Add same filters to count query
+        if ($timeframe != 'all') {
+            switch ($timeframe) {
+                case 'today':
+                    $countQuery .= ' AND DATE(p.created_at) = CURDATE()';
+                    break;
+                case 'week':
+                    $countQuery .= ' AND YEARWEEK(p.created_at, 1) = YEARWEEK(CURDATE(), 1)';
+                    break;
+                case 'month':
+                    $countQuery .= ' AND MONTH(p.created_at) = MONTH(CURDATE()) AND YEAR(p.created_at) = YEAR(CURDATE())';
+                    break;
+                case 'year':
+                    $countQuery .= ' AND YEAR(p.created_at) = YEAR(CURDATE())';
+                    break;
             }
-            $phaseStats[$phase->current_phase] += $phase->count;
         }
         
-        // Convert to array of objects for compatibility with other methods
-        $result = [];
-        foreach ($phaseStats as $phase => $count) {
-            $obj = new stdClass();
-            $obj->phase = $phase;
-            $obj->count = $count;
-            $result[] = $obj;
+        if ($phase != 'all') {
+            $countQuery .= ' AND p.current_phase = :phase';
         }
         
-        return $result;
-    }
-    
-    // Payment Statistics
-    public function getPaymentStats() {
-        // Since payment system isn't fully implemented, we'll create mock data
+        if ($status != 'all') {
+            $countQuery .= ' AND p.status = :status';
+        }
+        
+        $this->db->query($countQuery);
+        
+        // Bind parameters if set
+        if ($phase != 'all') {
+            $this->db->bind(':phase', $phase);
+        }
+        
+        if ($status != 'all') {
+            $this->db->bind(':status', $status);
+        }
+        
+        $totalCount = $this->db->single()->total;
+        
         return [
-            'total' => 145000.00,
-            'pending' => 35000.00,
-            'completed' => 110000.00,
-            'this_month' => 45000.00
+            'projects' => $projects,
+            'total' => $totalCount,
+            'page' => $page,
+            'limit' => $limit,
+            'total_pages' => ceil($totalCount / $limit)
         ];
     }
     
-    public function getMonthlyPaymentStats() {
-        // Mock data for monthly payments
-        $result = [];
-        
-        // Get last 12 months
-        for ($i = 11; $i >= 0; $i--) {
-            $date = new DateTime();
-            $date->modify("-$i months");
-            $month = $date->format("Y-m");
-            
-            $obj = new stdClass();
-            $obj->month = $month;
-            $obj->amount = rand(15000, 50000);
-            $result[] = $obj;
+    // Get project statistics for charts
+    public function getProjectStats($timeframe = 'all') {
+        // Timeframe clause for all queries
+        $timeClause = '';
+        if ($timeframe != 'all') {
+            switch ($timeframe) {
+                case 'today':
+                    $timeClause = ' AND DATE(created_at) = CURDATE()';
+                    break;
+                case 'week':
+                    $timeClause = ' AND YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1)';
+                    break;
+                case 'month':
+                    $timeClause = ' AND MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())';
+                    break;
+                case 'year':
+                    $timeClause = ' AND YEAR(created_at) = YEAR(CURDATE())';
+                    break;
+            }
         }
         
-        return $result;
-    }
-    
-    public function getPaymentMethodStats() {
-        // Mock data for payment methods
-        $result = [];
+        // Get count of projects by status
+        $this->db->query('SELECT status, COUNT(*) as count FROM projects WHERE 1=1' . $timeClause . ' GROUP BY status');
+        $statusStats = $this->db->resultSet();
         
-        $methods = ['cash', 'bank deposit', 'online'];
-        foreach ($methods as $method) {
-            $obj = new stdClass();
-            $obj->method = $method;
-            $obj->count = rand(10, 50);
-            $result[] = $obj;
-        }
+        // Get count of projects by phase
+        $this->db->query('SELECT current_phase, COUNT(*) as count FROM projects WHERE status = "active"' . $timeClause . ' GROUP BY current_phase');
+        $phaseStats = $this->db->resultSet();
         
-        return $result;
-    }
-    
-    // Store Statistics
-    public function getStoreStats() {
-        // Get total orders count
-        $this->db->query('SELECT COUNT(*) AS total_orders FROM store_orders WHERE deleted_at IS NULL');
-        $totalOrders = $this->db->single()->total_orders;
+        // Get monthly stats for the current year
+        $this->db->query('SELECT MONTH(created_at) as month, COUNT(*) as count FROM projects 
+                         WHERE YEAR(created_at) = YEAR(CURRENT_DATE) GROUP BY MONTH(created_at)');
+        $monthlyStats = $this->db->resultSet();
         
-        // Get pending orders count
-        $this->db->query('SELECT COUNT(*) AS pending_orders FROM store_orders 
-                          WHERE status IN ("pending", "approved", "processing") AND deleted_at IS NULL');
-        $pendingOrders = $this->db->single()->pending_orders;
+        // Get stage completion time stats (average days spent in each phase)
+        $this->db->query('SELECT 
+                         current_phase, 
+                         AVG(DATEDIFF(updated_at, created_at)) as avg_days 
+                         FROM projects 
+                         WHERE status = "active"' . $timeClause . ' 
+                         GROUP BY current_phase');
+        $timeStats = $this->db->resultSet();
         
-        // Get completed orders count
-        $this->db->query('SELECT COUNT(*) AS completed_orders FROM store_orders 
-                          WHERE status IN ("delivered", "ready for pickup") AND deleted_at IS NULL');
-        $completedOrders = $this->db->single()->completed_orders;
-        
-        // Get total revenue
-        $this->db->query('SELECT SUM(price * quantity) AS total_revenue FROM store_orders WHERE deleted_at IS NULL');
-        $totalRevenue = $this->db->single()->total_revenue ?? 0;
+        // Get equipment release stats
+        $this->db->query('SELECT 
+                         equipment_released, 
+                         COUNT(*) as count 
+                         FROM projects 
+                         WHERE status = "active"' . $timeClause . ' 
+                         GROUP BY equipment_released');
+        $equipmentStats = $this->db->resultSet();
         
         return [
-            'total_orders' => $totalOrders,
-            'pending_orders' => $pendingOrders,
-            'completed_orders' => $completedOrders,
-            'total_revenue' => $totalRevenue
+            'status_stats' => $statusStats,
+            'phase_stats' => $phaseStats,
+            'monthly_stats' => $monthlyStats,
+            'time_stats' => $timeStats,
+            'equipment_stats' => $equipmentStats
         ];
-    }
-    
-    public function getMonthlyStoreStats() {
-        $this->db->query('SELECT 
-            DATE_FORMAT(created_at, "%Y-%m") AS month,
-            COUNT(*) AS order_count,
-            SUM(price * quantity) AS revenue
-            FROM store_orders
-            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH) AND deleted_at IS NULL
-            GROUP BY DATE_FORMAT(created_at, "%Y-%m")
-            ORDER BY month');
-        
-        return $this->db->resultSet();
-    }
-    
-    public function getProductCategoryStats() {
-        $this->db->query('SELECT 
-            category, COUNT(*) AS order_count
-            FROM store_orders so
-            JOIN products p ON so.product_id = p.id
-            WHERE so.deleted_at IS NULL
-            GROUP BY p.category');
-        
-        return $this->db->resultSet();
-    }
-    
-    // Employee Statistics
-    public function getEmployeeStats() {
-        // Get total employees count
-        $this->db->query('SELECT COUNT(*) AS total_employees FROM employees');
-        $totalEmployees = $this->db->single()->total_employees;
-        
-        // Get employees by role
-        $this->db->query('SELECT role, COUNT(*) AS count FROM employees GROUP BY role');
-        $employeesByRole = $this->db->resultSet();
-        
-        // Get leave requests
-        $this->db->query('SELECT COUNT(*) AS pending_leaves FROM holidayrecords WHERE status = "Pending"');
-        $pendingLeaves = $this->db->single()->pending_leaves;
-        
-        // Get attendance for today
-        $today = date('Y-m-d');
-        $this->db->query('SELECT COUNT(*) AS present_today FROM attendance WHERE date = :today');
-        $this->db->bind(':today', $today);
-        $presentToday = $this->db->single()->present_today;
-        
-        return [
-            'total_employees' => $totalEmployees,
-            'employees_by_role' => $employeesByRole,
-            'pending_leaves' => $pendingLeaves,
-            'present_today' => $presentToday
-        ];
-    }
-    
-    public function getMonthlyAttendanceStats() {
-        // Get attendance by month for the last 12 months
-        $this->db->query('SELECT 
-            DATE_FORMAT(date, "%Y-%m") AS month,
-            COUNT(DISTINCT employee_id) AS employee_count
-            FROM attendance
-            WHERE date >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
-            GROUP BY DATE_FORMAT(date, "%Y-%m")
-            ORDER BY month');
-        
-        return $this->db->resultSet();
-    }
-    
-    public function getMonthlyLeaveStats() {
-        // Get leave requests by month for the last 12 months
-        $this->db->query('SELECT 
-            DATE_FORMAT(start_date, "%Y-%m") AS month,
-            COUNT(*) AS leave_count
-            FROM holidayrecords
-            WHERE start_date >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
-            GROUP BY DATE_FORMAT(start_date, "%Y-%m")
-            ORDER BY month');
-        
-        return $this->db->resultSet();
-    }
-    
-    public function getEmployeeRoleStats() {
-        $this->db->query('SELECT role, COUNT(*) AS count FROM employees GROUP BY role');
-        return $this->db->resultSet();
     }
 }
