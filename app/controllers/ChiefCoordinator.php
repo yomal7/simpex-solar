@@ -18,13 +18,99 @@ class ChiefCoordinator extends Controller {
     }
 
     public function index() {
-        $data = [];
+        // Get timeframe filter or set default
+        $timeframe = isset($_GET['timeframe']) ? $_GET['timeframe'] : 'all';
+        
+        // Get statistics for each section
+        $projectStats = $this->chiefCoordinatorModel->getProjectStats($timeframe);
+        $storeStats = $this->chiefCoordinatorModel->getStoreStats($timeframe);
+        $paymentStats = $this->chiefCoordinatorModel->getPaymentStats($timeframe);
+        $employeeStats = $this->chiefCoordinatorModel->getEmployeeStats($timeframe);
+        
+        // Get counts for summary cards
+        $totalEmployees = $this->chiefCoordinatorModel->getTotalEmployeeCount();
+        $presentToday = $this->chiefCoordinatorModel->getTodayAttendanceCount();
+        $attendanceRate = ($totalEmployees > 0) ? round(($presentToday / $totalEmployees) * 100) : 0;
+        
+        // Get recent data for tables with pagination
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $projectsData = $this->chiefCoordinatorModel->getProjects($page, 5, $timeframe);
+        $paymentsData = $this->chiefCoordinatorModel->getPayments($page, 5, $timeframe);
+        $storeOrdersData = $this->chiefCoordinatorModel->getStoreOrders($page, 5, $timeframe);
+        
+        $data = [
+            'timeframe' => $timeframe,
+            'project_stats' => $projectStats,
+            'store_stats' => $storeStats,
+            'payment_stats' => $paymentStats,
+            'employee_stats' => $employeeStats,
+            'total_employees' => $totalEmployees,
+            'present_today' => $presentToday,
+            'attendance_rate' => $attendanceRate,
+            'projects' => $projectsData['projects'],
+            'projects_pagination' => [
+                'page' => $projectsData['page'],
+                'total' => $projectsData['total'],
+                'total_pages' => $projectsData['total_pages']
+            ],
+            'payments' => $paymentsData['payments'],
+            'payments_pagination' => [
+                'page' => $paymentsData['page'],
+                'total' => $paymentsData['total'],
+                'total_pages' => $paymentsData['total_pages']
+            ],
+            'store_orders' => $storeOrdersData['orders'],
+            'store_pagination' => [
+                'page' => $storeOrdersData['page'],
+                'total' => $storeOrdersData['total'],
+                'total_pages' => $storeOrdersData['total_pages']
+            ]
+        ];
         
         $this->view('chiefCoordinator/v_dashboard', $data);
     }
+    
     public function dashboard() {
-        $data = [];
-        $this->view('chiefCoordinator/v_dashboard', $data);
+        // Redirect to index since it's the same functionality
+        redirect('chiefCoordinator/index');
+    }
+    
+    public function generateDashboardReport() {
+        // Get timeframe filter
+        $timeframe = isset($_POST['timeframe']) ? $_POST['timeframe'] : 'all';
+        
+        // Get statistics for each section
+        $projectStats = $this->chiefCoordinatorModel->getProjectStats($timeframe);
+        $storeStats = $this->chiefCoordinatorModel->getStoreStats($timeframe);
+        $paymentStats = $this->chiefCoordinatorModel->getPaymentStats($timeframe);
+        $employeeStats = $this->chiefCoordinatorModel->getEmployeeStats($timeframe);
+        
+        // Get counts for summary
+        $totalEmployees = $this->chiefCoordinatorModel->getTotalEmployeeCount();
+        $presentToday = $this->chiefCoordinatorModel->getTodayAttendanceCount();
+        $attendanceRate = ($totalEmployees > 0) ? round(($presentToday / $totalEmployees) * 100) : 0;
+        
+        // Get more records for the report (no pagination)
+        $projectsData = $this->chiefCoordinatorModel->getProjects(1, 20, $timeframe);
+        $paymentsData = $this->chiefCoordinatorModel->getPayments(1, 20, $timeframe);
+        $storeOrdersData = $this->chiefCoordinatorModel->getStoreOrders(1, 20, $timeframe);
+        
+        $data = [
+            'report_date' => date('Y-m-d H:i:s'),
+            'timeframe' => $timeframe,
+            'project_stats' => $projectStats,
+            'store_stats' => $storeStats,
+            'payment_stats' => $paymentStats,
+            'employee_stats' => $employeeStats,
+            'total_employees' => $totalEmployees,
+            'present_today' => $presentToday,
+            'attendance_rate' => $attendanceRate,
+            'projects' => $projectsData['projects'],
+            'payments' => $paymentsData['payments'],
+            'store_orders' => $storeOrdersData['orders']
+        ];
+        
+        $this->view('chiefCoordinator/v_dashboardReport', $data);
     }
     
     public function preProjects() {
