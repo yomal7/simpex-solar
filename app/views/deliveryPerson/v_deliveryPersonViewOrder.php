@@ -126,8 +126,8 @@
                             </div>
                             <div class="info-item">
                                 <label>Payment Status:</label>
-                                <span class="status-badge payment-status-<?php echo $data['order']->payment_status; ?>">
-                                    <?php echo ucfirst(str_replace('_', ' ', $data['order']->payment_status)); ?>
+                                <span class="status-badge payment-status-<?php echo $data['payment']->status; ?>">
+                                    <?php echo ucfirst(str_replace('_', ' ', $data['payment']->status)); ?>
                                 </span>
                             </div>
                         </div>

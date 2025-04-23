@@ -1359,4 +1359,34 @@ class SupplierCoordinator extends Controller
             redirect('supplierCoordinator/orders');
         }
     }
+
+    public function confirmOrder($orderId)
+    {
+        // Check if order exists
+        $order = $this->shopModel->getOrderById($orderId);
+
+        if (!$order) {
+            flash('order_message', 'Order not found', 'alert alert-danger');
+            redirect('supplierCoordinator/orders');
+            return;
+        }
+
+        // Check if order status is shipped
+        if ($order->status !== 'shipped') {
+            flash('order_message', 'Only shipped orders can be marked as delivered', 'alert alert-danger');
+            redirect('supplierCoordinator/viewOrder/' . $orderId);
+            return;
+        }
+
+        // Update order status to delivered and set delivered_at timestamp
+        $status = 'delivered';
+
+        if ($this->shopModel->updateOrderStatus($orderId, $status)) {
+            flash('order_message', 'Order marked as delivered successfully', 'alert alert-success');
+        } else {
+            flash('order_message', 'Failed to update order status', 'alert alert-danger');
+        }
+
+        redirect('supplierCoordinator/viewOrder/' . $orderId);
+    }
 }

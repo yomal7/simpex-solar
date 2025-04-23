@@ -155,6 +155,21 @@
                                     <?php endif; ?>
                                     <p>Delivered on: <?php echo date('F j, Y g:i A', strtotime($data['order']->delivered_at)); ?></p>
                                 </div>
+                                <?php if (!empty($data['order']->delivery_report)): ?>
+                                    <div class="report-actions">
+                                        <a href="<?php echo URLROOT; ?>/uploads/delivery_reports/<?php echo $data['order']->delivery_report; ?>"
+                                            target="_blank" class="btn view-btn">
+                                            <span class="material-icons-sharp">visibility</span> View Delivery Report
+                                        </a>
+                                    </div>
+                                    <div class="confirm-actions">
+                                        <a href="<?php echo URLROOT; ?>/supplierCoordinator/confirmOrder/<?php echo $data['order']->id; ?>"
+                                            class="btn confirm-btn">
+                                            <span class="material-icons-sharp">check_circle</span> Confirm Delivery
+                                        </a>
+                                        <p class="info-text">Click to confirm and upload signed delivery receipt</p>
+                                    </div>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </div>
                     </div>

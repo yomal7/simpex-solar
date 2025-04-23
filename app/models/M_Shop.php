@@ -831,4 +831,16 @@ class M_Shop
         $this->db->bind(':delivery_report', $deliveryReport);
         return $this->db->execute();
     }
+
+    // Confirm the Order
+    public function confirmOrder($orderId)
+    {
+        $this->db->query('Update orders
+                    SET status = :status,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        $this->db->bind(':status', 'delivered');
+        return $this->db->execute();
+    }
 }

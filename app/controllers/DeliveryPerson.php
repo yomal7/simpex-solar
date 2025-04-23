@@ -113,6 +113,8 @@ class DeliveryPerson extends Controller
         $employeeId = $employee->employee_id;
         $order = $this->shopModel->getOrderById($orderId);
 
+        $payment = $this->shopModel->getOrderPayment($orderId);
+
         if (!$order || $order->deliver_id != $employeeId) {
             flash('order_message', 'Unauthorized access to order', 'alert alert-danger');
             redirect('deliveryPerson/orders');
@@ -122,7 +124,8 @@ class DeliveryPerson extends Controller
 
         $data = [
             'order' => $order,
-            'orderItems' => $orderItems
+            'orderItems' => $orderItems,
+            'payment' => $payment
         ];
 
         $this->view('deliveryPerson/v_deliveryPersonViewOrder', $data);
@@ -208,12 +211,26 @@ class DeliveryPerson extends Controller
             $fileExt = strtolower($fileInfo['extension']);
 
             // Validate file type
-            $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+            // $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+            // if (!in_array($fileExt, $allowedExtensions)) {
+            //     flash('delivery_message', 'Invalid file format. Only PDF files are allowed', 'alert alert-danger');
+            //     redirect('deliveryPerson/viewOrder/' . $orderId);
+            //     return;
+            // }
+            $allowedExtensions = ['pdf'];
             if (!in_array($fileExt, $allowedExtensions)) {
-                flash('delivery_message', 'Invalid file format. Only PDF, JPG, and PNG files are allowed', 'alert alert-danger');
+                flash('delivery_message', 'Invalid file format. Only PDF files are allowed', 'alert alert-danger');
                 redirect('deliveryPerson/viewOrder/' . $orderId);
                 return;
             }
+
+            // Only allow uploads less that 5MB
+            if ($_FILES['delivery_report']['size'] > 5 * 1024 * 1024) { // 5MB in bytes
+                flash('delivery_message', 'File size exceeds the 5MB limit', 'alert alert-danger');
+                redirect('deliveryPerson/viewOrder/' . $orderId);
+                return;
+            }
+
 
             // Generate a unique filename
             $deliveryReport = 'delivery_report_' . $order->order_number . '_' . time() . '.' . $fileExt;
