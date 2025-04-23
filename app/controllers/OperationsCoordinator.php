@@ -33,7 +33,28 @@ class OperationsCoordinator extends Controller
 
     public function dashboard()
     {
-        $data = [];
+        // Get Project Statistics
+        $projectStats = [
+            'total_projects' => $this->projectModel->getTotalProjects(),
+            'active_projects' => $this->projectModel->getActiveProjects(),
+            'completed_projects' => $this->projectModel->getCompletedProjects(),
+            'preproject_stats' => $this->preProjectModel->getPreProjectStats(),
+            'monthly_projects' => $this->projectModel->getMonthlyProjectCounts(),
+            'phase_distribution' => $this->projectModel->getProjectPhaseDistribution()
+        ];
+    
+    
+        // Get Package Statistics
+        $packageStats = [
+            'total_packages' => $this->packageModel->getTotalPackages(),
+            'package_by_type' => $this->packageModel->getPackageCountByType()
+        ];
+    
+        $data = [
+            'project_stats' => $projectStats,
+            'package_stats' => $packageStats
+        ];
+    
         $this->view('operationsCoordinator/v_dashboard', $data);
     }
 
