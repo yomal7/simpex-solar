@@ -181,5 +181,4 @@
         });
     </script>
 
-    <script src="<?php echo URLROOT; ?>/js/hRAdministrator/dashboard.js"></script>
     <?php require APPROOT . '/views/hRAdministrator/footer.php'; ?>

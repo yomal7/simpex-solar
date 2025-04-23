@@ -130,4 +130,4 @@
     <div class="overlay" id="overlay"></div>
 
 
-    <?php require APPROOT . '/views/operationsCoordinator/footer.php'; ?>
+    <?php require APPROOT . '/views/hRAdministrator/footer.php'; ?>

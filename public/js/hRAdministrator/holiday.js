@@ -45,23 +45,6 @@ function deleteComment(recordId) {
     .catch((error) => console.error("Error:", error));
 }
 
-document.addEventListener("click", function (event) {
-  const sidebar = document.getElementById("sidebar");
-  const menuToggle = document.querySelector(".menu-toggle");
-  if (
-    window.innerWidth <= 768 &&
-    sidebar.classList.contains("active") &&
-    !sidebar.contains(event.target) &&
-    event.target !== menuToggle
-  ) {
-    sidebar.classList.remove("active");
-  }
-});
-
-function toggleSidebar() {
-  document.getElementById("sidebar").classList.toggle("active");
-}
-
 document.addEventListener("DOMContentLoaded", function () {
   const forms = document.querySelectorAll(".approval form");
 

@@ -73,15 +73,43 @@ class HRAdministrator extends Controller
                 'role' => trim($_POST['role']),
                 'email' => trim($_POST['email']),
                 'phone' => trim($_POST['phone']),
+                'address' => trim($_POST['address']),
                 'password' => trim($_POST['password']),
                 'confirm_password' => trim($_POST['confirm_password']),
+                'profile_image' => $_FILES['profile_image']['name'] ?? '',
                 'name_err' => '',
                 'role_err' => '',
                 'email_err' => '',
                 'phone_err' => '',
+                'address_err' => '',
                 'password_err' => '',
-                'confirm_password_err' => ''
+                'confirm_password_err' => '',
+                'profile_image_err' => ''
             ];
+
+            // Handle profile image
+            $file = $_FILES['profile_image'] ?? null;
+            // $profile_image_tmp = $_FILES['profile_image']['tmp_name'] ?? null;
+            $profile_image_name = null;
+            
+            if($file['tmp_name'] && $file['error'] === UPLOAD_ERR_OK) {
+                // Check file size (2MB max)
+                $maxSize = 2 * 1024 * 1024;
+                if($file['size'] > $maxSize) {
+                    $data['profile_image_err'] = 'Image too large (max 2MB)';
+                }
+                
+                // Check file type
+                $allowed_types = ['image/jpeg', 'image/png'];
+                if(!in_array($file['type'], $allowed_types)) {
+                    $data['profile_image_err'] = 'Invalid image format (JPEG, PNG)';
+                }
+                
+                // Generate unique filename
+                if(empty($data['profile_image_err'])) {
+                    $profile_image_name = uniqid() . '_' . basename($file['name']);
+                }
+            }
 
             // Validate Email
             if (empty($data['email'])) {
@@ -124,10 +152,28 @@ class HRAdministrator extends Controller
                 }
             }
 
-
+            // Validate address
+            if(empty($data['address'])) {
+                $data['address_err'] = 'Please enter address';
+            }
+            
             // Make sure no errors
-            if (empty($data['email_err']) && empty($data['name_err']) && empty($data['role_err']) && empty($data['phone_err']) && empty($data['password_err']) && empty($data['confirm_password_err'])) {
-                // Validated
+            if (empty($data['email_err']) && empty($data['name_err']) && empty($data['role_err']) && 
+                empty($data['phone_err']) && empty($data['password_err']) && empty($data['confirm_password_err']) && 
+                empty($data['address_err']) && empty($data['profile_image_err'])) {
+                
+                // Handle image upload
+                if($profile_image_name) {
+                    $upload_dir = APPROOT . '/../public/uploads/profile_pictures/';
+                    if(!is_dir($upload_dir)) {
+                        mkdir($upload_dir, 0777, true);
+                    }
+                    
+                    $upload_path = $upload_dir . $profile_image_name;
+                    move_uploaded_file($file["tmp_name"], $upload_path);
+                    $data['profile_image'] = $profile_image_name;
+                }
+                
                 // Hash password
                 $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
 
@@ -147,14 +193,18 @@ class HRAdministrator extends Controller
                 'role' => '',
                 'email' => '',
                 'phone' => '',
+                'address' => '',
                 'password' => '',
                 'confirm_password' => '',
+                'profile_image' => '',
                 'name_err' => '',
                 'role_err' => '',
                 'email_err' => '',
                 'phone_err' => '',
+                'address_err' => '',
                 'password_err' => '',
-                'confirm_password_err' => ''
+                'confirm_password_err' => '',
+                'profile_image_err' => ''
             ];
 
             $this->view('hRAdministrator/v_addEmployee', $data);

@@ -1,0 +1,14 @@
+:root {
+    --theme-color: #7AB87A;
+    --theme-color-light: #3498db1a;
+    --white: #fff;
+    --sidebar-background: #F3F8F3;
+    --sidebar-link-hover: rgba(122, 184, 122, 0.18);
+    --sidebar-link-color: #6B8E6B;
+    --sidebar-link-active-bg: rgba(122, 184, 122, 0.18);
+    --sidebar-link-active-color: #4C724C;
+    --text-color: #333;
+    --success-color: #6fd649;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+}

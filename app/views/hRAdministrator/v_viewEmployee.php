@@ -1,6 +1,6 @@
 <?php require APPROOT . '/views/hRAdministrator/header.php'; ?>
 
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/hRAdministrator/employees.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/hRAdministrator/viewEmployee.css">
 </head>
 
 <body>
@@ -124,8 +124,4 @@
 
     <!-- <div class="overlay" id="overlay"></div> -->
 
-
-
-
-    <script src="<?php echo URLROOT; ?>/js/hRAdministrator/dashboard.js"></script>
     <?php require APPROOT . '/views/hRAdministrator/footer.php'; ?>
