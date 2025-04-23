@@ -53,11 +53,23 @@
                         <?php if (empty($data['projects'])): ?>
                             <div class="alert alert-info">No projects found.</div>
                         <?php else: ?>
-                            <div class="list-group">
+                            <div class="project-grid">
                                 <?php foreach ($data['projects'] as $project): ?>
-                                    <div class="list-group-item">
-                                        <h4>Project #<?php echo $project->project_id; ?></h4>    
+                                    <div class="project-header">
+                                        <h4>Project #<?php echo $project->project_id; ?></h4>
                                     </div>
+                                    <div class="project-details">
+                                        <div class="detail-item">
+                                            <i class="fas fa-user"></i>
+                                            <p><?php echo isset($project->customer) ? $project->customer->name : 'No customer data'; ?></p>
+                                        </div>
+                                        <div class="detail-item">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <p><?php echo isset($project->customer) && isset($project->customer->nearest_city) ? $project->customer->nearest_city : 'No location data'; ?></p>
+                                        </div>
+                                    </div>
+                                    <div class="project-actions">
+                                        <a href="<?php echo URLROOT; ?>/technician/viewInstallation/<?php echo $project->installation_id; ?>" class="btn btn-primary">View Details</a>
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>

@@ -68,9 +68,56 @@ class M_Technician
         return $this->db->resultSet();
     }
 
+    public function getCustomerByProjectId($projectId) {
+        $this->db->query('SELECT u.*, cq.* FROM users u, projects p, installation_phase ip, customerquotation cq
+                          WHERE p.project_id = ip.project_id AND p.customer_id = u.user_id AND p.pre_project_id = cq.pre_project_id AND p.project_id = :project_id');
+        $this->db->bind(':project_id', $projectId);
+        return $this->db->single();
+    }
 
+    public function getProjectDetails($project_id) {
+        $this->db->query('SELECT p.*, ip.* FROM projects p 
+                          LEFT JOIN installation_phase ip ON p.project_id = ip.project_id
+                          WHERE p.project_id = :project_id');
+        $this->db->bind(':project_id', $project_id);
+        return $this->db->single();
+    }
+    
+    public function getAssignedEngineer($installationId)
+    {
+        $this->db->query('SELECT e.*, u.name, u.phone
+                     FROM installation_engineer ie
+                     JOIN employees e ON ie.engineer_id = e.employee_id
+                     JOIN users u ON e.user_id = u.user_id
+                     WHERE ie.installation_id = :installation_id
+                     AND ie.assign = TRUE
+                     ORDER BY ie.created_at DESC
+                     LIMIT 1');
 
+        $this->db->bind(':installation_id', $installationId);
+        return $this->db->single();
+    }
 
+    public function getInstallationTeamMembers($installationId)
+    {
+        $this->db->query('SELECT ie.id, e.employee_id, u.name, u.email, u.phone
+                     FROM installation_employees ie
+                     JOIN employees e ON ie.employee_id = e.employee_id
+                     JOIN users u ON e.user_id = u.user_id
+                     WHERE ie.installation_id = :installation_id
+                     AND ie.assign = 1
+                     ORDER BY u.name');
+
+        $this->db->bind(':installation_id', $installationId);
+        return $this->db->resultSet();
+    }
+
+    public function getInstallationByID($installation_id) {
+        $this->db->query('SELECT * FROM installation_phase 
+                          WHERE installation_id = :installation_id');
+        $this->db->bind(':installation_id', $installation_id);
+        return $this->db->single();
+    }
 
 
     // public function getDeliveryPersonByUserId($userId) {
