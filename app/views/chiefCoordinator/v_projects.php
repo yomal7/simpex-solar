@@ -22,9 +22,9 @@
                 <span class="material-icons-sharp">business_center</span>
                 <h3>Projects</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/chiefCoordinator/finance">
-                <span class="material-icons-sharp">attach_money</span>
-                <h3>Finance</h3>
+            <a href="<?php echo URLROOT ?>/chiefCoordinator/payments" >
+                <span class="material-icons-sharp">payments</span>
+                <h3>Payments</h3>
             </a>
             <a href="<?php echo URLROOT ?>/chiefCoordinator/employees">
                 <span class="material-icons-sharp">people</span>
@@ -204,16 +204,16 @@
                     </div>
                     
                     <div class="chart-card">
-                        <h3>Average Days in Each Phase</h3>
+                        <h3>Monthly Projects (This Year)</h3>
                         <div class="chart-wrapper">
-                            <canvas id="timeChart"></canvas>
+                            <canvas id="monthlyChart"></canvas>
                         </div>
                     </div>
                     
                     <div class="chart-card">
-                        <h3>Monthly Projects (This Year)</h3>
+                        <h3>Equipment Release Status</h3>
                         <div class="chart-wrapper">
-                            <canvas id="monthlyChart"></canvas>
+                            <canvas id="equipmentChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -228,48 +228,52 @@
                         </div>
                     </div>
                     <div class="table-responsive">
-                        <!-- Before the table -->
-                        <table id="projectsTable">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Customer</th>
-                                    <th>Package</th>
-                                    <th>Current Phase</th>
-                                    <th>Status</th>
-                                    <th>Created Date</th>
-                                    <th>Equipment</th>
-                                    <!-- <th>Actions</th> -->
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach($data['projects'] as $project): ?>
-                                <tr>
-                                    <td><?php echo $project->project_id; ?></td>
-                                    <td><?php echo $project->customer_name; ?></td>
-                                    <td><?php echo $project->package_name; ?></td>
-                                    <td><span class="status-pill phase-<?php echo $project->current_phase; ?>"><?php echo str_replace('_', ' ', ucfirst($project->current_phase)); ?></span></td>
-                                    <td><span class="status-pill status-<?php echo $project->status; ?>"><?php echo ucfirst($project->status); ?></span></td>
-                                    <td><?php echo date('M d, Y', strtotime($project->created_at)); ?></td>
-                                    <td>
-                                        <?php if($project->equipment_released == 1): ?>
-                                            <span class="status-pill status-active">Released</span>
-                                        <?php else: ?>
-                                            <span class="status-pill status-cancelled">Pending</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <!-- <td>
-                                        <a href="<php echo URLROOT; ?>/chiefCoordinator/viewProject/<?php echo $project->project_id; ?>" class="action-btn view-btn">
-                                            <span class="material-icons-sharp">visibility</span>
-                                        </a>
-                                    </td> -->
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                        <?php if (empty($data['projects'])): ?>
+                            <div class="no-data-message">
+                                <span class="material-icons-sharp">info</span>
+                                <p>No projects found with the current filters. Try changing your filter options or add new projects to get started.</p>
+                                <button class="btn" onclick="clearFilters()">
+                                    <span class="material-icons-sharp">refresh</span> Clear Filters
+                                </button>
+                            </div>
+                        <?php else: ?>
+                            <table id="projectsTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Customer</th>
+                                        <th>Package</th>
+                                        <th>Current Phase</th>
+                                        <th>Status</th>
+                                        <th>Created Date</th>
+                                        <th>Equipment</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach($data['projects'] as $project): ?>
+                                    <tr>
+                                        <td><?php echo $project->project_id; ?></td>
+                                        <td><?php echo isset($project->customer_name) ? $project->customer_name : 'Unknown'; ?></td>
+                                        <td><?php echo isset($project->package_name) ? $project->package_name : 'N/A'; ?></td>
+                                        <td><span class="status-pill phase-<?php echo $project->current_phase; ?>"><?php echo str_replace('_', ' ', ucfirst($project->current_phase)); ?></span></td>
+                                        <td><span class="status-pill status-<?php echo $project->status; ?>"><?php echo ucfirst($project->status); ?></span></td>
+                                        <td><?php echo date('M d, Y', strtotime($project->created_at)); ?></td>
+                                        <td>
+                                            <?php if($project->equipment_released == 1): ?>
+                                                <span class="status-pill status-active">Released</span>
+                                            <?php else: ?>
+                                                <span class="status-pill status-cancelled">Pending</span>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        <?php endif; ?>
                     </div>
                     
                     <!-- Pagination -->
+                    <?php if (!empty($data['projects'])): ?>
                     <div class="pagination-info">
                         <span>Showing page <?php echo $data['projects_pagination']['page']; ?> of <?php echo $data['projects_pagination']['total_pages']; ?></span>
                         <span>Total: <?php echo $data['projects_pagination']['total']; ?> projects</span>
@@ -324,6 +328,7 @@
                             </span>
                         <?php endif; ?>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -347,6 +352,8 @@
         document.getElementById('projectSearch').addEventListener('keyup', function() {
             const searchValue = this.value.toLowerCase();
             const table = document.getElementById('projectsTable');
+            if (!table) return; // Exit if table doesn't exist
+            
             const rows = table.getElementsByTagName('tr');
             
             for (let i = 1; i < rows.length; i++) { // Start from 1 to skip header
@@ -452,55 +459,7 @@
                 }
             });
             
-            // Chart 3: Average Days in Each Phase
-            const timeCtx = document.getElementById('timeChart').getContext('2d');
-            const timeChart = new Chart(timeCtx, {
-                type: 'bar',
-                data: {
-                    labels: [
-                        <?php 
-                            foreach($data['stats']['time_stats'] as $stat) {
-                                echo "'" . str_replace('_', ' ', ucfirst($stat->current_phase)) . "', ";
-                            }
-                        ?>
-                    ],
-                    datasets: [{
-                        label: 'Average Days',
-                        data: [
-                            <?php 
-                                foreach($data['stats']['time_stats'] as $stat) {
-                                    echo round($stat->avg_days, 1) . ", ";
-                                }
-                            ?>
-                        ],
-                        backgroundColor: '#3F51B5',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Days'
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.parsed.y + ' days';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Chart 4: Monthly Projects
+            // Chart 3: Monthly Projects
             const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
             const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             
@@ -534,6 +493,43 @@
                             ticks: {
                                 stepSize: 1
                             }
+                        }
+                    }
+                }
+            });
+            
+            // Chart 4: Equipment Release Status
+            const equipmentCtx = document.getElementById('equipmentChart').getContext('2d');
+            const equipmentChart = new Chart(equipmentCtx, {
+                type: 'pie',
+                data: {
+                    labels: [
+                        <?php 
+                            foreach($data['stats']['equipment_stats'] as $stat) {
+                                echo "'" . ($stat->equipment_released == 1 ? 'Released' : 'Pending') . "', ";
+                            }
+                        ?>
+                    ],
+                    datasets: [{
+                        data: [
+                            <?php 
+                                foreach($data['stats']['equipment_stats'] as $stat) {
+                                    echo $stat->count . ", ";
+                                }
+                            ?>
+                        ],
+                        backgroundColor: [
+                            '#4CAF50', // Released - Green
+                            '#FF9800'  // Pending - Orange
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
                         }
                     }
                 }

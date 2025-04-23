@@ -95,8 +95,8 @@
                 <?php foreach($data['projects'] as $project): ?>
                 <tr>
                     <td><?php echo $project->project_id; ?></td>
-                    <td><?php echo $project->customer_name; ?></td>
-                    <td><?php echo $project->package_name; ?></td>
+                    <td><?php echo isset($project->customer_name) ? $project->customer_name : 'Unknown'; ?></td>
+                    <td><?php echo isset($project->package_name) ? $project->package_name : 'N/A'; ?></td>
                     <td><span class="status-pill phase-<?php echo $project->current_phase; ?>"><?php echo str_replace('_', ' ', ucfirst($project->current_phase)); ?></span></td>
                     <td><span class="status-pill status-<?php echo $project->status; ?>"><?php echo ucfirst($project->status); ?></span></td>
                     <td><?php echo date('M d, Y', strtotime($project->created_at)); ?></td>
@@ -158,26 +158,6 @@
                         <td><?php echo str_replace('_', ' ', ucfirst($stat->current_phase)); ?></td>
                         <td><?php echo $stat->count; ?></td>
                         <td><?php echo $totalActiveProjects > 0 ? round(($stat->count / $totalActiveProjects) * 100, 1) : 0; ?>%</td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="analysis-section">
-            <h3>Average Days in Each Phase</h3>
-            <table class="analysis-table">
-                <thead>
-                    <tr>
-                        <th>Phase</th>
-                        <th>Average Days</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach($data['stats']['time_stats'] as $stat): ?>
-                    <tr>
-                        <td><?php echo str_replace('_', ' ', ucfirst($stat->current_phase)); ?></td>
-                        <td><?php echo round($stat->avg_days, 1); ?> days</td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>

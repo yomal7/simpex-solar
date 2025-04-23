@@ -22,9 +22,9 @@
                 <span class="material-icons-sharp">business_center</span>
                 <h3>Projects</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/chiefCoordinator/finance">
-                <span class="material-icons-sharp">attach_money</span>
-                <h3>Finance</h3>
+            <a href="<?php echo URLROOT ?>/chiefCoordinator/payments" >
+                <span class="material-icons-sharp">payments</span>
+                <h3>Payments</h3>
             </a>
             <a href="<?php echo URLROOT ?>/chiefCoordinator/employees">
                 <span class="material-icons-sharp">people</span>

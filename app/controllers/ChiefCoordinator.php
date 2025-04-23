@@ -249,4 +249,201 @@ class ChiefCoordinator extends Controller {
             redirect('chiefCoordinator/feedbacks');
         }
     }
+
+    public function store() {
+        $timeframe = isset($_GET['timeframe']) ? $_GET['timeframe'] : 'all';
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        
+        $chiefCoordinatorModel = $this->model('M_ChiefCoordinator');
+        
+        // Get store statistics
+        $storeStats = $chiefCoordinatorModel->getStoreStats($timeframe);
+        
+        // Get paginated orders
+        $ordersData = $chiefCoordinatorModel->getStoreOrders($page, 10, $timeframe);
+        
+        $data = [
+            'title' => 'Store Information',
+            'stats' => $storeStats,
+            'orders' => $ordersData['orders'],
+            'pagination' => [
+                'page' => $ordersData['page'],
+                'total_pages' => $ordersData['total_pages'],
+                'total' => $ordersData['total']
+            ],
+            'timeframe' => $timeframe
+        ];
+        
+        $this->view('chiefCoordinator/v_store', $data);
+    }
+    
+    public function generateStoreReport() {
+        $timeframe = isset($_POST['timeframe']) ? $_POST['timeframe'] : 'all';
+        
+        $chiefCoordinatorModel = $this->model('M_ChiefCoordinator');
+        
+        // Get store statistics
+        $storeStats = $chiefCoordinatorModel->getStoreStats($timeframe);
+        
+        // Get all orders for the report (limited to 100 for practical reasons)
+        $ordersData = $chiefCoordinatorModel->getStoreOrders(1, 100, $timeframe);
+        
+        $data = [
+            'title' => 'Store Report',
+            'stats' => $storeStats,
+            'orders' => $ordersData['orders'],
+            'report_date' => date('Y-m-d H:i:s'),
+            'timeframe' => $timeframe
+        ];
+        
+        $this->view('chiefCoordinator/v_storeReport', $data);
+    }
+
+
+    public function payments() {
+        // Get parameters from URL for filtering and pagination
+        $timeframe = isset($_GET['timeframe']) ? $_GET['timeframe'] : 'all';
+        $payment_type = isset($_GET['payment_type']) ? $_GET['payment_type'] : 'all';
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        
+        // Load model
+        $chiefCoordinatorModel = $this->model('M_ChiefCoordinator');
+        
+        // Get payments with pagination
+        $paymentData = $chiefCoordinatorModel->getPayments($page, 10, $timeframe, $payment_type);
+        
+        // Get statistics for charts
+        $stats = $chiefCoordinatorModel->getPaymentStats($timeframe);
+        
+        // Prepare data for the view
+        $data = [
+            'payments' => $paymentData['payments'],
+            'pagination' => [
+                'page' => $paymentData['page'],
+                'limit' => $paymentData['limit'],
+                'total' => $paymentData['total'],
+                'total_pages' => $paymentData['total_pages']
+            ],
+            'stats' => $stats,
+            'filters' => [
+                'timeframe' => $timeframe,
+                'payment_type' => $payment_type
+            ]
+        ];
+        
+        // Load view
+        $this->view('chiefCoordinator/v_payments', $data);
+    }
+    
+    // Method to generate payment report
+    public function generatePaymentReport() {
+        // Get parameters for filtering
+        $timeframe = isset($_POST['timeframe']) ? $_POST['timeframe'] : 'all';
+        $payment_type = isset($_POST['payment_type']) ? $_POST['payment_type'] : 'all';
+        
+        // Load model
+        $chiefCoordinatorModel = $this->model('M_ChiefCoordinator');
+        
+        // Get all payments for the report (without pagination)
+        $reportData = $chiefCoordinatorModel->getPayments(1, 1000, $timeframe, $payment_type);
+        
+        // Get statistics for charts
+        $stats = $chiefCoordinatorModel->getPaymentStats($timeframe);
+        
+        // Prepare data for the report view
+        $data = [
+            'payments' => $reportData['payments'],
+            'stats' => $stats,
+            'report_date' => date('Y-m-d H:i:s'),
+            'filters' => [
+                'timeframe' => $timeframe,
+                'payment_type' => $payment_type
+            ]
+        ];
+        
+        // Load report view
+        $this->view('chiefCoordinator/v_paymentsReport', $data);
+    }
+public function employees() {
+    // Check for query parameters
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $role = isset($_GET['role']) ? $_GET['role'] : 'all';
+    $timeframe = isset($_GET['timeframe']) ? $_GET['timeframe'] : 'all';
+    
+    // Debug parameters
+    error_log('Parameters: page=' . $page . ', role=' . $role . ', timeframe=' . $timeframe);
+    
+    // Get employee stats
+    $stats = $this->chiefCoordinatorModel->getEmployeeStats($timeframe);
+    
+    // Get specific counts for attendance rate calculation
+    $totalEmployees = $this->chiefCoordinatorModel->getTotalEmployeeCount();
+    $presentToday = $this->chiefCoordinatorModel->getTodayAttendanceCount();
+    $attendanceRate = ($totalEmployees > 0) ? round(($presentToday / $totalEmployees) * 100) : 0;
+    
+    // Debug attendance rate calculation
+    error_log('Attendance rate calculation: ' . $presentToday . ' / ' . $totalEmployees . ' = ' . $attendanceRate . '%');
+    
+    // Get all employees with pagination
+    $employeesData = $this->chiefCoordinatorModel->getAllEmployees($page, 10, $role);
+    
+    // Debug employee data
+    error_log('Employees returned: ' . count($employeesData['employees']));
+    if (count($employeesData['employees']) > 0) {
+        error_log('First employee data: ' . print_r($employeesData['employees'][0], true));
+    } else {
+        error_log('No employees found in database query result');
+    }
+    
+    // Get attendance data with pagination
+    $attendancePage = isset($_GET['attendance_page']) ? (int)$_GET['attendance_page'] : 1;
+    $attendanceData = $this->chiefCoordinatorModel->getRecentAttendance($attendancePage, 10);
+    
+    // Get leave data with pagination
+    $leavePage = isset($_GET['leave_page']) ? (int)$_GET['leave_page'] : 1;
+    $leaveData = $this->chiefCoordinatorModel->getLeaveRecords($leavePage, 10);
+    
+    $data = [
+        'stats' => $stats,
+        'total_employees' => $totalEmployees,
+        'present_today' => $presentToday,
+        'attendance_rate' => $attendanceRate,
+        'employees' => $employeesData['employees'],
+        'employees_pagination' => [
+            'page' => $page,
+            'total' => $employeesData['total'],
+            'total_pages' => $employeesData['total_pages']
+        ],
+        'attendance' => $attendanceData['attendance'],
+        'attendance_pagination' => [
+            'page' => $attendancePage,
+            'total' => $attendanceData['total'],
+            'total_pages' => $attendanceData['total_pages']
+        ],
+        'leaves' => $leaveData['leaves'],
+        'leaves_pagination' => [
+            'page' => $leavePage,
+            'total' => $leaveData['total'],
+            'total_pages' => $leaveData['total_pages']
+        ],
+        'current_timeframe' => $timeframe,
+        'current_role' => $role
+    ];
+    
+    $this->view('chiefCoordinator/v_employees', $data);
+}
+    
+    public function generateEmployeeReport() {
+        // Generate report logic here
+        $stats = $this->chiefCoordinatorModel->getEmployeeStats();
+        $employeesData = $this->chiefCoordinatorModel->getAllEmployees(1, 100); // Get more employees for the report
+        
+        $data = [
+            'report_date' => date('Y-m-d H:i:s'),
+            'stats' => $stats,
+            'employees' => $employeesData['employees']
+        ];
+        
+        $this->view('chiefCoordinator/v_employeesReport', $data);
+    }
 }
