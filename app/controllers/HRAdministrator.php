@@ -216,26 +216,60 @@ class HRAdministrator extends Controller
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+            
+            // Get existing employee data
+            $currentEmployee = $this->employeeModel->getEmployeeById($employeeId);
+            
             $data = [
                 'employee_id' => $employeeId,
-                'user_id' => $this->employeeModel->getEmployeeById($employeeId)->user_id,
+                'user_id' => $currentEmployee->user_id,
                 'name' => trim($_POST['name']),
                 'role' => trim($_POST['role']),
                 'email' => trim($_POST['email']),
                 'phone' => trim($_POST['phone']),
+                'address' => trim($_POST['address']),
+                'profile_image' => $_FILES['profile_image']['name'] ?? '',
+                'current_profile_picture' => $currentEmployee->profile_picture,
                 'name_err' => '',
                 'role_err' => '',
                 'email_err' => '',
                 'phone_err' => '',
+                'address_err' => '',
+                'profile_image_err' => ''
             ];
+            
+            // Handle profile image upload
+            $file = $_FILES['profile_image'] ?? null;
+            $profile_image_name = null;
+            
+            if($file['tmp_name'] && $file['error'] === UPLOAD_ERR_OK) {
+                // Check file size (2MB max)
+                $maxSize = 2 * 1024 * 1024;
+                if($file['size'] > $maxSize) {
+                    $data['profile_image_err'] = 'Image too large (max 2MB)';
+                }
+                
+                // Check file type
+                $allowed_types = ['image/jpeg', 'image/png'];
+                if(!in_array($file['type'], $allowed_types)) {
+                    $data['profile_image_err'] = 'Invalid image format (JPEG, PNG)';
+                }
+                
+                // Generate unique filename
+                if(empty($data['profile_image_err'])) {
+                    $profile_image_name = uniqid() . '_' . basename($file['name']);
+                }
+            }
             
             // Validate Email
             if (empty($data['email'])) {
                 $data['email_err'] = 'Please enter email';
             } else {
-                // Check email is already registered or not
-                if ($this->userModel->findUserByEmail($data['email']) && $data['email'] != $this->userModel->getUserByEmail($data['email'])->email) {
-                    $data['email_err'] = 'Email is already taken';
+                // Check email is already taken by another user or not
+                if ($this->userModel->findUserByEmail($data['email']) && $data['email'] != $currentEmployee->email) {
+                    $data['email_err'] = 'Email is already taken by another user';
+                } else {
+                    $data['email_err'] = ''; // No error if email is the same as current
                 }
             }
 
@@ -253,13 +287,37 @@ class HRAdministrator extends Controller
             if (empty($data['phone'])) {
                 $data['phone_err'] = 'Please enter phone';
             }
+            
+            // Validate address
+            if (empty($data['address'])) {
+                $data['address_err'] = 'Please enter address';
+            }
 
             // Make sure no errors
-            if (empty($data['email_err']) && empty($data['name_err']) && empty($data['role_err']) && empty($data['phone_err']) && empty($data['password_err']) && empty($data['confirm_password_err'])) {
-                // Validated
+            if (empty($data['email_err']) && empty($data['name_err']) && empty($data['role_err']) && 
+                empty($data['phone_err']) && empty($data['address_err']) && empty($data['profile_image_err'])) {
+                
+                // Handle image upload if a new image was provided
+                if($profile_image_name) {
+                    $upload_dir = APPROOT . '/../public/uploads/profile_pictures/';
+                    if(!is_dir($upload_dir)) {
+                        mkdir($upload_dir, 0777, true);
+                    }
+                    
+                    $upload_path = $upload_dir . $profile_image_name;
+                    move_uploaded_file($file["tmp_name"], $upload_path);
+                    
+                    // Add the new image name to data for database update
+                    $data['profile_image'] = $profile_image_name;
+                } else {
+                    // Keep existing profile picture if no new one was uploaded
+                    $data['profile_image'] = $data['current_profile_picture'];
+                }
+                
+                // Validated - update employee data
                 if ($this->employeeModel->edit($data)) {
                     flash('employee_msg', 'Employee updated successfully');
-                    redirect('hRAdministrator/employees');
+                    redirect('hRAdministrator/viewEmployee/' . $employeeId);
                 } else {
                     die('Something went wrong');
                 }
@@ -278,10 +336,14 @@ class HRAdministrator extends Controller
                 'role' => $employee->role,
                 'email' => $employee->email,
                 'phone' => $employee->phone,
+                'address' => $employee->address,
+                'profile_image' => $employee->profile_picture,
                 'name_err' => '',
                 'role_err' => '',
                 'email_err' => '',
                 'phone_err' => '',
+                'address_err' => '',
+                'profile_image_err' => ''
             ];
 
             $this->view('hRAdministrator/v_editEmployee', $data);

@@ -68,23 +68,26 @@ class M_Employee
 
     public function edit($data)
     {
+        // Update employee data
         $this->db->query('UPDATE employees SET role = :role, address = :address WHERE employee_id = :employee_id');
         $this->db->bind(':role', $data['role']);
-        $this->db->bind(':employee_id', $data['employee_id']);
         $this->db->bind(':address', $data['address']);
+        $this->db->bind(':employee_id', $data['employee_id']);
+        
+        if (!$this->db->execute()) {
+            return false;
+        }
 
-
-        $this->db->query('UPDATE users SET name = :name, email = :email, phone = :phone WHERE user_id = :user_id');
+        // Update user data
+        $this->db->query('UPDATE users SET name = :name, email = :email, phone = :phone, profile_picture = :profile_picture 
+                         WHERE user_id = :user_id');
         $this->db->bind(':name', $data['name']);
         $this->db->bind(':email', $data['email']);
         $this->db->bind(':phone', $data['phone']);
+        $this->db->bind(':profile_picture', $data['profile_image']);
         $this->db->bind(':user_id', $data['user_id']);
 
-        if ($this->db->execute()) {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->db->execute();
     }
 
     public function delete($employeeId)

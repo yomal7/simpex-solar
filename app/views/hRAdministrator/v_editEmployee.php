@@ -51,13 +51,17 @@
                 <form action="<?php echo URLROOT; ?>/hRAdministrator/editEmployee/<?php echo $data['employee_id']; ?>" method="POST" id="employeeForm" enctype="multipart/form-data">
                     <div class="profile-image-section">
                         <div class="image-preview-container">
-                            <img id="profile-preview" src="<?php echo !empty($data['profile_image']) ? URLROOT . '/public/uploads/' . $data['profile_image'] : URLROOT . '/public/assets/profile.png'; ?>" alt="Profile Preview">
+                            <?php if(!empty($data['profile_image'])): ?>
+                                <img id="profile-preview" src="<?php echo URLROOT; ?>/public/uploads/profile_pictures/<?php echo $data['profile_image']; ?>" alt="Profile Preview">
+                            <?php else: ?>
+                                <img id="profile-preview" src="<?php echo URLROOT; ?>/public/assets/profile.png" alt="Profile Preview">
+                            <?php endif; ?>
                         </div>
                         <div class="image-upload-controls">
                             <label for="profile_image">Profile Picture</label>
                             <input type="file" name="profile_image" id="profile_image" accept="image/*">
                             <span class="form-invalid"><?php echo isset($data['profile_image_err']) ? $data['profile_image_err'] : ''; ?></span>
-                            <p class="help-text">Recommended: Square image, max 2MB</p>
+                            <p class="help-text">Recommended: Square image, max 2MB. Leave blank to keep current image.</p>
                         </div>
                     </div>
                     <div class="employee-form-grid">
