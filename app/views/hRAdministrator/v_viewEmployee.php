@@ -55,10 +55,23 @@
 
                 <div class="employee-card">
                     <div class="employee-header">
-                        <h1 class="employee-name"><?php echo $data['employee']->name; ?></h1>
-                        <span class="employee-role">
-                            <?php echo $data['employee']->role; ?>
-                        </span>
+                        <div class="employee-profile">
+                            <div class="profile-image">
+                                <?php if(!empty($data['employee']->profile_picture)): ?>
+                                    <img src="<?php echo URLROOT; ?>/public/uploads/profile_pictures/<?php echo $data['employee']->profile_picture; ?>" 
+                                         alt="<?php echo $data['employee']->name; ?>'s profile picture">
+                                <?php else: ?>
+                                    <img src="<?php echo URLROOT; ?>/public/assets/profile.png" 
+                                         alt="Default profile picture">
+                                <?php endif; ?>
+                            </div>
+                            <div class="employee-info">
+                                <h1 class="employee-name"><?php echo $data['employee']->name; ?></h1>
+                                <span class="employee-role">
+                                    <?php echo $data['employee']->role; ?>
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="employee-details">
@@ -67,7 +80,7 @@
                                 <i class="fa-solid fa-id-card"></i>
                                 <div class="detail-content">
                                     <label>Employee ID</label>
-                                    <p><?php echo $data['employee']->employee_id;; ?></p>
+                                    <p><?php echo $data['employee']->employee_id; ?></p>
                                 </div>
                             </div>
                             <div class="detail-item">
@@ -95,15 +108,14 @@
                                 </div>
                             </div>
                         </div>
-
+                        
                         <div class="detail-item">
-                            <i class="fas fa-clock"></i>
+                            <i class="fas fa-map-marker-alt"></i>
                             <div class="detail-content">
-                                <label>Created Time</label>
-                                <p><?php echo $data['employee']->created_at; ?></p>
+                                <label>Address</label>
+                                <p><?php echo $data['employee']->address ?? 'No address provided'; ?></p>
                             </div>
                         </div>
-
                     </div>
 
                     <div class="action-buttons">
