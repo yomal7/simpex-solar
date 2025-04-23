@@ -803,4 +803,230 @@ class PdfGenerator
         $this->dompdf->render();
         return $this->dompdf->output();
     }
+
+    public function generateDeliveryReport($data)
+    {
+        $order = $data['order'];
+        $orderItems = $data['orderItems'];
+        $deliveryPerson = $data['deliveryPerson'];
+        $logoPath = URLROOT . '/public/assets/simpex-logo.png';
+
+        $html = '
+    <html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                color: #333;
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            .header img {
+                max-width: 200px;
+                margin-bottom: 10px;
+            }
+            .header h2 {
+                margin: 5px 0;
+                color: #4CAF50;
+            }
+            .section {
+                margin-bottom: 25px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #eee;
+            }
+            .section h3 {
+                margin-top: 0;
+                color: #4CAF50;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 5px;
+            }
+            .details-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+            .detail-item {
+                margin-bottom: 8px;
+            }
+            .detail-item label {
+                font-weight: bold;
+                display: inline-block;
+                width: 150px;
+            }
+            .items-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+            .items-table th, .items-table td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            .items-table th {
+                background-color: #f5f5f5;
+            }
+            .items-table tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+            .total-row td {
+                font-weight: bold;
+            }
+            .signature-section {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                margin-top: 50px;
+            }
+            .signature-box {
+                margin-top: 10px;
+                border-top: 1px solid #333;
+                padding-top: 5px;
+                text-align: center;
+                font-weight: bold;
+            }
+            .qr-section {
+                text-align: center;
+                margin-top: 30px;
+            }
+            .qr-code {
+                width: 100px;
+                height: 100px;
+                background-color: #f5f5f5;
+                margin: 0 auto;
+            }
+            .footer {
+                margin-top: 30px;
+                text-align: center;
+                font-size: 12px;
+                color: #777;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <img src="' . $logoPath . '" alt="Simpex Solar Logo">
+            <h2>Delivery Report</h2>
+            <p>Order #' . $order->order_number . '</p>
+        </div>
+        
+        <div class="section">
+            <h3>Customer Information</h3>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <label>Customer Name:</label>
+                    <span>' . htmlspecialchars($order->customer_name) . '</span>
+                </div>
+                <div class="detail-item">
+                    <label>Contact Phone:</label>
+                    <span>' . htmlspecialchars($order->contact_phone) . '</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>Shipping Details</h3>
+            <div class="detail-item">
+                <label>Shipping Address:</label>
+                <span>' . nl2br(htmlspecialchars($order->shipping_address)) . '</span>
+            </div>
+            <div class="detail-item">
+                <label>Delivery Date:</label>
+                <span>' . date('F j, Y') . '</span>
+            </div>
+            <div class="detail-item">
+                <label>Delivery Person:</label>
+                <span>' . htmlspecialchars($deliveryPerson) . '</span>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h3>Order Items</h3>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+        $subtotal = 0;
+        foreach ($orderItems as $item) {
+            $itemTotal = $item->price_at_time * $item->quantity;
+            $subtotal += $itemTotal;
+
+            $html .= '
+                    <tr>
+                        <td>' . htmlspecialchars($item->name) . '</td>
+                        <td>' . $item->quantity . '</td>
+                        <td>Rs. ' . number_format($item->price_at_time, 2) . '</td>
+                        <td>Rs. ' . number_format($itemTotal, 2) . '</td>
+                    </tr>';
+        }
+
+        $html .= '
+                    <tr class="total-row">
+                        <td colspan="3" style="text-align: right;">Total:</td>
+                        <td>Rs. ' . number_format($order->total_amount, 2) . '</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h3>Payment Information</h3>
+            <div class="detail-item">
+                <label>Payment Method:</label>
+                <span>' . ucfirst(str_replace('_', ' ', $order->payment_method)) . '</span>
+            </div>';
+
+        if ($order->payment_method == 'cash') {
+            $html .= '
+            <div class="detail-item">
+                <label>Cash Amount:</label>
+                <span>Rs. ' . number_format($order->total_amount, 2) . '</span>
+            </div>
+            <div class="detail-item" style="margin-top: 15px;">
+                <input type="checkbox" name="payment_received" style="width: 15px; height: 15px;"> 
+                <strong>I confirm that I have received the payment in full.</strong>
+            </div>';
+        }
+
+        $html .= '
+        </div>
+        
+        <div class="signature-section">
+            <div>
+                <p>Delivered By:</p>
+                <div class="signature-box">
+                    ' . htmlspecialchars($deliveryPerson) . '
+                </div>
+            </div>
+            <div>
+                <p>Received By:</p>
+                <div class="signature-box">
+                    Customer Signature
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Thank you for shopping with Simpex Solar!</p>
+            <p>For any questions or concerns regarding your delivery, please contact our customer service at support@simpexsolar.com</p>
+        </div>
+    </body>
+    </html>';
+
+        $this->dompdf->loadHtml($html);
+        $this->dompdf->setPaper('A4', 'portrait');
+        $this->dompdf->render();
+        return $this->dompdf->output();
+    }
 }

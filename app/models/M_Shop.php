@@ -793,4 +793,42 @@ class M_Shop
         $this->db->bind(':order_id', $orderId);
         return $this->db->single();
     }
+
+    public function getDeliveryPersonPendingOrders($deliveryPersonId)
+    {
+        $this->db->query('SELECT o.*, u.name as customer_name
+                         FROM orders o
+                         JOIN users u ON o.user_id = u.user_id
+                         WHERE o.deliver_id = :delivery_person_id
+                         AND o.status = "shipped"
+                         AND o.delivered_at IS NULL
+                         ORDER BY o.created_at DESC');
+        $this->db->bind(':delivery_person_id', $deliveryPersonId);
+        return $this->db->resultSet();
+    }
+
+    public function getDeliveryPersonCompletedOrders($deliveryPersonId)
+    {
+        $this->db->query('SELECT o.*, u.name as customer_name
+                     FROM orders o
+                     JOIN users u ON o.user_id = u.user_id
+                     WHERE o.deliver_id = :delivery_person_id
+                     AND o.status = "delivered"
+                     AND o.delivered_at IS NOT NULL
+                     ORDER BY o.delivered_at DESC');
+        $this->db->bind(':delivery_person_id', $deliveryPersonId);
+        return $this->db->resultSet();
+    }
+
+    // Mark order as delivered for deliveryPerson
+    public function markOrderAsDelivered($orderId, $deliveryReport = null)
+    {
+        $this->db->query('UPDATE orders 
+                     SET delivery_report = :delivery_report, 
+                         delivered_at = CURRENT_TIMESTAMP         
+                     WHERE id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        $this->db->bind(':delivery_report', $deliveryReport);
+        return $this->db->execute();
+    }
 }

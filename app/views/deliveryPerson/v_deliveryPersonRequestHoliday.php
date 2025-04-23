@@ -1,35 +1,38 @@
-<?php require APPROOT.'/views/deliveryPerson/header.php';?>
+<?php require APPROOT . '/views/deliveryPerson/header.php'; ?>
 
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/deliveryPerson/dashboard.css">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/deliveryPerson/dashboard.css">
 
 </head>
 
 <body>
-    
+
     <div class="request-holiday-container">
 
-        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>        
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
         <div class="sidebar" id="sidebar">
-            <img   
+            <img
                 src="<?php echo URLROOT ?>/assets/profile.png"
                 alt="manager profile-picture"
-                class="profile-picture"
-            />
-            <a href="<?php echo URLROOT?>/deliveryPerson/dashboard">
+                class="profile-picture" />
+            <a href="<?php echo URLROOT ?>/deliveryPerson/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="<?php echo URLROOT?>/deliveryPerson/tasks">
+            <a href="<?php echo URLROOT ?>/deliveryPerson/orders" class="active">
+                <span class="material-icons-sharp">local_shipping</span>
+                <h3>Orders</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/deliveryPerson/tasks">
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>
             </a>
-            <a href="<?php echo URLROOT?>/deliveryPerson/requestHoliday" class="active">
+            <a href="<?php echo URLROOT ?>/deliveryPerson/requestHoliday" class="active">
                 <span class="material-icons-sharp">event</span>
                 <h3>Request Holiday</h3>
             </a>
-            <a href="<?php echo URLROOT?>/deliveryPerson/settings">
+            <a href="<?php echo URLROOT ?>/deliveryPerson/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
@@ -89,16 +92,25 @@
                             </tr>
                         </thead>
                         <tbody id="holidayRecordsTableBody">
-                            <?php //foreach ($data['holidayRecords'] as $record) : ?>
-                                <tr>
-                                    <td><?php //echo $record->leave_type; ?></td> 
-                                    <td><?php //echo $record->start_date; ?></td>
-                                    <td><?php //echo $record->end_date; ?></td>
-                                    <td><?php //echo $record->number_of_days; ?></td>
-                                    <td><?php //echo $record->reason; ?></td>
-                                    <td class="<?php //echo strtolower($record->status); ?>"><?php //echo ucfirst($record->status); ?></td>
-                                </tr>
-                            <?php //endforeach; ?>
+                            <?php //foreach ($data['holidayRecords'] as $record) : 
+                            ?>
+                            <tr>
+                                <td><?php //echo $record->leave_type; 
+                                    ?></td>
+                                <td><?php //echo $record->start_date; 
+                                    ?></td>
+                                <td><?php //echo $record->end_date; 
+                                    ?></td>
+                                <td><?php //echo $record->number_of_days; 
+                                    ?></td>
+                                <td><?php //echo $record->reason; 
+                                    ?></td>
+                                <td class="<?php //echo strtolower($record->status); 
+                                            ?>"><?php //echo ucfirst($record->status); 
+                                                                                            ?></td>
+                            </tr>
+                            <?php //endforeach; 
+                            ?>
                         </tbody>
                     </table>
                 </div>
@@ -110,4 +122,4 @@
     <div class="overlay" id="overlay"></div>
 
 </body>
-    <script src="<?php echo URLROOT; ?>/js/deliveryPerson/requestHoliday.js"></script>
+<script src="<?php echo URLROOT; ?>/js/deliveryPerson/requestHoliday.js"></script>
