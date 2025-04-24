@@ -28,11 +28,6 @@
                 <span class="material-icons-sharp">date_range</span>
                 <h3>Holiday</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/hRAdministrator/chat" class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'chat') !== false) ? 'active' : ''; ?>">
-                <span class="material-icons-sharp">chat</span>
-                <h3>Chat</h3>
-                <span class="notification-dot" style="display: <?php echo (isset($_SESSION['total_unread_count']) && $_SESSION['total_unread_count'] > 0) ? 'block' : 'none'; ?>;"></span>
-            </a>
             <a href="#">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
