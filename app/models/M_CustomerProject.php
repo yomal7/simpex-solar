@@ -266,6 +266,82 @@ class M_CustomerProject
         return $this->db->execute();
     }
 
+    // Get total projects count
+    public function getTotalProjects() {
+        $this->db->query('SELECT COUNT(*) as count FROM projects');
+        $result = $this->db->single();
+        return $result->count;
+    }
+
+    // Get active projects count
+    public function getActiveProjects() {
+        $this->db->query("SELECT COUNT(*) as count FROM projects WHERE status = 'active'");
+        $result = $this->db->single();
+        return $result->count;
+    }
+
+    // Get completed projects count
+    public function getCompletedProjects() {
+        $this->db->query("SELECT COUNT(*) as count FROM projects WHERE status = 'completed'");
+        $result = $this->db->single();
+        return $result->count;
+    }
+
+    // Get project counts by phase
+    public function getProjectPhaseDistribution() {
+        $this->db->query("SELECT current_phase, COUNT(*) as count 
+                        FROM projects 
+                        WHERE status = 'active' 
+                        GROUP BY current_phase");
+        $results = $this->db->resultSet();
+        
+        $phases = [
+            'document_submission' => 0,
+            'first_payment' => 0,
+            'installation' => 0,
+            'final_payment' => 0,
+            'engineer_approval' => 0,
+            'grid_connection' => 0,
+            'completed' => 0
+        ];
+        
+        foreach ($results as $result) {
+            $phases[$result->current_phase] = $result->count;
+        }
+        
+        return $phases;
+    }
+
+    // Get monthly project counts for the current year
+    public function getMonthlyProjectCounts() {
+        $currentYear = date('Y');
+        
+        $this->db->query("SELECT MONTH(created_at) as month, COUNT(*) as count 
+                        FROM projects 
+                        WHERE YEAR(created_at) = :year 
+                        GROUP BY MONTH(created_at)");
+        $this->db->bind(':year', $currentYear);
+        $results = $this->db->resultSet();
+        
+        $months = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $months[$i] = 0;
+        }
+        
+        foreach ($results as $result) {
+            $months[$result->month] = $result->count;
+        }
+        
+        return $months;
+    }
+    public function getAllProjects() {
+        $this->db->query('SELECT p.*, u.name as customer_name, u.email as customer_email
+                         FROM projects p
+                         LEFT JOIN users u ON p.customer_id = u.user_id
+                         ORDER BY p.created_at DESC');
+        return $this->db->resultSet();
+    }
+
     public function getInstallationPendingReleaseProjects()
     {
         $this->db->query('SELECT p.*, u.name as customer_name, IFNULL(cq.nearest_city, "No Location") as location 
@@ -670,4 +746,5 @@ class M_CustomerProject
         $this->db->bind(':project_id', $projectId);
         return $this->db->single();
     }
+  
 }

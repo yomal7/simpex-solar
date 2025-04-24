@@ -17,6 +17,30 @@
                 src="<?php echo URLROOT; ?>/public/assets/profile.png"
                 alt="manager profile-picture"
                 class="profile-picture" />
+            <a href="<?php echo URLROOT ?>/chiefCoordinator/dashboard">
+                <span class="material-icons-sharp">dashboard</span>
+                <h3>Dashboard</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/chiefCoordinator/preProjects">
+                <span class="material-icons-sharp">assignment</span>
+                <h3>Pre Projects</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/chiefCoordinator/projects">
+                <span class="material-icons-sharp">business_center</span>
+                <h3>Projects</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/chiefCoordinator/finance">
+                <span class="material-icons-sharp">attach_money</span>
+                <h3>Finance</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/chiefCoordinator/employees">
+                <span class="material-icons-sharp">people</span>
+                <h3>Employees</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/chiefCoordinator/store">
+                <span class="material-icons-sharp">store</span>
+                <h3>Store</h3>
+            </a>
             <a href="<?php echo URLROOT ?>/chiefCoordinator/feedbacks" class="active">
                 <span class="material-icons-sharp">feedback</span>
                 <h3>Feedbacks</h3>

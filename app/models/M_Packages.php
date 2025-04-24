@@ -406,5 +406,39 @@ class M_Packages {
             return false;
         }
     }
+    public function getPackageCountByType() {
+        $this->db->query("SELECT type, COUNT(*) as count 
+                        FROM package 
+                        WHERE deleted_at IS NULL 
+                        GROUP BY type");
+        $results = $this->db->resultSet();
+        
+        $types = [
+            'on-grid' => 0,
+            'off-grid' => 0,
+            'hybrid' => 0
+        ];
+        
+        if ($results) {
+            foreach ($results as $result) {
+                if (isset($types[$result->type])) {
+                    $types[$result->type] = $result->count;
+                }
+            }
+        }
+        
+        return $types;
+    }
+
+    public function getTotalPackages() {
+        $this->db->query('SELECT COUNT(*) as count FROM package WHERE deleted_at IS NULL');
+        $result = $this->db->single();
+        return $result ? $result->count : 0;
+    }
+    
+    // Get package count by type
+
+
+    
 
 }

@@ -1,0 +1,454 @@
+/* Dashboard CSS */
+:root {
+    --primary-color: #54c558;
+    --primary-light: #81C784;
+    --primary-dark: #4cb051;
+    --text-color: #333;
+    --light-text: #757575;
+    --background-light: #f8f9fa;
+    --border-color: #e0e0e0;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --success-color: #66BB6A;
+    --warning-color: #FFA726;
+    --danger-color: #EF5350;
+    --info-color: #42A5F5;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+
+body {
+    background-color: var(--background-light);
+    color: var(--text-color);
+}
+
+.dashboard-container {
+    display: flex;
+    position: relative;
+    min-height: 100vh;
+}
+
+/* Main Content Styles */
+.content-wrapper {
+    flex: 1;
+    padding: 2rem;
+    transition: all 0.3s ease;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    font-size: 1.8rem;
+    color: var(--text-color);
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Filter Section */
+.filter-section {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-size: 0.9rem;
+    color: var(--light-text);
+}
+
+.filter-group select {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    background-color: white;
+}
+
+/* Summary Cards */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.card h3 {
+    font-size: 1rem;
+    color: var(--light-text);
+    font-weight: 500;
+}
+
+.card h1 {
+    font-size: 1.8rem;
+    color: var(--text-color);
+}
+
+.card .material-icons-sharp {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+/* Charts Container */
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chart-card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+}
+
+.chart-card h3 {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.chart-wrapper {
+    height: 250px;
+    position: relative;
+}
+
+/* Table Styles */
+.table-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-header h3 {
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+.view-all {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.view-all:hover {
+    text-decoration: underline;
+}
+
+/* Search box in table header */
+.search {
+    display: flex;
+    align-items: center;
+    background: #f5f5f5;
+    border-radius: 4px;
+    padding: 0.4rem 0.8rem;
+}
+
+.search input {
+    border: none;
+    background: transparent;
+    padding: 0.4rem;
+    font-size: 0.9rem;
+    width: 200px;
+    outline: none;
+}
+
+.search .material-icons-sharp {
+    color: var(--light-text);
+    font-size: 1.2rem;
+}
+
+/* No data message */
+.no-data-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    color: var(--light-text);
+}
+
+.no-data-message .material-icons-sharp {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--border-color);
+}
+
+.no-data-message p {
+    margin-bottom: 1.5rem;
+    max-width: 400px;
+}
+
+/* Phase pills */
+.phase-planning {
+    background-color: rgba(156, 39, 176, 0.2);
+    color: #9C27B0;
+}
+
+.phase-design {
+    background-color: rgba(33, 150, 243, 0.2);
+    color: #2196F3;
+}
+
+.phase-development {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #FFC107;
+}
+
+.phase-testing {
+    background-color: rgba(255, 87, 34, 0.2);
+    color: #FF5722;
+}
+
+.phase-deployment {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+}
+
+.phase-maintenance {
+    background-color: rgba(96, 125, 139, 0.2);
+    color: #607D8B;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+}
+
+table th {
+    background-color: #f5f5f5;
+    font-weight: 500;
+    color: var(--light-text);
+    font-size: 0.9rem;
+}
+
+table tr {
+    border-bottom: 1px solid var(--border-color);
+}
+
+table tr:last-child {
+    border-bottom: none;
+}
+
+table tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Status Pills */
+.status-pill {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.status-active {
+    background-color: rgba(102, 187, 106, 0.2);
+    color: var(--success-color);
+}
+
+.status-pending {
+    background-color: rgba(255, 167, 38, 0.2);
+    color: var(--warning-color);
+}
+
+.status-completed {
+    background-color: rgba(66, 165, 245, 0.2);
+    color: var(--info-color);
+}
+
+.status-cancelled {
+    background-color: rgba(239, 83, 80, 0.2);
+    color: var(--danger-color);
+}
+
+.status-delivered {
+    background-color: rgba(102, 187, 106, 0.2);
+    color: var(--success-color);
+}
+
+.status-processing {
+    background-color: rgba(66, 165, 245, 0.2);
+    color: var(--info-color);
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+}
+
+.pagination-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--text-color);
+    transition: all 0.3s;
+}
+
+.pagination-item:hover {
+    background-color: var(--primary-light);
+    color: white;
+}
+
+.pagination-item.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.pagination-item.disabled {
+    color: var(--border-color);
+    cursor: not-allowed;
+}
+
+.pagination-item .material-icons-sharp {
+    font-size: 1.2rem;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .sidebar {
+        left: -240px;
+    }
+    
+    .content-wrapper {
+        margin-left: 0;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+    
+    .sidebar.active {
+        left: 0;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .summary-cards, .charts-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .sidebar, .menu-toggle, .filter-section, .pagination, .btn, .view-all {
+        display: none;
+    }
+    
+    .content-wrapper {
+        margin-left: 0;
+        padding: 0;
+    }
+    
+    .card, .chart-card, .table-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        break-inside: avoid;
+    }
+    
+    .page-header {
+        margin-bottom: 1rem;
+    }
+    
+}
