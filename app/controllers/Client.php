@@ -1063,8 +1063,16 @@ class Client extends Controller
     // }
 
     // installation new
-    public function installation($projectId = null)
+    public function installation($preProjectId = null)
     {
+        if (!$preProjectId) {
+            flash('installation_message', 'Project ID is required', 'alert alert-danger');
+            redirect('client/operationDashboard');
+        }
+
+        $project_details = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+        $projectId = $project_details->project_id;
+
         // Get project details
         $project = $this->customerProjectModel->getProjectById($projectId);
 
