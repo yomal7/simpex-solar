@@ -59,7 +59,8 @@
                                 <div class="contact-item"
                                     data-id="<?php echo $client->user_id; ?>"
                                     data-name="<?php echo $client->name; ?>">
-                                    <img src="<?php echo URLROOT; ?>/public/assets/profile.png" alt="Client">
+                                    <img src="<?php echo !empty($client->profile_picture) ? URLROOT . '/public/uploads/profile_pictures/' . $client->profile_picture : URLROOT . '/public/assets/profile.png'; ?>"
+                                        alt="<?php echo $client->name; ?>">
                                     <div class="contact-info">
                                         <h4><?php echo $client->name; ?></h4>
                                     </div>

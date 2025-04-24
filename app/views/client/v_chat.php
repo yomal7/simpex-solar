@@ -51,7 +51,6 @@
                 <h3>Contacts</h3>
                 <div class="chat-contacts">
                     <div class="contact-item" data-role="operations" data-id="<?php echo $data['coordinators']['operations']->user_id; ?>">
-                        <img src="<?php echo URLROOT; ?>/assets/operations-icon.png" alt="Operations" onerror="this.src='<?php echo URLROOT; ?>/public/assets/profile.png'">
                         <div class="contact-info">
                             <h4>Operations Coordinator</h4>
                             <p class="role-description">For project inquiries and installation updates</p>
@@ -61,7 +60,6 @@
                         <?php endif; ?>
                     </div>
                     <div class="contact-item" data-role="supplier" data-id="<?php echo $data['coordinators']['supplier']->user_id; ?>">
-                        <img src="<?php echo URLROOT; ?>/assets/supplier-icon.png" alt="Supplier" onerror="this.src='<?php echo URLROOT; ?>/public/assets/profile.png'">
                         <div class="contact-info">
                             <h4>Supplier Coordinator</h4>
                             <p class="role-description">For orders and product inquiries</p>
