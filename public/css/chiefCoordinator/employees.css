@@ -1,0 +1,437 @@
+/* File: public/css/chiefCoordinator/employees.css */
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons+Sharp');
+
+:root {
+    --color-primary: #3bcf6a;
+    --color-primary-light: #56e088;
+    --color-primary-dark: #568c1e;
+    --color-secondary: #3c873a;
+    --color-danger: #ff7782;
+    --color-success: #41f1b6;
+    --color-warning: #ffbb55;
+    --color-white: #fff;
+    --color-info-dark: #7d8da1;
+    --color-info-light: #dce1eb;
+    --color-dark: #363949;
+    --color-light: rgba(132, 139, 200, 0.18);
+    --color-background: #f6f9ff;
+    --color-sidebar: #fbfefd;
+    --card-border-radius: 0.7rem;
+    --border-radius-1: 0.4rem;
+    --border-radius-2: 0.8rem;
+    --border-radius-3: 1.2rem;
+    --card-padding: 1.2rem;
+    --padding-1: 1.2rem;
+    --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-dark);
+    overflow-x: hidden;
+}
+
+.dashboard-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    position: relative;
+}
+
+
+
+
+/* Content Wrapper */
+.content-wrapper {
+    flex: 1;
+
+    padding: 1.5rem;
+    overflow-y: auto;
+    min-height: 100vh;
+}
+
+.main-content {
+    width: 100%;
+}
+
+/* Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    font-size: 1.8rem;
+    color: var(--color-dark);
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius-1);
+    cursor: pointer;
+    transition: all 300ms ease;
+}
+
+.btn:hover {
+    background-color: var(--color-primary-dark);
+}
+
+/* Filter Section */
+.filter-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--color-white);
+    padding: 1rem;
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-weight: 500;
+    color: var(--color-dark);
+}
+
+.filter-group select {
+    padding: 0.5rem;
+    border: 1px solid var(--color-info-light);
+    border-radius: var(--border-radius-1);
+    outline: none;
+}
+
+/* Summary Cards */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card {
+    background-color: var(--color-white);
+    padding: var(--card-padding);
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--box-shadow);
+    transition: all 300ms ease;
+}
+
+.card:hover {
+    box-shadow: none;
+}
+
+.card-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.card h3 {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.card h1 {
+    font-size: 1.8rem;
+    color: var(--color-dark);
+}
+
+.card.present-employees {
+    background-color: var(--color-primary-light);
+}
+
+.card.present-employees h1, .card.present-employees h3 {
+    color: var(--color-primary-dark);
+}
+
+/* Charts Container */
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.chart-card {
+    background-color: var(--color-white);
+    padding: var(--card-padding);
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.chart-card h3 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: var(--color-dark);
+}
+
+.chart-wrapper {
+    height: 250px;
+    position: relative;
+}
+
+/* Table Card */
+.table-card {
+    background-color: var(--color-white);
+    padding: var(--card-padding);
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.card-header h3 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--color-dark);
+}
+
+.search {
+    position: relative;
+}
+
+.search input {
+    padding: 0.5rem 2.5rem 0.5rem 0.5rem;
+    border: 1px solid var(--color-info-light);
+    border-radius: var(--border-radius-1);
+    outline: none;
+    width: 250px;
+}
+
+.search span {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-info-dark);
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+table thead tr {
+    background-color: var(--color-light);
+    text-align: left;
+}
+
+table th {
+    padding: 0.8rem;
+    font-weight: 600;
+    color: var(--color-dark);
+}
+
+table td {
+    padding: 0.8rem;
+    border-bottom: 1px solid var(--color-info-light);
+}
+
+table tbody tr:hover {
+    background-color: var(--color-info-light);
+}
+
+/* Role and Status Pills */
+.role-pill, .status-pill {
+    padding: 0.3rem 0.6rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    display: inline-block;
+}
+
+.role-technician {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary-dark);
+}
+
+.role-engineer {
+    background-color: #bbdefb;
+    color: #1565c0;
+}
+
+.role-deliveryPerson {
+    background-color: #fff9c4;
+    color: #f57f17;
+}
+
+.role-clerk {
+    background-color: #e1bee7;
+    color: #6a1b9a;
+}
+
+.status-approved {
+    background-color: var(--color-success);
+    color: var(--color-dark);
+}
+
+.status-pending {
+    background-color: var(--color-warning);
+    color: var(--color-dark);
+}
+
+.status-not {
+    background-color: var(--color-danger);
+    color: var(--color-white);
+}
+
+/* Pagination */
+.pagination-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--color-info-dark);
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.3rem;
+}
+
+.pagination-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--border-radius-1);
+    background-color: var(--color-white);
+    color: var(--color-dark);
+    text-decoration: none;
+    transition: all 300ms ease;
+}
+
+.pagination-item:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary-dark);
+}
+
+.pagination-item.active {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+.pagination-item.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Media Queries */
+@media screen and (max-width: 768px) {
+    .menu-toggle {
+        display: block;
+    }
+    
+    .sidebar {
+        width: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    
+    .sidebar.active {
+        width: 260px;
+        padding: 1rem;
+    }
+    
+    .content-wrapper {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .header-actions {
+        margin-top: 1rem;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .summary-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .charts-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .search input {
+        width: 100%;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .sidebar, .menu-toggle, .filter-section, 
+    .search, .pagination, .btn, .no-print {
+        display: none !important;
+    }
+    
+    .content-wrapper {
+        margin-left: 0;
+        padding: 0;
+    }
+    
+    .table-card, .chart-card, .card {
+        box-shadow: none;
+        break-inside: avoid;
+    }
+    
+    table {
+        page-break-inside: auto;
+    }
+    
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+    
+    .charts-container {
+        grid-template-columns: 1fr 1fr;
+    }
+}

@@ -550,6 +550,7 @@ class Users extends Controller {
             'operationsCoordinator' => 'operationsCoordinator/index',
             'hRAdministrator' => 'hRAdministrator/index',
             'supplierCoordinator' => 'supplierCoordinator/index',
+            'chiefCoordinator' => 'chiefCoordinator/index',
             'employee' => 'employee/index'
         ];
 

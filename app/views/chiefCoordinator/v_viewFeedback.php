@@ -12,6 +12,30 @@
             <span class="material-icons-sharp">dashboard</span>
             <h3>Dashboard</h3>
         </a>
+        <a href="<?php echo URLROOT ?>/chiefCoordinator/preProjects">
+                <span class="material-icons-sharp">assignment</span>
+                <h3>Pre Projects</h3>
+        </a>
+        <a href="<?php echo URLROOT ?>/chiefCoordinator/projects">
+            <span class="material-icons-sharp">business_center</span>
+            <h3>Projects</h3>
+        </a>
+        <a href="<?php echo URLROOT ?>/chiefCoordinator/payments">
+            <span class="material-icons-sharp">payments</span>
+            <h3>Payments</h3>
+        </a>
+        <a href="<?php echo URLROOT ?>/chiefCoordinator/employees">
+            <span class="material-icons-sharp">people</span>
+            <h3>Employees</h3>
+        </a>
+        <a href="<?php echo URLROOT ?>/chiefCoordinator/store" >
+            <span class="material-icons-sharp">store</span>
+            <h3>Store</h3>
+        </a>
+        <a href="<?php echo URLROOT ?>/chiefCoordinator/feedbacks">
+            <span class="material-icons-sharp">feedback</span>
+            <h3>Feedbacks</h3>
+        </a>
         <a href="<?php echo URLROOT; ?>/chiefCoordinator/feedbacks" class="active">
             <span class="material-icons-sharp">feedback</span>
             <h3>Feedback</h3>
