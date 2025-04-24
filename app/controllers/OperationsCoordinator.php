@@ -341,25 +341,26 @@ class OperationsCoordinator extends Controller
     //-----------------------------------------Site Visit----------------------------------------------
     //##################################################################################################
 
-    public function manageSiteVisit($preProjectId = null) {
+    public function manageSiteVisit($preProjectId = null)
+    {
         if ($preProjectId === null) {
             redirect('operationsCoordinator/preProjects');
         }
-    
+
         $project = $this->preProjectModel->getPreProjectById($preProjectId);
         if (!$project) {
             flash('project_message', 'Project not found', 'alert alert-danger');
             redirect('operationsCoordinator/preProjects');
         }
-    
+
         $siteVisit = $this->preProjectModel->getSiteVisitByPreProjectId($preProjectId);
-    
+
         $data = [
             'project' => $project,
             'site_visit' => $siteVisit,
             'title' => 'Manage Site Visit'
         ];
-    
+
         $this->view('operationsCoordinator/v_manageSiteVisit', $data);
     }
 
@@ -1171,6 +1172,7 @@ class OperationsCoordinator extends Controller
         $durationDays = $_POST['duration_days'];
         $engineerId = $_POST['engineer_id'];
         $technicians = isset($_POST['technicians']) ? $_POST['technicians'] : [];
+        error_log(print_r($technicians, true));
 
         // Validate technicians count
         if (count($technicians) < 3 || count($technicians) > 6) {

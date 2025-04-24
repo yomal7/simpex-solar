@@ -19,6 +19,7 @@
             </a>
         </div>
 
+
         <div class="main-content">
             <div class="container">
                 <!-- Installation Header -->
@@ -219,6 +220,8 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    
 
                                     <div class="form-actions">
                                         <button type="submit" class="btn-primary">Schedule Installation</button>
