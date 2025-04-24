@@ -854,15 +854,13 @@ class Client extends Controller
         // Get coordinator information
         $coordinators = [
             'operations' => $this->clientModel->getOperationsCoordinator(),
-            'supplier' => $this->clientModel->getSupplierCoordinator(),
-            'hr' => $this->clientModel->getHRAdministrator()
+            'supplier' => $this->clientModel->getSupplierCoordinator()
         ];
 
         // Get unread message counts for each coordinator
         $unreadCounts = [
             'operations' => $this->chatModel->getUnreadCount($coordinators['operations']->user_id, $_SESSION['user_id']),
-            'supplier' => $this->chatModel->getUnreadCount($coordinators['supplier']->user_id, $_SESSION['user_id']),
-            'hr' => $this->chatModel->getUnreadCount($coordinators['hr']->user_id, $_SESSION['user_id'])
+            'supplier' => $this->chatModel->getUnreadCount($coordinators['supplier']->user_id, $_SESSION['user_id'])
         ];
 
         $data = [
@@ -888,8 +886,6 @@ class Client extends Controller
             $coordinator = $this->clientModel->getOperationsCoordinator();
         } elseif ($coordinatorType == 'supplier') {
             $coordinator = $this->clientModel->getSupplierCoordinator();
-        } elseif ($coordinatorType == 'hr') {
-            $coordinator = $this->clientModel->getHRAdministrator();
         }
 
         if (!$coordinator) {
@@ -929,8 +925,6 @@ class Client extends Controller
         if (isset($data['recipient_type'])) {
             if ($data['recipient_type'] == 'supplier') {
                 $receiverRole = 'supplierCoordinator';
-            } elseif ($data['recipient_type'] == 'hr') {
-                $receiverRole = 'hRAdministrator';
             }
         }
 
@@ -975,8 +969,6 @@ class Client extends Controller
             $coordinator = $this->clientModel->getOperationsCoordinator();
         } elseif ($coordinatorType == 'supplier') {
             $coordinator = $this->clientModel->getSupplierCoordinator();
-        } elseif ($coordinatorType == 'hr') {
-            $coordinator = $this->clientModel->getHRAdministrator();
         }
 
         if (!$coordinator) {

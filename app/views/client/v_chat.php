@@ -54,6 +54,7 @@
                         <img src="<?php echo URLROOT; ?>/assets/operations-icon.png" alt="Operations" onerror="this.src='<?php echo URLROOT; ?>/public/assets/profile.png'">
                         <div class="contact-info">
                             <h4>Operations Coordinator</h4>
+                            <p class="role-description">For project inquiries and installation updates</p>
                         </div>
                         <?php if (isset($data['unread_counts']['operations']) && $data['unread_counts']['operations'] > 0): ?>
                             <span class="unread-badge" data-coordinator="operations"><?php echo $data['unread_counts']['operations']; ?></span>
@@ -63,18 +64,10 @@
                         <img src="<?php echo URLROOT; ?>/assets/supplier-icon.png" alt="Supplier" onerror="this.src='<?php echo URLROOT; ?>/public/assets/profile.png'">
                         <div class="contact-info">
                             <h4>Supplier Coordinator</h4>
+                            <p class="role-description">For orders and product inquiries</p>
                         </div>
                         <?php if (isset($data['unread_counts']['supplier']) && $data['unread_counts']['supplier'] > 0): ?>
                             <span class="unread-badge" data-coordinator="supplier"><?php echo $data['unread_counts']['supplier']; ?></span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="contact-item" data-role="hr" data-id="<?php echo $data['coordinators']['hr']->user_id; ?>">
-                        <img src="<?php echo URLROOT; ?>/assets/hr-icon.png" alt="HR" onerror="this.src='<?php echo URLROOT; ?>/public/assets/profile.png'">
-                        <div class="contact-info">
-                            <h4>HR Administrator</h4>
-                        </div>
-                        <?php if (isset($data['unread_counts']['hr']) && $data['unread_counts']['hr'] > 0): ?>
-                            <span class="unread-badge" data-coordinator="hr"><?php echo $data['unread_counts']['hr']; ?></span>
                         <?php endif; ?>
                     </div>
                 </div>
