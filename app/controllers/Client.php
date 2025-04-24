@@ -1085,12 +1085,6 @@ class Client extends Controller
     }
 
 
-    public function finalPayment()
-
-    {
-        $data = [];
-        $this->view('client/v_clientFinalPayment', $data);
-    }
 
     public function settings()
     {
