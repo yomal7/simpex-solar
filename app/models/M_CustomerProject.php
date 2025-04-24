@@ -451,59 +451,59 @@ class M_CustomerProject
      * @param array $data Schedule data
      * @return bool Success status
      */
-    public function updateInstallationSchedule($scheduleId, $data)
-    {
-        $query = 'UPDATE installation_schedule SET ';
-        $params = [];
+    // public function updateInstallationSchedule($scheduleId, $data)
+    // {
+    //     $query = 'UPDATE installation_schedule SET ';
+    //     $params = [];
 
-        if (isset($data['start_date'])) {
-            $params[] = 'start_date = :start_date';
-        }
+    //     if (isset($data['start_date'])) {
+    //         $params[] = 'start_date = :start_date';
+    //     }
 
-        if (isset($data['start_time'])) {
-            $params[] = 'start_time = :start_time';
-        }
+    //     if (isset($data['start_time'])) {
+    //         $params[] = 'start_time = :start_time';
+    //     }
 
-        if (isset($data['end_date'])) {
-            $params[] = 'end_date = :end_date';
-        }
+    //     if (isset($data['end_date'])) {
+    //         $params[] = 'end_date = :end_date';
+    //     }
 
-        if (isset($data['status'])) {
-            $params[] = 'status = :status';
-        }
+    //     if (isset($data['status'])) {
+    //         $params[] = 'status = :status';
+    //     }
 
-        if (isset($data['reschedule_request'])) {
-            $params[] = 'reschedule_request = :reschedule_request';
-        }
+    //     if (isset($data['reschedule_request'])) {
+    //         $params[] = 'reschedule_request = :reschedule_request';
+    //     }
 
-        $query .= implode(', ', $params) . ' WHERE id = :id';
+    //     $query .= implode(', ', $params) . ' WHERE id = :id';
 
-        $this->db->query($query);
+    //     $this->db->query($query);
 
-        $this->db->bind(':id', $scheduleId);
+    //     $this->db->bind(':id', $scheduleId);
 
-        if (isset($data['start_date'])) {
-            $this->db->bind(':start_date', $data['start_date']);
-        }
+    //     if (isset($data['start_date'])) {
+    //         $this->db->bind(':start_date', $data['start_date']);
+    //     }
 
-        if (isset($data['start_time'])) {
-            $this->db->bind(':start_time', $data['start_time']);
-        }
+    //     if (isset($data['start_time'])) {
+    //         $this->db->bind(':start_time', $data['start_time']);
+    //     }
 
-        if (isset($data['end_date'])) {
-            $this->db->bind(':end_date', $data['end_date']);
-        }
+    //     if (isset($data['end_date'])) {
+    //         $this->db->bind(':end_date', $data['end_date']);
+    //     }
 
-        if (isset($data['status'])) {
-            $this->db->bind(':status', $data['status']);
-        }
+    //     if (isset($data['status'])) {
+    //         $this->db->bind(':status', $data['status']);
+    //     }
 
-        if (isset($data['reschedule_request'])) {
-            $this->db->bind(':reschedule_request', $data['reschedule_request']);
-        }
+    //     if (isset($data['reschedule_request'])) {
+    //         $this->db->bind(':reschedule_request', $data['reschedule_request']);
+    //     }
 
-        return $this->db->execute();
-    }
+    //     return $this->db->execute();
+    // }
 
     public function getUpcomingInstallations()
     {
@@ -609,18 +609,18 @@ class M_CustomerProject
         return $this->db->resultSet();
     }
 
-    public function updateInstallationStatus($installationId, $status)
-    {
-        $this->db->query('UPDATE installation_phase 
-                     SET status = :status, 
-                         updated_at = NOW()
-                     WHERE installation_id = :installation_id');
+    // public function updateInstallationStatus($installationId, $status)
+    // {
+    //     $this->db->query('UPDATE installation_phase 
+    //                  SET status = :status, 
+    //                      updated_at = NOW()
+    //                  WHERE installation_id = :installation_id');
 
-        $this->db->bind(':installation_id', $installationId);
-        $this->db->bind(':status', $status);
+    //     $this->db->bind(':installation_id', $installationId);
+    //     $this->db->bind(':status', $status);
 
-        return $this->db->execute();
-    }
+    //     return $this->db->execute();
+    // }
 
     public function completeInstallationStep($installationId, $step)
     {
@@ -669,5 +669,147 @@ class M_CustomerProject
 
         $this->db->bind(':project_id', $projectId);
         return $this->db->single();
+    }
+
+    // installations new
+    public function getProjectsInInstallationPhase()
+    {
+        $this->db->query('SELECT p.*, u.name as customer_name, IFNULL(cq.nearest_city, "No Location") as location 
+             FROM projects p
+             LEFT JOIN users u ON p.customer_id = u.user_id
+             LEFT JOIN customerquotation cq ON p.pre_project_id = cq.pre_project_id
+             WHERE p.current_phase = "installation" 
+             AND p.status = "active"
+             ORDER BY p.updated_at ASC');
+
+        return $this->db->resultSet();
+    }
+
+    /**
+     * Check if project has installation record
+     */
+    public function hasInstallation($projectId)
+    {
+        $this->db->query('SELECT id FROM installation WHERE project_id = :project_id');
+        $this->db->bind(':project_id', $projectId);
+        $result = $this->db->single();
+        return !empty($result);
+    }
+
+    /**
+     * Create installation record
+     */
+    public function createInstallation($data)
+    {
+        $this->db->query('INSERT INTO installation (
+                          project_id, 
+                          start_date, 
+                          end_date,
+                          schedule_status, 
+                          status) 
+                          VALUES (
+                          :project_id, 
+                          :start_date, 
+                          :end_date,
+                          :schedule_status, 
+                          :status)');
+
+        $this->db->bind(':project_id', $data['project_id']);
+        $this->db->bind(':start_date', $data['start_date']);
+        $this->db->bind(':end_date', $data['end_date']);
+        $this->db->bind(':schedule_status', $data['schedule_status']);
+        $this->db->bind(':status', $data['status']);
+
+        return $this->db->execute();
+    }
+
+    /**
+     * Get installation by project id
+     */
+    public function getInstallationByProjectId($projectId)
+    {
+        $this->db->query('SELECT * FROM installation WHERE project_id = :project_id');
+        $this->db->bind(':project_id', $projectId);
+        return $this->db->single();
+    }
+
+    /**
+     * Update installation schedule status
+     */
+    public function updateInstallationScheduleStatus($installationId, $status, $reason = null)
+    {
+        $this->db->query('UPDATE installation SET 
+                          schedule_status = :schedule_status,
+                          request_reason = :request_reason,
+                          updated_at = CURRENT_TIMESTAMP
+                          WHERE id = :id');
+
+        $this->db->bind(':id', $installationId);
+        $this->db->bind(':schedule_status', $status);
+        $this->db->bind(':request_reason', $reason);
+
+        return $this->db->execute();
+    }
+
+    /**
+     * Update installation status
+     */
+    public function updateInstallationStatus($installationId, $status)
+    {
+        $this->db->query('UPDATE installation SET 
+                          status = :status,
+                          updated_at = CURRENT_TIMESTAMP');
+
+        // If status is completed, set the completed date
+        if ($status === 'completed') {
+            $this->db->query('UPDATE installation SET 
+                              status = :status,
+                              completed_date = CURRENT_DATE,
+                              updated_at = CURRENT_TIMESTAMP
+                              WHERE id = :id');
+        } else {
+            $this->db->query('UPDATE installation SET 
+                              status = :status,
+                              updated_at = CURRENT_TIMESTAMP
+                              WHERE id = :id');
+        }
+
+        $this->db->bind(':id', $installationId);
+        $this->db->bind(':status', $status);
+
+        return $this->db->execute();
+    }
+
+    /**
+     * Update installation end date
+     */
+    public function updateInstallationEndDate($installationId, $endDate)
+    {
+        $this->db->query('UPDATE installation SET 
+                          end_date = :end_date,
+                          updated_at = CURRENT_TIMESTAMP
+                          WHERE id = :id');
+
+        $this->db->bind(':id', $installationId);
+        $this->db->bind(':end_date', $endDate);
+
+        return $this->db->execute();
+    }
+
+    public function updateInstallationSchedule($installationId, $data)
+    {
+        $this->db->query('UPDATE installation SET 
+                     start_date = :start_date, 
+                     end_date = :end_date, 
+                     schedule_status = :schedule_status,
+                     updated_at = CURRENT_TIMESTAMP 
+                     WHERE id = :id');
+
+        $this->db->bind(':id', $installationId);
+        $this->db->bind(':start_date', $data['start_date']);
+        $this->db->bind(':end_date', $data['end_date']);
+        $this->db->bind(':schedule_status', $data['schedule_status']);
+
+        return $this->db->execute();
     }
 }

@@ -34,13 +34,13 @@ class Client extends Controller
     public function dashboard()
     {
         $userId = $_SESSION['user_id'];
-        
+
         // Get customer info
         $customer = $this->clientModel->getClientByUserId($userId);
-        
+
         // Get active quotations
         $activeQuotations = $this->clientSidePreProjectModel->getActiveQuotationsByCustomerId($userId);
-        
+
         // Get ongoing projects
         $ongoingProjects = $this->clientModel->getOngoingProjects($userId);
 
@@ -49,7 +49,7 @@ class Client extends Controller
 
         // Get project statistics
         $stats = $this->clientModel->getProjectStats($userId);
-        
+
         $data = [
             'customer' => $customer,
             'quotations' => $activeQuotations,
@@ -57,7 +57,7 @@ class Client extends Controller
             'stats' => $stats,
             'notification_count' => 0 // You can update this with actual notification count
         ];
-        
+
         $this->view('client/v_clientDashboard', $data);
     }
 
@@ -980,86 +980,164 @@ class Client extends Controller
         redirect('client/firstPayment/' . $preProjectId);
     }
 
-    public function installation($preProjectId = null)
-    {
-        if (!$preProjectId) {
-            flash('installation_message', 'Project ID is required', 'alert alert-danger');
-            redirect('client/operationDashboard');
-        }
+    // public function installation($preProjectId = null)
+    // {
+    //     if (!$preProjectId) {
+    //         flash('installation_message', 'Project ID is required', 'alert alert-danger');
+    //         redirect('client/operationDashboard');
+    //     }
 
-        // Get project ID from pre-project ID
-        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
-        if (!$project) {
-            flash('installation_message', 'Project not found', 'alert alert-danger');
-            redirect('client/operationDashboard');
+    //     // Get project ID from pre-project ID
+    //     $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+    //     if (!$project) {
+    //         flash('installation_message', 'Project not found', 'alert alert-danger');
+    //         redirect('client/operationDashboard');
+    //     }
+
+    //     // Get installation details
+    //     $installation = $this->clientSideProjectModel->getInstallationPhase($project->project_id);
+    //     $schedule = null;
+    //     $engineer = null;
+
+    //     if ($installation) {
+    //         // Get schedule data
+    //         $schedule = $this->clientSideProjectModel->getInstallationSchedule($installation->installation_id);
+
+    //         // Get engineer data if assigned
+    //         $engineer = $this->clientSideProjectModel->getAssignedEngineer($installation->installation_id);
+    //     }
+
+    //     $data = [
+    //         'pre_project_id' => $preProjectId,
+    //         'project' => $project,
+    //         'installation' => $installation,
+    //         'schedule' => $schedule,
+    //         'engineer' => $engineer
+    //     ];
+
+    //     $this->view('client/v_clientInstallation', $data);
+    // }
+
+    // public function acceptInstallationSchedule()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    //         redirect('client/operationDashboard');
+    //     }
+
+    //     $scheduleId = $_POST['schedule_id'];
+    //     $preProjectId = $_POST['pre_project_id'];
+
+    //     // Update schedule status to accepted
+    //     if ($this->clientSideProjectModel->acceptInstallationSchedule($scheduleId)) {
+    //         flash('installation_message', 'Installation schedule accepted', 'alert alert-success');
+    //     } else {
+    //         flash('installation_message', 'Failed to accept schedule', 'alert alert-danger');
+    //     }
+
+    //     redirect('client/installation/' . $preProjectId);
+    // }
+
+    // public function requestInstallationReschedule()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    //         redirect('client/operationDashboard');
+    //     }
+
+    //     $scheduleId = $_POST['schedule_id'];
+    //     $preProjectId = $_POST['pre_project_id'];
+    //     $reason = $_POST['reschedule_reason'];
+
+    //     if (empty($reason)) {
+    //         flash('installation_message', 'Please provide a reason for rescheduling', 'alert alert-danger');
+    //         redirect('client/installation/' . $preProjectId);
+    //     }
+
+    //     // Update schedule status to reschedule requested
+    //     if ($this->clientSideProjectModel->requestInstallationReschedule($scheduleId, $reason)) {
+    //         flash('installation_message', 'Reschedule request submitted successfully', 'alert alert-success');
+    //     } else {
+    //         flash('installation_message', 'Failed to request reschedule', 'alert alert-danger');
+    //     }
+
+    //     redirect('client/installation/' . $preProjectId);
+    // }
+
+    // installation new
+    public function installation($projectId = null)
+    {
+        // Get project details
+        $project = $this->customerProjectModel->getProjectById($projectId);
+
+        if (!$project || $project->customer_id != $_SESSION['user_id']) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('client/dashboard');
         }
 
         // Get installation details
-        $installation = $this->clientSideProjectModel->getInstallationPhase($project->project_id);
-        $schedule = null;
-        $engineer = null;
+        $installation = $this->clientSideProjectModel->getInstallationByProjectId($projectId);
 
-        if ($installation) {
-            // Get schedule data
-            $schedule = $this->clientSideProjectModel->getInstallationSchedule($installation->installation_id);
-
-            // Get engineer data if assigned
-            $engineer = $this->clientSideProjectModel->getAssignedEngineer($installation->installation_id);
+        // Initialize empty installation object if none exists
+        if (!$installation) {
+            $installation = (object)[
+                'status' => 'pending',
+                'schedule_status' => 'pending',
+                'start_date' => null,
+                'end_date' => null,
+                'completed_date' => null,
+                'request_reason' => null
+            ];
         }
+
+        // Check if installation is active
+        $this->clientSideProjectModel->checkAndUpdateInstallationStatus();
 
         $data = [
-            'pre_project_id' => $preProjectId,
             'project' => $project,
-            'installation' => $installation,
-            'schedule' => $schedule,
-            'engineer' => $engineer
+            'installation' => $installation
         ];
 
-        $this->view('client/v_clientInstallation', $data);
+        $this->view('client/v_installation', $data);
     }
 
-    public function acceptInstallationSchedule()
+    public function acceptInstallation()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('client/operationDashboard');
+            redirect('client/dashboard');
+            return;
         }
 
-        $scheduleId = $_POST['schedule_id'];
-        $preProjectId = $_POST['pre_project_id'];
+        $installationId = $_POST['installation_id'];
+        $projectId = $_POST['project_id'];
 
-        // Update schedule status to accepted
-        if ($this->clientSideProjectModel->acceptInstallationSchedule($scheduleId)) {
-            flash('installation_message', 'Installation schedule accepted', 'alert alert-success');
+        // Accept installation schedule
+        if ($this->clientSideProjectModel->acceptInstallationSchedule($installationId)) {
+            flash('installation_message', 'Installation schedule accepted successfully', 'alert alert-success');
         } else {
-            flash('installation_message', 'Failed to accept schedule', 'alert alert-danger');
+            flash('installation_message', 'Failed to accept installation schedule', 'alert alert-danger');
         }
 
-        redirect('client/installation/' . $preProjectId);
+        redirect('client/installation/' . $projectId);
     }
 
     public function requestInstallationReschedule()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('client/operationDashboard');
+            redirect('client/dashboard');
+            return;
         }
 
-        $scheduleId = $_POST['schedule_id'];
-        $preProjectId = $_POST['pre_project_id'];
-        $reason = $_POST['reschedule_reason'];
+        $installationId = $_POST['installation_id'];
+        $projectId = $_POST['project_id'];
+        $reason = $_POST['reason'];
 
-        if (empty($reason)) {
-            flash('installation_message', 'Please provide a reason for rescheduling', 'alert alert-danger');
-            redirect('client/installation/' . $preProjectId);
-        }
-
-        // Update schedule status to reschedule requested
-        if ($this->clientSideProjectModel->requestInstallationReschedule($scheduleId, $reason)) {
+        // Request installation reschedule
+        if ($this->clientSideProjectModel->requestInstallationReschedule($installationId, $reason)) {
             flash('installation_message', 'Reschedule request submitted successfully', 'alert alert-success');
         } else {
-            flash('installation_message', 'Failed to request reschedule', 'alert alert-danger');
+            flash('installation_message', 'Failed to submit reschedule request', 'alert alert-danger');
         }
 
-        redirect('client/installation/' . $preProjectId);
+        redirect('client/installation/' . $projectId);
     }
 
 
