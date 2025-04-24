@@ -32,6 +32,10 @@
                 <span class="material-icons-sharp">date_range</span>
                 <h3>Holiday</h3>
             </a>
+            <a href="<?php echo URLROOT ?>/hRAdministrator/payroll">
+                <span class="material-icons-sharp">money</span>
+                <h3>Payroll</h3>
+            </a>
             <a href="#">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
@@ -50,7 +54,6 @@
 
                     </div>
                 </div> -->
-
 
                 <!-- /* Employee table */ -->
                 <div class="table-section">
@@ -97,9 +100,5 @@
     </div>
 
     <!-- <div class="overlay" id="overlay"></div> -->
-
-
-
-
-    <script src="<?php echo URLROOT; ?>/js/hRAdministrator/dashboard.js"></script>
+     
     <?php require APPROOT . '/views/hRAdministrator/footer.php'; ?>

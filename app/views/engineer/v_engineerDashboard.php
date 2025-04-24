@@ -33,7 +33,7 @@
             </a>
             <a href="<?php echo URLROOT ?>/engineer/requestHoliday">
                 <span class="material-icons-sharp">event</span>
-                <h3>Request Holiday</h3>
+                <h3>Request Leave</h3>
             </a>
             <a href="<?php echo URLROOT ?>/engineer/settings">
                 <span class="material-icons-sharp">settings</span>
@@ -114,5 +114,6 @@
 
 
 
-</body>
 <script src="<?php echo URLROOT; ?>/js/engineer/dashboard.js"></script>
+
+<?php require APPROOT . '/views/engineer/footer.php'; ?>

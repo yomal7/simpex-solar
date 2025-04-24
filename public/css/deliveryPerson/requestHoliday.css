@@ -326,7 +326,7 @@ tr:hover {
 
 .request-holiday-form-group textarea {
     resize: vertical;
-    min-height: 100px;
+    min-height: 10px;
 }
 
 .request-holiday-form-submit {
