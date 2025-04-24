@@ -1063,12 +1063,6 @@ class Client extends Controller
     }
 
 
-    public function finalPayment()
-    {
-        $data = [];
-        $this->view('client/v_clientFinalPayment', $data);
-    }
-
     public function settings()
     {
         // Get user data using session user_id
