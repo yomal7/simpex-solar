@@ -338,7 +338,7 @@ class M_clientSideProject
                         
         $this->db->bind(':project_id', $projectId);
         $this->db->bind(':phase', $phase);
-        
+    }  
     public function getInstallationPhase($projectId)
     {
         $this->db->query('SELECT * FROM installation_phase WHERE project_id = :project_id');
