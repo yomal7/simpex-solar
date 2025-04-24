@@ -22,6 +22,10 @@
                 <span class="material-icons-sharp">person</span>
                 <h3>Shop</h3>
             </a>
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/projects">
+                <span class="material-icons-sharp">receipt_long</span>
+                <h3>Projects</h3>
+            </a>
             <a href="<?php echo URLROOT ?>/supplierCoordinator/suppliers">
                 <span class="material-icons-sharp">receipt_long</span>
                 <h3>Suppliers</h3>

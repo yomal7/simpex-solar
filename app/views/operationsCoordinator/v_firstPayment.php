@@ -139,6 +139,7 @@
                                         <button type="button" class="btn btn-primary" onclick="confirmCashPayment()">
                                             Process Payment
                                         </button>
+
                                     </form>
 
                                 <?php elseif ($data['payment']->payment_method == 'bank deposit'): ?>

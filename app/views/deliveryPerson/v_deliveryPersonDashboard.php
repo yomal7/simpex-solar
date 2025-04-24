@@ -20,13 +20,17 @@
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
+            <a href="<?php echo URLROOT ?>/deliveryPerson/orders" class="active">
+                <span class="material-icons-sharp">local_shipping</span>
+                <h3>Orders</h3>
+            </a>
             <a href="<?php echo URLROOT ?>/deliveryPerson/tasks">
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>
             </a>
             <a href="<?php echo URLROOT ?>/deliveryPerson/requestHoliday">
                 <span class="material-icons-sharp">event</span>
-                <h3>Request Holiday</h3>
+                <h3>Request Leave</h3>
             </a>
             <a href="<?php echo URLROOT ?>/deliveryPerson/settings">
                 <span class="material-icons-sharp">settings</span>
@@ -108,5 +112,7 @@
 
 
 
-</body>
-<script src="<?php echo URLROOT; ?>/js/deliveryPerson/dashboard.js"></script>
+
+    <script src="<?php echo URLROOT; ?>/js/deliveryPerson/dashboard.js"></script>
+
+    <?php require APPROOT . '/views/deliveryPerson/footer.php'; ?>

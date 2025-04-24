@@ -65,7 +65,7 @@ class M_clientSideProject
         return $this->db->single();
     }
 
-    /**  M_clientSideProject.php
+    /**
      * Get project payment by phase
      * 
      * @param int $projectId Project ID
@@ -319,6 +319,7 @@ class M_clientSideProject
 
         return $this->db->execute();
     }
+
     
 
     /**
@@ -337,7 +338,57 @@ class M_clientSideProject
                         
         $this->db->bind(':project_id', $projectId);
         $this->db->bind(':phase', $phase);
-        
+    }  
+
+    public function getInstallationPhase($projectId)
+    {
+        $this->db->query('SELECT * FROM installation_phase WHERE project_id = :project_id');
+        $this->db->bind(':project_id', $projectId);
+        return $this->db->single();
+    }
+
+    public function getInstallationSchedule($installationId)
+    {
+        $this->db->query('SELECT * FROM installation_schedule 
+                     WHERE installation_id = :installation_id 
+                     ORDER BY id DESC LIMIT 1');
+        $this->db->bind(':installation_id', $installationId);
+        return $this->db->single();
+    }
+
+    public function getAssignedEngineer($installationId)
+    {
+        $this->db->query('SELECT e.*, u.name, u.email, u.phone
+                     FROM installation_engineer ie
+                     JOIN employees e ON ie.engineer_id = e.employee_id
+                     JOIN users u ON e.user_id = u.user_id
+                     WHERE ie.installation_id = :installation_id
+                     AND ie.assign = 1
+                     ORDER BY ie.id DESC 
+                     LIMIT 1');
+        $this->db->bind(':installation_id', $installationId);
+        return $this->db->single();
+    }
+
+    public function acceptInstallationSchedule($scheduleId)
+    {
+        $this->db->query('UPDATE installation_schedule 
+                     SET status = "accept", 
+                         updated_at = NOW() 
+                     WHERE id = :schedule_id');
+        $this->db->bind(':schedule_id', $scheduleId);
+        return $this->db->execute();
+    }
+
+    public function requestInstallationReschedule($scheduleId, $reason)
+    {
+        $this->db->query('UPDATE installation_schedule 
+                     SET status = "request", 
+                         reschedule_request = :reason, 
+                         updated_at = NOW() 
+                     WHERE id = :schedule_id');
+        $this->db->bind(':schedule_id', $scheduleId);
+        $this->db->bind(':reason', $reason);
         return $this->db->execute();
     }
 }

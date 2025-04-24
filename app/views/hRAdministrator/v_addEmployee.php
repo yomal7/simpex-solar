@@ -1,6 +1,6 @@
 <?php require APPROOT . '/views/hRAdministrator/header.php'; ?>
 
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/hRAdministrator/employees.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/hRAdministrator/addEmployees.css">
 </head>
 
 <body>
@@ -32,6 +32,10 @@
                 <span class="material-icons-sharp">date_range</span>
                 <h3>Holiday</h3>
             </a>
+            <a href="<?php echo URLROOT ?>/hRAdministrator/payroll">
+                <span class="material-icons-sharp">money</span>
+                <h3>Payroll</h3>
+            </a>            
             <a href="#">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
@@ -42,18 +46,28 @@
             </a>
         </div>
         <div class="main-content">
-            <div class="form-container">
-
-                <h2>Create Employee Profile</h2>
-                <form action="<?php echo URLROOT; ?>/hRAdministrator/addEmployee" method="POST" id="userForm" id="addUserForm">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="name">Name</label>
-                            <input type="text" name="name" id="name" placeholder="Name" value="<?php $data['name']; ?>">
+            <div class="employee-form-container">
+                <h2 class="form-title">Create Employee Profile</h2>
+                <form action="<?php echo URLROOT; ?>/hRAdministrator/addEmployee" method="POST" id="employeeForm" enctype="multipart/form-data">
+                    <div class="profile-image-section">
+                        <div class="image-preview-container">
+                            <img id="profile-preview" src="<?php echo URLROOT; ?>/public/assets/profile.png" alt="Profile Preview">
+                        </div>
+                        <div class="image-upload-controls">
+                            <label for="profile_image">Profile Picture</label>
+                            <input type="file" name="profile_image" id="profile_image" accept="image/*">
+                            <span class="form-invalid"><?php echo isset($data['profile_image_err']) ? $data['profile_image_err'] : ''; ?></span>
+                            <p class="help-text">Recommended: Square image, max 2MB</p>
+                        </div>
+                    </div>
+                    <div class="employee-form-grid">
+                        <div class="form-field">
+                            <label for="name">Name *</label>
+                            <input type="text" name="name" id="name" placeholder="Name" value="<?php echo $data['name']; ?>">
                             <span class="form-invalid"><?php echo isset($data['name_err']) ? $data['name_err'] : ''; ?></span>
                         </div>
-                        <div class="form-group">
-                            <label for="role">Role</label>
+                        <div class="form-field">
+                            <label for="role">Role *</label>
                             <select id="role" name="role">
                                 <option value="">Select Role...</option>
                                 <option value="technician">Technician</option>
@@ -63,43 +77,58 @@
                             </select>
                             <span class="form-invalid"><?php echo isset($data['role_err']) ? $data['role_err'] : ''; ?></span>
                         </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" name="email" id="email" placeholder="Email" value="<?php $data['email']; ?>">
+                        <div class="form-field">
+                            <label for="email">Email *</label>
+                            <input type="email" name="email" id="email" placeholder="Email" value="<?php echo $data['email']; ?>">
                             <span class="form-invalid"><?php echo isset($data['email_err']) ? $data['email_err'] : ''; ?></span>
                         </div>
-                        <div class="form-group">
-                            <label for="phone">Phone No</label>
-                            <input type="number" name="phone" id="phone" placeholder="Phone No" value="<?php $data['phone']; ?>">
+                        <div class="form-field">
+                            <label for="phone">Phone No *</label>
+                            <input type="number" name="phone" id="phone" placeholder="Phone No" value="<?php echo $data['phone']; ?>">
                             <span class="form-invalid"><?php echo isset($data['phone_err']) ? $data['phone_err'] : ''; ?></span>
                         </div>
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" name="password" id="password" placeholder="Password" value="<?php $data['password']; ?>">
-                            <span class="form-invalid"><?php echo isset($data['password_err']) ? $data['password_err'] : ''; ?></span>
+                        <div class="form-field">
+                            <label for="address">Address *</label>
+                            <textarea name="address" id="address" placeholder="Address" rows="3"><?php echo isset($data['address']) ? $data['address'] : ''; ?></textarea>
+                            <span class="form-invalid"><?php echo isset($data['address_err']) ? $data['address_err'] : ''; ?></span>
                         </div>
-                        <div class="form-group">
-                            <label for="confirm_password">Confirm Password</label>
-                            <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" value="<?php $data['confirm_password']; ?>">
-                            <span class="form-invalid"><?php echo isset($data['confirm_password_err']) ? $data['confirm_password_err'] : ''; ?></span>
+                        <!-- Password fields in a container for inline display -->
+                        <div class="password-fields-container">
+                            <div class="form-field">
+                                <label for="password">Password *</label>
+                                <input type="password" name="password" id="password" placeholder="Password" value="<?php echo $data['password']; ?>">
+                                <span class="form-invalid"><?php echo isset($data['password_err']) ? $data['password_err'] : ''; ?></span>
+                            </div>
+                            <div class="form-field">
+                                <label for="confirm_password">Confirm Password *</label>
+                                <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" value="<?php echo $data['confirm_password']; ?>">
+                                <span class="form-invalid"><?php echo isset($data['confirm_password_err']) ? $data['confirm_password_err'] : ''; ?></span>
+                            </div>
                         </div>
                     </div>
-                    <div class="button-group">
+                    <div class="form-actions">
                         <input type="submit" value="Create Employee" class="btn btn-primary">
-                        <a href="<?php echo URLROOT; ?>/hRAdministrator/employees"><button type="button" class="btn btn-secondary">Cancel</button></a>
+                        <a href="<?php echo URLROOT; ?>/hRAdministrator/employees" class="btn-link"><button type="button" class="btn btn-secondary">Cancel</button></a>
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
 
     <!-- <div class="overlay" id="overlay"></div> -->
 
+    <script>
+        // Preview profile image before upload
+        document.getElementById('profile_image').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profile-preview').src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
 
-    <?php require APPROOT . '/views/operationsCoordinator/footer.php'; ?>
-
-    <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/dashboard.js"></script>
-</body>
-
-</html>
+    <?php require APPROOT . '/views/hrAdministrator/footer.php'; ?>
