@@ -370,25 +370,91 @@ class M_clientSideProject
         return $this->db->single();
     }
 
-    public function acceptInstallationSchedule($scheduleId)
+    // public function acceptInstallationSchedule($scheduleId)
+    // {
+    //     $this->db->query('UPDATE installation_schedule 
+    //                  SET status = "accept", 
+    //                      updated_at = NOW() 
+    //                  WHERE id = :schedule_id');
+    //     $this->db->bind(':schedule_id', $scheduleId);
+    //     return $this->db->execute();
+    // }
+
+    // public function requestInstallationReschedule($scheduleId, $reason)
+    // {
+    //     $this->db->query('UPDATE installation_schedule 
+    //                  SET status = "request", 
+    //                      reschedule_request = :reason, 
+    //                      updated_at = NOW() 
+    //                  WHERE id = :schedule_id');
+    //     $this->db->bind(':schedule_id', $scheduleId);
+    //     $this->db->bind(':reason', $reason);
+    //     return $this->db->execute();
+    // }
+
+    // installatin new
+    public function getInstallationByProjectId($projectId)
     {
-        $this->db->query('UPDATE installation_schedule 
-                     SET status = "accept", 
-                         updated_at = NOW() 
-                     WHERE id = :schedule_id');
-        $this->db->bind(':schedule_id', $scheduleId);
+        $this->db->query('SELECT * FROM installation WHERE project_id = :project_id');
+        $this->db->bind(':project_id', $projectId);
+        return $this->db->single();
+    }
+
+    /**
+     * Accept installation schedule
+     */
+    public function acceptInstallationSchedule($installationId)
+    {
+        $this->db->query('UPDATE installation 
+                         SET schedule_status = "approved", 
+                             updated_at = CURRENT_TIMESTAMP 
+                         WHERE id = :id');
+        $this->db->bind(':id', $installationId);
         return $this->db->execute();
     }
 
-    public function requestInstallationReschedule($scheduleId, $reason)
+    /**
+     * Request reschedule for installation
+     */
+    public function requestInstallationReschedule($installationId, $reason)
     {
-        $this->db->query('UPDATE installation_schedule 
-                     SET status = "request", 
-                         reschedule_request = :reason, 
-                         updated_at = NOW() 
-                     WHERE id = :schedule_id');
-        $this->db->bind(':schedule_id', $scheduleId);
+        $this->db->query('UPDATE installation 
+                         SET schedule_status = "requested", 
+                             request_reason = :reason, 
+                             updated_at = CURRENT_TIMESTAMP 
+                         WHERE id = :id');
+        $this->db->bind(':id', $installationId);
         $this->db->bind(':reason', $reason);
         return $this->db->execute();
+    }
+
+    /**
+     * Check if installation should be active today
+     */
+    public function checkAndUpdateInstallationStatus()
+    {
+        // Get installations with approved schedules that should start today
+        $this->db->query('UPDATE installation 
+                         SET status = "active" 
+                         WHERE schedule_status = "approved" 
+                         AND status = "initial" 
+                         AND start_date <= CURRENT_DATE 
+                         AND end_date >= CURRENT_DATE');
+        return $this->db->execute();
+    }
+
+    /**
+     * Get active projects with installation phase for a customer
+     */
+    public function getActiveInstallationProjects($customerId)
+    {
+        $this->db->query('SELECT p.*, i.* 
+                         FROM projects p
+                         LEFT JOIN installation i ON p.project_id = i.project_id
+                         WHERE p.customer_id = :customer_id 
+                         AND p.current_phase = "installation" 
+                         AND p.status = "active"');
+        $this->db->bind(':customer_id', $customerId);
+        return $this->db->resultSet();
     }
 }
