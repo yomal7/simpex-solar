@@ -150,4 +150,74 @@ class M_Tasks
         return $this->db->single()->total;
     }
 
+    /***get tasks for technician***/
+
+    public function getProjectTasks($employee_id, $limit = 10, $offset = 0)
+    {
+        $this->db->query('SELECT id, project_id, title, description, start_date, end_date, status, comment 
+    FROM tasks 
+    WHERE employee_id = :employee_id
+    ORDER BY end_date ASC
+    LIMIT :limit OFFSET :offset');
+
+        $this->db->bind(':employee_id', $employee_id);
+        $this->db->bind(':limit', $limit);
+        $this->db->bind(':offset', $offset);
+
+        return $this->db->resultSet();
+    }
+
+    public function getTotalProjectTasksById($employee_id)
+    {
+        $this->db->query('SELECT id, project_id, title, description, start_date, end_date, status, comment 
+    FROM tasks 
+    WHERE employee_id = :employee_id
+    AND status != "completed"	
+    ORDER BY end_date ASC');
+
+        $this->db->bind(':employee_id', $employee_id);
+
+
+        return $this->db->resultSet();
+    }
+
+    public function getProjectTasksById($taskId)
+    {
+        $this->db->query('SELECT * FROM tasks WHERE id = :id');
+        $this->db->bind(':id', $taskId);
+
+        return $this->db->single();
+    }
+
+
+    // public function getTotalProjectTasks($employee_id)
+    // {
+    //     $this->db->query('SELECT COUNT(*) AS total FROM tasks WHERE employee_id = :employee_id');
+    //     $this->db->bind(':employee_id', $employee_id);
+    //     return $this->db->single()->total;
+    // }
+
+
+    public function updateTaskComment($id, $comment)
+    {
+        $this->db->query('UPDATE tasks SET comment = :comment WHERE id = :id');
+        $this->db->bind(':comment', $comment);
+        $this->db->bind(':id', $id);
+        return $this->db->execute();
+    }
+
+    public function updateTaskStatus($id, $status)
+    {
+        $this->db->query('UPDATE tasks SET status = :status WHERE id = :id');
+        $this->db->bind(':status', $status);
+        $this->db->bind(':id', $id);
+        return $this->db->execute();
+    }
+
+    public function deleteTaskComment($taskId)
+    {
+        $this->db->query('UPDATE tasks SET comment = NULL WHERE id = :id');
+        $this->db->bind(':id', $taskId);
+        return $this->db->execute();
+    }
 }
