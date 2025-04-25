@@ -541,6 +541,11 @@ class Admin extends Controller {
                 // If no errors, update profile
                 if(empty($data['email_err']) && empty($data['phone_err']) && empty($data['profile_picture_err'])) {
                     if($this->settingsModel->updateProfile($profileData)) {
+                        // Update session variable with new profile picture if it was changed
+                        if($profileData['profile_picture'] != $user->profile_picture) {
+                            $_SESSION['user_picture'] = $profileData['profile_picture'];
+                        }
+                        
                         flash('profile_message', 'Profile updated successfully', 'alert alert-success');
                         redirect('admin/settings');
                     } else {
