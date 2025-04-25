@@ -1,6 +1,7 @@
 <?php
 
-class engineer extends Controller {
+class engineer extends Controller
+{
     private $employeeModel;
     private $engineerModel;
     private $leavesModel;
@@ -29,7 +30,8 @@ class engineer extends Controller {
         $this->view('engineer/v_engineerDashboard', $data);
     }
 
-    public function dashboard() {
+    public function dashboard()
+    {
         //$engineer = $this->employeeModel->getEngineerByUserId($_SESSION['employee_id']);
         $data = [];
         $this->view('engineer/v_engineerDashboard', $data);
@@ -197,29 +199,31 @@ class engineer extends Controller {
         $this->view('engineer/v_engineerSettings', $data);
     }
 
-    public function siteVisits() {
+    public function siteVisits()
+    {
         $pendingSiteVisits = $this->engineerModel->getPendingSiteVisits();
         $data = [
             'pendingVisits' => $pendingSiteVisits
         ];
         $this->view('engineer/v_siteVisits', $data);
     }
-    
-    public function manageSiteVisit($visitId) {
+
+    public function manageSiteVisit($visitId)
+    {
         $siteVisit = $this->engineerModel->getSiteVisitById($visitId);
-        
+
         if (!$siteVisit) {
             flash('site_visit_message', 'Site visit not found', 'error');
             redirect('engineer/siteVisits');
         }
-        
+
         $project = $this->preProjectModel->getPreProjectById($siteVisit->pre_project_id);
-        
+
         if (!$project) {
             flash('site_visit_message', 'Project not found', 'error');
             redirect('engineer/siteVisits');
         }
-        
+
         // Get package information if available
         $packageEquipment = [];
         $packageFeatures = [];
@@ -227,7 +231,7 @@ class engineer extends Controller {
             $packageEquipment = $this->engineerModel->getPackageEquipment($siteVisit->package_id);
             $packageFeatures = $this->engineerModel->getPackageFeatures($siteVisit->package_id);
         }
-        
+
         $data = [
             'project' => $project,
             'site_visit' => $siteVisit,
@@ -235,28 +239,29 @@ class engineer extends Controller {
             'package_features' => $packageFeatures,
             'title' => 'Manage Site Visit'
         ];
-        
+
         $this->view('engineer/v_manageSiteVisit', $data);
     }
-    
-    public function completeSiteVisit() {
+
+    public function completeSiteVisit()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('engineer/siteVisits');
             return;
         }
-        
+
         $preProjectId = $_POST['pre_project_id'];
         $visitId = $_POST['visit_id'];
         $notes = $_POST['site_notes'];
-        
+
         if ($this->engineerModel->completeSiteVisit($preProjectId, $notes)) {
             flash('site_visit_message', 'Site visit completed successfully', 'success');
         } else {
             flash('site_visit_message', 'Failed to complete site visit', 'error');
         }
-        
+
         redirect('engineer/siteVisits');
-    }   
+    }
 
     public function projects()
     {
@@ -472,11 +477,139 @@ class engineer extends Controller {
         }
 
         $result = $this->projectModel->saveInstallationNotes($data->installation_id, $data->notes);
-      
+
         if ($result) {
             echo json_encode(['success' => true]);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to save notes']);
+        }
+    }
+
+    // Engineer Approval
+    public function approvalProjects()
+    {
+        // Get the engineer's employee ID from the session user ID
+        $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+
+        if (!$employee) {
+            flash('approval_message', 'Engineer profile not found', 'alert alert-danger');
+            redirect('engineer/dashboard');
+            return;
+        }
+
+        $engineerId = $employee->employee_id;
+
+        // Get assigned approval projects
+        $projects = $this->engineerModel->getApprovalProjects($engineerId);
+
+        $data = [
+            'projects' => $projects,
+            'title' => 'Approval Projects'
+        ];
+
+        $this->view('engineer/v_approvalProjects', $data);
+    }
+
+    public function projectCertification($projectId)
+    {
+        // Get the engineer's employee ID from the session user ID
+        $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+
+        if (!$employee) {
+            flash('certification_message', 'Engineer profile not found', 'alert alert-danger');
+            redirect('engineer/approvalProjects');
+            return;
+        }
+
+        $engineerId = $employee->employee_id;
+
+        // Get project certificate
+        $certificate = $this->engineerModel->getProjectCertificate($projectId);
+
+        if (!$certificate || $certificate->engineer_id != $engineerId) {
+            flash('certification_message', 'Project not found or not assigned to you', 'alert alert-danger');
+            redirect('engineer/approvalProjects');
+            return;
+        }
+
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+
+        // Get customer details
+        $customer = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+
+        $data = [
+            'certificate' => $certificate,
+            'project' => $project,
+            'customer' => $customer
+        ];
+
+        $this->view('engineer/v_projectCertification', $data);
+    }
+
+    public function submitCertificates()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('engineer/approvalProjects');
+            return;
+        }
+
+        $projectId = $_POST['project_id'];
+        $uploadDir = APPROOT . '/../public/uploads/certificates/';
+
+        // Create directory if it doesn't exist
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        // Process certificate 1 (required)
+        if (!isset($_FILES['installation_certificate_1']) || $_FILES['installation_certificate_1']['error'] !== 0) {
+            flash('certification_message', 'Installation certificate 1 is required', 'alert alert-danger');
+            redirect('engineer/projectCertification/' . $projectId);
+            return;
+        }
+
+        // Process image 1 (required)
+        if (!isset($_FILES['installation_image_1']) || $_FILES['installation_image_1']['error'] !== 0) {
+            flash('certification_message', 'Installation image 1 is required', 'alert alert-danger');
+            redirect('engineer/projectCertification/' . $projectId);
+            return;
+        }
+
+        // Handle file uploads
+        $certificateData = [];
+
+        // Process certificate 1
+        $cert1Name = uniqid('cert1_') . '_' . $_FILES['installation_certificate_1']['name'];
+        move_uploaded_file($_FILES['installation_certificate_1']['tmp_name'], $uploadDir . $cert1Name);
+        $certificateData['installation_certificate_1'] = $cert1Name;
+
+        // Process certificate 2 (optional)
+        if (isset($_FILES['installation_certificate_2']) && $_FILES['installation_certificate_2']['error'] === 0) {
+            $cert2Name = uniqid('cert2_') . '_' . $_FILES['installation_certificate_2']['name'];
+            move_uploaded_file($_FILES['installation_certificate_2']['tmp_name'], $uploadDir . $cert2Name);
+            $certificateData['installation_certificate_2'] = $cert2Name;
+        }
+
+        // Process image 1
+        $img1Name = uniqid('img1_') . '_' . $_FILES['installation_image_1']['name'];
+        move_uploaded_file($_FILES['installation_image_1']['tmp_name'], $uploadDir . $img1Name);
+        $certificateData['installation_image_1'] = $img1Name;
+
+        // Process image 2 (optional)
+        if (isset($_FILES['installation_image_2']) && $_FILES['installation_image_2']['error'] === 0) {
+            $img2Name = uniqid('img2_') . '_' . $_FILES['installation_image_2']['name'];
+            move_uploaded_file($_FILES['installation_image_2']['tmp_name'], $uploadDir . $img2Name);
+            $certificateData['installation_image_2'] = $img2Name;
+        }
+
+        // Submit to database
+        if ($this->engineerModel->submitProjectCertificates($projectId, $certificateData)) {
+            flash('certification_message', 'Certificates submitted successfully', 'alert alert-success');
+            redirect('engineer/approvalProjects');
+        } else {
+            flash('certification_message', 'Failed to submit certificates', 'alert alert-danger');
+            redirect('engineer/projectCertification/' . $projectId);
         }
     }
 }

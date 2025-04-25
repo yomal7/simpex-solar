@@ -894,4 +894,105 @@ class M_CustomerProject
 
         return $this->db->execute();
     }
+
+    // Engineer Approval
+    public function getProjectCertificate($projectId)
+    {
+        $this->db->query('SELECT pc.*, e.user_id, u.name as engineer_name 
+                     FROM project_certificates pc
+                     JOIN employees e ON pc.engineer_id = e.employee_id
+                     JOIN users u ON e.user_id = u.user_id
+                     WHERE pc.project_id = :project_id');
+        $this->db->bind(':project_id', $projectId);
+        return $this->db->single();
+    }
+
+    public function createProjectCertificate($data)
+    {
+        $this->db->query('INSERT INTO project_certificates 
+                    (project_id, engineer_id) 
+                    VALUES (:project_id, :engineer_id)');
+        $this->db->bind(':project_id', $data['project_id']);
+        $this->db->bind(':engineer_id', $data['engineer_id']);
+        return $this->db->execute();
+    }
+
+    public function updateProjectCertificate($projectId, $data)
+    {
+        $query = 'UPDATE project_certificates SET ';
+        $params = [];
+
+        if (isset($data['installation_certificate_1'])) {
+            $params[] = 'installation_certificate_1 = :certificate1';
+        }
+
+        if (isset($data['installation_certificate_2'])) {
+            $params[] = 'installation_certificate_2 = :certificate2';
+        }
+
+        if (isset($data['installation_image_1'])) {
+            $params[] = 'installation_image_1 = :image1';
+        }
+
+        if (isset($data['installation_image_2'])) {
+            $params[] = 'installation_image_2 = :image2';
+        }
+
+        if (isset($data['completed_at'])) {
+            $params[] = 'completed_at = :completed_at';
+        }
+
+        if (empty($params)) {
+            return false;
+        }
+
+        $query .= implode(', ', $params) . ' WHERE project_id = :project_id';
+
+        $this->db->query($query);
+        $this->db->bind(':project_id', $projectId);
+
+        if (isset($data['installation_certificate_1'])) {
+            $this->db->bind(':certificate1', $data['installation_certificate_1']);
+        }
+
+        if (isset($data['installation_certificate_2'])) {
+            $this->db->bind(':certificate2', $data['installation_certificate_2']);
+        }
+
+        if (isset($data['installation_image_1'])) {
+            $this->db->bind(':image1', $data['installation_image_1']);
+        }
+
+        if (isset($data['installation_image_2'])) {
+            $this->db->bind(':image2', $data['installation_image_2']);
+        }
+
+        if (isset($data['completed_at'])) {
+            $this->db->bind(':completed_at', $data['completed_at']);
+        }
+
+        return $this->db->execute();
+    }
+
+    public function completeEngineerApproval($projectId)
+    {
+        // Update project phase directly without transactions
+        $this->db->query('UPDATE projects 
+                SET current_phase = "grid_connection", 
+                    updated_at = CURRENT_TIMESTAMP 
+                WHERE project_id = :project_id');
+        $this->db->bind(':project_id', $projectId);
+
+        return $this->db->execute();
+    }
+
+    public function getAvailableEngineers()
+    {
+        $this->db->query('SELECT e.employee_id, u.name 
+                     FROM employees e
+                     JOIN users u ON e.user_id = u.user_id
+                     WHERE e.role = "engineer"
+                     ORDER BY u.name');
+        return $this->db->resultSet();
+    }
 }

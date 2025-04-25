@@ -1722,6 +1722,107 @@ class OperationsCoordinator extends Controller
     }
 
 
+    //##################################################################################################
+    //-----------------------------------------Engineer Approval----------------------------------------------
+    //##################################################################################################
+
+    public function engineerApproval($projectId = null)
+    {
+        if (!$projectId) {
+            redirect('operationsCoordinator/projects');
+            return;
+        }
+
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+            return;
+        }
+
+        // Get customer information
+        $customer = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+
+        // Get certificate information
+        $certificate = $this->projectModel->getProjectCertificate($projectId);
+
+        // Get available engineers for assignment
+        $engineers = $this->projectModel->getAvailableEngineers();
+
+        $data = [
+            'project' => $project,
+            'customer' => $customer,
+            'certificate' => $certificate,
+            'engineers' => $engineers
+        ];
+
+        $this->view('operationsCoordinator/v_engineerApproval', $data);
+    }
+
+    public function assignEngineerToApproval()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+            return;
+        }
+
+        $projectId = filter_input(INPUT_POST, 'project_id', FILTER_VALIDATE_INT);
+        $engineerId = filter_input(INPUT_POST, 'engineer_id', FILTER_VALIDATE_INT);
+
+        if (!$projectId || !$engineerId) {
+            flash('engineer_approval_message', 'Invalid data provided', 'alert alert-danger');
+            redirect('operationsCoordinator/engineerApproval/' . $projectId);
+            return;
+        }
+
+        $data = [
+            'project_id' => $projectId,
+            'engineer_id' => $engineerId
+        ];
+
+        if ($this->projectModel->createProjectCertificate($data)) {
+            flash('engineer_approval_message', 'Engineer assigned successfully', 'alert alert-success');
+        } else {
+            flash('engineer_approval_message', 'Failed to assign engineer', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/engineerApproval/' . $projectId);
+    }
+
+    public function completeEngineerApproval()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+            return;
+        }
+
+        $projectId = filter_input(INPUT_POST, 'project_id', FILTER_VALIDATE_INT);
+
+        if (!$projectId) {
+            flash('engineer_approval_message', 'Invalid project ID', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+            return;
+        }
+
+        // Get certificate to check if completed
+        $certificate = $this->projectModel->getProjectCertificate($projectId);
+
+        if (!$certificate || $certificate->completed_at === null) {
+            flash('engineer_approval_message', 'Engineer has not completed the certification process', 'alert alert-danger');
+            redirect('operationsCoordinator/engineerApproval/' . $projectId);
+            return;
+        }
+
+        if ($this->projectModel->completeEngineerApproval($projectId)) {
+            flash('engineer_approval_message', 'Engineer approval completed and project moved to Grid Connection phase', 'alert alert-success');
+            redirect('operationsCoordinator/projects');
+        } else {
+            flash('engineer_approval_message', 'Failed to complete engineer approval', 'alert alert-danger');
+            redirect('operationsCoordinator/engineerApproval/' . $projectId);
+        }
+    }
+
 
 
 
@@ -2228,7 +2329,7 @@ class OperationsCoordinator extends Controller
         }
         redirect('operationsCoordinator/managePackages');
     }
-  
+
     public function chat()
     {
         // Get clients who have chat history with this coordinator
