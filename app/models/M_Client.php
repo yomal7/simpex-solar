@@ -81,10 +81,11 @@ class M_Client
         $this->db->bind(':user_id', $userId);
         return $this->db->execute();
     }
-  
-        public function getOngoingProjects($userId) {
-            // Get projects with accepted quotations
-            $this->db->query('SELECT 
+
+    public function getOngoingProjects($userId)
+    {
+        // Get projects with accepted quotations
+        $this->db->query('SELECT 
                 pp.pre_project_id, 
                 pp.customer_id, 
                 pp.current_phase as pre_project_phase, 
@@ -107,93 +108,126 @@ class M_Client
             WHERE pp.customer_id = :user_id 
             AND (pp.status = "active" OR (proj.status = "active" AND proj.customer_id = :user_id2))
             ORDER BY pp.created_at DESC');
-            
-            $this->db->bind(':user_id', $userId);
-            $this->db->bind(':user_id2', $userId);
-            $projects = $this->db->resultSet();
-            
-            // Enhance project data with progress information
-            if ($projects) {
-                foreach ($projects as &$project) {
-                    // Determine if this is in pre-project or main project phase
-                    $projectPhases = ['document_submission', 'first_payment', 'installation', 
-                                   'final_payment', 'engineer_approval', 'grid_connection', 'completed'];
-                    
-                    // If main project exists and is active, use its phase instead
-                    if (isset($project->project_id) && $project->project_status == 'active') {
-                        $project->current_phase = $project->project_phase;
-                        $project->is_project_phase = true;
-                        $project->is_pre_project_phase = false;
-                        
-                        // Calculate progress based on main project phase
-                        switch ($project->current_phase) {
-                            case 'document_submission': $project->progress_percentage = 45; break;
-                            case 'first_payment': $project->progress_percentage = 55; break;
-                            case 'installation': $project->progress_percentage = 70; break;
-                            case 'final_payment': $project->progress_percentage = 80; break;
-                            case 'engineer_approval': $project->progress_percentage = 90; break;
-                            case 'grid_connection': $project->progress_percentage = 95; break;
-                            case 'completed': $project->progress_percentage = 100; break;
-                            default: $project->progress_percentage = 50; break;
-                        }
-                    } 
-                    // Otherwise, use pre-project phase
-                    else {
-                        $project->current_phase = $project->pre_project_phase;
-                        $project->is_project_phase = false;
-                        $project->is_pre_project_phase = true;
-                        
-                        // Calculate progress based on pre-project phase
-                        switch ($project->current_phase) {
-                            case 'quotation': $project->progress_percentage = 10; break;
-                            case 'site_visit': $project->progress_percentage = 25; break;
-                            case 'agreement': $project->progress_percentage = 40; break;
-                            default: $project->progress_percentage = 10; break;
-                        }
+
+        $this->db->bind(':user_id', $userId);
+        $this->db->bind(':user_id2', $userId);
+        $projects = $this->db->resultSet();
+
+        // Enhance project data with progress information
+        if ($projects) {
+            foreach ($projects as &$project) {
+                // Determine if this is in pre-project or main project phase
+                $projectPhases = [
+                    'document_submission',
+                    'first_payment',
+                    'installation',
+                    'final_payment',
+                    'engineer_approval',
+                    'grid_connection',
+                    'completed'
+                ];
+
+                // If main project exists and is active, use its phase instead
+                if (isset($project->project_id) && $project->project_status == 'active') {
+                    $project->current_phase = $project->project_phase;
+                    $project->is_project_phase = true;
+                    $project->is_pre_project_phase = false;
+
+                    // Calculate progress based on main project phase
+                    switch ($project->current_phase) {
+                        case 'document_submission':
+                            $project->progress_percentage = 45;
+                            break;
+                        case 'first_payment':
+                            $project->progress_percentage = 55;
+                            break;
+                        case 'installation':
+                            $project->progress_percentage = 70;
+                            break;
+                        case 'final_payment':
+                            $project->progress_percentage = 80;
+                            break;
+                        case 'engineer_approval':
+                            $project->progress_percentage = 90;
+                            break;
+                        case 'grid_connection':
+                            $project->progress_percentage = 95;
+                            break;
+                        case 'completed':
+                            $project->progress_percentage = 100;
+                            break;
+                        default:
+                            $project->progress_percentage = 50;
+                            break;
+                    }
+                }
+                // Otherwise, use pre-project phase
+                else {
+                    $project->current_phase = $project->pre_project_phase;
+                    $project->is_project_phase = false;
+                    $project->is_pre_project_phase = true;
+
+                    // Calculate progress based on pre-project phase
+                    switch ($project->current_phase) {
+                        case 'quotation':
+                            $project->progress_percentage = 10;
+                            break;
+                        case 'site_visit':
+                            $project->progress_percentage = 25;
+                            break;
+                        case 'agreement':
+                            $project->progress_percentage = 40;
+                            break;
+                        default:
+                            $project->progress_percentage = 10;
+                            break;
                     }
                 }
             }
-            
-            return $projects;
         }
 
-        public function getProjectStats($userId) {
-            // Get pending quotations count
-            $this->db->query('SELECT COUNT(*) as count FROM customerquotation 
+        return $projects;
+    }
+
+    public function getProjectStats($userId)
+    {
+        // Get pending quotations count
+        $this->db->query('SELECT COUNT(*) as count FROM customerquotation 
                              WHERE user_id = :user_id 
                              AND status NOT IN ("accepted_by_customer", "rejected_by_customer", "cancelled")');
-            $this->db->bind(':user_id', $userId);
-            $pendingQuotations = $this->db->single()->count;
+        $this->db->bind(':user_id', $userId);
+        $pendingQuotations = $this->db->single()->count;
 
-            // Get active pre-projects count
-            $this->db->query('SELECT COUNT(*) as count FROM pre_projects 
+        // Get active pre-projects count
+        $this->db->query('SELECT COUNT(*) as count FROM pre_projects 
                              WHERE customer_id = :user_id 
                              AND status = "active"');
-            $this->db->bind(':user_id', $userId);
-            $activePreProjects = $this->db->single()->count;
+        $this->db->bind(':user_id', $userId);
+        $activePreProjects = $this->db->single()->count;
 
-            // Get active main projects count
-            $this->db->query('SELECT COUNT(*) as count FROM projects 
+        // Get active main projects count
+        $this->db->query('SELECT COUNT(*) as count FROM projects 
                              WHERE customer_id = :user_id 
                              AND status = "active"');
-            $this->db->bind(':user_id', $userId);
-            $activeMainProjects = $this->db->single()->count;
+        $this->db->bind(':user_id', $userId);
+        $activeMainProjects = $this->db->single()->count;
 
-            // Get completed projects count
-            $this->db->query('SELECT COUNT(*) as count FROM projects 
+        // Get completed projects count
+        $this->db->query('SELECT COUNT(*) as count FROM projects 
                              WHERE customer_id = :user_id 
                              AND status = "completed"');
-            $this->db->bind(':user_id', $userId);
-            $completedProjects = $this->db->single()->count;
+        $this->db->bind(':user_id', $userId);
+        $completedProjects = $this->db->single()->count;
 
-            return [
-                'active_projects' => $activePreProjects + $activeMainProjects,
-                'pending_quotations' => $pendingQuotations,
-                'total_solutions' => $activePreProjects + $activeMainProjects + $completedProjects
-            ];
-        }
+        return [
+            'active_projects' => $activePreProjects + $activeMainProjects,
+            'pending_quotations' => $pendingQuotations,
+            'total_solutions' => $activePreProjects + $activeMainProjects + $completedProjects
+        ];
+    }
 
-        public function getActiveQuotationsByCustomerId($userId) {
+    public function getActiveQuotationsByCustomerId($userId)
+    {
         $this->db->query('SELECT 
             cq.*,
             pp.current_phase,
@@ -210,13 +244,14 @@ class M_Client
             WHERE cq.user_id = :user_id 
             AND cq.status NOT IN ("accepted_by_customer", "rejected_by_customer", "cancelled")
             ORDER BY cq.created_at DESC');
-        
+
         $this->db->bind(':user_id', $userId);
         return $this->db->resultSet();
-        }
-        
-        // Get quotation by ID
-        public function getQuotationById($quotationId) {
+    }
+
+    // Get quotation by ID
+    public function getQuotationById($quotationId)
+    {
         $this->db->query('SELECT 
             cq.*,
             pp.current_phase,
@@ -230,13 +265,14 @@ class M_Client
             JOIN pre_projects pp ON cq.pre_project_id = pp.pre_project_id
             LEFT JOIN package p ON cq.package_id = p.package_id
             WHERE cq.quotation_id = :quotation_id');
-        
+
         $this->db->bind(':quotation_id', $quotationId);
         return $this->db->single();
-        }
-        
-        // Get pre-projects by customer ID
-        public function getPreProjectsByCustomerId($customerId) {
+    }
+
+    // Get pre-projects by customer ID
+    public function getPreProjectsByCustomerId($customerId)
+    {
         $this->db->query('SELECT 
             pp.*,
             cq.quotation_id,
@@ -249,13 +285,14 @@ class M_Client
             LEFT JOIN customerquotation cq ON pp.pre_project_id = cq.pre_project_id
             WHERE pp.customer_id = :customer_id 
             ORDER BY pp.created_at DESC');
-        
+
         $this->db->bind(':customer_id', $customerId);
         return $this->db->resultSet();
-        }
-        
-        // Get active projects for a customer
-        public function getActiveProjects($userId) {
+    }
+
+    // Get active projects for a customer
+    public function getActiveProjects($userId)
+    {
         $this->db->query('SELECT pre_project_id, current_phase, status
               FROM pre_projects
               WHERE customer_id = :user_id
@@ -263,10 +300,11 @@ class M_Client
               ORDER BY created_at DESC');
         $this->db->bind(':user_id', $userId);
         return $this->db->resultSet();
-        }
-        
-        // Get project progress details for both pre-project and project phases
-        public function getProjectProgress($preProjectId) {
+    }
+
+    // Get project progress details for both pre-project and project phases
+    public function getProjectProgress($preProjectId)
+    {
         try {
             // Get pre-project data
             $this->db->query('SELECT pp.*, cq.quotation_id, cq.package_id, cq.nearest_city, 
@@ -297,7 +335,7 @@ class M_Client
                 $this->db->bind(':pre_project_id', $preProjectId);
                 $siteVisit = $this->db->single();
             }
-            
+
             // Get agreement data if exists
             $agreement = null;
             if ($preProject->current_phase == 'agreement' || ($project && $project->status == 'active')) {
@@ -360,14 +398,14 @@ class M_Client
 
             // Calculate overall progress percentage
             $progressPercentage = 0;
-            
+
             // Pre-project phases (0-40%)
             if ($preProject->status == 'active') {
                 if ($preProject->current_phase == 'quotation') $progressPercentage = 10;
                 else if ($preProject->current_phase == 'site_visit') $progressPercentage = 20;
                 else if ($preProject->current_phase == 'agreement') $progressPercentage = 30;
             }
-            
+
             // Main project phases (40-100%) 
             if ($project) {
                 if ($project->current_phase == 'document_submission') $progressPercentage = 40;
@@ -397,10 +435,11 @@ class M_Client
             error_log("Error in getProjectProgress: " . $e->getMessage());
             return false;
         }
-        }
-        
-        // Accept a quotation
-        public function acceptQuotation($quotationId) {
+    }
+
+    // Accept a quotation
+    public function acceptQuotation($quotationId)
+    {
         try {
             // Update reviewed_quotations status
             $this->db->query('UPDATE reviewed_quotations 
@@ -423,7 +462,7 @@ class M_Client
             $quotation = $this->db->single();
 
             if (!$quotation) {
-            return false;
+                return false;
             }
 
             // Update pre_projects to site_visit phase
@@ -443,16 +482,17 @@ class M_Client
             )');
             $this->db->bind(':pre_project_id', $quotation->pre_project_id);
             $this->db->execute();
-            
+
             return true;
         } catch (Exception $e) {
             error_log("Error in acceptQuotation: " . $e->getMessage());
             return false;
         }
-        }
-        
-        // Reject a quotation
-        public function rejectQuotation($quotationId) {
+    }
+
+    // Reject a quotation
+    public function rejectQuotation($quotationId)
+    {
         try {
             // Update reviewed_quotations status
             $this->db->query('UPDATE reviewed_quotations 
@@ -467,29 +507,31 @@ class M_Client
             WHERE quotation_id = :quotation_id');
             $this->db->bind(':quotation_id', $quotationId);
             $this->db->execute();
-            
+
             return true;
         } catch (Exception $e) {
             error_log("Error in rejectQuotation: " . $e->getMessage());
             return false;
         }
-        }
-        
-        // Get site visit information
-        public function getSiteVisit($preProjectId) {
+    }
+
+    // Get site visit information
+    public function getSiteVisit($preProjectId)
+    {
         $this->db->query('SELECT sv.*, pp.customer_id 
             FROM site_visits sv
             JOIN pre_projects pp ON sv.pre_project_id = pp.pre_project_id
             WHERE sv.pre_project_id = :pre_project_id
             ORDER BY sv.created_at DESC
             LIMIT 1');
-        
+
         $this->db->bind(':pre_project_id', $preProjectId);
         return $this->db->single();
-        }
-        
-        // Get pending agreement
-        public function getPendingAgreement($preProjectId) {
+    }
+
+    // Get pending agreement
+    public function getPendingAgreement($preProjectId)
+    {
         $this->db->query('SELECT pa.*, pp.customer_id, pp.current_phase, pp.status as project_status,
                   cs.signature_image as coordinator_signature 
                   FROM project_agreements pa 
@@ -499,19 +541,33 @@ class M_Client
                   AND pa.status = "pending" 
                   ORDER BY pa.created_at DESC 
                   LIMIT 1');
-        
+
         $this->db->bind(':pre_project_id', $preProjectId);
         return $this->db->single();
-        }
-        
-        // Get equipment for an agreement
-        public function getAgreementEquipment($agreementId) {
+    }
+
+    // Get equipment for an agreement
+    public function getAgreementEquipment($agreementId)
+    {
         $this->db->query('SELECT ae.*, i.name as item_name 
                  FROM agreement_equipment ae 
                  JOIN inventory i ON ae.inventory_id = i.id 
                  WHERE ae.agreement_id = :agreement_id');
-        
+
         $this->db->bind(':agreement_id', $agreementId);
         return $this->db->resultSet();
-        }
+    }
+
+    // Chat
+    public function getOperationsCoordinator()
+    {
+        $this->db->query('SELECT user_id, name, email FROM users WHERE role = "operationsCoordinator" LIMIT 1');
+        return $this->db->single();
+    }
+
+    public function getSupplierCoordinator()
+    {
+        $this->db->query('SELECT user_id, name, email FROM users WHERE role = "supplierCoordinator" LIMIT 1');
+        return $this->db->single();
+    }
 }
