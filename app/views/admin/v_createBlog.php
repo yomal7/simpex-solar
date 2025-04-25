@@ -20,7 +20,7 @@
                 <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
                 <div class="user-info">
                     <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
-                    <p>HR Administrator</p>
+                    <p>Admin</p>
                 </div>
             </div>
             <a href="<?php echo URLROOT; ?>/admin/createBlog" class="active">
