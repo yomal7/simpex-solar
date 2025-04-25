@@ -21,58 +21,60 @@ function formatMessageTime(timestamp) {
 }
 
 function formatMessageDate(timestamp) {
-    const date = new Date(timestamp);
-    
-    // Add the same time zone adjustment as formatMessageTime
-    date.setHours(date.getHours() + 5);
-    date.setMinutes(date.getMinutes() + 30);
-    
-    // Get today and yesterday with consistent time parts
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    // Reset time parts of the message date for comparison
-    const compareDate = new Date(date);
-    compareDate.setHours(0, 0, 0, 0);
-    
-    // Format date based on when it was sent
-    if (compareDate.getTime() === today.getTime()) {
-      return "Today";
-    } else if (compareDate.getTime() === yesterday.getTime()) {
-      return "Yesterday";
-    } else {
-      // Format as full date: January 15, 2025
-      return date.toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      });
-    }
+  const date = new Date(timestamp);
+
+  // Add the same time zone adjustment as formatMessageTime
+  date.setHours(date.getHours() + 5);
+  date.setMinutes(date.getMinutes() + 30);
+
+  // Get today and yesterday with consistent time parts
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  // Reset time parts of the message date for comparison
+  const compareDate = new Date(date);
+  compareDate.setHours(0, 0, 0, 0);
+
+  // Format date based on when it was sent
+  if (compareDate.getTime() === today.getTime()) {
+    return "Today";
+  } else if (compareDate.getTime() === yesterday.getTime()) {
+    return "Yesterday";
+  } else {
+    // Format as full date: January 15, 2025
+    return date.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
 }
 
 // Update sidebar notification dot visibility
 function updateSidebarNotificationDot(show) {
-  const notificationDot = document.querySelector('.sidebar a[href*="/chat"] .notification-dot');
+  const notificationDot = document.querySelector(
+    '.sidebar a[href*="/chat"] .notification-dot'
+  );
   if (notificationDot) {
-      notificationDot.style.display = show ? 'block' : 'none';
+    notificationDot.style.display = show ? "block" : "none";
   }
 }
 
 // Calculate total unread count across all clients
 function updateTotalUnreadCount() {
   let totalUnread = 0;
-  
+
   // Count all unread messages from client badges
-  document.querySelectorAll('.unread-count').forEach(element => {
-      totalUnread += parseInt(element.textContent || '0', 10);
+  document.querySelectorAll(".unread-count").forEach((element) => {
+    totalUnread += parseInt(element.textContent || "0", 10);
   });
-  
+
   // Update sidebar notification dot
   updateSidebarNotificationDot(totalUnread > 0);
-  
+
   return totalUnread;
 }
 
@@ -147,73 +149,78 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function loadChatHistory(clientId) {
-    const chatMessages = document.getElementById("chatMessages");
-    chatMessages.innerHTML = '<div class="loading-message">Loading messages...</div>';
-  
-    fetch(`${URLROOT}/${USER_ROLE}/getClientChats?client_id=${clientId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        chatMessages.innerHTML = "";
-  
-        if (data && data.length > 0) {
-          // Sort messages by timestamp to ensure chronological order
-          data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-  
-          let currentDateStr = null;
-  
-          data.forEach((message) => {
-            // Parse the timestamp and apply timezone adjustment
-            const messageDate = new Date(message.timestamp);
-            messageDate.setHours(messageDate.getHours() + 5);
-            messageDate.setMinutes(messageDate.getMinutes() + 30);
-            
-            // Format date for comparison (YYYY-MM-DD)
-            const year = messageDate.getFullYear();
-            const month = String(messageDate.getMonth() + 1).padStart(2, '0');
-            const day = String(messageDate.getDate()).padStart(2, '0');
-            const dateStr = `${year}-${month}-${day}`;
-            
-            // Add date separator if this is a new date
-            if (currentDateStr !== dateStr) {
-              currentDateStr = dateStr;
-              const dateDiv = document.createElement("div");
-              dateDiv.className = "date-separator";
-              dateDiv.innerHTML = `<span>${formatMessageDate(message.timestamp)}</span>`;
-              chatMessages.appendChild(dateDiv);
-            }
-  
-            // Create message element
-            const isFromMe = message.sender_id == USER_ID;
-            const messageDiv = document.createElement("div");
-            messageDiv.className = isFromMe ? "message sent" : "message received";
-            
-            const formattedTime = formatMessageTime(message.timestamp);
-  
-            messageDiv.innerHTML = `
+  const chatMessages = document.getElementById("chatMessages");
+  chatMessages.innerHTML =
+    '<div class="loading-message">Loading messages...</div>';
+
+  fetch(`${URLROOT}/${USER_ROLE}/getClientChats?client_id=${clientId}`)
+    .then((response) => response.json())
+    .then((data) => {
+      chatMessages.innerHTML = "";
+
+      if (data && data.length > 0) {
+        // Sort messages by timestamp to ensure chronological order
+        data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+        let currentDateStr = null;
+
+        data.forEach((message) => {
+          // Parse the timestamp and apply timezone adjustment
+          const messageDate = new Date(message.timestamp);
+          messageDate.setHours(messageDate.getHours() + 5);
+          messageDate.setMinutes(messageDate.getMinutes() + 30);
+
+          // Format date for comparison (YYYY-MM-DD)
+          const year = messageDate.getFullYear();
+          const month = String(messageDate.getMonth() + 1).padStart(2, "0");
+          const day = String(messageDate.getDate()).padStart(2, "0");
+          const dateStr = `${year}-${month}-${day}`;
+
+          // Add date separator if this is a new date
+          if (currentDateStr !== dateStr) {
+            currentDateStr = dateStr;
+            const dateDiv = document.createElement("div");
+            dateDiv.className = "date-separator";
+            dateDiv.innerHTML = `<span>${formatMessageDate(
+              message.timestamp
+            )}</span>`;
+            chatMessages.appendChild(dateDiv);
+          }
+
+          // Create message element
+          const isFromMe = message.sender_id == USER_ID;
+          const messageDiv = document.createElement("div");
+          messageDiv.className = isFromMe ? "message sent" : "message received";
+
+          const formattedTime = formatMessageTime(message.timestamp);
+
+          messageDiv.innerHTML = `
               <div class="message-content">${message.message}</div>
               <div class="message-time">${formattedTime}</div>
             `;
-  
-            chatMessages.appendChild(messageDiv);
-          });
-        } else {
-          chatMessages.innerHTML = '<div class="empty-chat-message">No messages yet. Start a conversation!</div>';
-        }
-  
-        // Scroll to the bottom
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      })
-      .catch((error) => {
-        console.error("Error loading messages:", error);
-        chatMessages.innerHTML = '<div class="error-message">Failed to load messages. Please try again.</div>';
-      });
-  
-    // Mark messages as read
-    markMessagesAsRead(clientId);
 
-    // Update notification dot after marking messages as read
-    setTimeout(updateTotalUnreadCount, 300);
-  }
+          chatMessages.appendChild(messageDiv);
+        });
+      } else {
+        chatMessages.innerHTML =
+          '<div class="empty-chat-message">No messages yet. Start a conversation!</div>';
+      }
+
+      // Scroll to the bottom
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    })
+    .catch((error) => {
+      console.error("Error loading messages:", error);
+      chatMessages.innerHTML =
+        '<div class="error-message">Failed to load messages. Please try again.</div>';
+    });
+
+  // Mark messages as read
+  markMessagesAsRead(clientId);
+
+  // Update notification dot after marking messages as read
+  setTimeout(updateTotalUnreadCount, 300);
+}
 
 // Function to mark messages as read
 function markMessagesAsRead(clientId) {
@@ -244,10 +251,18 @@ function sendMessage() {
   const chatMessages = document.getElementById("chatMessages");
 
   // Check if we need to add a date separator first
-  const today = new Date().toISOString().split("T")[0];
-  const lastDateSeparator = chatMessages.querySelector(".date-separator:last-child span");
-  const needsDateSeparator = !lastDateSeparator || lastDateSeparator.textContent !== "Today";
-  
+  const today = "Today";
+  // Check if "Today" separator already exists anywhere in the chat
+  const existingTodaySeparator = Array.from(
+    chatMessages.querySelectorAll(".date-separator span")
+  ).some((span) => span.textContent === today);
+  const needsDateSeparator = !existingTodaySeparator;
+
+  // Check if we need to add a date separator first
+  // const today = new Date().toISOString().split("T")[0];
+  // const lastDateSeparator = chatMessages.querySelector(".date-separator:last-child span");
+  // const needsDateSeparator = !lastDateSeparator || lastDateSeparator.textContent !== "Today";
+
   if (needsDateSeparator) {
     const dateDiv = document.createElement("div");
     dateDiv.className = "date-separator";
@@ -334,11 +349,18 @@ function connectWebSocket() {
         // Add message to chat
         const chatMessages = document.getElementById("chatMessages");
 
-        const lastDateSeparator = chatMessages.querySelector(
-          ".date-separator:last-child span"
-        );
-        const needsDateSeparator =
-          !lastDateSeparator || lastDateSeparator.textContent !== "Today";
+        // Check if "Today" separator already exists anywhere in the chat
+        const today = "Today";
+        const existingTodaySeparator = Array.from(
+          chatMessages.querySelectorAll(".date-separator span")
+        ).some((span) => span.textContent === today);
+        const needsDateSeparator = !existingTodaySeparator;
+
+        // const lastDateSeparator = chatMessages.querySelector(
+        //   ".date-separator:last-child span"
+        // );
+        // const needsDateSeparator =
+        //   !lastDateSeparator || lastDateSeparator.textContent !== "Today";
 
         if (needsDateSeparator) {
           const dateDiv = document.createElement("div");
@@ -416,7 +438,7 @@ function updateUnreadCount(userId) {
     }
 
     // Update sidebar notification dot
-    updateTotalUnreadCount()
+    updateTotalUnreadCount();
   } else {
     // This is a new client, reload the entire client list
     refreshClientList();
