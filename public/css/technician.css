@@ -1566,3 +1566,7 @@ span.status-badge.incomplete {
     font-size: 20px;
     margin-right: 10px;
 }
+
+.request-holiday-table-container td{
+    padding: 10px;
+}

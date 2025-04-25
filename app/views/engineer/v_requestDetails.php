@@ -1,4 +1,4 @@
-<?php require APPROOT . '/views/technician/header.php'; ?>
+<?php require APPROOT . '/views/engineer/header.php'; ?>
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -11,9 +11,9 @@
         <div class="sidebar" id="sidebar">
             <img
                 src="<?php echo URLROOT ?>/assets/profile.png"
-                alt="technician profile-picture"
+                alt="engineer profile-picture"
                 class="profile-picture" />
-            <a href="<?php echo URLROOT; ?>/technician/requestHoliday" class="side-back-button">
+            <a href="<?php echo URLROOT; ?>/engineer/requestHoliday" class="side-back-button">
                 <span class="material-icons-sharp">arrow_back</span>
                 <h3>Back</h3>
             </a>
@@ -94,5 +94,5 @@
 
     <div class="overlay" id="overlay"></div>
 
-    <script src="<?php echo URLROOT; ?>/js/technician/requestHoliday.js"></script>
-    <?php require APPROOT . '/views/technician/footer.php'; ?>
+    <script src="<?php echo URLROOT; ?>/js/engineer/requestHoliday.js"></script>
+    <?php require APPROOT . '/views/engineer/footer.php'; ?>
