@@ -45,6 +45,10 @@
                 <span class="material-icons-sharp">feedback</span>
                 <h3>Feedbacks</h3>
             </a>
+            <a href="<?php echo URLROOT ?>/chiefCoordinator/settings">
+                <span class="material-icons-sharp">settings</span>
+                <h3>Settings</h3>
+            </a>
             <a href="<?php echo URLROOT; ?>/users/logout">
                 <span class="material-icons-sharp">logout</span>
                 <h3>Logout</h3>

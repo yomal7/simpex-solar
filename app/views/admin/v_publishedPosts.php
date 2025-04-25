@@ -32,7 +32,7 @@
                 <span class="material-icons-sharp">supervisor_account</span>
                 <h3>Manage Coordinators</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/admin/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>

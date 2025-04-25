@@ -26,7 +26,7 @@
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
