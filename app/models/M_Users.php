@@ -20,7 +20,7 @@ class M_Users {
     }
 
     public function login($email, $password) {
-        $this->db->query('SELECT user_id, name, email, password, role FROM users WHERE email = :email');
+        $this->db->query('SELECT user_id, name, email, password, role, profile_picture FROM users WHERE email = :email');
         $this->db->bind(':email', $email);
 
         $row = $this->db->single();
