@@ -55,23 +55,23 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="title">Task Title</label>
-                            <input type="text" name="title" id="title" placeholder="Task Title" value="<?php $data['title']; ?>">
+                            <input type="text" name="title" id="title" placeholder="Task Title" value="<?php echo $data['title']; ?>">
                             <span class="form-invalid"><?php echo isset($data['title_err']) ? $data['title_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
                             <label for="start_date">Start Date</label>
-                            <input type="date" name="start_date" id="start_date" placeholder="Start Date" value="<?php $data['start_date']; ?>">
+                            <input type="date" name="start_date" id="start_date" placeholder="Start Date" value="<?php echo $data['start_date']; ?>">
                             <span class="form-invalid"><?php echo isset($data['start_date_err']) ? $data['start_date_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
                             <label for="end_date">End Date</label>
-                            <input type="date" name="end_date" id="end_date" placeholder="End Date" value="<?php $data['end_date']; ?>">
+                            <input type="date" name="end_date" id="end_date" placeholder="End Date" value="<?php echo $data['end_date']; ?>">
                             <span class="form-invalid"><?php echo isset($data['end_date_err']) ? $data['end_date_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
                             <label for="project_id">Project</label>
                             <input type="text" name="project_id" id="project_id" placeholder="Project" value="<?php $data['project_id']; ?>">
-                            <!-- <select id="project_id" name="project_id" required>
+<!-- <select id="project_id" name="project_id" required>
                                 <option value="">Select Project...</option>
                                 options will be populated dynamically
                             </select> -->
@@ -107,7 +107,7 @@
                         </div>
                         <div class="form-group">
                             <label for="description">Task Description</label>
-                            <textarea name="description" id="description" placeholder="Task Description" rows="10" cols="10"><?php $data['description']; ?></textarea>
+                            <textarea name="description" id="description" placeholder="Task Description" rows="10" cols="10"><?php echo $data['description']; ?></textarea>
                             <span class="form-invalid"><?php echo isset($data['description_err']) ? $data['description_err'] : ''; ?></span>
                         </div>
                     </div>

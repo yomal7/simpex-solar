@@ -1,96 +1,113 @@
-const requests = [
-    { 
-        id: 1, 
-        leaveType: "Sick Leave", 
-        startDate: "2024-11-05", 
-        endDate: "2024-11-06", 
-        numberOfDays: "2", 
-        reason: "High fever and rest prescribed by doctor.", 
-        status: "approved" 
-    },
-    { 
-        id: 2, 
-        leaveType: "Casual Leave", 
-        startDate: "2024-11-15", 
-        endDate: "2024-11-16", 
-        numberOfDays: "2", 
-        reason: "Personal work related to home renovation.", 
-        status: "not-approved" 
-    },
-    { 
-        id: 3, 
-        leaveType: "Sick Leave", 
-        startDate: "2024-12-01", 
-        endDate: "2024-12-05", 
-        numberOfDays: "5", 
-        reason: "Checkup health issue.", 
-        status: "pending" 
-    },
-];
+const URLROOT = 'http://localhost/simpex-solar'
 
-const holidayRecordsTableBody = document.getElementById("holidayRecordsTableBody");
-let currentrequestId;
+function calculateDays(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    return Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1; // Add 1 to include the start day
+}
 
-function renderTable(requestsToRender = requests) {
-    holidayRecordsTableBody.innerHTML = "";
-    requestsToRender.forEach(request => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${request.leaveType}
-            <td>${request.startDate}</td>
-            <td>${request.endDate}</td>
-            <td>${request.numberOfDays}</td>
-            <td>${request.reason}</td>            
-            <td><span class="status ${request.status}">${getStatusLabel(request.status)}</span></td>            
-        `;
-        row.addEventListener("click", (e) => {
-                viewDetails(request.id);
-        });
-        holidayRecordsTableBody.appendChild(row);
+function handleSubmit(event) {
+    event.preventDefault();
+
+    
+    isSubmitting = true;
+    console.log('handle submit');
+
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+    console.log('3.........Form data:', data);
+
+    // Calculate number of days
+    data.employee_id = employeeId;
+    console.log('Employee ID:', employeeId); 
+    
+    const numberOfDays = calculateDays(formData.get('startDate'), formData.get('endDate'));
+    formData.append('numberOfDays', numberOfDays);
+    console.log('Number of days:', numberOfDays);
+    
+    console.log('Submitting data:', {
+        employee_id: employeeId,
+        startDate: formData.get('startDate'),
+        endDate: formData.get('endDate'),
+        numberOfDays: formData.get('numberOfDays'),
+        leaveType: formData.get('leaveType'),
+        reason: formData.get('reason')
+    });
+    
+    console.log('starting fetch');
+    
+    fetch(`${URLROOT}/technician/requestHoliday`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+    })
+    .then(response => {
+        console.log('response:', response);
+        if (response.ok) {
+            alert('Holiday request submitted successfully!');
+            window.location.reload(); // Reload to show the updated table
+        } else {
+            throw new Error('Request failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again later.');
     });
 }
 
-function getStatusLabel(status) {
-    switch (status) {
-        case "approved": return "Approved";
-        case "pending": return "Pending";
-        case "not-approved": return "Not Approved";
-        default: return "";
-    }
+// Add this function
+function resetForm() {
+    const form = document.getElementById('requestHolidayForm');
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Reset form
+    form.reset();
+    
+    // Reset date inputs to today
+    document.getElementById('requestHolidayFormStartDate').value = '';
+    document.getElementById('requestHolidayFormEndDate').value = '';
+    
+    // Reset leave type to default
+    document.getElementById('requestHolidayFormLeaveType').selectedIndex = 0;
+    
+    // Clear reason
+    document.getElementById('requestHolidayFormReason').value = '';
 }
 
+// Date validation setup
 function setMinimumDate() {
     const today = new Date().toISOString().split('T')[0];
-
     const startDateInput = document.getElementById('requestHolidayFormStartDate');
     const endDateInput = document.getElementById('requestHolidayFormEndDate');
 
     startDateInput.min = today;
     endDateInput.min = today;
-}
+    
 
-document.getElementById('requestHolidayFormStartDate').addEventListener('change', function() {
-    const startDate = this.value;
-    const endDateInput = document.getElementById('requestHolidayFormEndDate');
-    endDateInput.min= startDate;
-});
-
-function viewDetails(requestId) {
-    //alert('Viewing details for request with ID: ${requestId}');
+    startDateInput.addEventListener('change', function() {
+        endDateInput.min = this.value;
+    });
 }
 
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('active');
 }
 
-function handleSubmit(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData.entries());
-    console.log('Form submitted with data:', data);
-    alert('Form submitted successfully!');
-    event.target.reset();
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('requestHolidayForm');
+    const cancelButton = document.querySelector('.request-holiday-form-cancel');
+    if (form) {
+        console.log('Form found and event listener attached');
+        form.addEventListener('submit', handleSubmit);
+    } 
+    if (cancelButton) {
+        cancelButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            resetForm();
+        });
+    }
+});
 
 document.addEventListener('click', function(event) {
     const sidebar = document.getElementById('sidebar');
@@ -111,6 +128,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-renderTable();
-
+// Initialize on page load
 window.onload = setMinimumDate;

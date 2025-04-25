@@ -11,6 +11,7 @@
         <!-- <link rel="stylesheet" href="<?php echo URLROOT; ?>/app/views/inc/components/style.css"> -->
         <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/pages.css">
         <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/about.css">
+        <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/feedback.css">
 
     </head>
     <body>

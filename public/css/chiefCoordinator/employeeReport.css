@@ -1,0 +1,200 @@
+/* File: public/css/chiefCoordinator/employeeReport.css */
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --color-primary: #44ca68;
+    --color-primary-light: #a5d066;
+    --color-primary-dark: #568c1e;
+    --color-secondary: #3c873a;
+    --color-danger: #ff7782;
+    --color-success: #41f1b6;
+    --color-warning: #ffbb55;
+    --color-white: #fff;
+    --color-info-dark: #7d8da1;
+    --color-info-light: #dce1eb;
+    --color-dark: #363949;
+    --color-light: rgba(132, 139, 200, 0.18);
+    --color-background: #f6f9ff;
+    --card-border-radius: 0.7rem;
+    --border-radius-1: 0.4rem;
+    --border-radius-2: 0.8rem;
+    --border-radius-3: 1.2rem;
+    --card-padding: 1.2rem;
+    --padding-1: 1.2rem;
+    --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: var(--color-white);
+    color: var(--color-dark);
+    line-height: 1.6;
+}
+
+.report-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.report-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--color-primary);
+}
+
+.report-header h1 {
+    color: var(--color-primary-dark);
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.report-date {
+    color: var(--color-info-dark);
+    font-style: italic;
+}
+
+.report-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-item {
+    background-color: var(--color-background);
+    padding: 1.5rem;
+    border-radius: var(--card-border-radius);
+    border-left: 5px solid var(--color-primary);
+    box-shadow: var(--box-shadow);
+}
+
+.summary-item h3 {
+    font-size: 1.1rem;
+    color: var(--color-primary-dark);
+    margin-bottom: 0.5rem;
+}
+
+.summary-item p {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--color-dark);
+}
+
+h2 {
+    color: var(--color-primary-dark);
+    font-size: 1.5rem;
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-primary-light);
+}
+
+h3 {
+    color: var(--color-dark);
+    font-size: 1.2rem;
+    margin: 1.5rem 0 1rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+    box-shadow: var(--box-shadow);
+}
+
+table thead tr {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+table th {
+    padding: 0.8rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+table td {
+    padding: 0.8rem;
+    border-bottom: 1px solid var(--color-info-light);
+}
+
+table tbody tr:nth-child(even) {
+    background-color: var(--color-background);
+}
+
+/* Role Pills */
+.role-pill {
+    padding: 0.3rem 0.6rem;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    display: inline-block;
+}
+
+.role-technician {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary-dark);
+}
+
+.role-engineer {
+    background-color: #bbdefb;
+    color: #1565c0;
+}
+
+.role-deliveryPerson {
+    background-color: #fff9c4;
+    color: #f57f17;
+}
+
+.role-clerk {
+    background-color: #e1bee7;
+    color: #6a1b9a;
+}
+
+.footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--color-primary);
+    text-align: center;
+    color: var(--color-info-dark);
+}
+
+/* Print Styles */
+@media print {
+    body {
+        background-color: var(--color-white);
+    }
+    
+    .report-container {
+        padding: 0;
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+    
+    table {
+        page-break-inside: auto;
+    }
+    
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+    
+    h2, h3 {
+        page-break-after: avoid;
+    }
+    
+    .summary-item {
+        break-inside: avoid;
+    }
+}

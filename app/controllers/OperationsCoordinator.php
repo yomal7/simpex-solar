@@ -7,6 +7,7 @@ class OperationsCoordinator extends Controller
     private $inventoryModel;
     private $employeeModel;
     private $preProjectModel;
+    private $projectModel;
     private $operationsCoordinatorModel;
     private $chatModel;
 
@@ -21,6 +22,7 @@ class OperationsCoordinator extends Controller
         $this->inventoryModel = $this->model('M_Inventory');
         $this->employeeModel = $this->model('M_Employee');
         $this->preProjectModel = $this->model('M_CustomerPreProject');
+        $this->projectModel = $this->model('M_CustomerProject');
         $this->operationsCoordinatorModel = $this->model('M_OperationsCoordinator');
         $this->chatModel = $this->model('M_Chat');
 
@@ -46,21 +48,32 @@ class OperationsCoordinator extends Controller
 
     public function dashboard()
     {
-        $data = [];
+        // Get Project Statistics
+        $projectStats = [
+            'total_projects' => $this->projectModel->getTotalProjects(),
+            'active_projects' => $this->projectModel->getActiveProjects(),
+            'completed_projects' => $this->projectModel->getCompletedProjects(),
+            'preproject_stats' => $this->preProjectModel->getPreProjectStats(),
+            'monthly_projects' => $this->projectModel->getMonthlyProjectCounts(),
+            'phase_distribution' => $this->projectModel->getProjectPhaseDistribution()
+        ];
+
+
+        // Get Package Statistics
+        $packageStats = [
+            'total_packages' => $this->packageModel->getTotalPackages(),
+            'package_by_type' => $this->packageModel->getPackageCountByType()
+        ];
+
+        $data = [
+            'project_stats' => $projectStats,
+            'package_stats' => $packageStats
+        ];
+
         $this->view('operationsCoordinator/v_dashboard', $data);
     }
 
-    public function projects()
-    {
-        $data = [];
-        $this->view('operationsCoordinator/v_projects', $data);
-    }
 
-    public function projectDashboard()
-    {
-        $data = [];
-        $this->view('operationsCoordinator/v_projectDashboard', $data);
-    }
 
     //################################################################################################
     //-------------------------------------Add signature----------------------------------------------
@@ -414,28 +427,27 @@ class OperationsCoordinator extends Controller
         } else {
             flash('site_visit_message', 'Failed to schedule site visit', 'error');
         }
-
         redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
     }
 
-    public function completeSiteVisit()
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('operationsCoordinator/preProjects');
-            return;
-        }
+    // public function completeSiteVisit()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    //         redirect('operationsCoordinator/preProjects');
+    //         return;
+    //     }
 
-        $preProjectId = $_POST['pre_project_id'];
-        $notes = $_POST['site_notes'];
+    //     $preProjectId = $_POST['pre_project_id'];
+    //     $notes = $_POST['site_notes'];
 
-        if ($this->preProjectModel->completeSiteVisit($preProjectId, $notes)) {
-            flash('site_visit_message', 'Site visit completed successfully', 'success');
-        } else {
-            flash('site_visit_message', 'Failed to complete site visit', 'error');
-        }
+    //     if ($this->preProjectModel->completeSiteVisit($preProjectId, $notes)) {
+    //         flash('site_visit_message', 'Site visit completed successfully', 'success');
+    //     } else {
+    //         flash('site_visit_message', 'Failed to complete site visit', 'error');
+    //     }
 
-        redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
-    }
+    //     redirect('operationsCoordinator/manageSiteVisit/' . $preProjectId);
+    // }
 
     public function handleReschedule()
     {
@@ -759,16 +771,955 @@ class OperationsCoordinator extends Controller
         }
     }
 
+    //####################################################################################################
+    //-----------------------------------------PROJECT----------------------------------------------------
+    //####################################################################################################
+
+    public function projects()
+    {
+        // Get project statistics using the exact phase names from the database enum
+        $stats = [
+            'document_submission' => $this->projectModel->getProjectCountByPhase('document_submission'),
+            'first_payment' => $this->projectModel->getProjectCountByPhase('first_payment'),
+            'installation' => $this->projectModel->getProjectCountByPhase('installation'),
+            'final_payment' => $this->projectModel->getProjectCountByPhase('final_payment'),
+            'engineer_approval' => $this->projectModel->getProjectCountByPhase('engineer_approval')
+        ];
+
+        // Get all projects with customer details
+        $projects = $this->projectModel->getAllProjectsWithCustomerDetails();
+
+        $data = [
+            'stats' => $stats,
+            'projects' => $projects
+        ];
+
+        $this->view('operationsCoordinator/v_projects', $data);
+    }
+
+    public function projectDashboard($projectId)
+    {
+
+        // Get project details with all required information
+        $project = $this->projectModel->getProjectById($projectId);
+
+        // If project doesn't exist, redirect
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get additional project data like customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+
+        // Merge project and customer details
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                if (!isset($project->$key)) {
+                    $project->$key = $value;
+                }
+            }
+        }
+
+        $data = [
+            'project' => $project
+        ];
+
+        $this->view('operationsCoordinator/v_manageAproject', $data);
+    }
 
 
+    public function manageAproject($projectId)
+    {
+        // Get project details with all required information
+        $project = $this->projectModel->getProjectById($projectId);
+
+        // If project doesn't exist, redirect
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get additional project data like customer details
+        $data = $this->projectModel->getCustomerDetailsByProjectId($projectId);
 
 
+        $data = [
+            'project' => $project
+        ];
+
+        // Change this line to load v_manageAproject.php instead of v_projectDashboard.php
+        $this->view('operationsCoordinator/v_manageAproject', $data);
+    }
+
+    public function documentSubmission($projectId)
+    {
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+        // Get customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+
+        // Merge project and customer details
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                $project->$key = $value;
+            }
+        }
+        // Get document submission if exists
+        $document = $this->projectModel->getDocumentSubmission($projectId);
+
+        $data = [
+            'project' => $project,
+            'document' => $document
+        ];
+
+        $this->view('operationsCoordinator/v_documentSubmission', $data);
+    }
+
+    public function acceptDocument()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get submitted data
+        $documentId = $_POST['document_id'];
+        $projectId = $_POST['project_id'];
+
+        // Get document details
+        $document = $this->projectModel->getDocumentById($documentId);
+
+        if (!$document) {
+            flash('document_message', 'Document not found', 'alert alert-danger');
+            redirect('operationsCoordinator/documentSubmission/' . $projectId);
+        }
+
+        // Update document status
+        if ($this->projectModel->updateDocumentStatus($documentId, 'accept')) {
+            // Move project to next phase (first_payment)
+            $this->projectModel->updateProjectsPhase($projectId, 'first_payment');
+            flash('document_message', 'Document approved successfully', 'alert alert-success');
+        } else {
+            flash('document_message', 'Failed to approve document', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/documentSubmission/' . $projectId);
+    }
+
+    /**
+     * Reject submitted document
+     */
+    public function rejectDocument()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get submitted data
+        $documentId = $_POST['document_id'];
+        $projectId = $_POST['project_id'];
+        $rejectionReason = $_POST['rejection_reason'];
+
+        // Validate rejection reason
+        if (empty($rejectionReason)) {
+            flash('document_message', 'Please provide a reason for rejection', 'alert alert-danger');
+            redirect('operationsCoordinator/documentSubmission/' . $projectId);
+            return;
+        }
+
+        // Get document details
+        $document = $this->projectModel->getDocumentById($documentId);
+
+        if (!$document) {
+            flash('document_message', 'Document not found', 'alert alert-danger');
+            redirect('operationsCoordinator/documentSubmission/' . $projectId);
+        }
+
+        // Update document status
+        if ($this->projectModel->updateDocumentStatus($documentId, 'reject', $rejectionReason)) {
+            flash('document_message', 'Document rejected successfully', 'alert alert-success');
+        } else {
+            flash('document_message', 'Failed to reject document', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/documentSubmission/' . $projectId);
+    }
+
+    /**
+     * Handle first payment management
+     * 
+     * @param int $projectId The project ID
+     * @return void
+     */
+    public function firstPayment($projectId = null)
+    {
+        if ($projectId === null) {
+            flash('payment_message', 'Project ID is required', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+        if (!$project) {
+            flash('payment_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                $project->$key = $value;
+            }
+        }
+
+        // Get payment details
+        $payment = $this->projectModel->getProjectPayment($projectId, 'first_payment');
+
+        // Get bank slip if payment method is bank deposit
+        $bankSlip = null;
+        if ($payment && $payment->payment_method == 'bank deposit') {
+            $bankSlip = $this->projectModel->getProjectBankSlip($projectId, 'first_payment');
+        }
+
+        // Get agreement to find pricing details
+        $agreement = $this->projectModel->getAgreementById($project->agreement_id);
+        $firstPaymentAmount = 0;
+
+        if ($agreement) {
+            // Calculate 25% payment amount
+            $firstPaymentAmount = $agreement->total_price * 0.25;
+        }
+
+        $data = [
+            'project' => $project,
+            'payment' => $payment,
+            'bank_slip' => $bankSlip,
+            'first_payment_amount' => $firstPaymentAmount,
+            'agreement' => $agreement
+        ];
+
+        $this->view('operationsCoordinator/v_firstPayment', $data);
+    }
+
+    /**
+     * Process cash payment
+     */
+    public function processPayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $paymentId = $_POST['payment_id'];
+        $amount = $_POST['amount'];
+
+        // Update payment status
+        if ($this->projectModel->updateProjectPayment($paymentId, [
+            'payment_status' => true,
+            'amount' => $amount
+        ])) {
+            // Update project phase to installation
+            $this->projectModel->updateProjectsPhase($projectId, 'installation');
+
+            flash('payment_message', 'Payment processed successfully', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to process payment', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/firstPayment/' . $projectId);
+    }
 
 
+    /**
+     * Accept bank slip
+     */
+    public function acceptBankSlip()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $paymentId = $_POST['payment_id'];
+        $slipId = $_POST['slip_id'];
+        $amount = $_POST['amount'];
+
+        // Update bank slip status
+        if ($this->projectModel->updateBankSlipStatus($slipId, 'accept')) {
+            // Update payment status
+            $this->projectModel->updateProjectPayment($paymentId, [
+                'payment_status' => true,
+                'amount' => $amount
+            ]);
+
+            // Update project phase to installation
+            $this->projectModel->updateProjectsPhase($projectId, 'installation');
+
+            flash('payment_message', 'Bank slip accepted and payment processed successfully', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to accept bank slip', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/firstPayment/' . $projectId);
+    }
+
+    /**
+     * Reject bank slip
+     */
+    public function rejectBankSlip()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $slipId = $_POST['slip_id'];
+        $rejectReason = $_POST['reject_reason'];
+
+        // Update bank slip status
+        if ($this->projectModel->updateBankSlipStatus($slipId, 'reject', $rejectReason)) {
+            flash('payment_message', 'Bank slip rejected successfully', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to reject bank slip', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/firstPayment/' . $projectId);
+    }
 
 
+    //################################################################################################
+    //-------------------------------------Installation----------------------------------------------
+    //################################################################################################
+
+    // public function installation($projectId = null)
+    // {
+    //     if (!$projectId) {
+    //         flash('installation_message', 'Project ID is required', 'alert alert-danger');
+    //         redirect('operationsCoordinator/projects');
+    //     }
+
+    //     // Get project details
+    //     $project = $this->projectModel->getProjectById($projectId);
+    //     if (!$project) {
+    //         flash('installation_message', 'Project not found', 'alert alert-danger');
+    //         redirect('operationsCoordinator/projects');
+    //     }
+
+    //     $agreement = $this->projectModel->getAgreementById($project->agreement_id);
+
+    //     // Get customer details
+    //     $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+    //     if ($customerDetails) {
+    //         foreach ($customerDetails as $key => $value) {
+    //             $project->$key = $value;
+    //         }
+    //     }
+
+    //     // Get installation data if exists
+    //     $installation = $this->projectModel->getInstallationPhase($projectId);
+    //     $schedule = null;
+    //     $engineer = null;
+
+    //     if ($installation) {
+    //         // Get schedule data
+    //         $schedule = $this->projectModel->getInstallationSchedule($installation->installation_id);
+
+    //         // Get engineer data if assigned
+    //         $engineer = $this->projectModel->getAssignedEngineer($installation->installation_id);
+
+    //         // Get team members
+    //         $teamMembers = $this->projectModel->getInstallationTeamMembers($installation->installation_id);
+    //     }
+
+    //     // Get engineers for assignment dropdown
+    //     $engineers = $this->employeeModel->getEmployeesByRole('engineer');
+
+    //     // Get technicians for selection
+    //     $technicians = $this->employeeModel->getEmployeesByRole('technician');
+
+    //     // Get upcoming installations for the next month
+    //     $upcomingInstallations = $this->projectModel->getUpcomingInstallations();
+
+    //     $data = [
+    //         'project' => $project,
+    //         'installation' => $installation,
+    //         'agreement' => $agreement,
+    //         'schedule' => $schedule,
+    //         'engineer' => $engineer,
+    //         'engineers' => $engineers,
+    //         'technicians' => $technicians,
+    //         'team_members' => $teamMembers ?? [],
+    //         'upcoming_installations' => $upcomingInstallations
+    //     ];
+
+    //     $this->view('operationsCoordinator/v_installation', $data);
+    // }
+    // Add a new method to get installation details for the modal
+    public function getInstallationDetails($installationId)
+    {
+        // Check if request is AJAX
+        if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get installation details
+        $installation = $this->projectModel->getInstallationById($installationId);
+        $schedule = $this->projectModel->getInstallationSchedule($installationId);
+        $engineer = $this->projectModel->getAssignedEngineer($installationId);
+        $teamMembers = $this->projectModel->getInstallationTeamMembers($installationId);
+
+        $response = [
+            'success' => true,
+            'installation' => $installation,
+            'schedule' => $schedule,
+            'engineer' => $engineer,
+            'team_members' => $teamMembers
+        ];
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+        exit;
+    }
 
 
+    /**
+     * Schedule a new installation
+     */
+    // public function scheduleInstallation()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    //         redirect('operationsCoordinator/projects');
+    //     }
+
+    //     // Get form data
+    //     $projectId = $_POST['project_id'];
+    //     $startDate = $_POST['start_date'];
+    //     $startTime = $_POST['start_time'];
+    //     $durationDays = $_POST['duration_days'];
+    //     $engineerId = $_POST['engineer_id'];
+    //     $technicians = isset($_POST['technicians']) ? $_POST['technicians'] : [];
+    //     error_log(print_r($technicians, true));
+
+    //     // Validate technicians count
+    //     if (count($technicians) < 3 || count($technicians) > 6) {
+    //         flash('installation_message', 'Please select between 3 and 6 technicians', 'alert alert-danger');
+    //         redirect('operationsCoordinator/installation/' . $projectId);
+    //         return;
+    //     }
+
+    //     // Calculate end date
+    //     $endDate = date('Y-m-d', strtotime($startDate . ' + ' . $durationDays . ' days'));
+
+    //     // Validate time (8am - 12pm)
+    //     $hour = (int)substr($startTime, 0, 2);
+    //     if ($hour < 8 || $hour > 12) {
+    //         flash('installation_message', 'Installation start time must be between 8:00 AM and 12:00 PM', 'alert alert-danger');
+    //         redirect('operationsCoordinator/installation/' . $projectId);
+    //         return;
+    //     }
+
+    //     // Create installation phase record
+    //     $installationId = $this->projectModel->createInstallationPhase([
+    //         'project_id' => $projectId,
+    //         'status' => 'initial'
+    //     ]);
+
+    //     if (!$installationId) {
+    //         flash('installation_message', 'Failed to create installation record', 'alert alert-danger');
+    //         redirect('operationsCoordinator/installation/' . $projectId);
+    //         return;
+    //     }
+
+    //     // Assign engineer to installation
+    //     $engineerAssigned = $this->projectModel->assignEngineerToInstallation($installationId, $engineerId);
+    //     if (!$engineerAssigned) {
+    //         flash('installation_message', 'Failed to assign engineer', 'alert alert-warning');
+    //     }
+
+    //     // Assign technicians to installation
+    //     $techniciansAssigned = true;
+    //     foreach ($technicians as $technicianId) {
+    //         if (!$this->projectModel->assignTechnicianToInstallation($installationId, $technicianId)) {
+    //             $techniciansAssigned = false;
+    //         }
+    //     }
+
+    //     if (!$techniciansAssigned) {
+    //         flash('installation_message', 'Some technicians could not be assigned', 'alert alert-warning');
+    //     }
+
+    //     // Create installation schedule
+    //     $scheduleCreated = $this->projectModel->createInstallationSchedule([
+    //         'installation_id' => $installationId,
+    //         'start_date' => $startDate,
+    //         'start_time' => $startTime,
+    //         'end_date' => $endDate,
+    //         'status' => 'pending'
+    //     ]);
+
+    //     if ($scheduleCreated) {
+    //         flash('installation_message', 'Installation scheduled successfully', 'alert alert-success');
+    //     } else {
+    //         flash('installation_message', 'Failed to schedule installation', 'alert alert-danger');
+    //     }
+
+    //     redirect('operationsCoordinator/installation/' . $projectId);
+    // }
+
+    public function addTeamMember()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $installationId = $_POST['installation_id'];
+        $employeeId = $_POST['employee_id'];
+        $projectId = $_POST['project_id'];
+
+        if ($this->projectModel->addEmployeeToInstallation($installationId, $employeeId)) {
+            flash('installation_message', 'Team member added successfully', 'alert alert-success');
+        } else {
+            flash('installation_message', 'Failed to add team member', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    /**
+     * Reschedule an installation
+     */
+    // public function rescheduleInstallation()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    //         redirect('operationsCoordinator/projects');
+    //     }
+
+    //     // Get form data
+    //     $installationId = $_POST['installation_id'];
+    //     $scheduleId = $_POST['schedule_id'];
+    //     $projectId = $_POST['project_id'];
+    //     $startDate = $_POST['start_date'];
+    //     $startTime = $_POST['start_time'];
+    //     $durationDays = $_POST['duration_days'];
+    //     $engineerId = $_POST['engineer_id'];
+    //     $technicians = isset($_POST['technicians']) ? $_POST['technicians'] : [];
+
+    //     // Validate technicians count
+    //     if (count($technicians) < 3 || count($technicians) > 6) {
+    //         flash('installation_message', 'Please select between 3 and 6 technicians', 'alert alert-danger');
+    //         redirect('operationsCoordinator/installation/' . $projectId);
+    //         return;
+    //     }
+
+    //     // Calculate end date
+    //     $endDate = date('Y-m-d', strtotime($startDate . ' + ' . $durationDays . ' days'));
+
+    //     // Create new schedule
+    //     $scheduleCreated = $this->projectModel->createInstallationSchedule([
+    //         'installation_id' => $installationId,
+    //         'start_date' => $startDate,
+    //         'start_time' => $startTime,
+    //         'end_date' => $endDate,
+    //         'status' => 'pending'
+    //     ]);
+
+    //     if (!$scheduleCreated) {
+    //         flash('installation_message', 'Failed to reschedule installation', 'alert alert-danger');
+    //         redirect('operationsCoordinator/installation/' . $projectId);
+    //         return;
+    //     }
+
+    //     // Update engineer if changed
+    //     $engineerAssigned = $this->projectModel->reassignEngineer($installationId, $engineerId);
+
+    //     // Update technicians
+    //     // First remove all current technicians
+    //     $this->projectModel->removeAllTechnicians($installationId);
+
+    //     // Then add new ones
+    //     $techniciansAssigned = true;
+    //     foreach ($technicians as $technicianId) {
+    //         if (!$this->projectModel->assignTechnicianToInstallation($installationId, $technicianId)) {
+    //             $techniciansAssigned = false;
+    //         }
+    //     }
+
+    //     flash('installation_message', 'Installation rescheduled successfully', 'alert alert-success');
+    //     redirect('operationsCoordinator/installation/' . $projectId);
+    // }
+
+    public function reassignEngineer()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $installationId = $_POST['installation_id'];
+        $engineerId = $_POST['engineer_id'];
+        $projectId = $_POST['project_id'];
+
+        if ($this->projectModel->reassignEngineer($installationId, $engineerId)) {
+            flash('installation_message', 'Engineer reassigned successfully', 'alert alert-success');
+        } else {
+            flash('installation_message', 'Failed to reassign engineer', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    // public function completeInstallation()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    //         redirect('operationsCoordinator/projects');
+    //     }
+
+    //     $installationId = $_POST['installation_id'];
+    //     $projectId = $_POST['project_id'];
+
+    //     // Update installation status to completed
+    //     $installationUpdated = $this->projectModel->updateInstallationStatus($installationId, 'completed');
+
+    //     if ($installationUpdated) {
+    //         // Move project to final payment phase
+    //         $projectUpdated = $this->projectModel->updateProjectsPhase($projectId, 'final_payment');
+
+    //         if ($projectUpdated) {
+    //             flash('installation_message', 'Installation phase completed successfully', 'alert alert-success');
+    //         } else {
+    //             flash('installation_message', 'Installation completed but failed to update project phase', 'alert alert-warning');
+    //         }
+    //     } else {
+    //         flash('installation_message', 'Failed to complete installation', 'alert alert-danger');
+    //     }
+
+    //     redirect('operationsCoordinator/installation/' . $projectId);
+    // }
+
+    // installations new
+    public function projectInstallations()
+    {
+        // Get all projects in installation phase
+        $projects = $this->projectModel->getProjectsInInstallationPhase();
+
+        $data = [
+            'title' => 'Installation Management',
+            'projects' => $projects
+        ];
+
+        $this->view('operationsCoordinator/v_projectInstallations', $data);
+    }
+
+    public function installation($projectId)
+    {
+        // Get project details
+        $project = $this->projectModel->getProjectWithCustomerInfo($projectId);
+
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projectInstallations');
+        }
+
+        // Get installation details if exists
+        $installation = $this->projectModel->getInstallationByProjectId($projectId);
+
+        $data = [
+            'title' => 'Manage Installation',
+            'project' => $project,
+            'installation' => $installation
+        ];
+
+        $this->view('operationsCoordinator/v_installation', $data);
+    }
+
+    public function scheduleInstallation()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projectInstallations');
+            return;
+        }
+
+        // Process form data
+        $projectId = $_POST['project_id'];
+        $startDate = $_POST['start_date'];
+        $endDate = $_POST['end_date'];
+
+        // Validate dates
+        if (strtotime($startDate) < strtotime(date('Y-m-d'))) {
+            flash('installation_message', 'Start date cannot be in the past', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        if (strtotime($endDate) < strtotime($startDate)) {
+            flash('installation_message', 'End date cannot be before start date', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        // Create installation record
+        $installationData = [
+            'project_id' => $projectId,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'schedule_status' => 'pending',
+            'status' => 'initial'
+        ];
+
+        if ($this->projectModel->createInstallation($installationData)) {
+            flash('installation_message', 'Installation schedule created successfully', 'alert alert-success');
+        } else {
+            flash('installation_message', 'Failed to create installation schedule', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    public function rescheduleInstallation()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projectInstallations');
+            return;
+        }
+
+        $installationId = $_POST['installation_id'];
+        $projectId = $_POST['project_id'];
+        $startDate = $_POST['start_date'];
+        $endDate = $_POST['end_date'];
+
+        // Validate dates
+        if (strtotime($startDate) < strtotime(date('Y-m-d'))) {
+            flash('installation_message', 'Start date cannot be in the past', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        if (strtotime($endDate) < strtotime($startDate)) {
+            flash('installation_message', 'End date cannot be before start date', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        // Use project model to update installation record
+        if ($this->projectModel->updateInstallationSchedule($installationId, [
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'schedule_status' => 'pending'
+        ])) {
+            flash('installation_message', 'Installation rescheduled successfully', 'alert alert-success');
+        } else {
+            flash('installation_message', 'Failed to reschedule installation', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    public function extendInstallation()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projectInstallations');
+            return;
+        }
+
+        $installationId = $_POST['installation_id'];
+        $projectId = $_POST['project_id'];
+        $endDate = $_POST['end_date'];
+
+        // Validate end date
+        $installation = $this->projectModel->getInstallationByProjectId($projectId);
+
+        if (strtotime($endDate) <= strtotime($installation->end_date)) {
+            flash('installation_message', 'New end date must be after current end date', 'alert alert-danger');
+            redirect('operationsCoordinator/installation/' . $projectId);
+            return;
+        }
+
+        // Update installation end date
+        if ($this->projectModel->updateInstallationEndDate($installationId, $endDate)) {
+            flash('installation_message', 'Installation extended successfully', 'alert alert-success');
+        } else {
+            flash('installation_message', 'Failed to extend installation', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/installation/' . $projectId);
+    }
+
+    public function completeInstallation()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projectInstallations');
+            return;
+        }
+
+        $installationId = $_POST['installation_id'];
+        $projectId = $_POST['project_id'];
+
+        // Update installation status to completed
+        if ($this->projectModel->updateInstallationStatus($installationId, 'completed')) {
+            // Update project phase to next phase (engineer_approval)
+            $this->projectModel->updateProjectsPhase($projectId, 'engineer_approval');
+
+            flash('installation_message', 'Installation marked as completed', 'alert alert-success');
+        } else {
+            flash('installation_message', 'Failed to complete installation', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/projectInstallations');
+    }
+
+    //################################################################################################
+    //-------------------------------------Final Payment----------------------------------------------
+    //################################################################################################
+
+    public function finalPayment($projectId = null)
+    {
+        if ($projectId === null) {
+            flash('payment_message', 'Project ID is required', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+        if (!$project) {
+            flash('payment_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                $project->$key = $value;
+            }
+        }
+
+        // Get payment details
+        $payment = $this->projectModel->getProjectPayment($projectId, 'final_payment');
+
+        // Get bank slip if payment method is bank deposit
+        $bankSlip = null;
+        if ($payment && $payment->payment_method == 'bank deposit') {
+            $bankSlip = $this->projectModel->getProjectBankSlip($projectId, 'final_payment');
+        }
+
+        // Get first payment details
+        $firstPayment = $this->projectModel->getProjectPayment($projectId, 'first_payment');
+        $firstPaymentAmount = 0;
+        if ($firstPayment && $firstPayment->payment_status) {
+            $firstPaymentAmount = $firstPayment->amount;
+        }
+
+        // Get agreement to find pricing details
+        $agreement = $this->projectModel->getAgreementById($project->agreement_id);
+        $finalPaymentAmount = 0;
+
+        if ($agreement) {
+            // Calculate remaining amount (typically 75% or the balance)
+            $finalPaymentAmount = $agreement->total_price - $firstPaymentAmount;
+        }
+
+        $data = [
+            'project' => $project,
+            'payment' => $payment,
+            'bank_slip' => $bankSlip,
+            'first_payment_amount' => $firstPaymentAmount,
+            'final_payment_amount' => $finalPaymentAmount,
+            'agreement' => $agreement
+        ];
+
+        $this->view('operationsCoordinator/v_finalPayment', $data);
+    }
+
+    /**
+     * Process final cash payment
+     */
+    public function processFinalPayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $paymentId = $_POST['payment_id'];
+        $amount = $_POST['amount'];
+
+        // Update payment status
+        if ($this->projectModel->updateProjectPayment($paymentId, [
+            'payment_status' => true,
+            'amount' => $amount
+        ])) {
+            // Update project phase to engineer_approval after final payment
+            $this->projectModel->updateProjectsPhase($projectId, 'engineer_approval');
+
+            flash('payment_message', 'Final payment processed successfully. Project moved to engineer approval phase.', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to process payment', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/finalPayment/' . $projectId);
+    }
+
+    /**
+     * Accept final payment bank slip
+     */
+    public function acceptFinalBankSlip()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $paymentId = $_POST['payment_id'];
+        $slipId = $_POST['slip_id'];
+        $amount = $_POST['amount'];
+
+        // Update bank slip status
+        if ($this->projectModel->updateBankSlipStatus($slipId, 'accept')) {
+            // Update payment status
+            $this->projectModel->updateProjectPayment($paymentId, [
+                'payment_status' => true,
+                'amount' => $amount
+            ]);
+
+            // Update project phase to engineer_approval
+            $this->projectModel->updateProjectsPhase($projectId, 'engineer_approval');
+
+            flash('payment_message', 'Bank slip accepted and final payment processed successfully. Project moved to engineer approval phase.', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to accept bank slip', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/finalPayment/' . $projectId);
+    }
+
+    /**
+     * Reject final payment bank slip
+     */
+    public function rejectFinalBankSlip()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $slipId = $_POST['slip_id'];
+        $rejectReason = $_POST['reject_reason'];
+
+        // Update bank slip status
+        if ($this->projectModel->updateBankSlipStatus($slipId, 'reject', $rejectReason)) {
+            flash('payment_message', 'Bank slip rejected successfully', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to reject bank slip', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/finalPayment/' . $projectId);
+    }
 
 
 
@@ -784,13 +1735,11 @@ class OperationsCoordinator extends Controller
 
 
 
-    public function manageAproject()
-    {
-        $data = [];
-        $this->view('operationsCoordinator/v_manageAproject', $data);
-    }
+
+
 
     // View all tasks
+
     public function tasks()
     {
         // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
@@ -1279,9 +2228,7 @@ class OperationsCoordinator extends Controller
         }
         redirect('operationsCoordinator/managePackages');
     }
-
-
-
+  
     public function chat()
     {
         // Get clients who have chat history with this coordinator

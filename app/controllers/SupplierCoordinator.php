@@ -8,6 +8,9 @@ class SupplierCoordinator extends Controller
     private $shopModel;
     private $chatModel;
     private $supplierCoordinatorModel;
+    private $projectModel;
+    private $paymentModel;
+    private $orderModel;
 
     public function __construct()
     {
@@ -20,6 +23,9 @@ class SupplierCoordinator extends Controller
         $this->shopModel = $this->model('M_Shop');
         $this->chatModel = $this->model('M_Chat');
         $this->supplierCoordinatorModel = $this->model('M_SupplierCoordinator');
+        $this->projectModel = $this->model('M_CustomerProject');
+        $this->paymentModel = $this->model('M_Payment');
+        $this->orderModel = $this->model('M_Order');
 
         // Check for unread messages on every page load
         $clients = $this->supplierCoordinatorModel->getClientsWithChats();
@@ -964,18 +970,18 @@ class SupplierCoordinator extends Controller
         redirect('supplierCoordinator/shop');
     }
 
-    public function viewOrder($id)
-    {
-        $order = $this->shopModel->getOrderDetails($id);
-        if ($order) {
-            $data = [
-                'order' => $order
-            ];
-            $this->view('supplierCoordinator/v_requestOrders', $data);
-        } else {
-            redirect('supplierCoordinator/dashboard');
-        }
-    }
+    // public function viewOrder($id)
+    // {
+    //     $order = $this->shopModel->getOrderDetails($id);
+    //     if ($order) {
+    //         $data = [
+    //             'order' => $order
+    //         ];
+    //         $this->view('supplierCoordinator/v_requestOrders', $data);
+    //     } else {
+    //         redirect('supplierCoordinator/dashboard');
+    //     }
+    // }
 
     public function approveOrder()
     {
@@ -1138,5 +1144,391 @@ class SupplierCoordinator extends Controller
 
         header('Content-Type: application/json');
         echo json_encode(['hasUnread' => ($totalUnreadCount > 0)]);
+    }
+  
+    //################################################################################################
+    //-------------------------------------Projects----------------------------------------------
+    //################################################################################################
+
+    public function projects()
+    {
+        // Get installation projects pending equipment release
+        $projects = $this->projectModel->getInstallationPendingReleaseProjects();
+
+        $data = [
+            'title' => 'Installation Projects',
+            'projects' => $projects
+        ];
+
+        $this->view('supplierCoordinator/v_projects', $data);
+    }
+
+    public function releaseEquipment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('supplierCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $agreementId = $_POST['agreement_id'];
+
+        // Check if there's enough inventory for all items
+        $equipment = $this->projectModel->getAgreementEquipmentWithInventory($agreementId);
+        $insufficientItems = [];
+
+        foreach ($equipment as $item) {
+            if ($item->inventory_quantity < $item->required_quantity) {
+                $insufficientItems[] = $item->name;
+            }
+        }
+
+        if (!empty($insufficientItems)) {
+            $message = 'Insufficient inventory for: ' . implode(', ', $insufficientItems);
+            flash('project_message', $message, 'alert alert-danger');
+            redirect('supplierCoordinator/projectEquipments/' . $projectId);
+        }
+
+        // Update inventory quantities and mark equipment as released
+        $success = $this->projectModel->releaseEquipmentForProject($projectId, $equipment);
+
+        if ($success) {
+            flash('project_message', 'Equipment released successfully', 'alert alert-success');
+        } else {
+            flash('project_message', 'Failed to release equipment', 'alert alert-danger');
+        }
+
+        redirect('supplierCoordinator/projects');
+    }
+
+    public function projectEquipments($projectId)
+    {
+        // Get project details with customer information
+        $project = $this->projectModel->getProjectById($projectId);
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('supplierCoordinator/projects');
+        }
+
+        // Get customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                $project->$key = $value;
+            }
+        }
+
+        // Get agreement details
+        $agreement = $this->projectModel->getAgreementById($project->agreement_id);
+        if (!$agreement) {
+            flash('project_message', 'Agreement not found', 'alert alert-danger');
+            redirect('supplierCoordinator/projects');
+        }
+
+        // Get equipment list from agreement
+        $equipment = $this->projectModel->getAgreementEquipmentWithInventory($agreement->agreement_id);
+
+        $data = [
+            'project' => $project,
+            'agreement' => $agreement,
+            'equipment' => $equipment
+        ];
+
+        $this->view('supplierCoordinator/v_projectEquipments', $data);
+    }
+
+    //################################################################################################
+    //-------------------------------------Shop----------------------------------------------
+    //################################################################################################
+
+    public function orders()
+    {
+        $data = [
+            'orders' => $this->shopModel->getAllOrders(),
+            'pendingCount' => $this->orderModel->getOrderCountByStatus('pending'),
+            'processingCount' => $this->orderModel->getOrderCountByStatus('processing'),
+            'shippedCount' => $this->orderModel->getOrderCountByStatus('shipped')
+        ];
+
+        $this->view('supplierCoordinator/v_orders', $data);
+    }
+
+    public function viewOrder($orderId)
+    {
+        $order = $this->shopModel->getOrderById($orderId);
+
+        if (!$order) {
+            flash('order_message', 'Order not found', 'alert alert-danger');
+            redirect('supplierCoordinator/orders');
+        }
+
+        $orderItems = $this->shopModel->getOrderItems($orderId);
+        $payment = $this->shopModel->getOrderPayment($orderId);
+
+        // Get delivery persons if order is in processing status
+        $deliveryPersons = [];
+        if ($order->status == 'processing') {
+            $deliveryPersons = $this->shopModel->getDeliveryPersons();
+        }
+
+        // Get assigned delivery person if any
+        $deliveryPerson = null;
+        if (!is_null($order->deliver_id)) {
+            $deliveryPerson = $this->shopModel->getOrderDeliveryPerson($orderId);
+        }
+
+        $data = [
+            'order' => $order,
+            'orderItems' => $orderItems,
+            'payment' => $payment,
+            'delivery_persons' => $deliveryPersons,
+            'delivery_person' => $deliveryPerson
+        ];
+
+        $this->view('supplierCoordinator/v_orderDetails', $data);
+    }
+
+    public function updateOrderStatus()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $orderId = $_POST['order_id'];
+            $status = $_POST['status'];
+
+            if ($this->shopModel->updateOrderStatus($orderId, $status)) {
+                flash('order_message', 'Order status updated successfully');
+            } else {
+                flash('order_message', 'Failed to update order status', 'alert alert-danger');
+            }
+
+            redirect('supplierCoordinator/viewOrder/' . $orderId);
+        }
+    }
+
+    // public function verifyPayment()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    //         $paymentId = $_POST['payment_id'];
+    //         $action = $_POST['action'];
+
+    //         // For approve action
+    //         if ($action == 'approve') {
+    //             if ($this->paymentModel->approvePayment($paymentId)) {
+    //                 // Also update the order status if needed
+    //                 $payment = $this->paymentModel->getPaymentById($paymentId);
+    //                 if ($payment) {
+    //                     $this->shopModel->updateOrderStatus($payment->order_id, 'processing');
+    //                 }
+    //                 flash('payment_message', 'Payment approved successfully', 'alert alert-success');
+    //             } else {
+    //                 flash('payment_message', 'Failed to approve payment', 'alert alert-danger');
+    //             }
+    //         }
+    //         // For reject action
+    //         else if ($action == 'reject') {
+    //             $rejectionReason = $_POST['rejection_reason'];
+    //             if ($this->paymentModel->rejectPayment($paymentId, $rejectionReason)) {
+    //                 flash('payment_message', 'Payment rejected successfully', 'alert alert-success');
+    //             } else {
+    //                 flash('payment_message', 'Failed to reject payment', 'alert alert-danger');
+    //             }
+    //         }
+
+    //         // Redirect back to orders page
+    //         redirect('supplierCoordinator/orders');
+    //     } else {
+    //         redirect('supplierCoordinator/orders');
+    //     }
+    // }
+
+    public function approvePayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $paymentId = $_POST['payment_id'];
+
+            if ($this->paymentModel->approvePayment($paymentId)) {
+                // Also update the order status if needed
+                $payment = $this->paymentModel->getPaymentById($paymentId);
+                if ($payment) {
+                    $this->shopModel->updateOrderStatus($payment->order_id, 'processing');
+                }
+                flash('payment_message', 'Payment approved successfully', 'alert alert-success');
+            } else {
+                flash('payment_message', 'Failed to approve payment', 'alert alert-danger');
+            }
+
+            // Get the order ID to redirect back to the order details
+            $payment = $this->paymentModel->getPaymentById($paymentId);
+            if ($payment) {
+                redirect('supplierCoordinator/viewOrder/' . $payment->order_id);
+            } else {
+                redirect('supplierCoordinator/orders');
+            }
+        } else {
+            redirect('supplierCoordinator/orders');
+        }
+    }
+
+    public function rejectPayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $paymentId = $_POST['payment_id'];
+            $rejectionReason = trim($_POST['rejection_reason']);
+
+            if (empty($rejectionReason)) {
+                flash('payment_message', 'Rejection reason is required', 'alert alert-danger');
+
+                // Get the order ID to redirect back to the order details
+                $payment = $this->paymentModel->getPaymentById($paymentId);
+                if ($payment) {
+                    redirect('supplierCoordinator/viewOrder/' . $payment->order_id);
+                } else {
+                    redirect('supplierCoordinator/orders');
+                }
+                return;
+            }
+
+            if ($this->paymentModel->rejectPayment($paymentId, $rejectionReason)) {
+                flash('payment_message', 'Payment rejected successfully', 'alert alert-success');
+            } else {
+                flash('payment_message', 'Failed to reject payment', 'alert alert-danger');
+            }
+
+            // Get the order ID to redirect back to the order details
+            $payment = $this->paymentModel->getPaymentById($paymentId);
+            if ($payment) {
+                redirect('supplierCoordinator/viewOrder/' . $payment->order_id);
+            } else {
+                redirect('supplierCoordinator/orders');
+            }
+        } else {
+            redirect('supplierCoordinator/orders');
+        }
+    }
+
+    // Filter orders by status
+    public function filterOrders()
+    {
+        if (isset($_GET['status'])) {
+            $status = $_GET['status'];
+            $orders = $this->shopModel->getOrdersByStatus($status);
+
+            $data = [
+                'orders' => $orders,
+                'activeStatus' => $status
+            ];
+
+            $this->view('supplierCoordinator/v_orders', $data);
+        } else {
+            redirect('supplierCoordinator/orders');
+        }
+    }
+
+    // Generate order report
+    public function generateOrderReport()
+    {
+        // Get order statistics
+        $orderStats = $this->shopModel->getOrderStats();
+
+        // Get top selling products
+        $topProducts = $this->shopModel->getTopSellingProducts(5);
+
+        // Get recent orders formatted for display
+        $recentOrders = $this->shopModel->getFormattedRecentOrders(10);
+
+        $data = [
+            'totalOrders' => $orderStats['totalOrders'],
+            'totalRevenue' => $orderStats['totalRevenue'],
+            'ordersByStatus' => $orderStats['ordersByStatus'],
+            'topProducts' => $topProducts,
+            'recentOrders' => $recentOrders
+        ];
+
+        $this->view('supplierCoordinator/v_orderReport', $data);
+    }
+
+    // Excel/CSV export of orders
+    public function exportOrders()
+    {
+        // Get orders data
+        $orders = $this->shopModel->getRecentOrders(100); // Get up to 100 orders for export
+
+        // Set headers for CSV download
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="orders-export-' . date('Y-m-d') . '.csv"');
+
+        // Create a file pointer connected to the output stream
+        $output = fopen('php://output', 'w');
+
+        // Output CSV header row
+        fputcsv($output, ['Order ID', 'Customer', 'Product', 'Quantity', 'Unit Price', 'Delivery Fee', 'Discount', 'Total', 'Status', 'Date']);
+
+        // Output each order as a CSV row
+        foreach ($orders as $order) {
+            $total = ($order->price * $order->quantity) + $order->delivery_fee - ($order->discount ?? 0);
+
+            fputcsv($output, [
+                $order->id,
+                $order->customer_name,
+                $order->product_name,
+                $order->quantity,
+                $order->price,
+                $order->delivery_fee,
+                $order->discount ?? 0,
+                $total,
+                $order->status,
+                $order->created_at
+            ]);
+        }
+
+        // Close the file pointer
+        fclose($output);
+        exit;
+    }
+
+    public function assignDeliveryPerson()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $orderId = $_POST['order_id'];
+            $deliveryPersonId = $_POST['delivery_person_id'];
+
+            if ($this->shopModel->assignDeliveryPerson($orderId, $deliveryPersonId)) {
+                flash('order_message', 'Delivery person assigned successfully', 'alert alert-success');
+            } else {
+                flash('order_message', 'Failed to assign delivery person', 'alert alert-danger');
+            }
+
+            redirect('supplierCoordinator/viewOrder/' . $orderId);
+        } else {
+            redirect('supplierCoordinator/orders');
+        }
+    }
+
+    public function confirmOrder($orderId)
+    {
+        // Check if order exists
+        $order = $this->shopModel->getOrderById($orderId);
+
+        if (!$order) {
+            flash('order_message', 'Order not found', 'alert alert-danger');
+            redirect('supplierCoordinator/orders');
+            return;
+        }
+
+        // Check if order status is shipped
+        if ($order->status !== 'shipped') {
+            flash('order_message', 'Only shipped orders can be marked as delivered', 'alert alert-danger');
+            redirect('supplierCoordinator/viewOrder/' . $orderId);
+            return;
+        }
+
+        // Update order status to delivered and set delivered_at timestamp
+        $status = 'delivered';
+
+        if ($this->shopModel->updateOrderStatus($orderId, $status)) {
+            flash('order_message', 'Order marked as delivered successfully', 'alert alert-success');
+        } else {
+            flash('order_message', 'Failed to update order status', 'alert alert-danger');
+        }
+
+        redirect('supplierCoordinator/viewOrder/' . $orderId);
     }
 }

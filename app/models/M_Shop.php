@@ -229,19 +229,19 @@ class M_Shop
         }
     }
 
-    public function getUserOrders($userId)
-    {
-        $this->db->query("SELECT 
-        so.*, p.name AS product_name
-        FROM store_orders so
-        JOIN products p ON so.product_id = p.id
-        WHERE so.user_id = :user_id 
-        AND so.deleted_at IS NULL
-        ORDER BY so.created_at DESC");
+    // public function getUserOrders($userId)
+    // {
+    //     $this->db->query("SELECT 
+    //     so.*, p.name AS product_name
+    //     FROM store_orders so
+    //     JOIN products p ON so.product_id = p.id
+    //     WHERE so.user_id = :user_id 
+    //     AND so.deleted_at IS NULL
+    //     ORDER BY so.created_at DESC");
 
-        $this->db->bind(':user_id', $userId);
-        return $this->db->resultSet();
-    }
+    //     $this->db->bind(':user_id', $userId);
+    //     return $this->db->resultSet();
+    // }
 
     public function getPendingOrders()
     {
@@ -416,5 +416,431 @@ class M_Shop
             error_log('Payment processing error: ' . $e->getMessage());
             return false;
         }
+    }
+
+    //new funtions
+    // Create order
+    public function createOrder($orderData, $cartItems)
+    {
+        // Generate order number
+        $orderNumber = 'ORD' . date('Ymd') . rand(1000, 9999);
+
+        // Insert order
+        $this->db->query('INSERT INTO orders (user_id, order_number, total_amount, shipping_address, 
+                                           contact_phone, payment_method, status) 
+                         VALUES (:user_id, :order_number, :total_amount, :shipping_address, 
+                                :contact_phone, :payment_method, :status)');
+
+        $this->db->bind(':user_id', $orderData['user_id']);
+        $this->db->bind(':order_number', $orderNumber);
+        $this->db->bind(':total_amount', $orderData['total_amount']);
+        $this->db->bind(':shipping_address', $orderData['shipping_address']);
+        $this->db->bind(':contact_phone', $orderData['contact_phone']);
+        $this->db->bind(':payment_method', $orderData['payment_method']);
+        $this->db->bind(':status', 'pending');
+
+        if (!$this->db->execute()) {
+            return false;
+        }
+
+        $orderId = $this->db->lastInsertId();
+
+        // Insert order items
+        $allItemsInserted = true;
+        foreach ($cartItems as $item) {
+            $this->db->query('INSERT INTO order_items (order_id, product_id, quantity, price_at_time) 
+                             VALUES (:order_id, :product_id, :quantity, :price_at_time)');
+
+            $this->db->bind(':order_id', $orderId);
+            $this->db->bind(':product_id', $item->product_id);
+            $this->db->bind(':quantity', $item->quantity);
+            $this->db->bind(':price_at_time', $item->price_at_time);
+
+            if (!$this->db->execute()) {
+                $allItemsInserted = false;
+                break;
+            }
+        }
+
+        // If any order item failed to insert, you might want to manually delete the order
+        if (!$allItemsInserted) {
+            $this->deleteOrder($orderId);
+            return false;
+        }
+
+        return $orderId;
+    }
+
+    // Helper function to delete an order if item insertion fails
+    private function deleteOrder($orderId)
+    {
+        // Delete any already inserted order items
+        $this->db->query('DELETE FROM order_items WHERE order_id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        $this->db->execute();
+
+        // Delete the order
+        $this->db->query('DELETE FROM orders WHERE id = :id');
+        $this->db->bind(':id', $orderId);
+        $this->db->execute();
+    }
+
+    // Get order by ID
+    public function getOrderById($orderId)
+    {
+        $this->db->query('SELECT o.*, u.name as customer_name, u.email 
+                     FROM orders o 
+                     JOIN users u ON o.user_id = u.user_id 
+                     WHERE o.id = :id');
+        $this->db->bind(':id', $orderId);
+        return $this->db->single();
+    }
+
+    // Get user orders
+    public function getUserOrders($userId)
+    {
+        $this->db->query('SELECT o.*, 
+                     (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as total_items 
+                     FROM orders o 
+                     WHERE o.user_id = :user_id 
+                     ORDER BY o.created_at DESC');
+        $this->db->bind(':user_id', $userId);
+        return $this->db->resultSet();
+    }
+
+    // Get order items
+    public function getOrderItems($orderId)
+    {
+        $this->db->query('SELECT oi.*, p.name, p.image1 
+                     FROM order_items oi 
+                     JOIN products p ON oi.product_id = p.id 
+                     WHERE oi.order_id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        return $this->db->resultSet();
+    }
+
+    // Get order total
+    public function getOrderTotal($orderId)
+    {
+        $this->db->query('SELECT SUM(quantity * price_at_time) as total 
+                     FROM order_items 
+                     WHERE order_id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        $result = $this->db->single();
+        return $result->total ?? 0;
+    }
+
+    // Get order payment
+    // public function getOrderPayment($orderId)
+    // {
+    //     $this->db->query('SELECT * FROM payments WHERE order_id = :order_id');
+    //     $this->db->bind(':order_id', $orderId);
+    //     return $this->db->single();
+    // }
+    public function getOrderPayment($orderId)
+    {
+        $this->db->query('SELECT * FROM payments WHERE order_id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        $result = $this->db->single();
+        return $result ?: null; // Return null if no record is found
+    }
+
+    // Update order status
+    public function updateOrderStatus($orderId, $status)
+    {
+        $this->db->query('UPDATE orders 
+                     SET status = :status, 
+                         updated_at = CURRENT_TIMESTAMP 
+                     WHERE id = :id');
+
+        $this->db->bind(':status', $status);
+        $this->db->bind(':id', $orderId);
+
+        return $this->db->execute();
+    }
+
+    // Update order details
+    public function updateOrder($orderId, $data)
+    {
+        $this->db->query('UPDATE orders 
+                     SET shipping_address = :shipping_address, 
+                         contact_phone = :contact_phone, 
+                         payment_method = :payment_method, 
+                         updated_at = CURRENT_TIMESTAMP 
+                     WHERE id = :id');
+
+        $this->db->bind(':shipping_address', $data['shipping_address']);
+        $this->db->bind(':contact_phone', $data['contact_phone']);
+        $this->db->bind(':payment_method', $data['payment_method']);
+        $this->db->bind(':id', $orderId);
+
+        return $this->db->execute();
+    }
+
+    // Get orders by status
+    public function getOrdersByStatus($status)
+    {
+        $this->db->query('SELECT o.*, u.name as customer_name 
+                     FROM orders o 
+                     JOIN users u ON o.user_id = u.user_id 
+                     WHERE o.status = :status 
+                     ORDER BY o.created_at DESC');
+        $this->db->bind(':status', $status);
+        return $this->db->resultSet();
+    }
+
+    // Get all orders (for admin)
+    public function getAllOrders()
+    {
+        $this->db->query('SELECT o.*, u.name as customer_name 
+                     FROM orders o 
+                     JOIN users u ON o.user_id = u.user_id 
+                     ORDER BY o.created_at DESC');
+        return $this->db->resultSet();
+    }
+
+    public function getRecentOrders($limit = 10, $startDate = null, $endDate = null)
+    {
+        $sql = "SELECT 
+            so.id, 
+            so.product_id,
+            so.user_id,
+            so.quantity,
+            so.price, 
+            so.delivery_fee,
+            so.discount,
+            so.status,
+            so.created_at,
+            p.name AS product_name,
+            u.name AS customer_name
+        FROM store_orders so
+        JOIN products p ON so.product_id = p.id
+        JOIN users u ON so.user_id = u.user_id
+        WHERE so.deleted_at IS NULL ";
+
+        // Add date filters if provided
+        if ($startDate && $endDate) {
+            $sql .= "AND so.created_at BETWEEN :start_date AND :end_date ";
+        } elseif ($startDate) {
+            $sql .= "AND so.created_at >= :start_date ";
+        } elseif ($endDate) {
+            $sql .= "AND so.created_at <= :end_date ";
+        }
+
+        $sql .= "ORDER BY so.created_at DESC LIMIT :limit";
+
+        $this->db->query($sql);
+
+        // Bind parameters
+        if ($startDate) {
+            $this->db->bind(':start_date', $startDate . ' 00:00:00');
+        }
+        if ($endDate) {
+            $this->db->bind(':end_date', $endDate . ' 23:59:59');
+        }
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+
+        return $this->db->resultSet();
+    }
+
+    /**
+     * Get order statistics
+     *
+     * @return array Order statistics
+     */
+    public function getOrderStats()
+    {
+        // Get total number of orders
+        $this->db->query("SELECT COUNT(*) as total FROM store_orders WHERE deleted_at IS NULL");
+        $totalOrders = $this->db->single()->total;
+
+        // Get total revenue
+        $this->db->query("SELECT SUM(price * quantity + delivery_fee - IFNULL(discount, 0)) as total 
+                     FROM store_orders WHERE deleted_at IS NULL");
+        $totalRevenue = $this->db->single()->total ?? 0;
+
+        // Get orders by status
+        $this->db->query("SELECT status, COUNT(*) as count 
+                     FROM store_orders 
+                     WHERE deleted_at IS NULL 
+                     GROUP BY status");
+        $ordersByStatus = [];
+        foreach ($this->db->resultSet() as $row) {
+            $ordersByStatus[$row->status] = $row->count;
+        }
+
+        return [
+            'totalOrders' => $totalOrders,
+            'totalRevenue' => $totalRevenue,
+            'ordersByStatus' => $ordersByStatus
+        ];
+    }
+
+    /**
+     * Get top selling products
+     *
+     * @param int $limit Number of products to retrieve
+     * @return array Top selling products
+     */
+    public function getTopSellingProducts($limit = 5)
+    {
+        $this->db->query("SELECT 
+                        p.id,
+                        p.name,
+                        SUM(so.quantity) as units_sold,
+                        SUM(so.price * so.quantity) as total_revenue
+                     FROM store_orders so
+                     JOIN products p ON so.product_id = p.id
+                     WHERE so.deleted_at IS NULL
+                     GROUP BY p.id, p.name
+                     ORDER BY units_sold DESC
+                     LIMIT :limit");
+
+        $this->db->bind(':limit', $limit, PDO::PARAM_INT);
+        return $this->db->resultSet();
+    }
+
+    /**
+     * Format recent orders for report display
+     *
+     * @param int $limit Number of orders to retrieve
+     * @return array Formatted recent orders
+     */
+    public function getFormattedRecentOrders($limit = 10)
+    {
+        $orders = $this->getRecentOrders($limit);
+        $formattedOrders = [];
+
+        foreach ($orders as $order) {
+            $formattedOrder = new stdClass();
+            $formattedOrder->order_number = 'ORD' . str_pad($order->id, 5, '0', STR_PAD_LEFT);
+            $formattedOrder->customer_name = $order->customer_name;
+            $formattedOrder->total_amount = ($order->price * $order->quantity) + $order->delivery_fee - ($order->discount ?? 0);
+            $formattedOrder->status = $order->status;
+            $formattedOrder->created_at = $order->created_at;
+
+            $formattedOrders[] = $formattedOrder;
+        }
+
+        return $formattedOrders;
+    }
+
+    // Record that a bank slip was downloaded
+    public function recordSlipDownload($orderId, $bankId)
+    {
+        // Check if record already exists
+        $this->db->query('SELECT id FROM slip_download WHERE order_id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        $existing = $this->db->single();
+
+        if ($existing) {
+            // Update existing record
+            $this->db->query('UPDATE slip_download SET bank_id = :bank_id, downloaded_at = CURRENT_TIMESTAMP WHERE order_id = :order_id');
+            $this->db->bind(':bank_id', $bankId);
+            $this->db->bind(':order_id', $orderId);
+        } else {
+            // Create new record
+            $this->db->query('INSERT INTO slip_download (order_id, bank_id) VALUES (:order_id, :bank_id)');
+            $this->db->bind(':order_id', $orderId);
+            $this->db->bind(':bank_id', $bankId);
+        }
+
+        return $this->db->execute();
+    }
+
+    // Get slip download record
+    public function getSlipDownload($orderId)
+    {
+        $this->db->query('SELECT * FROM slip_download WHERE order_id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        return $this->db->single();
+    }
+
+    //Delivery
+    public function getDeliveryPersons()
+    {
+        $this->db->query('SELECT e.employee_id, u.name 
+                     FROM employees e 
+                     JOIN users u ON e.user_id = u.user_id 
+                     WHERE e.role = "deliveryPerson"');
+        return $this->db->resultSet();
+    }
+
+    /**
+     * Assign delivery person to order
+     */
+    public function assignDeliveryPerson($orderId, $deliveryPersonId)
+    {
+        $this->db->query('UPDATE orders 
+                     SET deliver_id = :deliver_id, 
+                         status = "shipped" 
+                     WHERE id = :order_id');
+        $this->db->bind(':deliver_id', $deliveryPersonId);
+        $this->db->bind(':order_id', $orderId);
+        return $this->db->execute();
+    }
+
+    /**
+     * Get delivery person information for an order
+     */
+    public function getOrderDeliveryPerson($orderId)
+    {
+        $this->db->query('SELECT e.employee_id, u.name 
+                     FROM orders o
+                     JOIN employees e ON o.deliver_id = e.employee_id
+                     JOIN users u ON e.user_id = u.user_id
+                     WHERE o.id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        return $this->db->single();
+    }
+
+    public function getDeliveryPersonPendingOrders($deliveryPersonId)
+    {
+        $this->db->query('SELECT o.*, u.name as customer_name
+                         FROM orders o
+                         JOIN users u ON o.user_id = u.user_id
+                         WHERE o.deliver_id = :delivery_person_id
+                         AND o.status = "shipped"
+                         AND o.delivered_at IS NULL
+                         ORDER BY o.created_at DESC');
+        $this->db->bind(':delivery_person_id', $deliveryPersonId);
+        return $this->db->resultSet();
+    }
+
+    public function getDeliveryPersonCompletedOrders($deliveryPersonId)
+    {
+        $this->db->query('SELECT o.*, u.name as customer_name
+                     FROM orders o
+                     JOIN users u ON o.user_id = u.user_id
+                     WHERE o.deliver_id = :delivery_person_id
+                     AND o.status = "delivered"
+                     AND o.delivered_at IS NOT NULL
+                     ORDER BY o.delivered_at DESC');
+        $this->db->bind(':delivery_person_id', $deliveryPersonId);
+        return $this->db->resultSet();
+    }
+
+    // Mark order as delivered for deliveryPerson
+    public function markOrderAsDelivered($orderId, $deliveryReport = null)
+    {
+        $this->db->query('UPDATE orders 
+                     SET delivery_report = :delivery_report, 
+                         delivered_at = CURRENT_TIMESTAMP         
+                     WHERE id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        $this->db->bind(':delivery_report', $deliveryReport);
+        return $this->db->execute();
+    }
+
+    // Confirm the Order
+    public function confirmOrder($orderId)
+    {
+        $this->db->query('Update orders
+                    SET status = :status,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE id = :order_id');
+        $this->db->bind(':order_id', $orderId);
+        $this->db->bind(':status', 'delivered');
+        return $this->db->execute();
     }
 }
