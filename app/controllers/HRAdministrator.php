@@ -254,7 +254,7 @@ class HRAdministrator extends Controller
                 // Check file type
                 $allowed_types = ['image/jpeg', 'image/png', 'image/jpg'];
                 if(!in_array($file['type'], $allowed_types)) {
-                    $data['profile_image_err'] = 'Invalid image format (JPEG, PNG)';
+                    $data['profile_image_err'] = 'Invalid image format (JPG, JPEG, PNG)';
                 }
                 
                 // Generate unique filename
@@ -801,7 +801,7 @@ class HRAdministrator extends Controller
                         $data['profile_picture_err'] = 'File size must be less than 2MB';
                     } else {
                         // Generate new filename
-                        $filename = uniqid() . '_' . $_FILES['profile_picture']['name'];
+                        $filename = uniqid() . '_' . basename($_FILES['profile_picture']['name']);
                         $uploadDir = APPROOT . '/../public/uploads/profile_pictures/';
                         
                         // Create directory if it doesn't exist
@@ -841,20 +841,20 @@ class HRAdministrator extends Controller
                     $data['current_password_err'] = 'Please enter your current password';
                 } elseif(!$this->settingsModel->verifyPassword($_SESSION['user_id'], $currentPassword)) {
                     $data['current_password_err'] = 'Current password is incorrect';
-                }
-                
-                // Validate new password
+                } else {
+                                    // Validate new password
                 if(empty($newPassword)) {
                     $data['new_password_err'] = 'Please enter a new password';
-                } elseif(strlen($newPassword) < 6) {
-                    $data['new_password_err'] = 'Password must be at least 6 characters';
-                }
-                
-                // Validate confirm password
-                if(empty($confirmPassword)) {
-                    $data['confirm_password_err'] = 'Please confirm your password';
-                } elseif($newPassword != $confirmPassword) {
-                    $data['confirm_password_err'] = 'Passwords do not match';
+                    } elseif(strlen($newPassword) < 6) {
+                        $data['new_password_err'] = 'Password must be at least 6 characters';
+                    }
+                    
+                    // Validate confirm password
+                    if(empty($confirmPassword)) {
+                        $data['confirm_password_err'] = 'Please confirm your password';
+                    } elseif($newPassword != $confirmPassword) {
+                        $data['confirm_password_err'] = 'Passwords do not match';
+                    }
                 }
                 
                 // If no errors, change password

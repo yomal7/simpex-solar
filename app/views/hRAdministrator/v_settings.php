@@ -1,6 +1,6 @@
 <?php require APPROOT . '/views/hRAdministrator/header.php'; ?>
 
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/hRAdministrator/settings.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/companyUsrSettings.css">
 </head>
 
 <body>
@@ -69,13 +69,13 @@
                             
                             <div class="form-group">
                                 <label for="email">Email</label>
-                                <input type="email" name="email" id="email" value="<?php echo $data['email']; ?>">
+                                <input type="email" name="email" id="email" required placeholder="Email" value="<?php echo $data['email']; ?>">
                                 <span class="form-error"><?php echo $data['email_err']; ?></span>
                             </div>
                             
                             <div class="form-group">
                                 <label for="phone">Phone</label>
-                                <input type="text" name="phone" id="phone" value="<?php echo $data['phone']; ?>">
+                                <input type="text" name="phone" id="phone" placeholder="Phone No" value="<?php echo $data['phone']; ?>">
                                 <span class="form-error"><?php echo isset($data['phone_err']) ? $data['phone_err'] : ''; ?></span>
                             </div>
                             
@@ -83,7 +83,7 @@
                                 <label>Profile Picture</label>
                                 <div class="profile-picture-container">
                                     <?php if(!empty($data['profile_picture'])): ?>
-                                        <img src="<?php echo URLROOT; ?>/uploads/profile_pictures/<?php echo $data['profile_picture']; ?>" alt="Profile Picture" class="profile-preview">
+                                        <img src="<?php echo URLROOT; ?>/public/uploads/profile_pictures/<?php echo $data['profile_picture']; ?>" alt="Profile Picture" class="profile-preview">
                                     <?php else: ?>
                                         <img src="<?php echo URLROOT; ?>/public/assets/profile.png" alt="Default Profile" class="profile-preview">
                                     <?php endif; ?>
@@ -155,4 +155,4 @@
         });
     </script>
 
-    <?php require APPROOT . '/views/operationsCoordinator/footer.php'; ?>
+    <?php require APPROOT . '/views/hrAdministrator/footer.php'; ?>

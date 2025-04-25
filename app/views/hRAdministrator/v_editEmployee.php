@@ -36,7 +36,7 @@
                 <span class="material-icons-sharp">money</span>
                 <h3>Payroll</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/hRAdministrator/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
@@ -95,20 +95,6 @@
                             <label for="address">Address</label>
                             <textarea name="address" id="address" placeholder="Address" rows="3"><?php echo isset($data['address']) ? $data['address'] : ''; ?></textarea>
                             <span class="form-invalid"><?php echo isset($data['address_err']) ? $data['address_err'] : ''; ?></span>
-                        </div>
-                        <!-- Password fields in a container for inline display -->
-                        <div class="password-fields-container">
-                            <div class="form-field">
-                                <label for="password">Password</label>
-                                <input type="password" name="password" id="password" placeholder="Password" value="">
-                                <span class="form-invalid"><?php echo isset($data['password_err']) ? $data['password_err'] : ''; ?></span>
-                                <p class="help-text">Leave blank to keep current password</p>
-                            </div>
-                            <div class="form-field">
-                                <label for="confirm_password">Confirm Password</label>
-                                <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" value="">
-                                <span class="form-invalid"><?php echo isset($data['confirm_password_err']) ? $data['confirm_password_err'] : ''; ?></span>
-                            </div>
                         </div>
                     </div>
                     <div class="form-actions">
