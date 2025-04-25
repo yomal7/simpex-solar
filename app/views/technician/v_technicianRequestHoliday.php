@@ -107,7 +107,7 @@
                                         <td><?php echo $record->end_date; ?></td>
                                         <td class="number-of-days"><?php echo $record->number_of_days; ?></td>
                                         <td class="reason"><?php echo $record->reason; ?></td>
-                                        <td><span class="<?php echo strtolower($record->status); ?>"><?php echo ucfirst($record->status); ?></span></td>
+                                        <td class="center-align"><span class="<?php echo strtolower($record->status); ?>"><?php echo ucfirst($record->status); ?></span></td>
                                         <td class="center-align">
                                                 <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/technician/holidayDetails/<?php echo $record->id; ?>'" title="View Details"><i class="fas fa-eye"></i></button>
                                         </td>
