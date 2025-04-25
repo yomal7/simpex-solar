@@ -51,7 +51,7 @@
             <!-- <a href="<?php echo URLROOT; ?>/operationsCoordinator/addTask"><button class="new-employee-btn" data-toggle="modal" data-target="#myModal">Select Date</button></a> -->
 
             <div class="date-selector-container">
-                <form method="POST" action="<?php echo URLROOT; ?>/clerk/viewAttendance" class="date-form">
+                <form method="POST" action="<?php echo URLROOT; ?>/hRAdministrator/attendance" class="date-form">
                     <label for="attendance_date">Select Date:</label>
                     <input type="date" id="attendance_date" name="attendance_date" value="<?php echo $data['date']; ?>">
                     <button type="submit" class="view-date-btn">View Attendance</button>
