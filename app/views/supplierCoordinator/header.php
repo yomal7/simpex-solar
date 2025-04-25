@@ -8,5 +8,5 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator.css">
+    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/styles.css">
     <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/notification.css">
