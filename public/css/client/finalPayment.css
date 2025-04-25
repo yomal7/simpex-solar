@@ -1,459 +1,455 @@
-:root {
-    --primary-color: #4CAF50;
-    --secondary-color: #45a049;
-    --background-color: #f8f9fa;
-    --text-color: #333;
-    --border-radius: 12px;
-    --transition: all 0.3s ease;
-}
+/* client/finalPayment.css */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
 }
 
-/* body {
-    background-color: #f8f9fa;
-    color: #333;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem;
-} */
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.back-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+}
+
+.content {
+  padding: 20px;
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
 
 .container {
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .status-bar {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-    text-align: center;
-    width: 52%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .status-indicator {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: 600;
-    background: #ffe0b2;
-    color: #f57c00;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 14px;
 }
 
-.status-indicator.completed {
-    background: #c8e6c9;
-    color: #4CAF50;
+.status-indicator.pending {
+  background-color: #fff3e0;
+  color: #ff9800;
 }
 
-.status-indicator.review {
-    background: #bbdefb;
-    color: #1976d2;
+.status-indicator.paid {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
+.payment-details-card {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.payment-details-card h2 {
+  margin-bottom: 15px;
+  color: #2e7d32;
+  font-size: 18px;
+}
+
+.cost-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cost-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+
+.cost-row.total {
+  border-top: 1px solid #e0e0e0;
+  margin-top: 10px;
+  padding-top: 10px;
+  font-weight: 700;
+  font-size: 18px;
+  color: #2e7d32;
 }
 
 .payment-container {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    width: 100%;
-    margin: 0 auto;
+  margin-top: 30px;
 }
 
 .amount-display {
-    text-align: center;
-    margin-bottom: 2rem;
-    padding: 1.5rem;
-    background: #e8f5e9;
-    border-radius: 12px;
+  text-align: center;
+  margin-bottom: 30px;
 }
 
-.amount {
-    font-size: 2.5rem;
-    color: #4CAF50;
-    font-weight: bold;
+.amount-display h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #333;
 }
 
-.payment-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
-    margin-top: 2rem;
+.amount-display .amount {
+  font-size: 32px;
+  font-weight: 700;
+  color: #2e7d32;
+  margin-bottom: 10px;
 }
 
-.payment-option {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    border: 2px solid #e0e0e0;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
+.payment-note {
+  color: #757575;
+  font-size: 14px;
 }
 
-.payment-option:hover {
-    border-color: #4CAF50;
-    transform: translateY(-2px);
+.payment-method {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  overflow: hidden;
 }
 
-.payment-option i {
-    font-size: 2rem;
-    color: #4CAF50;
-    margin-bottom: 1rem;
+.method-header {
+  background-color: #f5f5f5;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
 }
 
-.popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.1);
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 1000;
-    max-width: 500px;
-    width: 90%;
+.method-header h4 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
 }
 
-.popup.open-popup {
-    visibility: visible;
-    transform: translate(-50%, -50%) scale(1);
+.toggle-icon {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2e7d32;
 }
 
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    visibility: hidden;
-    opacity: 0;
-    transition: all 0.3s ease;
-    z-index: 999;
+.method-content {
+  padding: 20px;
+  display: none;
 }
 
-.overlay.active {
-    visibility: visible;
-    opacity: 1;
+.method-content p {
+  margin-bottom: 20px;
+  color: #555;
 }
 
-.success-popup-class {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.form-group {
+  margin-bottom: 20px;
 }
 
-.success-popup-btn{
-    margin-top: 1rem;
-    font-size: 1rem;
-    border-radius: 100px !important;
-}
-.success-circle {
-    width: 150px;
-    height: 150px;
-    background: #4CAF50;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 2rem auto;
-    animation: scaleIn 0.5s ease;
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #444;
 }
 
-.success-circle i {
-    color: white;
-    font-size: 5rem;
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  font-size: 16px;
 }
 
-@keyframes scaleIn {
-    from {
-        transform: scale(0);
-    }
-    to {
-        transform: scale(1);
-    }
+.form-group small {
+  display: block;
+  margin-top: 5px;
+  color: #757575;
+  font-size: 12px;
 }
 
-.upload-area {
-    border: 2px dashed #4CAF50;
-    padding: 2rem;
-    text-align: center;
-    border-radius: 12px;
-    margin: 1rem 0;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.bank-details {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 5px;
+  margin-top: 15px;
+  margin-bottom: 20px;
 }
 
-.upload-area:hover {
-    background: #e8f5e9;
+.bank-details h5 {
+  margin-bottom: 10px;
+  color: #2e7d32;
 }
 
-.payment-btn {
-    padding: 0.8rem 1.5rem;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
+.bank-details p {
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
 }
 
 .btn-primary {
-    background: #4CAF50;
-    color: white;
+  background-color: #2e7d32;
+  color: white;
 }
 
 .btn-primary:hover {
-    background: #45a049;
+  background-color: #256a27;
 }
 
 .btn-secondary {
-    background: #e0e0e0;
-    color: #333;
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
 }
 
 .btn-secondary:hover {
-    background: #d0d0d0;
+  background-color: #e0e0e0;
+}
+
+.slip-status {
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.processing-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.rejection-reason {
+  margin-top: 10px;
+  color: #d32f2f;
+}
+
+.upload-form {
+  margin-top: 20px;
+}
+
+.cash-payment-info {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.amount-to-pay {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2e7d32;
+  margin: 15px 0;
+  text-align: center;
+}
+
+.office-details {
+  margin: 20px 0;
+}
+
+.office-details h5 {
+  color: #2e7d32;
+  margin-bottom: 10px;
+}
+
+.office-details p {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+  width: 90%;
+  max-width: 500px;
+}
+
+.modal-content {
+  padding: 25px;
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #757575;
+}
+
+.modal h3 {
+  margin-bottom: 20px;
+  color: #2e7d32;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.payment-success {
+  text-align: center;
+  padding: 30px;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  background-color: #e8f5e9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2e7d32;
+  font-size: 40px;
+  margin: 0 auto 20px;
+}
+
+.payment-success h3 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #2e7d32;
+}
+
+.payment-success p {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.project-complete-message {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.project-complete-message h4 {
+  color: #2e7d32;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 60px;
+    padding: 15px 10px;
+  }
+
+  .sidebar h3,
+  .logo-name {
+    display: none;
+  }
+
+  .content {
+    margin-left: 60px;
+  }
+
+  .sidebar.active {
+    width: 250px;
+  }
+
+  .sidebar.active h3,
+  .sidebar.active .logo-name {
+    display: block;
+  }
+
+  .content.active {
+    margin-left: 250px;
+  }
 }
 
 @media (max-width: 768px) {
-    .payment-options {
-        grid-template-columns: 1fr;
-    }
-    
-    .container {
-        padding: 1rem;
-    }
-    
-    .amount {
-        font-size: 2rem;
-    }
-}
+  .content {
+    margin-left: 0;
+  }
 
+  .sidebar {
+    left: -60px;
+  }
 
-/* Online Payment Form Styling */
-.online-payment-container {
-    display: flex;
+  .sidebar.active {
+    left: 0;
+  }
+
+  .container {
+    padding: 20px 15px;
+  }
+
+  .status-bar {
     flex-direction: column;
-    gap: 15px;
-}
-
-.row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.col {
-    flex: 1 1 100%;
-}
-
-.inputBox, .title {
-    width: 100%;
-}
-
-.inputBox label {
-    font-weight: 500;
-}
-
-.inputBox input,
-.inputBox select {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.flex {
-    display: flex;
-    flex-wrap: wrap;
+    align-items: flex-start;
     gap: 10px;
+  }
+
+  .status-indicator {
+    align-self: flex-start;
+  }
 }
-
-.submit_btn,
-.btn-secondary {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    color: #fff;
-    border-radius: 50px;
-    margin-top: 15px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    border: none;
-}
-
-.submit_btn {
-    background: rgb(9, 205, 55);
-}
-
-.btn-secondary {
-    background: #999;
-}
-
-.submit_btn:hover {
-    background: #08aa33;
-}
-.btn-secondary{
-    background-color: #333;
-}
-
-/* Media Queries for Responsiveness */
-@media (min-width: 600px) {
-    .col {
-        flex: 1 1 45%;
-    }
-    .online-payment-container{
-        font-size: 10px;
-        gap: 5px;
-    }
-    
-}
-
-@media (max-width: 768px) {
-    .col {
-        flex: 1 1 45%;
-    }
-    .online-payment-container{
-        font-size: 10px;
-        gap: 5px;
-    }
-    .popup{
-        margin-left: 2rem;
-        width: 70%;
-    }
-    
-}
-
-
-.toast-container {
-        position: fixed;
-        top: 100px;
-        right: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        z-index: 9999;
-    }
-
-    .toast {
-        min-width: 300px;
-        padding: 15px 20px;
-        border-radius: 10px;
-        background: white;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
-        transition: transform 0.3s ease;
-    }
-
-    .toast:hover {
-        transform: translateX(-5px);
-    }
-
-    .toast.success {
-        border-left: 4px solid #4CAF50;
-    }
-
-    .toast.info {
-        border-left: 4px solid #2196F3;
-    }
-
-    .toast.warning {
-        border-left: 4px solid #ff9800;
-    }
-
-    .toast.error {
-        border-left: 4px solid #f44336;
-    }
-
-    .toast-icon {
-        font-size: 20px;
-    }
-
-    .toast.success .toast-icon {
-        color: #4CAF50;
-    }
-
-    .toast.info .toast-icon {
-        color: #2196F3;
-    }
-
-    .toast.warning .toast-icon {
-        color: #ff9800;
-    }
-
-    .toast.error .toast-icon {
-        color: #f44336;
-    }
-
-    .toast-content {
-        flex-grow: 1;
-    }
-
-    .toast-progress {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: rgba(0, 0, 0, 0.1);
-    }
-
-    .toast-progress-bar {
-        height: 100%;
-        width: 100%;
-        animation: progress 3s linear;
-    }
-
-    .toast.success .toast-progress-bar {
-        background-color: #4CAF50;
-    }
-
-    .toast.info .toast-progress-bar {
-        background-color: #2196F3;
-    }
-
-    .toast.warning .toast-progress-bar {
-        background-color: #ff9800;
-    }
-
-    .toast.error .toast-progress-bar {
-        background-color: #f44336;
-    }
-
-    @keyframes progress {
-        from {
-            width: 100%;
-        }
-        to {
-            width: 0%;
-        }
-    }
-    
-    @keyframes fadeOut {
-        to {
-            opacity: 0;
-            transform: translateX(100%);
-        }
-    }

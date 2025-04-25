@@ -42,19 +42,19 @@ class OperationsCoordinator extends Controller
             'monthly_projects' => $this->projectModel->getMonthlyProjectCounts(),
             'phase_distribution' => $this->projectModel->getProjectPhaseDistribution()
         ];
-    
-    
+
+
         // Get Package Statistics
         $packageStats = [
             'total_packages' => $this->packageModel->getTotalPackages(),
             'package_by_type' => $this->packageModel->getPackageCountByType()
         ];
-    
+
         $data = [
             'project_stats' => $projectStats,
             'package_stats' => $packageStats
         ];
-    
+
         $this->view('operationsCoordinator/v_dashboard', $data);
     }
 
@@ -1561,7 +1561,153 @@ class OperationsCoordinator extends Controller
         redirect('operationsCoordinator/projectInstallations');
     }
 
+    //################################################################################################
+    //-------------------------------------Final Payment----------------------------------------------
+    //################################################################################################
 
+    public function finalPayment($projectId = null)
+    {
+        if ($projectId === null) {
+            flash('payment_message', 'Project ID is required', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+        if (!$project) {
+            flash('payment_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+        }
+
+        // Get customer details
+        $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+        if ($customerDetails) {
+            foreach ($customerDetails as $key => $value) {
+                $project->$key = $value;
+            }
+        }
+
+        // Get payment details
+        $payment = $this->projectModel->getProjectPayment($projectId, 'final_payment');
+
+        // Get bank slip if payment method is bank deposit
+        $bankSlip = null;
+        if ($payment && $payment->payment_method == 'bank deposit') {
+            $bankSlip = $this->projectModel->getProjectBankSlip($projectId, 'final_payment');
+        }
+
+        // Get first payment details
+        $firstPayment = $this->projectModel->getProjectPayment($projectId, 'first_payment');
+        $firstPaymentAmount = 0;
+        if ($firstPayment && $firstPayment->payment_status) {
+            $firstPaymentAmount = $firstPayment->amount;
+        }
+
+        // Get agreement to find pricing details
+        $agreement = $this->projectModel->getAgreementById($project->agreement_id);
+        $finalPaymentAmount = 0;
+
+        if ($agreement) {
+            // Calculate remaining amount (typically 75% or the balance)
+            $finalPaymentAmount = $agreement->total_price - $firstPaymentAmount;
+        }
+
+        $data = [
+            'project' => $project,
+            'payment' => $payment,
+            'bank_slip' => $bankSlip,
+            'first_payment_amount' => $firstPaymentAmount,
+            'final_payment_amount' => $finalPaymentAmount,
+            'agreement' => $agreement
+        ];
+
+        $this->view('operationsCoordinator/v_finalPayment', $data);
+    }
+
+    /**
+     * Process final cash payment
+     */
+    public function processFinalPayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $paymentId = $_POST['payment_id'];
+        $amount = $_POST['amount'];
+
+        // Update payment status
+        if ($this->projectModel->updateProjectPayment($paymentId, [
+            'payment_status' => true,
+            'amount' => $amount
+        ])) {
+            // Update project phase to engineer_approval after final payment
+            $this->projectModel->updateProjectsPhase($projectId, 'engineer_approval');
+
+            flash('payment_message', 'Final payment processed successfully. Project moved to engineer approval phase.', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to process payment', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/finalPayment/' . $projectId);
+    }
+
+    /**
+     * Accept final payment bank slip
+     */
+    public function acceptFinalBankSlip()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $paymentId = $_POST['payment_id'];
+        $slipId = $_POST['slip_id'];
+        $amount = $_POST['amount'];
+
+        // Update bank slip status
+        if ($this->projectModel->updateBankSlipStatus($slipId, 'accept')) {
+            // Update payment status
+            $this->projectModel->updateProjectPayment($paymentId, [
+                'payment_status' => true,
+                'amount' => $amount
+            ]);
+
+            // Update project phase to engineer_approval
+            $this->projectModel->updateProjectsPhase($projectId, 'engineer_approval');
+
+            flash('payment_message', 'Bank slip accepted and final payment processed successfully. Project moved to engineer approval phase.', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to accept bank slip', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/finalPayment/' . $projectId);
+    }
+
+    /**
+     * Reject final payment bank slip
+     */
+    public function rejectFinalBankSlip()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+        }
+
+        $projectId = $_POST['project_id'];
+        $slipId = $_POST['slip_id'];
+        $rejectReason = $_POST['reject_reason'];
+
+        // Update bank slip status
+        if ($this->projectModel->updateBankSlipStatus($slipId, 'reject', $rejectReason)) {
+            flash('payment_message', 'Bank slip rejected successfully', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to reject bank slip', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/finalPayment/' . $projectId);
+    }
 
 
 
