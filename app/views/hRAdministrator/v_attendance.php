@@ -14,11 +14,11 @@
 
         <div class="sidebar" id="sidebar">
             <div class="company-logo">
-                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo.png" alt="Simpex Solar Logo">
+                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
             </div>
             <!-- User Profile Section -->
             <div class="user-profile">
-                <img src="<?php echo URLROOT; ?>/public/assets/profile.png" alt="User profile picture" class="profile-picture" />
+                <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
                 <div class="user-info">
                     <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
                     <p>HR Administrator</p>
