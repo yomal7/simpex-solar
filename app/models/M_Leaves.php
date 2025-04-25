@@ -45,4 +45,10 @@ class M_Leaves
 
         return $this->db->execute();
     }
+
+    public function getHolidayRecordById($id) {
+        $this->db->query('SELECT * FROM leaverecords WHERE id = :id');
+        $this->db->bind(':id', $id);
+        return $this->db->single();
+    }
 }

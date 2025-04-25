@@ -330,7 +330,7 @@ class HRAdministrator extends Controller
         } else {
             // Get existing employee from model
             $employee = $this->employeeModel->getEmployeeById($employeeId);
-            
+
             $data = [
                 'employee_id' => $employeeId,
                 'user_id' => $employee->user_id,

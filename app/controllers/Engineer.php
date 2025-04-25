@@ -157,6 +157,36 @@ class engineer extends Controller {
         }
     }
 
+    public function holidayDetails($recordId = null)
+    {
+        if (!$recordId) {
+            redirect('engineer/requestHoliday');
+        }
+
+        $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+
+        if (!$employee) {
+            flash('error_msg', 'Employee not found');
+            redirect('users/login');
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            $holidayDetails = $this->leavesModel->getHolidayRecordById($recordId);
+
+            // Check if this holiday request belongs to this employee
+            if (!$holidayDetails || $holidayDetails->employee_id != $employee->employee_id) {
+                flash('error_msg', 'Holiday request not found or access denied');
+                redirect('engineer/requestHoliday');
+            }
+
+            $data = [
+                'record' => $holidayDetails
+            ];
+
+            $this->view('engineer/v_requestDetails', $data);
+        }
+    }
+
     // public function tasks() {
     //     //$engineer = $this->tasksModel->getEngineerByUserId($_SESSION['employee_id']);
     //     $data = [];

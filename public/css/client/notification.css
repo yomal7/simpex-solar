@@ -1,0 +1,14 @@
+.notification-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    display: none;
+    top: 12px;
+    right: 30px;
+    position: absolute;
+  }
+  
+  .sidebar li a {
+    position: relative;
+  }

@@ -1404,6 +1404,10 @@ textarea {
 
 }
 
+.task-info .info-group:last-child {
+    border-bottom: none;
+}
+
 .info-group{
     padding: 12px;
     width: 100%;
@@ -1420,6 +1424,39 @@ textarea {
     font-weight: 600;
 }
 
+.holiday-info .info-group:last-child {
+    border-bottom: none;
+}
+
+span.status-badge.completed,
+span.status-badge.in_progress,
+span.status-badge.incomplete {
+    text-align: center;
+    padding: 2px 10px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: min-content;
+    width: auto;
+    display: inline-block;
+    
+    
+}
+
+span.status-badge.completed {
+    background-color: var(--success-color);
+    color: var(--white);
+}
+
+span.status-badge.in_progress {
+    background-color: var(--warning-color);
+    color: var(--white);
+}
+
+span.status-badge.incomplete {
+    background-color: var(--danger-color);
+    color: var(--white);
+}
 
 .details {
     background-color: rgb(233, 233, 233);
@@ -1528,4 +1565,8 @@ textarea {
     color: var(--theme-color);
     font-size: 20px;
     margin-right: 10px;
+}
+
+.request-holiday-table-container td{
+    padding: 10px;
 }
