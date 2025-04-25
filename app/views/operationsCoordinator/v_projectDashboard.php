@@ -43,7 +43,7 @@
                 <h3>Chat</h3>
                 <span class="notification-dot" style="display: <?php echo (isset($_SESSION['total_unread_count']) && $_SESSION['total_unread_count'] > 0) ? 'block' : 'none'; ?>;"></span>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>

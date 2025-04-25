@@ -37,7 +37,7 @@
                 <span class="material-icons-sharp">money</span>
                 <h3>Payroll</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/hRAdministrator/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>

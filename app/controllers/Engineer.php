@@ -7,6 +7,7 @@ class engineer extends Controller {
     private $tasksModel;
     private $projectModel;
     private $preProjectModel;
+    private $settingsModel;
 
     public function __construct()
     {
@@ -20,6 +21,7 @@ class engineer extends Controller {
         $this->tasksModel = $this->model('M_Tasks');
         $this->projectModel = $this->model('M_CustomerProject');
         $this->preProjectModel = $this->model('M_CustomerPreProject');
+        $this->settingsModel = $this->model('M_Settings');
     }
 
     public function index()
@@ -190,12 +192,6 @@ class engineer extends Controller {
     //     $data = [];
     //     $this->view('engineer/v_engineerTasks', $data);
     // }
-
-    public function settings()
-    {
-        $data = [];
-        $this->view('engineer/v_engineerSettings', $data);
-    }
 
     public function siteVisits() {
         $pendingSiteVisits = $this->engineerModel->getPendingSiteVisits();
@@ -478,5 +474,139 @@ class engineer extends Controller {
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to save notes']);
         }
+    }
+
+    public function settings()
+    {
+        // Get user data
+        $user = $this->settingsModel->getUserById($_SESSION['user_id']);
+        
+        // Initialize data array with user info
+        $data = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'profile_picture' => $user->profile_picture,
+            'email_err' => '',
+            'phone_err' => '',
+            'profile_picture_err' => '',
+            'current_password_err' => '',
+            'new_password_err' => '',
+            'confirm_password_err' => ''
+        ];
+        
+        // Handle form submissions
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Determine which form was submitted
+            if(isset($_POST['form_type']) && $_POST['form_type'] == 'profile_update') {
+                // Profile update form submitted
+                $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+                
+                // Get form data
+                $data['email'] = trim($_POST['email']);
+                $data['phone'] = trim($_POST['phone']);
+                
+                // Validate email
+                if(empty($data['email'])) {
+                    $data['email_err'] = 'Please enter your email';
+                } elseif($this->settingsModel->emailExistsForOtherUser($data['email'], $_SESSION['user_id'])) {
+                    $data['email_err'] = 'Email is already taken by another user';
+                }
+                
+                // Validate phone
+                if(empty($data['phone'])) {
+                    $data['phone_err'] = 'Please enter your phone number';
+                }
+                
+                // Handle profile picture upload
+                $profileData = [
+                    'user_id' => $_SESSION['user_id'],
+                    'email' => $data['email'],
+                    'phone' => $data['phone'],
+                    'profile_picture' => $user->profile_picture // Default to current profile picture
+                ];
+                
+                if(isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == UPLOAD_ERR_OK) {
+                    $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                    $maxSize = 2 * 1024 * 1024; // 2MB
+                    
+                    if(!in_array($_FILES['profile_picture']['type'], $allowedTypes)) {
+                        $data['profile_picture_err'] = 'Only JPG, JPEG and PNG files are allowed';
+                    } elseif($_FILES['profile_picture']['size'] > $maxSize) {
+                        $data['profile_picture_err'] = 'File size must be less than 2MB';
+                    } else {
+                        // Generate new filename
+                        $filename = uniqid() . '_' . basename($_FILES['profile_picture']['name']);
+                        $uploadDir = APPROOT . '/../public/uploads/profile_pictures/';
+                        
+                        // Create directory if it doesn't exist
+                        if(!is_dir($uploadDir)) {
+                            mkdir($uploadDir, 0777, true);
+                        }
+                        
+                        // Upload file
+                        if(move_uploaded_file($_FILES['profile_picture']['tmp_name'], $uploadDir . $filename)) {
+                            $profileData['profile_picture'] = $filename;
+                        } else {
+                            $data['profile_picture_err'] = 'Error uploading file';
+                        }
+                    }
+                }
+                
+                // If no errors, update profile
+                if(empty($data['email_err']) && empty($data['phone_err']) && empty($data['profile_picture_err'])) {
+                    if($this->settingsModel->updateProfile($profileData)) {
+                        flash('profile_message', 'Profile updated successfully', 'alert alert-success');
+                        redirect('engineer/settings');
+                    } else {
+                        flash('profile_message', 'Something went wrong', 'alert alert-danger');
+                    }
+                }
+            } elseif(isset($_POST['form_type']) && $_POST['form_type'] == 'password_change') {
+                // Password change form submitted
+                $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+                
+                // Get form data
+                $currentPassword = trim($_POST['current_password']);
+                $newPassword = trim($_POST['new_password']);
+                $confirmPassword = trim($_POST['confirm_password']);
+                
+                // Validate current password
+                if(empty($currentPassword)) {
+                    $data['current_password_err'] = 'Please enter your current password';
+                } elseif(!$this->settingsModel->verifyPassword($_SESSION['user_id'], $currentPassword)) {
+                    $data['current_password_err'] = 'Current password is incorrect';
+                } else {
+                                    // Validate new password
+                if(empty($newPassword)) {
+                    $data['new_password_err'] = 'Please enter a new password';
+                    } elseif(strlen($newPassword) < 6) {
+                        $data['new_password_err'] = 'Password must be at least 6 characters';
+                    }
+                    
+                    // Validate confirm password
+                    if(empty($confirmPassword)) {
+                        $data['confirm_password_err'] = 'Please confirm your password';
+                    } elseif($newPassword != $confirmPassword) {
+                        $data['confirm_password_err'] = 'Passwords do not match';
+                    }
+                }
+                
+                // If no errors, change password
+                if(empty($data['current_password_err']) && empty($data['new_password_err']) && empty($data['confirm_password_err'])) {
+                    // Hash new password
+                    $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+                    
+                    if($this->settingsModel->changePassword($_SESSION['user_id'], $hashedPassword)) {
+                        flash('password_message', 'Password changed successfully', 'alert alert-success');
+                        redirect('engineer/settings');
+                    } else {
+                        die('Something went wrong');
+                    }
+                }
+            }
+        }
+        
+        $this->view('engineer/v_settings', $data);
     }
 }
