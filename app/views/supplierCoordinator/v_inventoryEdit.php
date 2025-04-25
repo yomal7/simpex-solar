@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/supplierCoordinator/edit_inventory.css">
 </head>
 
-<body>
+<body data-user-role="supplierCoordinator" data-user-id="<?php echo $_SESSION['user_id']; ?>" data-urlroot="<?php echo URLROOT; ?>">
     <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
@@ -32,6 +32,11 @@
             <a href="<?php echo URLROOT ?>/supplierCoordinator/inventory" class="active">
                 <span class="material-icons-sharp">inventory</span>
                 <h3>Inventory</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/chat" class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'chat') !== false) ? 'active' : ''; ?>">
+                <span class="material-icons-sharp">chat</span>
+                <h3>Chat</h3>
+                <span class="notification-dot" style="display: <?php echo (isset($_SESSION['total_unread_count']) && $_SESSION['total_unread_count'] > 0) ? 'block' : 'none'; ?>;"></span>
             </a>
             <a href="<?php echo URLROOT ?>/supplierCoordinator/settings">
                 <span class="material-icons-sharp">settings</span>

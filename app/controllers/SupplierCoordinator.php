@@ -6,6 +6,8 @@ class SupplierCoordinator extends Controller
     private $supplierModel;
     private $inventoryModel;
     private $shopModel;
+    private $chatModel;
+    private $supplierCoordinatorModel;
     private $projectModel;
     private $paymentModel;
     private $orderModel;
@@ -19,9 +21,24 @@ class SupplierCoordinator extends Controller
         $this->supplierModel = $this->model('M_Suppliers');
         $this->inventoryModel = $this->model('M_Inventory');
         $this->shopModel = $this->model('M_Shop');
+        $this->chatModel = $this->model('M_Chat');
+        $this->supplierCoordinatorModel = $this->model('M_SupplierCoordinator');
         $this->projectModel = $this->model('M_CustomerProject');
         $this->paymentModel = $this->model('M_Payment');
         $this->orderModel = $this->model('M_Order');
+
+        // Check for unread messages on every page load
+        $clients = $this->supplierCoordinatorModel->getClientsWithChats();
+        $totalUnreadCount = 0;
+        if ($clients) {
+            foreach ($clients as $client) {
+                if (isset($client->unread_count)) {
+                    $totalUnreadCount += $client->unread_count;
+                }
+            }
+        }
+        // Store the count in session for access across all views
+        $_SESSION['total_unread_count'] = $totalUnreadCount;
     }
 
     public function index()
@@ -161,7 +178,7 @@ class SupplierCoordinator extends Controller
     {
         // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
         $data = [];
-        $this->view('operationsCoordinator/v_manageAproject', $data);
+        $this->view('supplierCoordinator/v_manageAproject', $data);
     }
 
     public function suppliers()
@@ -1004,6 +1021,131 @@ class SupplierCoordinator extends Controller
         }
     }
 
+    public function chat()
+    {
+        // Get clients who have chat history with this coordinator
+        $clients = $this->supplierCoordinatorModel->getClientsWithChats();
+
+        // Calculate total unread messages
+        $totalUnreadCount = 0;
+        foreach ($clients as $client) {
+            if (isset($client->unread_count)) {
+                $totalUnreadCount += $client->unread_count;
+            }
+        }
+        // Get clients who have chat history with this coordinator
+        $data = [
+            'title' => 'Client Messages',
+            'clients' => $clients,
+            'total_unread_count' => $totalUnreadCount
+        ];
+
+        $this->view('supplierCoordinator/v_chat', $data);
+    }
+
+    public function getClientChats()
+    {
+        // Get client ID from query string
+        $clientId = isset($_GET['client_id']) ? $_GET['client_id'] : null;
+    
+        if (!$clientId) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Client ID required']);
+            return;
+        }
+    
+        // Get chat history between this coordinator and the specified client
+        $messages = $this->chatModel->getClientChats($_SESSION['user_id'], $clientId);
+    
+        // Mark messages as read after retrieving them
+        $this->chatModel->markMessagesAsRead($clientId, $_SESSION['user_id']);
+    
+        header('Content-Type: application/json');
+        echo json_encode($messages);
+    }
+
+    public function getAllClientChats()
+    {
+        // Get all clients with chat history and return as JSON
+        $clients = $this->supplierModel->getClientsWithChats();
+        header('Content-Type: application/json');
+        echo json_encode($clients);
+    }
+
+    public function saveMessage()
+    {
+        // Handle AJAX request to save a new message
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (empty($data['to_user_id']) || empty($data['message'])) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Missing required fields']);
+            return;
+        }
+
+        $messageData = [
+            'sender_id' => $_SESSION['user_id'],
+            'sender_role' => 'supplierCoordinator',
+            'receiver_id' => $data['to_user_id'],
+            'receiver_role' => 'customer',
+            'message' => $data['message']
+        ];
+
+        if ($this->chatModel->saveMessage($messageData)) {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'success']);
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Failed to save message']);
+        }
+    }
+
+    public function markMessagesAsRead()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (empty($data['client_id'])) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Client ID required']);
+            return;
+        }
+
+        $success = $this->chatModel->markMessagesAsRead($data['client_id'], $_SESSION['user_id']);
+        
+        header('Content-Type: application/json');
+        echo json_encode(['status' => $success ? 'success' : 'error']);
+    }
+
+    public function getUnreadStatus()
+    {
+        // Get clients who have chat history with this coordinator
+        $clients = $this->supplierCoordinatorModel->getClientsWithChats();
+        $totalUnreadCount = 0;
+
+        if ($clients) {
+            foreach ($clients as $client) {
+                if (isset($client->unread_count)) {
+                    $totalUnreadCount += $client->unread_count;
+                }
+            }
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(['hasUnread' => ($totalUnreadCount > 0)]);
+    }
+  
     //################################################################################################
     //-------------------------------------Projects----------------------------------------------
     //################################################################################################

@@ -20,9 +20,6 @@ define("DB_NAME", "simpex_db");
 // define('DB_PASSWORD', '');               
 // define('DB_NAME', 'simpex_db');         
 
-
-
-
 //Addresses
 define('APPROOT', dirname(dirname(__FILE__)));
 define('URLROOT', 'http://localhost/simpex-solar');

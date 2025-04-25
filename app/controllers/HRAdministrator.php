@@ -4,6 +4,8 @@ class HRAdministrator extends Controller
 {
     private $employeeModel;
     private $userModel;
+    private $chatModel;
+    private $hrModel;
     private $attendanceModel;
     private $payrollModel;
 
@@ -16,8 +18,26 @@ class HRAdministrator extends Controller
         }
         $this->employeeModel = $this->model('M_Employee');
         $this->userModel = $this->model("M_Users");
+
+        $this->chatModel = $this->model('M_Chat');
+        $this->hrModel = $this->model('M_HR');
+        
+        // Check for unread messages on every page load
+        $clients = $this->hrModel->getClientsWithChats();
+        $totalUnreadCount = 0;
+        if ($clients) {
+            foreach ($clients as $client) {
+                if (isset($client->unread_count)) {
+                    $totalUnreadCount += $client->unread_count;
+                }
+            }
+        }
+        // Store the count in session for access across all views
+        $_SESSION['total_unread_count'] = $totalUnreadCount;
+
         $this->attendanceModel = $this->model('M_Attendance');
         $this->payrollModel = $this->model('M_Payroll');
+
     }
 
     public function index()
@@ -328,7 +348,7 @@ class HRAdministrator extends Controller
         } else {
             // Get existing employee from model
             $employee = $this->employeeModel->getEmployeeById($employeeId);
-            
+
             $data = [
                 'employee_id' => $employeeId,
                 'user_id' => $employee->user_id,

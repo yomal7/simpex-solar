@@ -1,4 +1,5 @@
 <?php require APPROOT . '/views/client/header.php'; ?>
+
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -7,8 +8,9 @@
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/client/dashboard.css">
 </head>
 
-<body>
+<body data-user-id="<?php echo $_SESSION['user_id']; ?>" data-user-role="customer" data-urlroot="<?php echo URLROOT; ?>">
     <?php require APPROOT . '/views/inc/components/topnavbar.php'; ?>
+
     <!-- Sidebar -->
     <div class="sidebar">
         <!-- <a href="#" class="logo">
@@ -25,7 +27,12 @@
             <li class="active"><a href="<?php echo URLROOT; ?>/client/dashboard"><i class='bx bxs-dashboard'></i>Dashboard</a></li>
             <li><a href="<?php echo URLROOT; ?>/client/operationDashboard"><i class='bx bx-analyse'></i>Quotations and Projects</a></li>
             <li><a href="<?php echo URLROOT; ?>/store/orders"><i class='bx bx-store-alt'></i>My Orders</a></li>
-            <li><a href="#"><i class='bx bx-message-square-dots'></i>Chat</a></li>
+            <li>
+                <a href="<?php echo URLROOT; ?>/client/chat">
+                    <i class='bx bx-message-square-dots'></i>Chat
+                    <span class="notification-dot" style="display: <?php echo (isset($_SESSION['total_unread_count']) && $_SESSION['total_unread_count'] > 0) ? 'block' : 'none'; ?>;"></span>
+                </a>
+            </li>
             <!-- <li><a href="#"><i class='bx bx-group'></i>Users</a></li> -->
             <li><a href="<?php echo URLROOT; ?>/client/settings"><i class='bx bx-cog'></i>Settings</a></li>
         </ul>
@@ -378,7 +385,7 @@
             function setGreeting() {
                 const hour = new Date().getHours();
                 let greeting;
-
+              
                 if (hour < 12) {
                     greeting = 'Good Morning';
                 } else if (hour < 18) {
@@ -415,3 +422,4 @@
         </script>
         <script src="<?php echo URLROOT; ?>/js/client/dashboard.js"></script>
         <?php require APPROOT . '/views/client/footer.php'; ?>
+

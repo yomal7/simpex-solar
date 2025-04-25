@@ -3,7 +3,8 @@
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/hRAdministrator/attendance.css">
 </head>
 
-<body>
+<body data-user-role="hRAdministrator" data-user-id="<?php echo $_SESSION['user_id']; ?>" data-urlroot="<?php echo URLROOT; ?>">
+
     <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
