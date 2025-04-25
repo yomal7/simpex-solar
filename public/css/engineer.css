@@ -594,7 +594,23 @@ textarea {
 }
 
 
+.center-align {
+    text-align: center;
+    vertical-align: top;
+}
 
+.icon-button {
+    background: var(--theme-color);
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin: 0 5px;
+    transition: transform 0.2s;
+}
+
+.fa-eye {
+    color: white;
+}
 
 
 

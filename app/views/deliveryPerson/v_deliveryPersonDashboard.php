@@ -20,7 +20,7 @@
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/deliveryPerson/orders" class="active">
+            <a href="<?php echo URLROOT ?>/deliveryPerson/orders">
                 <span class="material-icons-sharp">local_shipping</span>
                 <h3>Orders</h3>
             </a>

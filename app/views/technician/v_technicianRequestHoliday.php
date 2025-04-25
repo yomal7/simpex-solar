@@ -2,7 +2,6 @@
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-<!-- <link rel="stylesheet" href="<//?php echo URLROOT; ?>/css/technician/requestHoliday.css"> -->
 
 </head>
 
@@ -83,8 +82,9 @@
                             <col style="width: 12%;"> <!-- start_date -->
                             <col style="width: 12%;"> <!-- end_date -->
                             <col style="width: 10%;"> <!-- number_of_days -->
-                            <col style="width: 40%;"> <!-- reason -->
+                            <col style="width: 35%;"> <!-- reason -->
                             <col style="width: 14%;"> <!-- status -->
+                            <col style="width: 5%;"> <!-- details button -->
                         </colgroup>
                         <thead>
                             <tr>
@@ -94,6 +94,7 @@
                                 <th>Number of Days</th>
                                 <th>Reason</th>
                                 <th>Status</th>
+                                <th>Details</th>
                             </tr>
                         </thead>
                         <tbody id="holidayRecordsTableBody">
@@ -105,7 +106,10 @@
                                         <td><?php echo $record->end_date; ?></td>
                                         <td class="number-of-days"><?php echo $record->number_of_days; ?></td>
                                         <td class="reason"><?php echo $record->reason; ?></td>
-                                        <td><span class="<?php echo strtolower($record->status); ?>"><?php echo ucfirst($record->status); ?></span></td>
+                                        <td class="center-align"><span class="<?php echo strtolower($record->status); ?>"><?php echo ucfirst($record->status); ?></span></td>
+                                        <td class="center-align">
+                                                <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/technician/holidayDetails/<?php echo $record->id; ?>'" title="View Details"><i class="fas fa-eye"></i></button>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
