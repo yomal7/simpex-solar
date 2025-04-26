@@ -101,7 +101,7 @@
 
 .btn-primary {
     background-color: var(--theme-color);
-    color: white;
+    color: var(--white);
 }
 
 .btn-primary:hover {
@@ -109,7 +109,7 @@
 }
 
 .btn-secondary {
-    background-color: var(--sidebar-background);
+    background-color: #F3F8F3;
     color: #4a5568;
 }
 
@@ -119,16 +119,16 @@
 
 .btn-edit {
     background-color: var(--theme-color);
-    color: white;
+    color: var(--white);
 }
 
 .btn-edit:hover {
-    background-color: #2980b9;
+    background-color: #69a769;
 }
 
 .btn-danger {
-    background-color: #e74c3c;
-    color: white;
+    background-color: var(--danger-color);
+    color: var(--white);
 }
 
 .btn-danger:hover {
@@ -136,18 +136,18 @@
 }
 
 .btn-back {
-    background-color: #4caf50;
-    color: white;
+    background-color: var(--theme-color);
+    color: var(--white);
 }
 
 .btn-back:hover {
-    background-color: #2e7d32;
+    background-color: #69a769;
 }
 
 /* Employee Button Styles */
 .new-employee-btn {
-    background: #4caf50;
-    color: white;
+    background: var(--theme-color);
+    color: var(--white);
     font-size: 18px;
     font-weight: bold;
     border: none;
@@ -158,7 +158,7 @@
 }
 
 .new-employee-btn:hover {
-    background: #2e7d32;
+    background: #69a769;
     transform: translateY(-2px);
 }
 
@@ -178,8 +178,8 @@
 }
 
 .project-table th {
-    background: #4caf50;
-    color: white;
+    background: var(--theme-color);
+    color: var(--white);
     padding: 15px;
     text-align: left;
 }
@@ -195,7 +195,7 @@
 }
 
 .project-table tr:hover {
-    background-color: #e8f5e9;
+    background-color: rgba(122, 184, 122, 0.18);
     transform: translateX(5px);
 }
 
@@ -218,8 +218,8 @@
 }
 
 .view-btn {
-    background: #4caf50;
-    color: white;
+    background: var(--theme-color);
+    color: var(--white);
     border: none;
     padding: 8px 15px;
     border-radius: 5px;
@@ -228,7 +228,7 @@
 }
 
 .view-btn:hover {
-    background: #2e7d32;
+    background: #69a769;
     transform: translateY(-2px);
 }
 
@@ -237,8 +237,8 @@
     border-radius: 15px;
     font-size: 14px;
     font-weight: 500;
-    background: #e8f5e9;
-    color: #2e7d32;
+    background: rgba(122, 184, 122, 0.18);
+    color: #4C724C;
 }
 
 /* Pagination Styles */
@@ -252,19 +252,19 @@
 .pagination button {
     padding: 8px 15px;
     border: none;
-    background: #4caf50;
-    color: white;
+    background: var(--theme-color);
+    color: var(--white);
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .pagination button:hover {
-    background: #2e7d32;
+    background: #69a769;
 }
 
 .pagination button.active {
-    background: #2e7d32;
+    background: #69a769;
 }
 
 /* Employee Role Badges */
@@ -440,7 +440,7 @@ select:focus,
 textarea:focus {
     outline: none;
     border-color: var(--theme-color);
-    box-shadow: 0 0 0 3px #e5f8e5;
+    box-shadow: 0 0 0 3px rgba(122, 184, 122, 0.18);
 }
 
 textarea {

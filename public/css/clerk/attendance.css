@@ -15,8 +15,8 @@
 
 /* Add New Employee Button*/
 .new-employee-btn {
-    background: #4caf50;
-    color: white;
+    background: var(--theme-color);
+    color: var(--white);
     font-size: 18px;
     font-weight: bold;
     border: none;
@@ -27,7 +27,7 @@
 }
 
 .new-employee-btn:hover {
-    background: #2e7d32;
+    background: #69a769;
     transform: translateY(-2px);
 }
 
@@ -76,8 +76,8 @@
 }
 
 .view-date-btn {
-    background: #4caf50;
-    color: white;
+    background: var(--theme-color);
+    color: var(--white);
     border: none;
     padding: 10px 20px;
     border-radius: 8px;
@@ -89,7 +89,7 @@
 }
 
 .view-date-btn:hover {
-    background: #43a047;
+    background: #69a769;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
@@ -128,8 +128,8 @@
 }
 
 .project-table th {
-    background: #4caf50;
-    color: white;
+    background: var(--theme-color);
+    color: var(--white);
     padding: 15px;
     text-align: left;
 }
@@ -144,7 +144,7 @@
 }
 
 .project-table tr:hover {
-    background-color: #e8f5e9;
+    background-color: rgba(122, 184, 122, 0.18);
     transform: translateX(5px);
 }
 
@@ -163,19 +163,19 @@
 .pagination button {
     padding: 8px 15px;
     border: none;
-    background: #4caf50;
-    color: white;
+    background: var(--theme-color);
+    color: var(--white);
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .pagination button:hover {
-    background: #2e7d32;
+    background: #69a769;
 }
 
 .pagination button.active {
-    background: #2e7d32;
+    background: #69a769;
 }
 
 @media (max-width: 768px) {
@@ -231,8 +231,8 @@
 
 /* Clock in/out button styles */
 .clock-in-btn {
-    background-color: #3498db;
-    color: white;
+    background-color: var(--theme-color);
+    color: var(--white);
     border: none;
     padding: 6px 12px;
     border-radius: 4px;
@@ -241,12 +241,12 @@
 }
 
 .clock-in-btn:hover {
-    background-color: #2980b9;
+    background-color: #69a769;
 }
 
 .clock-out-btn {
-    background-color: #e74c3c;
-    color: white;
+    background-color: var(--danger-color);
+    color: var(--white);
     border: none;
     padding: 6px 12px;
     border-radius: 4px;
