@@ -565,6 +565,7 @@ class Users extends Controller {
         unset($_SESSION['user_email']);
         unset($_SESSION['user_name']);
         unset($_SESSION['role']);
+        unset($_SESSION['user_picture']);
         session_destroy();
         redirect('users/index');
     }
