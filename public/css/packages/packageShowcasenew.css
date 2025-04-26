@@ -160,3 +160,41 @@
         transform: translateY(0);
     }
 }
+
+.selector-package-btn {
+    position: relative;
+    padding: 0.7rem 1.2rem;  /* Smaller padding to reduce height */
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 0.95rem;  /* Slightly smaller text */
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);  /* Lighter shadow */
+    width: auto;
+    max-width: 280px;  /* Even smaller width */
+    margin: 0 auto;
+    text-align: center;
+    text-transform: none;  /* Ensure no text transform is applied */
+}
+
+.selector-package-btn .icon {
+    width: 50px;  /* Smaller icon */
+    height: 50px;
+}
+
+.bottom-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 1.5rem auto;  /* Even smaller margin */
+    padding: 0 1rem;
+    text-align: center;
+}

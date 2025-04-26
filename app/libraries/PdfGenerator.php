@@ -24,8 +24,20 @@ class PdfGenerator
 
     public function generateQuotationPDF($quotation, $equipment)
     {
-
         $logoPath = URLROOT . '/public/assets/simpex-logo.png';
+        
+        // First, correct the numeric values
+        // For equipment items
+        foreach ($equipment as $item) {
+            // Check if unit_price needs correction (e.g., if 100 should be 100000)
+            if ($item->unit_price < 1000 && $item->total_price >= 1000 * $item->quantity) {
+                $item->unit_price *= 1000; // Multiply by 1000 to correct the value
+            }
+            
+            // Recalculate total_price based on corrected unit_price
+            $item->total_price = $item->unit_price * $item->quantity;
+        }
+        
         $html = '
             <html>
             <head>
@@ -193,6 +205,12 @@ class PdfGenerator
                     </tr>';
             $subtotal += $item->total_price;
         }
+
+        // Recalculate the total price based on corrected values
+        $total = $subtotal + $quotation->service_charge;
+        
+        // Update the quotation's total price
+        $quotation->total_price = $total;
 
         $html .= '
                 </table>

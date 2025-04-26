@@ -152,7 +152,7 @@
             <p>By signing this agreement, you confirm that you have read and understood all terms and conditions.</p>
             <form id="signatureForm" enctype="multipart/form-data">
                 <div class="signature-box" id="signatureBox">
-                    <p>Click here to upload signature</p>
+                    <p>Click here to upload your signature</p>
                 </div>
                 <input type="file" id="signatureInput" name="signature" accept="image/*" style="display: none">
                 <button type="button" class="btn btn-primary" onclick="submitSignature()">Submit</button>
