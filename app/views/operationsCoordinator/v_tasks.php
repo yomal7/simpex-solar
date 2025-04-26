@@ -1,6 +1,6 @@
 <?php require APPROOT . '/views/operationsCoordinator/header.php'; ?>
 
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/tasks.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/viewTasks.css">
 </head>
 
 <body data-user-role="operationsCoordinator" data-user-id="<?php echo $_SESSION['user_id']; ?>" data-urlroot="<?php echo URLROOT; ?>">

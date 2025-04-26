@@ -31,11 +31,11 @@ class M_Tasks
     }
 
     public function getTaskById($taskId) {
-        $this->db->query('SELECT t.*, u.name as employee_name, e.role as employee_role 
-                          FROM tasks t 
-                          LEFT JOIN employees e ON t.employee_id = e.employee_id
-                          LEFT JOIN users u ON e.user_id = u.user_id
-                          WHERE t.id = :id');
+        $this->db->query('SELECT t.*, u.name as employee_name, u.phone, u.profile_picture, e.role as employee_role 
+                  FROM tasks t
+                  JOIN employees e ON t.employee_id = e.employee_id
+                  JOIN users u ON e.user_id = u.user_id
+                  WHERE t.id = :id');
         $this->db->bind(':id', $taskId);
         return $this->db->single();
     }
