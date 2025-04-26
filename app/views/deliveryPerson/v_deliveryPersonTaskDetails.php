@@ -1,4 +1,4 @@
-<?php require APPROOT . '/views/technician/header.php'; ?>
+<?php require APPROOT . '/views/deliveryPerson/header.php'; ?>
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -21,10 +21,10 @@
                 <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
                 <div class="user-info">
                     <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
-                    <p>Technician</p>
+                    <p>Delivery Person</p>
                 </div>
             </div>
-            <a href="<?php echo URLROOT; ?>/technician/tasks" class="side-back-button">
+            <a href="<?php echo URLROOT; ?>/deliveryPerson/tasks" class="side-back-button">
                 <span class="material-icons-sharp">arrow_back</span>
                 <h3>Back</h3>
             </a>
@@ -64,7 +64,6 @@
                                     </div>
                                 </div>
                                 <div class="task-info-bottom">
-                                    
                                     <div class="info-group">
                                         <label>Title:</label>
                                         <span><?php echo $data['task']->title; ?></span>
@@ -86,7 +85,6 @@
                                                 </select>
                                             </div>
                                     </div>
-            
                                 </div>
                             </div>
 
@@ -131,6 +129,6 @@
             </div>
         </div>
 
-<script src="<?php echo URLROOT; ?>/js/technician/tasks.js"></script>
+<script src="<?php echo URLROOT; ?>/js/deliveryPerson/tasks.js"></script>
 
-<?php require APPROOT . '/views/technician/footer.php'; ?>
+<?php require APPROOT . '/views/deliveryPerson/footer.php'; ?>

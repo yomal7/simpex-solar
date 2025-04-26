@@ -1,14 +1,13 @@
 <?php require APPROOT . '/views/technician/header.php'; ?>
 
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/technician.css">
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-<!-- <link rel="stylesheet" href="</?php echo URLROOT; ?>/css/technician/dashboard.css"> -->
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/tasks.css">
 
 </head>
 
 <body>
-    <div class="projectTasks-container">
+    <div class="tasks-container">
 
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
         <div class="sidebar" id="sidebar">
@@ -75,16 +74,16 @@
                             <?php if (!empty($data['projectTasks'])): ?>
                                 <?php foreach ($data['projectTasks'] as $task): ?>
                                     <tr>
-                                        <td class="center-align">TSK<?php echo str_pad($task->id, 6, '0', STR_PAD_LEFT); ?></td>
-                                        <td class="center-align">PRJ<?php echo str_pad($task->project_id, 6, '0', STR_PAD_LEFT); ?></td>
+                                        <td>TSK<?php echo str_pad($task->id, 6, '0', STR_PAD_LEFT); ?></td>
+                                        <td>PRJ<?php echo str_pad($task->project_id, 6, '0', STR_PAD_LEFT); ?></td>
                                         <td><?php echo strlen($task->title) > 50 ? substr($task->title, 0, 50) . '...' : $task->title; ?></td>
-                                        <td class="center-align"><?php echo $task->end_date; ?></td>
-                                        <td class="center-align">
-                                            <button class="status-button <?php echo strtolower($task->status); ?>" onclick="openStatusPopup(<?php echo $task->id; ?>, '<?php echo $task->status; ?>')">
+                                        <td><?php echo $task->end_date; ?></td>
+                                        <td>
+                                            <span class="status-button <?php echo strtolower($task->status); ?>">
                                                 <?php echo str_replace('_', ' ', ucfirst($task->status)); ?>
-                                            </button>
+                                            </span>
                                         </td>
-                                        <td class="center-align">
+                                        <td>
                                             <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/technician/details/<?php echo $task->id; ?>?page=<?php echo isset($data['currentPage']) ? $data['currentPage'] : 1; ?>'"  title="View Details"><i class="fas fa-eye"></i></button>
                                         </td>
                                     </tr>
@@ -122,25 +121,6 @@
             </div>
         </div>
     </div>
-
-    <div class="overlay" id="overlay"></div>
-
-    <div class="popup" id="statusPopup">
-        <img src="<?php echo URLROOT ?>/assets/tick.png" alt="Success">
-        <h2><span id="currentStatus"></span></h2>
-        <div class="select-container">
-            <select id="statusSelect">
-                <option value="incomplete">Incomplete</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-            </select>
-        </div>
-        <div class="popup-buttons">
-            <button type="button" class="update-btn" onclick="updateStatus()">Update</button>
-            <button type="button" class="cancel-btn" onclick="closePopup('statusPopup')">Cancel</button>
-        </div>
-    </div>
-
 
 <script src="<?php echo URLROOT; ?>/js/technician/tasks.js"></script>
 

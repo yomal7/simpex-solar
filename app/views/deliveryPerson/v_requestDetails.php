@@ -38,36 +38,39 @@
                         <h2>Leave Request Details</h2>
                         <?php if (isset($data['record']) && $data['record']): ?>
                             <div class="holiday-info">
-                                <div class="info-group">
-                                    <label>Leave Type:</label>
-                                    <span><?php echo $data['record']->leave_type; ?></span>
-                                </div>
+                                <div class="holiday-info-top">
+                                    <div class="info-group">
+                                        <label>Leave Type:</label>
+                                        <span><?php echo $data['record']->leave_type; ?></span>
+                                    </div>
 
-                                <div class="info-group">
-                                    <label>Start Date:</label>
-                                    <span><?php echo $data['record']->start_date; ?></span>
-                                </div>
+                                    <div class="info-group">
+                                        <label>Start Date:</label>
+                                        <span><?php echo $data['record']->start_date; ?></span>
+                                    </div>
 
-                                <div class="info-group">
-                                    <label>End Date:</label>
-                                    <span><?php echo $data['record']->end_date; ?></span>
-                                </div>
+                                    <div class="info-group">
+                                        <label>End Date:</label>
+                                        <span><?php echo $data['record']->end_date; ?></span>
+                                    </div>
 
-                                <div class="info-group">
-                                    <label>Number of Days:</label>
-                                    <span><?php echo $data['record']->number_of_days; ?></span>
+                                    <div class="info-group">
+                                        <label>Number of Days:</label>
+                                        <span><?php echo $data['record']->number_of_days; ?></span>
+                                    </div>
                                 </div>
+                                <div class="holiday-info-bottom">
+                                    <div class="info-group">
+                                        <label>Reason:</label>
+                                        <span><?php echo $data['record']->reason; ?></span>
+                                    </div>
 
-                                <div class="info-group">
-                                    <label>Reason:</label>
-                                    <span><?php echo $data['record']->reason; ?></span>
-                                </div>
-
-                                <div class="info-group">
-                                    <label>Status:</label>
-                                    <span class="status-badge <?php echo strtolower($data['record']->status); ?>">
-                                        <?php echo ucfirst($data['record']->status); ?>
-                                    </span>
+                                    <div class="info-group">
+                                        <label>Status:</label>
+                                        <span class="status-badge <?php echo strtolower($data['record']->status); ?>">
+                                            <?php echo ucfirst($data['record']->status); ?>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                     </div>

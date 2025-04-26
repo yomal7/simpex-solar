@@ -22,8 +22,22 @@ class technician extends Controller
 
     public function index()
     {
-        //$technician = $this->leavesModel->getTechnicianByUserId($_SESSION['employee_id']);
-        $data = [];
+        $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+
+        if (!$employee) {
+            flash('error_msg', 'Employee not found');
+            redirect('users/login');
+        }
+
+        // Fetch tasks for the technician
+        $tasks = $this->tasksModel->getTotalProjectTasksById($employee->employee_id);
+
+        // Prepare data for view
+        $data = [
+            'employee' => $employee,
+            'tasks' => $tasks
+        ];
+        
         $this->view('technician/v_technicianDashboard', $data);
     }
 

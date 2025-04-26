@@ -39,7 +39,7 @@ function updateStatus(taskId, status) {
 }
 
 function updateTaskStatus(taskId, status) {
-  fetch(`${URLROOT}/deliveryPerson/tasks`, {
+  fetch(`${URLROOT}/engineer/tasks`, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -87,7 +87,7 @@ function addComment(taskId) {
   if (!comment) return;
 
   // Send the request as x-www-form-urlencoded with taskId and comment
-  fetch(`${URLROOT}/deliveryPerson/details/${taskId}`, {
+  fetch(`${URLROOT}/engineer/details/${taskId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -109,7 +109,7 @@ function deleteComment(taskId) {
   if (!confirm("Are you sure you want to delete this comment?")) return;
 
   // Send the request as x-www-form-urlencoded for deleting the comment
-  fetch(`${URLROOT}/deliveryPerson/details/${taskId}`, {
+  fetch(`${URLROOT}/engineer/details/${taskId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",

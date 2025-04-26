@@ -13,28 +13,6 @@ document.addEventListener("click", function (event) {
   }
 });
 
-document.addEventListener("DOMContentLoaded", function () {
-  const overlay = document.getElementById("overlay");
-
-  overlay.addEventListener("click", function (e) {
-    if (e.target === overlay) {
-      closePopup("requestFormPopup");
-    }
-  });
-});
-
-function openPopup(popupId) {
-  document.getElementById(popupId).classList.add("open-popup");
-  document.getElementById("overlay").style.visibility = "visible";
-  document.getElementById("overlay").style.opacity = "1";
-}
-
-function closePopup(popupId) {
-  document.getElementById(popupId).classList.remove("open-popup");
-  document.getElementById("overlay").style.visibility = "hidden";
-  document.getElementById("overlay").style.opacity = "0";
-}
-
 function autoResize(textarea) {
   textarea.style.height = "auto";
   textarea.style.height = "${textarea.scrollHeight}px";
@@ -45,40 +23,19 @@ function toggleSidebar() {
   document.getElementById("sidebar").classList.toggle("active");
 }
 
-document.addEventListener("click", function (event) {
-  if (event.target.classList.contains("overlay")) {
-    const currentSelection = document.getElementById("statusSelect").value;
-    if (currentSelection === originalStatus) {
-      closePopup("statusPopup");
-    }
+// Updated updateStatus function to change the color immediately
+function updateStatus(taskId, status) {
+  // Update the dropdown's class immediately for visual feedback
+  const dropdown = document.querySelector('.status-dropdown');
+  if (dropdown) {
+      // Remove all status classes
+      dropdown.classList.remove('incomplete', 'in_progress', 'completed');
+      // Add the new status class
+      dropdown.classList.add(status);
   }
-});
-
-let currentTaskId = null;
-let originalStatus = null;
-function openStatusPopup(taskId, currentStatus) {
-  currentTaskId = taskId;
-
-  const formattedStatus = currentStatus
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-
-  document.getElementById("currentStatus").textContent = formattedStatus;
-  document.getElementById("statusSelect").value = currentStatus;
-
-  originalStatus = currentStatus;
-  document.getElementById("statusPopup").classList.add("open-popup");
-  document.getElementById("overlay").style.visibility = "visible";
-  document.getElementById("overlay").style.opacity = "1";
-}
-
-function updateStatus() {
-  const status = document.getElementById("statusSelect").value;
-  updateTaskStatus(currentTaskId, status);
-  document.getElementById("statusPopup").classList.remove("open-popup");
-  document.getElementById("overlay").style.visibility = "hidden";
-  document.getElementById("overlay").style.opacity = "0";
+  
+  // Then call the existing function to update the server
+  updateTaskStatus(taskId, status);
 }
 
 function updateTaskStatus(taskId, status) {

@@ -61,12 +61,12 @@
                     </div>
                     <table>
                         <colgroup>
-                            <col style="width: 15%;"> <!-- employee_id -->
+                            <col style="width: 15%; text-align: left;"> <!-- employee_id -->
                             <col style="width: 15%;"> <!-- leave_type -->
-                            <col style="width: 20%;"> <!-- start_date -->
-                            <col style="width: 15%;"> <!-- number_of_days -->
-                            <col style="width: 20%;"> <!-- status -->
-                            <col style="width: 15%;"> <!-- details -->
+                            <col style="width: 20%; text-align: left;"> <!-- start_date -->
+                            <col style="width: 15%; text-align: left;"> <!-- number_of_days -->
+                            <col style="width: 20%; text-align: left;"> <!-- status -->
+                            <col style="width: 15%; text-align: left;"> <!-- details -->
                         </colgroup>
                         <thead>
                             <tr>
@@ -82,16 +82,16 @@
                             <?php if (!empty($data['holidayRecords'])): ?>
                                 <?php foreach ($data['holidayRecords'] as $record): ?>
                                     <tr>
-                                        <td class="center-align"><span>EMP<?php echo str_pad($record->employee_id, 6, '0', STR_PAD_LEFT); ?></span></td>
+                                        <td><span>EMP<?php echo str_pad($record->employee_id, 6, '0', STR_PAD_LEFT); ?></span></td>
                                         <td class="left-align"><?php echo $record->leave_type; ?></td>
-                                        <td class="center-align"><?php echo $record->start_date; ?></td>
+                                        <td><?php echo $record->start_date; ?></td>
                                         <td class="center-align"><?php echo $record->number_of_days; ?></td>
-                                        <td class="center-align">
+                                        <td>
                                             <span class="status-button <?php echo strtolower($record->status); ?>">
                                                 <?php echo str_replace('_', ' ', ucfirst($record->status)); ?>
                                             </span>
                                         </td>
-                                        <td class="center-align">
+                                        <td>
                                             <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/hRAdministrator/details/<?php echo $record->id; ?>'" title="View Details"><i class="fas fa-eye"></i></button>
                                         </td>
                                     </tr>
