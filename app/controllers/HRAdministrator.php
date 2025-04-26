@@ -136,6 +136,8 @@ class HRAdministrator extends Controller
             // Validate phone
             if (empty($data['phone'])) {
                 $data['phone_err'] = 'Please enter phone';
+            } elseif (!preg_match('/^(0[0-9]{9}|[1-9][0-9]{8})$/', $data['phone'])) {
+                $data['phone_err'] = 'Please enter a valid phone number';
             }
 
             // Validate password
@@ -288,6 +290,8 @@ class HRAdministrator extends Controller
             // Validate phone
             if (empty($data['phone'])) {
                 $data['phone_err'] = 'Please enter phone';
+            } elseif (!preg_match('/^(0[0-9]{9}|[1-9][0-9]{8})$/', $data['phone'])) {
+                $data['phone_err'] = 'Please enter a valid phone number';
             }
             
             // Validate address
@@ -779,8 +783,10 @@ class HRAdministrator extends Controller
                 }
                 
                 // Validate phone
-                if(empty($data['phone'])) {
+                if (empty($data['phone'])) {
                     $data['phone_err'] = 'Please enter your phone number';
+                } elseif (!preg_match('/^(0[0-9]{9}|[1-9][0-9]{8})$/', $data['phone'])) {
+                    $data['phone_err'] = 'Please enter a valid phone number';
                 }
                 
                 // Handle profile picture upload
