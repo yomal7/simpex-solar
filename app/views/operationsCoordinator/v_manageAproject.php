@@ -163,8 +163,10 @@
                                 onclick="window.location.href='<?php echo URLROOT ?>/operationsCoordinator/firstPayment/<?php echo $data['project']->project_id; ?>'"
                                 <?php elseif ($phase === 'installation'): ?>
                                 onclick="window.location.href='<?php echo URLROOT ?>/operationsCoordinator/installation/<?php echo $data['project']->project_id; ?>'"
-                                <?php else: ?>
-                                data-url="<?php echo $url; ?>"
+                                <?php elseif ($phase === 'final_payment'): ?>
+                                onclick="window.location.href='<?php echo URLROOT ?>/operationsCoordinator/finalPayment/<?php echo $data['project']->project_id; ?>'"
+                                <?php elseif ($phase === 'engineer_approval'): ?>
+                                onclick="window.location.href='<?php echo URLROOT ?>/operationsCoordinator/engineerApproval/<?php echo $data['project']->project_id; ?>'"
                                 <?php endif; ?>>
                                 <div class="phase-icon"><?php echo $info['icon']; ?></div>
                                 <div class="phase-content">
