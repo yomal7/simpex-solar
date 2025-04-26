@@ -519,43 +519,38 @@ class Client extends Controller
 
     public function documents($preProjectId = null)
     {
-        if ($preProjectId === null) {
-            redirect('client/project');
+        if (!isLoggedIn() || $_SESSION['role'] !== 'customer') {
+            redirect('users/login');
+            return;
         }
 
-        // Get the project using pre_project_id
+        // Get project information by pre_project_id
         $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
 
         if (!$project) {
             flash('document_message', 'Project not found', 'alert alert-danger');
-            redirect('client/project');
+            redirect('client/operationDashboard');
+            return;
         }
 
-        // Check if this project belongs to the logged-in user
-        if ($project->customer_id != $_SESSION['user_id']) {
-            flash('document_message', 'Unauthorized access', 'alert alert-danger');
-            redirect('client/project');
-        }
-
-        // Get document submission if exists
-        $documentSubmission = $this->clientSideProjectModel->getDocumentSubmission($project->project_id);
+        // Get document submission information
+        $document = $this->clientSideProjectModel->getDocumentSubmission($project->project_id);
 
         $data = [
             'project_id' => $project->project_id,
-            'pre_project_id' => $preProjectId
+            'pre_project_id' => $preProjectId,
+            'document_status' => null,
+            'submission_date' => null,
+            'rejection_reason' => null
         ];
 
-        // If document submission exists, add its data
-        if ($documentSubmission) {
-            $data['document_status'] = $documentSubmission->status || 'NULL';
-            $data['submission_date'] = $documentSubmission->created_at;
+        if ($document) {
+            // Important: Pass the exact status string, don't convert to boolean
+            $data['document_status'] = $document->status;
+            $data['submission_date'] = $document->created_at;
 
-            if ($documentSubmission->status == 'reject') {
-                $data['rejection_reason'] = $documentSubmission->rejection_reason ?? 'Document did not meet requirements.';
-            }
-
-            if ($documentSubmission->status == 'accept') {
-                $data['approval_date'] = $documentSubmission->updated_at;
+            if ($document->status === 'reject' && isset($document->rejection_reason)) {
+                $data['rejection_reason'] = $document->rejection_reason;
             }
         }
 
@@ -565,63 +560,72 @@ class Client extends Controller
     public function submitDocument()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('client/project');
+            echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+            return;
         }
 
-        // Return JSON response
-        header('Content-Type: application/json');
+        $projectId = $_POST['project_id'];
 
-        if (!isset($_FILES['document']) || !isset($_POST['project_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Missing document or project ID']);
+        // Validate that the project belongs to the current user
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($_SESSION['current_project_id']);
+        if (!$project) {
+            echo json_encode(['success' => false, 'message' => 'Project not found']);
+            return;
+        }
+
+        // Check if file was uploaded properly
+        if (!isset($_FILES['document']) || $_FILES['document']['error'] !== UPLOAD_ERR_OK) {
+            echo json_encode(['success' => false, 'message' => 'Please select a valid document to upload']);
             return;
         }
 
         $file = $_FILES['document'];
-        $projectId = $_POST['project_id'];
 
-        // Validate file
-        $allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-        $maxSize = 5 * 1024 * 1024; // 5MB
-
-        if (!in_array($file['type'], $allowedTypes)) {
-            echo json_encode(['success' => false, 'message' => 'Invalid file type. Please upload a PDF, JPEG, or PNG file.']);
+        // Validate file type (PDF only)
+        $fileType = mime_content_type($file['tmp_name']);
+        if ($fileType !== 'application/pdf') {
+            echo json_encode(['success' => false, 'message' => 'Only PDF files are allowed']);
             return;
         }
 
+        // Validate file size (max 5MB)
+        $maxSize = 5 * 1024 * 1024;
         if ($file['size'] > $maxSize) {
-            echo json_encode(['success' => false, 'message' => 'File size exceeds the 5MB limit.']);
+            echo json_encode(['success' => false, 'message' => 'File size must be less than 5MB']);
             return;
-        }
-
-        // Create upload directory if it doesn't exist
-        $uploadDir = dirname(APPROOT) . '/public/uploads/documents/';
-        if (!file_exists($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
         }
 
         // Generate unique filename
         $fileName = uniqid() . '_' . basename($file['name']);
+        $uploadDir = APPROOT . '/../public/uploads/documents/';
+
+        // Create directory if it doesn't exist
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
         $uploadPath = $uploadDir . $fileName;
 
-        // Upload file
+        // Move the uploaded file
         if (move_uploaded_file($file['tmp_name'], $uploadPath)) {
-            // Save document in database
+            // Save document info to database
             $documentData = [
-                'project_id' => $projectId,
+                'project_id' => $project->project_id,
                 'document' => $fileName,
-                'status' => 'pending' // Default status after submission
+                'status' => 'pending'
             ];
 
             if ($this->clientSideProjectModel->submitDocument($documentData)) {
-                echo json_encode(['success' => true, 'message' => 'Document uploaded successfully']);
+                echo json_encode(['success' => true, 'message' => 'Document submitted successfully']);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Failed to save document information']);
+                // If database insert fails, delete the uploaded file
+                unlink($uploadPath);
+                echo json_encode(['success' => false, 'message' => 'Failed to submit document']);
             }
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to upload document']);
         }
     }
-
     /**
      * Display the first payment page
      * 
