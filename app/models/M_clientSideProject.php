@@ -320,7 +320,7 @@ class M_clientSideProject
         return $this->db->execute();
     }
 
-    
+
 
     /**
      * Update project phase after payment
@@ -335,10 +335,10 @@ class M_clientSideProject
                         SET current_phase = :phase,
                             updated_at = CURRENT_TIMESTAMP
                         WHERE project_id = :project_id');
-                        
+
         $this->db->bind(':project_id', $projectId);
         $this->db->bind(':phase', $phase);
-    }  
+    }
 
     public function getInstallationPhase($projectId)
     {
@@ -456,5 +456,26 @@ class M_clientSideProject
                          AND p.status = "active"');
         $this->db->bind(':customer_id', $customerId);
         return $this->db->resultSet();
+    }
+
+    // Engineer Approval
+    public function getProjectCertificate($projectId)
+    {
+        $this->db->query('SELECT * FROM project_certificates WHERE project_id = :project_id');
+        $this->db->bind(':project_id', $projectId);
+        return $this->db->single();
+    }
+
+    /**
+     * Get package information by ID
+     * 
+     * @param int $packageId Package ID
+     * @return object|bool Package object or false
+     */
+    public function getPackageById($packageId)
+    {
+        $this->db->query('SELECT * FROM packages WHERE package_id = :package_id');
+        $this->db->bind(':package_id', $packageId);
+        return $this->db->single();
     }
 }

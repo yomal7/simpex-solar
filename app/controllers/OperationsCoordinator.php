@@ -1723,6 +1723,107 @@ class OperationsCoordinator extends Controller
     }
 
 
+    //##################################################################################################
+    //-----------------------------------------Engineer Approval----------------------------------------------
+    //##################################################################################################
+
+    public function engineerApproval($projectId = null)
+    {
+        if (!$projectId) {
+            redirect('operationsCoordinator/projects');
+            return;
+        }
+
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+        if (!$project) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+            return;
+        }
+
+        // Get customer information
+        $customer = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+
+        // Get certificate information
+        $certificate = $this->projectModel->getProjectCertificate($projectId);
+
+        // Get available engineers for assignment
+        $engineers = $this->projectModel->getAvailableEngineers();
+
+        $data = [
+            'project' => $project,
+            'customer' => $customer,
+            'certificate' => $certificate,
+            'engineers' => $engineers
+        ];
+
+        $this->view('operationsCoordinator/v_engineerApproval', $data);
+    }
+
+    public function assignEngineerToApproval()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+            return;
+        }
+
+        $projectId = filter_input(INPUT_POST, 'project_id', FILTER_VALIDATE_INT);
+        $engineerId = filter_input(INPUT_POST, 'engineer_id', FILTER_VALIDATE_INT);
+
+        if (!$projectId || !$engineerId) {
+            flash('engineer_approval_message', 'Invalid data provided', 'alert alert-danger');
+            redirect('operationsCoordinator/engineerApproval/' . $projectId);
+            return;
+        }
+
+        $data = [
+            'project_id' => $projectId,
+            'engineer_id' => $engineerId
+        ];
+
+        if ($this->projectModel->createProjectCertificate($data)) {
+            flash('engineer_approval_message', 'Engineer assigned successfully', 'alert alert-success');
+        } else {
+            flash('engineer_approval_message', 'Failed to assign engineer', 'alert alert-danger');
+        }
+
+        redirect('operationsCoordinator/engineerApproval/' . $projectId);
+    }
+
+    public function completeEngineerApproval()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('operationsCoordinator/projects');
+            return;
+        }
+
+        $projectId = filter_input(INPUT_POST, 'project_id', FILTER_VALIDATE_INT);
+
+        if (!$projectId) {
+            flash('engineer_approval_message', 'Invalid project ID', 'alert alert-danger');
+            redirect('operationsCoordinator/projects');
+            return;
+        }
+
+        // Get certificate to check if completed
+        $certificate = $this->projectModel->getProjectCertificate($projectId);
+
+        if (!$certificate || $certificate->completed_at === null) {
+            flash('engineer_approval_message', 'Engineer has not completed the certification process', 'alert alert-danger');
+            redirect('operationsCoordinator/engineerApproval/' . $projectId);
+            return;
+        }
+
+        if ($this->projectModel->completeEngineerApproval($projectId)) {
+            flash('engineer_approval_message', 'Engineer approval completed and project moved to Grid Connection phase', 'alert alert-success');
+            redirect('operationsCoordinator/projects');
+        } else {
+            flash('engineer_approval_message', 'Failed to complete engineer approval', 'alert alert-danger');
+            redirect('operationsCoordinator/engineerApproval/' . $projectId);
+        }
+    }
+
 
 
 
@@ -2234,7 +2335,7 @@ class OperationsCoordinator extends Controller
     {
         // Get user data
         $user = $this->settingsModel->getUserById($_SESSION['user_id']);
-        
+
         // Initialize data array with user info
         $data = [
             'name' => $user->name,
@@ -2248,30 +2349,30 @@ class OperationsCoordinator extends Controller
             'new_password_err' => '',
             'confirm_password_err' => ''
         ];
-        
+
         // Handle form submissions
-        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Determine which form was submitted
-            if(isset($_POST['form_type']) && $_POST['form_type'] == 'profile_update') {
+            if (isset($_POST['form_type']) && $_POST['form_type'] == 'profile_update') {
                 // Profile update form submitted
                 $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-                
+
                 // Get form data
                 $data['email'] = trim($_POST['email']);
                 $data['phone'] = trim($_POST['phone']);
-                
+
                 // Validate email
-                if(empty($data['email'])) {
+                if (empty($data['email'])) {
                     $data['email_err'] = 'Please enter your email';
-                } elseif($this->settingsModel->emailExistsForOtherUser($data['email'], $_SESSION['user_id'])) {
+                } elseif ($this->settingsModel->emailExistsForOtherUser($data['email'], $_SESSION['user_id'])) {
                     $data['email_err'] = 'Email is already taken by another user';
                 }
-                
+
                 // Validate phone
-                if(empty($data['phone'])) {
+                if (empty($data['phone'])) {
                     $data['phone_err'] = 'Please enter your phone number';
                 }
-                
+
                 // Handle profile picture upload
                 $profileData = [
                     'user_id' => $_SESSION['user_id'],
@@ -2279,84 +2380,84 @@ class OperationsCoordinator extends Controller
                     'phone' => $data['phone'],
                     'profile_picture' => $user->profile_picture // Default to current profile picture
                 ];
-                
-                if(isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == UPLOAD_ERR_OK) {
+
+                if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == UPLOAD_ERR_OK) {
                     $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
                     $maxSize = 2 * 1024 * 1024; // 2MB
-                    
-                    if(!in_array($_FILES['profile_picture']['type'], $allowedTypes)) {
+
+                    if (!in_array($_FILES['profile_picture']['type'], $allowedTypes)) {
                         $data['profile_picture_err'] = 'Only JPG, JPEG and PNG files are allowed';
-                    } elseif($_FILES['profile_picture']['size'] > $maxSize) {
+                    } elseif ($_FILES['profile_picture']['size'] > $maxSize) {
                         $data['profile_picture_err'] = 'File size must be less than 2MB';
                     } else {
                         // Generate new filename
                         $filename = uniqid() . '_' . basename($_FILES['profile_picture']['name']);
                         $uploadDir = APPROOT . '/../public/uploads/profile_pictures/';
-                        
+
                         // Create directory if it doesn't exist
-                        if(!is_dir($uploadDir)) {
+                        if (!is_dir($uploadDir)) {
                             mkdir($uploadDir, 0777, true);
                         }
-                        
+
                         // Upload file
-                        if(move_uploaded_file($_FILES['profile_picture']['tmp_name'], $uploadDir . $filename)) {
+                        if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $uploadDir . $filename)) {
                             $profileData['profile_picture'] = $filename;
                         } else {
                             $data['profile_picture_err'] = 'Error uploading file';
                         }
                     }
                 }
-                
+
                 // If no errors, update profile
-                if(empty($data['email_err']) && empty($data['phone_err']) && empty($data['profile_picture_err'])) {
-                    if($this->settingsModel->updateProfile($profileData)) {
+                if (empty($data['email_err']) && empty($data['phone_err']) && empty($data['profile_picture_err'])) {
+                    if ($this->settingsModel->updateProfile($profileData)) {
                         // Update session variable with new profile picture if it was changed
-                        if($profileData['profile_picture'] != $user->profile_picture) {
+                        if ($profileData['profile_picture'] != $user->profile_picture) {
                             $_SESSION['user_picture'] = $profileData['profile_picture'];
                         }
-                        
+
                         flash('profile_message', 'Profile updated successfully', 'alert alert-success');
                         redirect('operationsCoordinator/settings');
                     } else {
                         flash('profile_message', 'Something went wrong', 'alert alert-danger');
                     }
                 }
-            } elseif(isset($_POST['form_type']) && $_POST['form_type'] == 'password_change') {
+            } elseif (isset($_POST['form_type']) && $_POST['form_type'] == 'password_change') {
                 // Password change form submitted
                 $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-                
+
                 // Get form data
                 $currentPassword = trim($_POST['current_password']);
                 $newPassword = trim($_POST['new_password']);
                 $confirmPassword = trim($_POST['confirm_password']);
-                
+
                 // Validate current password
-                if(empty($currentPassword)) {
+                if (empty($currentPassword)) {
                     $data['current_password_err'] = 'Please enter your current password';
-                } elseif(!$this->settingsModel->verifyPassword($_SESSION['user_id'], $currentPassword)) {
+                } elseif (!$this->settingsModel->verifyPassword($_SESSION['user_id'], $currentPassword)) {
                     $data['current_password_err'] = 'Current password is incorrect';
                 } else {
-                                    // Validate new password
-                if(empty($newPassword)) {
-                    $data['new_password_err'] = 'Please enter a new password';
-                    } elseif(strlen($newPassword) < 6) {
+                    // Validate new password
+                    if (empty($newPassword)) {
+                        $data['new_password_err'] = 'Please enter a new password';
+                    } elseif (strlen($newPassword) < 6) {
                         $data['new_password_err'] = 'Password must be at least 6 characters';
                     }
-                    
+
                     // Validate confirm password
-                    if(empty($confirmPassword)) {
+                    if (empty($confirmPassword)) {
                         $data['confirm_password_err'] = 'Please confirm your password';
-                    } elseif($newPassword != $confirmPassword) {
+                    } elseif ($newPassword != $confirmPassword) {
                         $data['confirm_password_err'] = 'Passwords do not match';
                     }
                 }
-                
+
                 // If no errors, change password
-                if(empty($data['current_password_err']) && empty($data['new_password_err']) && empty($data['confirm_password_err'])) {
+                if (empty($data['current_password_err']) && empty($data['new_password_err']) && empty($data['confirm_password_err'])) {
                     // Hash new password
                     $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-                    
-                    if($this->settingsModel->changePassword($_SESSION['user_id'], $hashedPassword)) {
+
+                    if ($this->settingsModel->changePassword($_SESSION['user_id'], $hashedPassword)) {
                         flash('password_message', 'Password changed successfully', 'alert alert-success');
                         redirect('operationsCoordinator/settings');
                     } else {
@@ -2365,10 +2466,11 @@ class OperationsCoordinator extends Controller
                 }
             }
         }
-        
+
         $this->view('/operationsCoordinator/v_settings', $data);
     }
-  
+
+
     public function chat()
     {
         // Get clients who have chat history with this coordinator

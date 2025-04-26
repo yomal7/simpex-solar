@@ -1,6 +1,7 @@
 <?php
 
-class engineer extends Controller {
+class engineer extends Controller
+{
     private $employeeModel;
     private $engineerModel;
     private $leavesModel;
@@ -31,7 +32,8 @@ class engineer extends Controller {
         $this->view('engineer/v_engineerDashboard', $data);
     }
 
-    public function dashboard() {
+    public function dashboard()
+    {
         //$engineer = $this->employeeModel->getEngineerByUserId($_SESSION['employee_id']);
         $data = [];
         $this->view('engineer/v_engineerDashboard', $data);
@@ -193,29 +195,31 @@ class engineer extends Controller {
     //     $this->view('engineer/v_engineerTasks', $data);
     // }
 
-    public function siteVisits() {
+    public function siteVisits()
+    {
         $pendingSiteVisits = $this->engineerModel->getPendingSiteVisits();
         $data = [
             'pendingVisits' => $pendingSiteVisits
         ];
         $this->view('engineer/v_siteVisits', $data);
     }
-    
-    public function manageSiteVisit($visitId) {
+
+    public function manageSiteVisit($visitId)
+    {
         $siteVisit = $this->engineerModel->getSiteVisitById($visitId);
-        
+
         if (!$siteVisit) {
             flash('site_visit_message', 'Site visit not found', 'error');
             redirect('engineer/siteVisits');
         }
-        
+
         $project = $this->preProjectModel->getPreProjectById($siteVisit->pre_project_id);
-        
+
         if (!$project) {
             flash('site_visit_message', 'Project not found', 'error');
             redirect('engineer/siteVisits');
         }
-        
+
         // Get package information if available
         $packageEquipment = [];
         $packageFeatures = [];
@@ -223,7 +227,7 @@ class engineer extends Controller {
             $packageEquipment = $this->engineerModel->getPackageEquipment($siteVisit->package_id);
             $packageFeatures = $this->engineerModel->getPackageFeatures($siteVisit->package_id);
         }
-        
+
         $data = [
             'project' => $project,
             'site_visit' => $siteVisit,
@@ -231,28 +235,29 @@ class engineer extends Controller {
             'package_features' => $packageFeatures,
             'title' => 'Manage Site Visit'
         ];
-        
+
         $this->view('engineer/v_manageSiteVisit', $data);
     }
-    
-    public function completeSiteVisit() {
+
+    public function completeSiteVisit()
+    {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('engineer/siteVisits');
             return;
         }
-        
+
         $preProjectId = $_POST['pre_project_id'];
         $visitId = $_POST['visit_id'];
         $notes = $_POST['site_notes'];
-        
+
         if ($this->engineerModel->completeSiteVisit($preProjectId, $notes)) {
             flash('site_visit_message', 'Site visit completed successfully', 'success');
         } else {
             flash('site_visit_message', 'Failed to complete site visit', 'error');
         }
-        
+
         redirect('engineer/siteVisits');
-    }   
+    }
 
     public function projects()
     {
@@ -468,7 +473,7 @@ class engineer extends Controller {
         }
 
         $result = $this->projectModel->saveInstallationNotes($data->installation_id, $data->notes);
-      
+
         if ($result) {
             echo json_encode(['success' => true]);
         } else {
@@ -480,7 +485,7 @@ class engineer extends Controller {
     {
         // Get user data
         $user = $this->settingsModel->getUserById($_SESSION['user_id']);
-        
+
         // Initialize data array with user info
         $data = [
             'name' => $user->name,
@@ -494,30 +499,30 @@ class engineer extends Controller {
             'new_password_err' => '',
             'confirm_password_err' => ''
         ];
-        
+
         // Handle form submissions
-        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Determine which form was submitted
-            if(isset($_POST['form_type']) && $_POST['form_type'] == 'profile_update') {
+            if (isset($_POST['form_type']) && $_POST['form_type'] == 'profile_update') {
                 // Profile update form submitted
                 $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-                
+
                 // Get form data
                 $data['email'] = trim($_POST['email']);
                 $data['phone'] = trim($_POST['phone']);
-                
+
                 // Validate email
-                if(empty($data['email'])) {
+                if (empty($data['email'])) {
                     $data['email_err'] = 'Please enter your email';
-                } elseif($this->settingsModel->emailExistsForOtherUser($data['email'], $_SESSION['user_id'])) {
+                } elseif ($this->settingsModel->emailExistsForOtherUser($data['email'], $_SESSION['user_id'])) {
                     $data['email_err'] = 'Email is already taken by another user';
                 }
-                
+
                 // Validate phone
-                if(empty($data['phone'])) {
+                if (empty($data['phone'])) {
                     $data['phone_err'] = 'Please enter your phone number';
                 }
-                
+
                 // Handle profile picture upload
                 $profileData = [
                     'user_id' => $_SESSION['user_id'],
@@ -525,84 +530,84 @@ class engineer extends Controller {
                     'phone' => $data['phone'],
                     'profile_picture' => $user->profile_picture // Default to current profile picture
                 ];
-                
-                if(isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == UPLOAD_ERR_OK) {
+
+                if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == UPLOAD_ERR_OK) {
                     $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
                     $maxSize = 2 * 1024 * 1024; // 2MB
-                    
-                    if(!in_array($_FILES['profile_picture']['type'], $allowedTypes)) {
+
+                    if (!in_array($_FILES['profile_picture']['type'], $allowedTypes)) {
                         $data['profile_picture_err'] = 'Only JPG, JPEG and PNG files are allowed';
-                    } elseif($_FILES['profile_picture']['size'] > $maxSize) {
+                    } elseif ($_FILES['profile_picture']['size'] > $maxSize) {
                         $data['profile_picture_err'] = 'File size must be less than 2MB';
                     } else {
                         // Generate new filename
                         $filename = uniqid() . '_' . basename($_FILES['profile_picture']['name']);
                         $uploadDir = APPROOT . '/../public/uploads/profile_pictures/';
-                        
+
                         // Create directory if it doesn't exist
-                        if(!is_dir($uploadDir)) {
+                        if (!is_dir($uploadDir)) {
                             mkdir($uploadDir, 0777, true);
                         }
-                        
+
                         // Upload file
-                        if(move_uploaded_file($_FILES['profile_picture']['tmp_name'], $uploadDir . $filename)) {
+                        if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $uploadDir . $filename)) {
                             $profileData['profile_picture'] = $filename;
                         } else {
                             $data['profile_picture_err'] = 'Error uploading file';
                         }
                     }
                 }
-                
+
                 // If no errors, update profile
-                if(empty($data['email_err']) && empty($data['phone_err']) && empty($data['profile_picture_err'])) {
-                    if($this->settingsModel->updateProfile($profileData)) {
+                if (empty($data['email_err']) && empty($data['phone_err']) && empty($data['profile_picture_err'])) {
+                    if ($this->settingsModel->updateProfile($profileData)) {
                         // Update session variable with new profile picture if it was changed
-                        if($profileData['profile_picture'] != $user->profile_picture) {
+                        if ($profileData['profile_picture'] != $user->profile_picture) {
                             $_SESSION['user_picture'] = $profileData['profile_picture'];
                         }
-                        
+
                         flash('profile_message', 'Profile updated successfully', 'alert alert-success');
                         redirect('engineer/settings');
                     } else {
                         flash('profile_message', 'Something went wrong', 'alert alert-danger');
                     }
                 }
-            } elseif(isset($_POST['form_type']) && $_POST['form_type'] == 'password_change') {
+            } elseif (isset($_POST['form_type']) && $_POST['form_type'] == 'password_change') {
                 // Password change form submitted
                 $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-                
+
                 // Get form data
                 $currentPassword = trim($_POST['current_password']);
                 $newPassword = trim($_POST['new_password']);
                 $confirmPassword = trim($_POST['confirm_password']);
-                
+
                 // Validate current password
-                if(empty($currentPassword)) {
+                if (empty($currentPassword)) {
                     $data['current_password_err'] = 'Please enter your current password';
-                } elseif(!$this->settingsModel->verifyPassword($_SESSION['user_id'], $currentPassword)) {
+                } elseif (!$this->settingsModel->verifyPassword($_SESSION['user_id'], $currentPassword)) {
                     $data['current_password_err'] = 'Current password is incorrect';
                 } else {
-                                    // Validate new password
-                if(empty($newPassword)) {
-                    $data['new_password_err'] = 'Please enter a new password';
-                    } elseif(strlen($newPassword) < 6) {
+                    // Validate new password
+                    if (empty($newPassword)) {
+                        $data['new_password_err'] = 'Please enter a new password';
+                    } elseif (strlen($newPassword) < 6) {
                         $data['new_password_err'] = 'Password must be at least 6 characters';
                     }
-                    
+
                     // Validate confirm password
-                    if(empty($confirmPassword)) {
+                    if (empty($confirmPassword)) {
                         $data['confirm_password_err'] = 'Please confirm your password';
-                    } elseif($newPassword != $confirmPassword) {
+                    } elseif ($newPassword != $confirmPassword) {
                         $data['confirm_password_err'] = 'Passwords do not match';
                     }
                 }
-                
+
                 // If no errors, change password
-                if(empty($data['current_password_err']) && empty($data['new_password_err']) && empty($data['confirm_password_err'])) {
+                if (empty($data['current_password_err']) && empty($data['new_password_err']) && empty($data['confirm_password_err'])) {
                     // Hash new password
                     $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-                    
-                    if($this->settingsModel->changePassword($_SESSION['user_id'], $hashedPassword)) {
+
+                    if ($this->settingsModel->changePassword($_SESSION['user_id'], $hashedPassword)) {
                         flash('password_message', 'Password changed successfully', 'alert alert-success');
                         redirect('engineer/settings');
                     } else {
@@ -611,7 +616,135 @@ class engineer extends Controller {
                 }
             }
         }
-        
+
         $this->view('engineer/v_settings', $data);
+    }
+
+    // Engineer Approval
+    public function approvalProjects()
+    {
+        // Get the engineer's employee ID from the session user ID
+        $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+
+        if (!$employee) {
+            flash('approval_message', 'Engineer profile not found', 'alert alert-danger');
+            redirect('engineer/dashboard');
+            return;
+        }
+
+        $engineerId = $employee->employee_id;
+
+        // Get assigned approval projects
+        $projects = $this->engineerModel->getApprovalProjects($engineerId);
+
+        $data = [
+            'projects' => $projects,
+            'title' => 'Approval Projects'
+        ];
+
+        $this->view('engineer/v_approvalProjects', $data);
+    }
+
+    public function projectCertification($projectId)
+    {
+        // Get the engineer's employee ID from the session user ID
+        $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+
+        if (!$employee) {
+            flash('certification_message', 'Engineer profile not found', 'alert alert-danger');
+            redirect('engineer/approvalProjects');
+            return;
+        }
+
+        $engineerId = $employee->employee_id;
+
+        // Get project certificate
+        $certificate = $this->engineerModel->getProjectCertificate($projectId);
+
+        if (!$certificate || $certificate->engineer_id != $engineerId) {
+            flash('certification_message', 'Project not found or not assigned to you', 'alert alert-danger');
+            redirect('engineer/approvalProjects');
+            return;
+        }
+
+        // Get project details
+        $project = $this->projectModel->getProjectById($projectId);
+
+        // Get customer details
+        $customer = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+
+        $data = [
+            'certificate' => $certificate,
+            'project' => $project,
+            'customer' => $customer
+        ];
+
+        $this->view('engineer/v_projectCertification', $data);
+    }
+
+    public function submitCertificates()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('engineer/approvalProjects');
+            return;
+        }
+
+        $projectId = $_POST['project_id'];
+        $uploadDir = APPROOT . '/../public/uploads/certificates/';
+
+        // Create directory if it doesn't exist
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
+
+        // Process certificate 1 (required)
+        if (!isset($_FILES['installation_certificate_1']) || $_FILES['installation_certificate_1']['error'] !== 0) {
+            flash('certification_message', 'Installation certificate 1 is required', 'alert alert-danger');
+            redirect('engineer/projectCertification/' . $projectId);
+            return;
+        }
+
+        // Process image 1 (required)
+        if (!isset($_FILES['installation_image_1']) || $_FILES['installation_image_1']['error'] !== 0) {
+            flash('certification_message', 'Installation image 1 is required', 'alert alert-danger');
+            redirect('engineer/projectCertification/' . $projectId);
+            return;
+        }
+
+        // Handle file uploads
+        $certificateData = [];
+
+        // Process certificate 1
+        $cert1Name = uniqid('cert1_') . '_' . $_FILES['installation_certificate_1']['name'];
+        move_uploaded_file($_FILES['installation_certificate_1']['tmp_name'], $uploadDir . $cert1Name);
+        $certificateData['installation_certificate_1'] = $cert1Name;
+
+        // Process certificate 2 (optional)
+        if (isset($_FILES['installation_certificate_2']) && $_FILES['installation_certificate_2']['error'] === 0) {
+            $cert2Name = uniqid('cert2_') . '_' . $_FILES['installation_certificate_2']['name'];
+            move_uploaded_file($_FILES['installation_certificate_2']['tmp_name'], $uploadDir . $cert2Name);
+            $certificateData['installation_certificate_2'] = $cert2Name;
+        }
+
+        // Process image 1
+        $img1Name = uniqid('img1_') . '_' . $_FILES['installation_image_1']['name'];
+        move_uploaded_file($_FILES['installation_image_1']['tmp_name'], $uploadDir . $img1Name);
+        $certificateData['installation_image_1'] = $img1Name;
+
+        // Process image 2 (optional)
+        if (isset($_FILES['installation_image_2']) && $_FILES['installation_image_2']['error'] === 0) {
+            $img2Name = uniqid('img2_') . '_' . $_FILES['installation_image_2']['name'];
+            move_uploaded_file($_FILES['installation_image_2']['tmp_name'], $uploadDir . $img2Name);
+            $certificateData['installation_image_2'] = $img2Name;
+        }
+
+        // Submit to database
+        if ($this->engineerModel->submitProjectCertificates($projectId, $certificateData)) {
+            flash('certification_message', 'Certificates submitted successfully', 'alert alert-success');
+            redirect('engineer/approvalProjects');
+        } else {
+            flash('certification_message', 'Failed to submit certificates', 'alert alert-danger');
+            redirect('engineer/projectCertification/' . $projectId);
+        }
     }
 }

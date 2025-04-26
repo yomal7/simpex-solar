@@ -1,0 +1,229 @@
+:root {
+  --theme-color: #7ab87a;
+  --white: #fff;
+  --sidebar-background: #f3f8f3;
+  --sidebar-link-hover: rgba(122, 184, 122, 0.18);
+  --sidebar-link-color: #6b8e6b;
+  --sidebar-link-active-bg: rgba(122, 184, 122, 0.18);
+  --sidebar-link-active-color: #4c724c;
+  --text-color: #333;
+  --success-color: #6fd649;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--sidebar-background);
+}
+
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: var(--white);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 15px;
+  box-shadow: 0 2rem 3rem var(--sidebar-link-hover);
+  height: calc(100vh - 20px);
+  justify-content: flex-start;
+  transition: all 0.3s ease-in-out;
+  margin: 10px;
+  z-index: 1000;
+  text-decoration: none;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar:hover {
+  box-shadow: none;
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  color: var(--sidebar-link-color);
+  height: 3.7rem;
+  gap: 1rem;
+  position: relative;
+  transition: all 0.3s ease;
+  width: 100%;
+  padding-left: 1rem;
+  text-decoration: none;
+}
+
+.sidebar a:last-child {
+  margin-top: auto;
+}
+
+.sidebar a:hover {
+  color: var(--theme-color);
+  margin-left: 0.6rem;
+}
+
+.sidebar a.active {
+  width: 100%;
+  color: var(--sidebar-link-active-color);
+  background-color: var(--sidebar-link-active-bg);
+  margin-left: -20px;
+  padding-right: 0px;
+  padding-left: 35px;
+}
+
+.sidebar a.active::before {
+  content: "";
+  width: 6px;
+  height: 18px;
+  background-color: var(--theme-color);
+  position: absolute;
+  left: 0px;
+}
+
+.sidebar a.active:hover {
+  border-radius: 15px;
+}
+/* User Profile and Company Logo Styles */
+
+.company-logo {
+  text-align: center;
+  padding: 0;
+  border-bottom: 1px solid rgba(122, 184, 122, 0.534);
+  margin-bottom: 15px;
+}
+
+.company-logo img {
+  max-width: 40%;
+  height: auto;
+}
+
+.user-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-picture {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 5px;
+  border: 3px solid var(--theme-color);
+}
+
+.user-info {
+  text-align: center;
+}
+
+.user-info h4 {
+  margin: 2px 0;
+  color: var(--text-color);
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.user-info p {
+  margin: 0;
+  color: var(--sidebar-link-color);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1001;
+  color: var(--sidebar-link-color);
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: -250px;
+    top: 0;
+    bottom: 0;
+    z-index: 999;
+    border-radius: 0;
+    height: 100vh;
+    margin: 0;
+  }
+
+  .sidebar.active {
+    left: 0;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding-top: 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .table-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+    padding: 15px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .table-header h2 {
+    text-align: center;
+  }
+
+  .search-bar {
+    max-width: 100%;
+    order: 2;
+  }
+
+  .search-bar input {
+    flex: 1;
+    min-width: 0;
+  }
+}
