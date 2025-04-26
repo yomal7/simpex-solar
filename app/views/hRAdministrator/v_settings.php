@@ -160,6 +160,8 @@
                 reader.readAsDataURL(file);
             }
         });
+
+        
     </script>
 
     <?php require APPROOT . '/views/hrAdministrator/footer.php'; ?>
