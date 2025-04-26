@@ -31,7 +31,7 @@
       <div class="footer-info-devider"></div>
       <div class="footer-row">
         <div class="footer-col footer-brand">
-          <div class="footer-logo"><img src="assets/simpex-logo.png" alt="" class="footer-simpex-logo"></div>
+          <div class="footer-logo"><a href="<?php echo URLROOT; ?>"><img src="assets/simpex-logo.png" alt="" class="footer-simpex-logo"></a></div>
           <!-- <form action="#">
             <input type="text" placeholder="Your email" required>
             <button type="submit">SUBSCRIBE</button>
