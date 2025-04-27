@@ -30,24 +30,20 @@ class M_clientSideProject
         $this->db->bind(':project_id', $data['project_id']);
         $existingDoc = $this->db->single();
 
+        $now = date('Y-m-d H:i:s');
+
         if ($existingDoc) {
             // Update existing document
-            $this->db->query('UPDATE documentSubmission 
-                             SET document = :document, 
-                                 status = :status, 
-                                 updated_at = NOW() 
-                             WHERE project_id = :project_id');
+            $this->db->query('UPDATE documentSubmission SET document = :document, status = :status, updated_at = :now WHERE project_id = :project_id');
         } else {
-            // Create new document submission
-            $this->db->query('INSERT INTO documentSubmission 
-                             (project_id, document, status, created_at, updated_at) 
-                             VALUES 
-                             (:project_id, :document, :status, NOW(), NOW())');
+            // Insert new document
+            $this->db->query('INSERT INTO documentSubmission (project_id, document, status, created_at, updated_at) VALUES (:project_id, :document, :status, :now, :now)');
         }
 
         $this->db->bind(':project_id', $data['project_id']);
         $this->db->bind(':document', $data['document']);
         $this->db->bind(':status', $data['status']);
+        $this->db->bind(':now', $now);
 
         return $this->db->execute();
     }

@@ -65,15 +65,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function validateFile(file) {
-    // Check file type
-    const validTypes = [
-      "application/pdf",
-      "image/jpeg",
-      "image/png",
-      "image/jpg",
-    ];
+    // Check file type - ONLY allow PDF files
+    const validTypes = ["application/pdf"];
     if (!validTypes.includes(file.type)) {
-      alert("Only PDF, JPG, and PNG files are allowed");
+      alert("Only PDF files are allowed");
       return false;
     }
 
@@ -88,19 +83,9 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function showPreview(file) {
-    // Show file preview
-    if (file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        dropAreaPreview.src = e.target.result;
-        dropAreaPreview.style.display = "block";
-      };
-      reader.readAsDataURL(file);
-    } else {
-      // For non-image files (like PDFs), show an icon
-      dropAreaPreview.src = `${URLROOT}/public/assets/pdf-icon.png`;
-      dropAreaPreview.style.display = "block";
-    }
+    // For PDF files, show the PDF icon
+    dropAreaPreview.src = `${URLROOT}/public/assets/pdf-icon.png`;
+    dropAreaPreview.style.display = "block";
 
     // Update file info
     fileName.textContent = file.name;
