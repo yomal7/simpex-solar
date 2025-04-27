@@ -128,7 +128,34 @@
                                         </a>
                                     <?php endif; ?>
                                 <?php elseif ($status === 'completed'): ?>
-                                    
+                                    <?php if ($phase === 'quotation'): ?>
+                                        <a href="<?php 
+                                            // Check if quotation_id exists in data array
+                                            if (isset($data['quotation_id']) && !empty($data['quotation_id'])) {
+                                                echo URLROOT . '/client/viewQuotation/' . $data['quotation_id'];
+                                            } elseif (isset($data['progress']['pre_project']->quotation_id) && !empty($data['progress']['pre_project']->quotation_id)) {
+                                                // If no quotation_id directly in data, try to get it from the progress data
+                                                echo URLROOT . '/client/viewQuotation/' . $data['progress']['pre_project']->quotation_id;
+                                            } else {
+                                                // Fallback to pre_project_id if no quotation_id is available
+                                                echo URLROOT . '/client/quotation/' . $data['pre_project_id'];
+                                            }
+                                        ?>" class="btn-view">
+                                            View Details
+                                        </a>
+                                    <?php elseif ($phase === 'site_visit'): ?>
+                                        <a href="<?php echo URLROOT . '/client/siteVisit/' . $data['pre_project_id']; ?>" class="btn-view">
+                                            View Details
+                                        </a>
+                                    <?php elseif ($phase === 'agreement'): ?>
+                                        <a href="<?php echo URLROOT . '/client/agreement/' . $data['pre_project_id']; ?>" class="btn-view">
+                                            View Details
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="<?php echo URLROOT . '/client/project/' . $data['pre_project_id'] . '/' . $phase; ?>" class="btn-view">
+                                            View Details
+                                        </a>
+                                    <?php endif; ?>
                                     <span class="check-mark">✓</span>
                                 <?php else: ?>
                                     <span class="lock-icon">🔒</span>
