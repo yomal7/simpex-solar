@@ -192,11 +192,124 @@ class DeliveryPerson extends Controller
 
     public function tasks()
     {
-        //$deliveryPerson = $this->deliveryPersonModel->getDeliveryPersonByUserId($_SESSION['employee_id']);
-        $data = [];
-        $this->view('deliveryPerson/v_deliveryPersonTasks', $data);
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+
+            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $limit = 10;
+            $offset = ($page - 1) * $limit;
+
+            if (!$employee) {
+                flash('error_msg', 'Employee not found');
+                redirect('users/login');
+            }
+
+            $data = [
+                'employee' => $employee,
+                'projectTasks' => $this->tasksModel->getProjectTasks($employee->employee_id, $limit, $offset),
+                'totalTasks' => $this->tasksModel->getTotalProjectTasks($employee->employee_id),
+                'currentPage' => $page,
+                'totalPages' => ceil($this->tasksModel->getTotalProjectTasks($employee->employee_id) / $limit),
+                'id' => '',
+                'start_date' => '',
+                'end_date' => '',
+                'title' => '',
+                'description' => '',
+                'project_id' => '',
+                'status' => '',
+                'comment' => '',
+                'id_err' => '',
+                'start_date_err' => '',
+                'end_date_err' => '',
+                'title_err' => '',
+                'description_err' => '',
+                'project_id_err' => '',
+                'status_err' => '',
+                'comment_err' => ''
+            ];
+
+            $data['currentPage'] = $page;
+            $this->view('deliveryPerson/v_deliveryPersonTasks', $data);
+        } else {
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+
+            $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+
+            // Handle status update only
+            $taskId = trim($_POST['id']);
+            $status = isset($_POST['status']) ? trim($_POST['status']) : null;
+
+            if ($status !== null) {
+                // Handle status update
+                if ($this->tasksModel->updateTaskStatus($taskId, $status)) {
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Task status updated successfully'
+                    ]);
+                    return;
+                }
+            }
+
+            // If we get here, something went wrong
+            echo json_encode([
+                'success' => false,
+                'message' => 'Failed to update task'
+            ]);
+            return;
+        }
     }
 
+    public function details($taskId = null)
+    {
+        if (!$taskId) {
+            redirect('deliveryPerson/tasks');
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            $taskDetails = $this->tasksModel->getProjectTasksById($taskId);
+
+            // Debug
+            error_log("Task Details: " . print_r($taskDetails, true));
+
+            $data = [
+                'task' => $taskDetails
+            ];
+
+            $this->view('deliveryPerson/v_deliveryPersonTaskDetails', $data);
+        } else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            // Handle comment update (adding or editing)
+            if (isset($_POST['comment'])) {
+                $comment = trim($_POST['comment']);
+
+                if (empty($comment)) {
+                    echo json_encode(['success' => false, 'message' => 'Comment cannot be empty']);
+                    return;
+                }
+
+                if ($this->tasksModel->updateTaskComment($taskId, $comment)) {
+                    echo json_encode(['success' => true, 'message' => 'Comment added/updated successfully']);
+                    return;
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Failed to update comment']);
+                    return;
+                }
+            }
+
+            // Handle comment deletion
+            if (isset($_POST['action']) && $_POST['action'] === 'delete_comment') {
+                $result = $this->tasksModel->deleteTaskComment($taskId);
+
+                header('Content-Type: application/json');
+                if ($result) {
+                    echo json_encode(['success' => true]);
+                } else {
+                    echo json_encode(['success' => false]);
+                }
+                exit;
+            }
+        }
+    }
     public function settings()
     {
         // Get user data
