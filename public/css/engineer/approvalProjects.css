@@ -1,0 +1,224 @@
+/* Approval Projects Page Styles */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-header {
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  font-size: 28px;
+  color: #333;
+  margin: 0;
+}
+
+/* Projects Container */
+.projects-container {
+  margin-bottom: 30px;
+}
+
+/* Projects Grid */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 25px;
+}
+
+/* Project Card */
+.project-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-top: 5px solid #6f42c1;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.project-card.completed {
+  border-top-color: #4caf50;
+}
+
+.project-card.pending {
+  border-top-color: #ff9800;
+}
+
+.card-header {
+  padding: 20px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-badge.pending {
+  background-color: #fff3e0;
+  color: #ff8f00;
+}
+
+.status-badge.completed {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.project-details {
+  margin-bottom: 20px;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 10px;
+  align-items: flex-start;
+}
+
+.detail-row i {
+  color: #6f42c1;
+  margin-right: 10px;
+  font-size: 18px;
+  width: 20px;
+  text-align: center;
+}
+
+.detail-row span {
+  color: #555;
+  flex: 1;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border: none;
+  font-size: 14px;
+}
+
+.btn-primary {
+  background-color: #6f42c1;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #5e35b1;
+}
+
+.btn-success {
+  background-color: #4caf50;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #388e3c;
+}
+
+.btn-view {
+  background-color: #2196f3;
+  color: white;
+}
+
+.btn-view:hover {
+  background-color: #1976d2;
+}
+
+.certificate-files {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.certificate-files h4 {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.file-link {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  color: #6f42c1;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.file-link i {
+  margin-right: 8px;
+}
+
+.file-link:hover {
+  text-decoration: underline;
+}
+
+/* No Projects State */
+.no-projects {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.no-data-icon {
+  margin-bottom: 20px;
+}
+
+.no-data-icon span {
+  font-size: 48px;
+  color: #9e9e9e;
+}
+
+.no-projects h3 {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.no-projects p {
+  color: #666;
+  font-size: 16px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+}

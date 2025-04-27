@@ -8,6 +8,7 @@ class Client extends Controller
     private $clientSideProjectModel;
     private $customerProjectModel;
     private $chatModel;
+    private $employeeModel;
 
     public function __construct()
     {
@@ -22,6 +23,7 @@ class Client extends Controller
         $this->customerProjectModel = $this->model('M_CustomerProject');
         $this->shopModel = $this->model('M_Shop');
         $this->chatModel = $this->model('M_Chat');
+        $this->employeeModel = $this->model('M_Employee');
 
         // Set total unread count for notification badge
         if (!isset($_GET['getUnreadStatus'])) { // Skip for AJAX requests
@@ -1554,6 +1556,83 @@ class Client extends Controller
         redirect('client/finalPayment/' . $preProjectId);
     }
 
+    //###################################################################################################
+    //----------------------------------------- Engineer Approval ----------------------------------------------
+    //###################################################################################################
+
+    public function engineerApproval($preProjectId = null)
+    {
+        if ($preProjectId === null) {
+            redirect('client/dashboard');
+        }
+
+
+        // Get project progress data
+        $progress = $this->clientSidePreProjectModel->getProjectProgress($preProjectId);
+
+        if (!$progress || !isset($progress['pre_project'])) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('client/dashboard');
+            return;
+        }
+
+        if ($progress['pre_project']->customer_id != $_SESSION['user_id']) {
+            flash('project_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/dashboard');
+            return;
+        }
+
+        // Get actual project data
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+
+        // Get certificate information if available
+        $certificate = null;
+        $engineerName = null;
+
+        if ($project) {
+            // Get certificate information
+            $certificate = $this->clientSideProjectModel->getProjectCertificate($project->project_id);
+
+            // Get engineer name if available
+            if ($certificate && $certificate->engineer_id) {
+                $engineer = $this->employeeModel->getEmployeeById($certificate->engineer_id);
+                if ($engineer) {
+                    $engineerName = $engineer->name;
+                }
+            }
+        }
+
+        // Check if this is an off-grid system
+        $isOffGrid = false;
+        if ($project && isset($project->package_id)) {
+            $packageInfo = $this->clientSideProjectModel->getPackageById($project->package_id);
+            if ($packageInfo) {
+                $isOffGrid = (bool)$packageInfo->is_off_grid;
+            }
+        }
+
+        $data = [
+            'progress' => $progress,
+            'pre_project_id' => $preProjectId,
+            'is_off_grid' => $isOffGrid,
+            'certificate' => $certificate,
+            'engineer_name' => $engineerName
+        ];
+
+        // If the project has engineer_approval_date or grid_connection_date, add them to the data
+        if ($project) {
+            if (isset($project->engineer_approval_date)) {
+                $data['progress']['engineer_approval_date'] = $project->engineer_approval_date;
+            }
+
+            if (isset($project->grid_connection_date)) {
+                $data['progress']['grid_connection_date'] = $project->grid_connection_date;
+            }
+        }
+
+        $this->view('client/v_engineerApproval', $data);
+    }
+
 
 
 
@@ -2012,13 +2091,12 @@ class Client extends Controller
     {
         // Get the total unread count directly from the chat model
         $count = $this->chatModel->getTotalUnreadMessages($_SESSION['user_id']);
-        
+
         // Store the count in session for access across all views
         $_SESSION['total_unread_count'] = $count;
-        
+
         // Return JSON response
         header('Content-Type: application/json');
         echo json_encode(['hasUnread' => ($count > 0)]);
     }
 }
-
