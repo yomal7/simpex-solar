@@ -161,25 +161,7 @@
                         </div>
                     </div>
 
-                    <!-- Online Payment Method -->
-                    <div class="payment-method">
-                        <div class="method-header" onclick="toggleMethod('online-payment')">
-                            <h4><i class="fas fa-credit-card"></i> Online Payment</h4>
-                            <span class="toggle-icon">+</span>
-                        </div>
-                        <div class="method-content" id="online-payment">
-                            <p>Pay securely online with your credit/debit card or bank account.</p>
-                            <div class="action-buttons">
-                                <form action="<?php echo URLROOT; ?>/client/processFinalOnlinePayment" method="post">
-                                    <input type="hidden" name="project_id" value="<?php echo $data['project_id']; ?>">
-                                    <input type="hidden" name="pre_project_id" value="<?php echo $data['pre_project_id']; ?>">
-                                    <input type="hidden" name="payment_phase" value="final_payment">
-                                    <input type="hidden" name="amount" value="<?php echo $data['payment_amount']; ?>">
-                                    <button type="submit" class="btn btn-primary">Proceed to Payment</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+
 
                     <!-- Cash Payment Method -->
                     <div class="payment-method">
