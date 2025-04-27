@@ -33,11 +33,7 @@ class Client extends Controller
 
     public function index()
     {
-        $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
-        $data = [
-            'customer' => $client
-        ];
-        $this->view('client/v_clientDashboard', $data);
+        redirect('client/dashboard');
     }
 
     public function dashboard()
@@ -2102,5 +2098,35 @@ class Client extends Controller
         // Return JSON response
         header('Content-Type: application/json');
         echo json_encode(['hasUnread' => ($count > 0)]);
+    }
+
+    public function services()
+    {
+        $userId = $_SESSION['user_id'];
+
+        // Get customer info
+        $customer = $this->clientModel->getClientByUserId($userId);
+
+        // Get active quotations
+        $activeQuotations = $this->clientSidePreProjectModel->getActiveQuotationsByCustomerId($userId);
+
+        // Get ongoing projects
+        $ongoingProjects = $this->clientModel->getOngoingProjects($userId);
+
+        // For debugging, uncomment this line to check what data is being returned
+        // echo '<pre>'; print_r($ongoingProjects); echo '</pre>'; die();
+
+        // Get project statistics
+        $stats = $this->clientModel->getProjectStats($userId);
+
+        $data = [
+            'customer' => $customer,
+            'quotations' => $activeQuotations,
+            'ongoingProjects' => $ongoingProjects,
+            'stats' => $stats,
+            'notification_count' => 0 // You can update this with actual notification count
+        ];
+
+        $this->view('client/v_clientServices', $data);
     }
 }

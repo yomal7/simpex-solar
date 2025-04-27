@@ -17,8 +17,7 @@ class Clerk extends Controller {
     }
 
     public function index() {
-        $data = [];
-        $this->view('clerk/v_dashboard', $data);
+        redirect('clerk/dashboard');
     }
 
     public function dashboard() {
