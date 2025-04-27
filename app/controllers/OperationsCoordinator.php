@@ -1875,7 +1875,6 @@ class OperationsCoordinator extends Controller
     // Add Task
     public function addTask()
     {
-
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
             $data = [
@@ -1885,51 +1884,51 @@ class OperationsCoordinator extends Controller
                 'description' => trim($_POST['description']),
                 'project_id' => trim($_POST['project_id']),
                 'employee_id' => trim($_POST['employee_id']),
-                'status' => trim($_POST['status']),
                 'employees' => $this->employeeModel->getAllEmployees(), // Add employees list
                 'title_err' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',
                 'description_err' => '',
                 'project_id_err' => '',
-                'employee_id_err' => '',
-                'status_err' => ''
+                'employee_id_err' => ''
             ];
-
+    
             // Validation
             if (empty($data['title'])) {
                 $data['title_err'] = 'Please enter title';
             }
-
+    
             if (empty($data['start_date'])) {
-                $data['start_date_err'] = 'Please enter start time';
+                $data['start_date_err'] = 'Please enter start date';
             }
-
+    
             if (empty($data['end_date'])) {
-                $data['end_date_err'] = 'Please enter end time';
+                $data['end_date_err'] = 'Please enter end date';
             }
-
+    
             if (empty($data['description'])) {
                 $data['description_err'] = 'Please enter description';
             }
-
+    
             if (empty($data['project_id'])) {
                 $data['project_id_err'] = 'Please select project';
             }
-
+    
             if (empty($data['employee_id'])) {
                 $data['employee_id_err'] = 'Please select employee';
             }
-
-            if (empty($data['status'])) {
-                $data['status_err'] = 'Please select status';
-            }
-
+    
             // Make sure no errors
-            if (empty($data['title_err']) && empty($data['start_date_err']) && empty($data['end_date_err']) && empty($data['description_err']) && empty($data['project_id_err']) && empty($data['employee_id_err']) && empty($data['status_err'])) {
+            if (empty($data['title_err']) && empty($data['start_date_err']) && 
+                empty($data['end_date_err']) && empty($data['description_err']) && 
+                empty($data['project_id_err']) && empty($data['employee_id_err'])) {
+                
+                // Set default status as 'incomplete' for new tasks
+                $data['status'] = 'incomplete';
+                
                 // Validated
                 if ($this->tasksModel->create($data)) {
-                    flash('task_msg', 'Task added successfully');
+                    flash('task_msg', 'Task assigned successfully');
                     redirect('operationsCoordinator/tasks');
                 } else {
                     die('Something went wrong');
@@ -1946,17 +1945,15 @@ class OperationsCoordinator extends Controller
                 'description' => '',
                 'project_id' => '',
                 'employee_id' => '',
-                'status' => '',
                 'employees' => $this->employeeModel->getAllEmployees(), // Add employees list
                 'title_err' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',
                 'description_err' => '',
                 'project_id_err' => '',
-                'employee_id_err' => '',
-                'status_err' => ''
+                'employee_id_err' => ''
             ];
-
+    
             $this->view('operationsCoordinator/v_addTask', $data);
         }
     }

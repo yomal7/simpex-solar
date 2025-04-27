@@ -61,7 +61,24 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="title">Task Title</label>
-                            <input type="text" name="title" id="title" placeholder="Task Title" value="<?php echo $data['title']; ?>">
+                            <select name="title" id="title" class="form-control <?php echo (!empty($data['title_err'])) ? 'is-invalid' : ''; ?>">
+                                <option value="">Select Task Title...</option>
+                                <option value="Site Assessment" <?php echo ($data['title'] == 'Site Assessment') ? 'selected' : ''; ?>>Site Assessment</option>
+                                <option value="Permit Application" <?php echo ($data['title'] == 'Permit Application') ? 'selected' : ''; ?>>Permit Application</option>
+                                <option value="Equipment Procurement" <?php echo ($data['title'] == 'Equipment Procurement') ? 'selected' : ''; ?>>Equipment Procurement</option>
+                                <option value="Roof Inspection" <?php echo ($data['title'] == 'Roof Inspection') ? 'selected' : ''; ?>>Roof Inspection</option>
+                                <option value="Mounting System Installation" <?php echo ($data['title'] == 'Mounting System Installation') ? 'selected' : ''; ?>>Mounting System Installation</option>
+                                <option value="Panel Installation" <?php echo ($data['title'] == 'Panel Installation') ? 'selected' : ''; ?>>Panel Installation</option>
+                                <option value="Electrical Wiring" <?php echo ($data['title'] == 'Electrical Wiring') ? 'selected' : ''; ?>>Electrical Wiring</option>
+                                <option value="Inverter Installation" <?php echo ($data['title'] == 'Inverter Installation') ? 'selected' : ''; ?>>Inverter Installation</option>
+                                <option value="Battery Installation" <?php echo ($data['title'] == 'Battery Installation') ? 'selected' : ''; ?>>Battery Installation</option>
+                                <option value="System Testing" <?php echo ($data['title'] == 'System Testing') ? 'selected' : ''; ?>>System Testing</option>
+                                <option value="Grid Connection" <?php echo ($data['title'] == 'Grid Connection') ? 'selected' : ''; ?>>Grid Connection</option>
+                                <option value="Final Inspection" <?php echo ($data['title'] == 'Final Inspection') ? 'selected' : ''; ?>>Final Inspection</option>
+                                <option value="Customer Handover" <?php echo ($data['title'] == 'Customer Handover') ? 'selected' : ''; ?>>Customer Handover</option>
+                                <option value="Maintenance Visit" <?php echo ($data['title'] == 'Maintenance Visit') ? 'selected' : ''; ?>>Maintenance Visit</option>
+                                <option value="Other" <?php echo ($data['title'] == 'Other') ? 'selected' : ''; ?>>Other</option>
+                            </select>
                             <span class="form-invalid"><?php echo isset($data['title_err']) ? $data['title_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
@@ -100,16 +117,6 @@
                                 options will be populated dynamically
                             </select> -->
                             <span class="form-invalid"><?php echo isset($data['employee_id_err']) ? $data['employee_id_err'] : ''; ?></span>
-                        </div>
-                        <div class="form-group">
-                            <label for="status">Status</label>
-                            <select id="status" name="status">
-                                <option value="">Select Status...</option>
-                                <option value="incomplete">Incomplete</option>
-                                <option value="in_progress">In Progress</option>
-                                <option value="completed">Completed</option>
-                            </select>
-                            <span class="form-invalid"><?php echo isset($data['status_err']) ? $data['status_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
                             <label for="description">Task Description</label>
