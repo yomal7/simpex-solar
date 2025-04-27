@@ -27,9 +27,7 @@ class engineer extends Controller
 
     public function index()
     {
-        //$engineer = $this->employeeModel->getEngineerByUserId($_SESSION['employee_id']);
-        $data = [];
-        $this->view('engineer/v_engineerDashboard', $data);
+        redirect('engineer/dashboard');
     }
 
     public function dashboard()

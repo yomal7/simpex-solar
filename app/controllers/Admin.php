@@ -28,6 +28,17 @@ class Admin extends Controller {
         $this->view('admin/v_dashboard', $data);
     }
 
+    public function dashboard() {
+        $data = [
+            'total_posts' => $this->blogModel->getTotalPosts(),
+            'draft_posts' => $this->blogModel->getTotalDraftPosts(),
+            'published_posts' => $this->blogModel->getTotalPublishedPosts(),
+            'recent_posts' => $this->blogModel->getRecentPosts(5)
+        ];
+        
+        $this->view('admin/v_dashboard', $data);
+    }
+
     // Show create blog form
     public function createBlog() {
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {

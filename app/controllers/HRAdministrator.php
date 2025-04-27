@@ -24,9 +24,7 @@ class HRAdministrator extends Controller
 
     public function index()
     {
-
-        $data = [];
-        $this->view('hRAdministrator/v_dashboard', $data);
+        redirect('hRAdministrator/dashboard');
     }
 
     public function dashboard()

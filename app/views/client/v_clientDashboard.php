@@ -49,17 +49,6 @@
 
         <div class="container dashboard">
 
-            <!-- Navigation Menu -->
-            <div class="top-menu">
-
-                <div class="user-actions">
-                    <div class="notification">
-                        <i class='bx bx-bell'></i>
-                        <span class="count"><?php echo isset($data['notification_count']) ? $data['notification_count'] : '0'; ?></span>
-                    </div>
-                </div>
-            </div>
-
             <!-- Main Content -->
             <main class="dashboard-content">
                 <!-- Status Cards -->

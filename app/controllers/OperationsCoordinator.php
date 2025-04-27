@@ -43,8 +43,7 @@ class OperationsCoordinator extends Controller
 
     public function index()
     {
-        $data = [];
-        $this->view('operationsCoordinator/v_dashboard', $data);
+        redirect('operationsCoordinator/dashboard');
     }
 
     public function dashboard()

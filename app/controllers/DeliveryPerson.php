@@ -27,9 +27,7 @@ class DeliveryPerson extends Controller
 
     public function index()
     {
-        //$deliveryPerson = $this->leavesModel->getDeliveryPersonByUserId($_SESSION['user_id']);
-        $data = [];
-        $this->view('deliveryPerson/v_deliveryPersonDashboard', $data);
+        redirect('deliveryPerson/dashboard');
     }
 
     public function dashboard()
