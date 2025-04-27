@@ -107,21 +107,115 @@
 
                 <!-- Projects Section -->
                 <section class="ongoing-projects">
-                    <h2>Ongoing Projects</h2>
+                    <h2 class="section-title">Ongoing Projects</h2>
                     <div class="project-grid">
                         <?php foreach ($data['ongoingProjects'] as $project): ?>
-                            <div class="project-card" 
-                                onclick="window.location.href='<?php echo URLROOT; ?>/client/project/<?php echo $project->pre_project_id; ?>'">
+                            <?php 
+                                // Map phase to CSS class
+                                $phaseMapping = [
+                                    'quotation' => 'quotation',
+                                    'site_visit' => 'site-visit',
+                                    'agreement' => 'agreement',
+                                    'document_submission' => 'document-submission',
+                                    'first_payment' => 'first-payment',
+                                    'installation' => 'installation',
+                                    'final_payment' => 'final-payment',
+                                    'engineer_approval' => 'engineer-approval',
+                                    'grid_connection' => 'grid-connection',
+                                    'completed' => 'completed'
+                                ];
+                                
+                                $phaseClass = isset($phaseMapping[$project->current_phase]) ? 
+                                    $phaseMapping[$project->current_phase] : '';
+                                
+                                // Determine progress class based on percentage
+                                $progressClass = '';
+                                if ($project->progress_percentage < 30) {
+                                    $progressClass = 'low';
+                                } elseif ($project->progress_percentage < 70) {
+                                    $progressClass = 'medium';
+                                } else {
+                                    $progressClass = 'high';
+                                }
+                                
+                                // Get human-readable phase name
+                                $phaseName = ucwords(str_replace('_', ' ', $project->current_phase));
+                            ?>
+                            <div class="project-card">
                                 <div class="card-header">
-                                    <span class="project-id">#<?php echo $project->pre_project_id; ?></span>
-                                    <span class="phase-badge">Active</span>
+                                    <span class="project-id">Project #<?php echo str_pad($project->pre_project_id, 4, '0', STR_PAD_LEFT); ?></span>
+                                    <span class="phase-badge <?php echo $phaseClass; ?>"><?php echo $phaseName; ?></span>
                                 </div>
                                 <div class="card-content">
                                     <div class="project-info">
-                                        <p><strong>System Type:</strong> <?php echo ucfirst($project->package_type); ?></p>
-                                        <p><strong>Location:</strong> <?php echo $project->nearest_city; ?></p>
+                                        <p><strong>Solution:</strong> <span><?php echo $project->package_name ?? 'Custom Solution'; ?></span></p>
+                                        <p><strong>Location:</strong> <span><?php echo $project->nearest_city; ?></span></p>
+                                        <p><strong>Current Phase:</strong> <span><?php echo $phaseName; ?></span></p>
                                     </div>
-                                    <p class="date">Started: <?php echo date('M d, Y', strtotime($project->created_at)); ?></p>
+                                    <div class="project-progress">
+                                        <div class="progress-label">
+                                            <span>Progress</span>
+                                            <span><?php echo $project->progress_percentage; ?>%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill <?php echo $progressClass; ?>" style="width: <?php echo $project->progress_percentage; ?>%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="project-timeline">
+                                        <div class="timeline-title">Project Timeline</div>
+                                        <div class="timeline-steps">
+                                            <div class="timeline-line"></div>
+                                            <?php
+                                            // Define all project phases in order
+                                            $allPhases = [
+                                                'quotation' => 'Quotation',
+                                                'site_visit' => 'Site Visit',
+                                                'agreement' => 'Agreement',
+                                                'document_submission' => 'Documents',
+                                                'first_payment' => 'First Payment',
+                                                'installation' => 'Installation',
+                                                'final_payment' => 'Final Payment',
+                                                'engineer_approval' => 'Engineer Approval',
+                                                'grid_connection' => 'Grid Connection',
+                                                'completed' => 'Completed'
+                                            ];
+                                            
+                                            // Get current phase index
+                                            $currentPhaseIndex = array_search($project->current_phase, array_keys($allPhases));
+                                            
+                                            // Calculate how far along the timeline the progress should go (in percentage)
+                                            $timelineProgress = (($currentPhaseIndex + 1) / count($allPhases)) * 100;
+                                            
+                                            // Display timeline progress
+                                            echo '<div class="timeline-progress" style="width: ' . $timelineProgress . '%"></div>';
+                                            
+                                            // Display each phase dot
+                                            $phaseIndex = 0;
+                                            foreach ($allPhases as $phaseKey => $phaseName) {
+                                                $stepClass = '';
+                                                if ($phaseIndex < $currentPhaseIndex) {
+                                                    $stepClass = 'completed';
+                                                } elseif ($phaseIndex == $currentPhaseIndex) {
+                                                    $stepClass = 'current';
+                                                }
+                                                
+                                                echo '<div class="timeline-step ' . $stepClass . '">';
+                                                echo '<div class="timeline-tooltip">' . $phaseName . '</div>';
+                                                echo '</div>';
+                                                
+                                                $phaseIndex++;
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                    <p class="date"><i class="fa-regular fa-calendar"></i> Started: <?php echo date('M d, Y', strtotime($project->created_at)); ?></p>
+                                    <?php if(isset($project->updated_at) && $project->updated_at): ?>
+                                    <p class="date"><i class="fa-regular fa-clock"></i> Updated: <?php echo date('M d, Y', strtotime($project->updated_at)); ?></p>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="<?php echo URLROOT; ?>/client/project/<?php echo $project->pre_project_id; ?>" class="btn btn-primary">View Details <i class="fa-solid fa-arrow-right"></i></a>
                                 </div>
                             </div>
                         <?php endforeach; ?>

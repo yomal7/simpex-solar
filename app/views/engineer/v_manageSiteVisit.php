@@ -225,10 +225,6 @@
                                             <input type="checkbox" id="check3" required>
                                             <label for="check3">I've checked electrical panel and wiring requirements</label>
                                         </div>
-                                        <div class="checklist-item">
-                                            <input type="checkbox" id="check4" required>
-                                            <label for="check4">I've discussed installation details with the customer</label>
-                                        </div>
                                     </div>
                                 </div>
                                 

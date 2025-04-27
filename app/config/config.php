@@ -3,7 +3,7 @@
 // Set default timezone
 date_default_timezone_set('Asia/Colombo'); // Change to your local time zone
 
-//Database Configuration
+// Database Configuration
 define('DB_HOST', 'mysolardb.cvggoaa6op0w.eu-north-1.rds.amazonaws.com');
 define('DB_USER', 'admin');
 define('DB_PASSWORD', 'Simpexdb25');
@@ -17,7 +17,7 @@ define("DB_NAME", "simpex_db");
 
 // define('DB_HOST', 'localhost');
 // define('DB_USER', 'root');              
-// define('DB_PASSWORD', '');               
+// define('DB_PASSWORD', 'root');               
 // define('DB_NAME', 'simpex_db');         
 
 //Addresses

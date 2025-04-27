@@ -128,23 +128,7 @@
                                         </a>
                                     <?php endif; ?>
                                 <?php elseif ($status === 'completed'): ?>
-                                    <?php if ($phase === 'quotation'): ?>
-                                        <a href="<?php echo URLROOT . '/client/viewQuotation/' . $data['quotation_id']; ?>" class="btn-view">
-                                            View Details
-                                        </a>
-                                    <?php elseif ($phase === 'site_visit'): ?>
-                                        <a href="<?php echo URLROOT . '/client/siteVisit/' . $data['pre_project_id']; ?>" class="btn-view">
-                                            View Details
-                                        </a>
-                                    <?php elseif ($phase === 'agreement'): ?>
-                                        <a href="<?php echo URLROOT . '/client/agreement/' . $data['pre_project_id']; ?>" class="btn-view">
-                                            View Details
-                                        </a>
-                                    <?php else: ?>
-                                        <a href="<?php echo URLROOT . '/client/project/' . $data['pre_project_id'] . '/' . $phase; ?>" class="btn-view">
-                                            View Details
-                                        </a>
-                                    <?php endif; ?>
+                                    
                                     <span class="check-mark">✓</span>
                                 <?php else: ?>
                                     <span class="lock-icon">🔒</span>
@@ -218,31 +202,7 @@
                                             </a>
                                         <?php endif; ?>
                                     <?php elseif ($status === 'completed'): ?>
-                                        <?php if ($phase === 'document_submission'): ?>
-                                            <a href="<?php echo URLROOT . '/client/documents/' . $data['pre_project_id']; ?>" class="btn-view">
-                                                View Details
-                                            </a>
-                                        <?php elseif ($phase === 'first_payment'): ?>
-                                            <a href="<?php echo URLROOT . '/client/firstPayment/' . $data['pre_project_id']; ?>" class="btn-view">
-                                                View Details
-                                            </a>
-                                        <?php elseif ($phase === 'installation'): ?>
-                                            <a href="<?php echo URLROOT . '/client/installation/' . $data['pre_project_id']; ?>" class="btn-view">
-                                                View Details
-                                            </a>
-                                        <?php elseif ($phase === 'final_payment'): ?>
-                                            <a href="<?php echo URLROOT . '/client/finalPayment/' . $data['pre_project_id']; ?>" class="btn-view">
-                                                View Details
-                                            </a>
-                                        <?php elseif ($phase === 'engineer_approval'): ?>
-                                            <a href="<?php echo URLROOT . '/client/engineerApproval/' . $data['pre_project_id']; ?>" class="btn-proceed">
-                                                Proceed Now
-                                            </a>
-                                        <?php else: ?>
-                                            <a href="<?php echo URLROOT . '/client/project/' . $data['pre_project_id'] . '/' . $phase; ?>" class="btn-view">
-                                                View Details
-                                            </a>
-                                        <?php endif; ?>
+
                                         <span class="check-mark">✓</span>
                                     <?php else: ?>
                                         <span class="lock-icon">🔒</span>

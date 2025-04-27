@@ -43,7 +43,7 @@
                 <label for="consumption">Monthly Power Consumption (kWh)</label>
                 <input name="consumption" type="number" id="consumption" placeholder="Enter monthly consumption" required 
                     value="<?= isset($data['consumption']) ? htmlspecialchars($data['consumption']) : '' ?>"
-                    class="input-field">
+                    class="input-field" min="0">
             </div>
             
             <div class="form-group">
@@ -112,90 +112,6 @@
             <?php endforeach; ?>
         </div>
         
-        <!-- Compare Table -->
-        <h2 class="compare-heading">Package Comparison</h2>
-        <div class="compare-table-container">
-            <table class="compare-table">
-                <thead>
-                    <tr>
-                        <th>Feature</th>
-                        <?php foreach ($data['packages'] as $pkgData): ?>
-                            <th><?php echo htmlspecialchars($pkgData['package']->title); ?></th>
-                        <?php endforeach; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Price Row -->
-                    <tr>
-                        <td><strong>Price</strong></td>
-                        <?php foreach ($data['packages'] as $pkgData): ?>
-                            <td>Rs <?php echo number_format(floatval($pkgData['package']->price)); ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                    
-                    <!-- Power Rating Row (if available) -->
-                    <tr>
-                        <td><strong>Power Rating</strong></td>
-                        <?php foreach ($data['packages'] as $pkgData): ?>
-                            <?php 
-                            $title = $pkgData['package']->title;
-                            preg_match('/(\d+(\.\d+)?)kW/i', $title, $matches);
-                            $kWRating = !empty($matches) ? $matches[1] : 'N/A';
-                            ?>
-                            <td><?php echo $kWRating; ?> kW</td>
-                        <?php endforeach; ?>
-                    </tr>
-                    
-                    <!-- System Type Row -->
-                    <tr>
-                        <td><strong>System Type</strong></td>
-                        <?php foreach ($data['packages'] as $pkgData): ?>
-                            <td><?php echo ucfirst(htmlspecialchars($pkgData['package']->type)); ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                    
-                    <!-- Common Features - Dynamically generated -->
-                    <?php
-                    // Get common feature names across all packages
-                    $allFeatures = [];
-                    foreach ($data['packages'] as $pkgData) {
-                        foreach ($pkgData['features'] as $feature) {
-                            if (!in_array($feature, $allFeatures)) {
-                                $allFeatures[] = $feature;
-                            }
-                        }
-                    }
-                    
-                    // Show top features (limit to 5 to keep table manageable)
-                    $topAllFeatures = array_slice($allFeatures, 0, 5);
-                    
-                    foreach ($topAllFeatures as $feature):
-                    ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($feature); ?></td>
-                            <?php foreach ($data['packages'] as $pkgData): ?>
-                                <td>
-                                    <?php echo in_array($feature, $pkgData['features']) ? 
-                                        '<span style="color: var(--primary);">✓</span>' : 
-                                        '<span style="color: var(--gray);">✗</span>'; ?>
-                                </td>
-                            <?php endforeach; ?>
-                        </tr>
-                    <?php endforeach; ?>
-                    
-                    <!-- Actions Row -->
-                    <tr>
-                        <td><strong>Actions</strong></td>
-                        <?php foreach ($data['packages'] as $pkgData): ?>
-                            <td>
-                                <a href="<?php echo URLROOT; ?>/packages/packageDetails/<?php echo htmlspecialchars($pkgData['slug']); ?>" 
-                                   class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">View Details</a>
-                            </td>
-                        <?php endforeach; ?>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
     <?php endif; ?>
     
 </div>

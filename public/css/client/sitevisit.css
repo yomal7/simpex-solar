@@ -270,3 +270,217 @@
         opacity: 1;
     }
 }
+
+/* Site Visit Card Styles */
+.site-visit-card {
+    border-left: 4px solid #1976d2;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.site-visit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Waiting Message */
+.waiting-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px;
+    text-align: center;
+}
+
+.waiting-message i {
+    font-size: 48px;
+    color: #f57c00;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+}
+
+.waiting-message p {
+    font-size: 1.2rem;
+    color: #555;
+    margin: 0;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Schedule Details Enhancements */
+.schedule-details {
+    background: linear-gradient(to bottom, #f7fbff, #ffffff);
+    border-radius: 10px;
+    padding: 30px 20px;
+}
+
+.date-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.date-display i {
+    font-size: 28px;
+    color: #1976d2;
+    margin-bottom: 10px;
+}
+
+.date-display .date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #1976d2;
+    color: white;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(25, 118, 210, 0.2);
+}
+
+.date-display .day {
+    font-size: 3rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.date-display .month {
+    font-size: 1.3rem;
+    text-transform: uppercase;
+}
+
+.time-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 25px 0;
+}
+
+.time-display i {
+    color: #1976d2;
+    font-size: 24px;
+}
+
+.time-display span {
+    font-weight: 500;
+}
+
+/* Confirmed Details */
+.confirmed-details {
+    text-align: center;
+    padding: 30px 20px;
+}
+
+.confirmed-details i {
+    font-size: 60px;
+    color: #4caf50;
+    margin-bottom: 15px;
+}
+
+.confirmed-details h3 {
+    color: #2e7d32;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+}
+
+.schedule-info {
+    background: #f1f8e9;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.detail-row {
+    display: flex;
+    margin-bottom: 10px;
+    padding: 10px 0;
+    border-bottom: 1px dashed #c5e1a5;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row .label {
+    font-weight: 600;
+    width: 80px;
+    color: #558b2f;
+}
+
+/* Reschedule Details */
+.reschedule-details {
+    background: #faf4ff;
+    border-radius: 10px;
+    padding: 25px;
+}
+
+.reschedule-info {
+    border-left: 4px solid #9c27b0;
+    padding-left: 15px;
+}
+
+.reschedule-info h4 {
+    color: #7b1fa2;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+}
+
+.reschedule-info .detail-row {
+    display: block;
+    border-bottom: none;
+}
+
+.reschedule-info label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #6a1b9a;
+}
+
+.reschedule-info p {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e1bee7;
+}
+
+/* Completion Details */
+.completion-details {
+    text-align: center;
+    padding: 30px 20px;
+}
+
+.completion-details i {
+    font-size: 60px;
+    color: #4caf50;
+    margin-bottom: 15px;
+}
+
+.completion-details h3 {
+    color: #2e7d32;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+}
+
+.completion-info {
+    background: #f1f8e9;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.site-notes {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+    border: 1px solid #c5e1a5;
+}
