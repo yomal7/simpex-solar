@@ -113,28 +113,26 @@
                             </section>
 
                             <!-- Equipment List -->
-                            <section class="info-section">
-                                <h3>System Equipment</h3>
-                                <div class="equipment-list" id="equipmentList">
-                                    <?php if(!empty($data['equipment'])): ?>
-                                        <?php foreach($data['equipment'] as $item): ?>
-                                            <div class="equipment-item" data-id="<?php echo $item->inventory_id; ?>">
-                                                <div class="item-details">
-                                                    <span class="item-name"><?php echo htmlspecialchars($item->item_name); ?></span>
-                                                    <div class="item-info">
-                                                        <input type="number" value="<?php echo $item->quantity; ?>" 
-                                                            min="1" class="quantity-input">
-                                                        <span class="unit-price">Rs. <?php echo number_format($item->unit_price, 2); ?></span>
-                                                        <span class="total-price">Rs. <?php echo number_format($item->quantity * $item->unit_price, 2); ?></span>
-                                                    </div>
+                            <div class="equipment-list" id="equipmentList">
+                                <?php if(!empty($data['equipment'])): ?>
+                                    <?php foreach($data['equipment'] as $item): ?>
+                                        <div class="equipment-item" data-id="<?php echo $item->inventory_id; ?>">
+                                            <div class="item-details">
+                                                <span class="item-name"><?php echo htmlspecialchars($item->item_name); ?></span>
+                                                <div class="item-info">
+                                                    <input type="number" value="<?php echo $item->quantity; ?>" 
+                                                        min="1" class="quantity-input">
+                                                    <span class="unit-price" data-raw-value="<?php echo $item->unit_price; ?>">Rs. <?php echo number_format($item->unit_price, 2); ?></span>
+                                                    <span class="total-price" data-raw-value="<?php echo $item->quantity * $item->unit_price; ?>">Rs. <?php echo number_format($item->quantity * $item->unit_price, 2); ?></span>
                                                 </div>
-                                                <button type="button" class="remove-btn">
-                                                    <span class="material-icons-sharp">delete</span>
-                                                </button>
                                             </div>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </div>
+                                            <button type="button" class="remove-btn">
+                                                <span class="material-icons-sharp">delete</span>
+                                            </button>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
                                 
                                 <button type="button" class="add-equipment-btn" onclick="showInventoryModal()">
                                     <span class="material-icons-sharp">add</span> Add Equipment
