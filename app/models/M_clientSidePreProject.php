@@ -364,17 +364,6 @@ class M_clientSidePreProject{
         return $this->db->execute();
     }
 
-    // public function uploadSignature($agreementId, $signaturePath) {
-    //     $this->db->query("UPDATE project_agreements 
-    //                      SET status = 'completed', 
-    //                          customer_signature = :signature,
-    //                          updated_at = CURRENT_TIMESTAMP 
-    //                      WHERE agreement_id = :agreement_id");
-        
-    //     $this->db->bind(':agreement_id', $agreementId);
-    //     $this->db->bind(':signature', $signaturePath);
-    //     return $this->db->execute();
-    // }
     public function uploadSignature($agreementId, $signaturePath) {
         try {
             // Let's add debug logs for each step

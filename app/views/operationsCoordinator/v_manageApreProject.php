@@ -157,7 +157,6 @@
 
     </div>
 
-    <div class="overlay" id="overlay"></div>
 
     <script>
         const URLROOT = "<?php echo URLROOT; ?>";
