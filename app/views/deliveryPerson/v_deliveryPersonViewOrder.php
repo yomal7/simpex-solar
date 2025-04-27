@@ -169,9 +169,9 @@
 
                                     <div class="report-upload" <?php if ($data['order']->payment_method == 'cash'): ?>style="opacity: 0.5;" <?php endif; ?>>
                                         <label for="delivery_report">Upload Signed Delivery Report:</label>
-                                        <input type="file" name="delivery_report" id="delivery_report" accept=".pdf,.jpg,.jpeg,.png"
+                                        <input type="file" name="delivery_report" id="delivery_report" accept=".pdf"
                                             <?php if ($data['order']->payment_method == 'cash'): ?>disabled<?php endif; ?>>
-                                        <small>Upload the delivery report signed by the customer (PDF, JPG, or PNG)</small>
+                                        <small>Upload the delivery report signed by the customer (PDF)</small>
                                     </div>
 
                                     <button type="submit" class="btn confirm-btn" id="confirmDeliveryBtn"
