@@ -3,6 +3,7 @@ class ChiefCoordinator extends Controller {
     private $feedbackModel;
     private $chiefCoordinatorModel;
     private $mailer;
+    private $settingsModel;
     
     public function __construct() {
         // Check if user is logged in and is a chief coordinator
@@ -15,6 +16,7 @@ class ChiefCoordinator extends Controller {
         $this->chiefCoordinatorModel = $this->model('M_ChiefCoordinator');
         require_once APPROOT . '/libraries/Mailer.php';
         $this->mailer = new Mailer();
+        $this->settingsModel = $this->model('M_Settings');
     }
 
     public function index() {
@@ -450,74 +452,75 @@ class ChiefCoordinator extends Controller {
         // Load report view
         $this->view('chiefCoordinator/v_paymentsReport', $data);
     }
-public function employees() {
-    // Check for query parameters
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    $role = isset($_GET['role']) ? $_GET['role'] : 'all';
-    $timeframe = isset($_GET['timeframe']) ? $_GET['timeframe'] : 'all';
-    
-    // Debug parameters
-    error_log('Parameters: page=' . $page . ', role=' . $role . ', timeframe=' . $timeframe);
-    
-    // Get employee stats
-    $stats = $this->chiefCoordinatorModel->getEmployeeStats($timeframe);
-    
-    // Get specific counts for attendance rate calculation
-    $totalEmployees = $this->chiefCoordinatorModel->getTotalEmployeeCount();
-    $presentToday = $this->chiefCoordinatorModel->getTodayAttendanceCount();
-    $attendanceRate = ($totalEmployees > 0) ? round(($presentToday / $totalEmployees) * 100) : 0;
-    
-    // Debug attendance rate calculation
-    error_log('Attendance rate calculation: ' . $presentToday . ' / ' . $totalEmployees . ' = ' . $attendanceRate . '%');
-    
-    // Get all employees with pagination
-    $employeesData = $this->chiefCoordinatorModel->getAllEmployees($page, 10, $role);
-    
-    // Debug employee data
-    error_log('Employees returned: ' . count($employeesData['employees']));
-    if (count($employeesData['employees']) > 0) {
-        error_log('First employee data: ' . print_r($employeesData['employees'][0], true));
-    } else {
-        error_log('No employees found in database query result');
+
+    public function employees() {
+        // Check for query parameters
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $role = isset($_GET['role']) ? $_GET['role'] : 'all';
+        $timeframe = isset($_GET['timeframe']) ? $_GET['timeframe'] : 'all';
+        
+        // Debug parameters
+        error_log('Parameters: page=' . $page . ', role=' . $role . ', timeframe=' . $timeframe);
+        
+        // Get employee stats
+        $stats = $this->chiefCoordinatorModel->getEmployeeStats($timeframe);
+        
+        // Get specific counts for attendance rate calculation
+        $totalEmployees = $this->chiefCoordinatorModel->getTotalEmployeeCount();
+        $presentToday = $this->chiefCoordinatorModel->getTodayAttendanceCount();
+        $attendanceRate = ($totalEmployees > 0) ? round(($presentToday / $totalEmployees) * 100) : 0;
+        
+        // Debug attendance rate calculation
+        error_log('Attendance rate calculation: ' . $presentToday . ' / ' . $totalEmployees . ' = ' . $attendanceRate . '%');
+        
+        // Get all employees with pagination
+        $employeesData = $this->chiefCoordinatorModel->getAllEmployees($page, 10, $role);
+        
+        // Debug employee data
+        error_log('Employees returned: ' . count($employeesData['employees']));
+        if (count($employeesData['employees']) > 0) {
+            error_log('First employee data: ' . print_r($employeesData['employees'][0], true));
+        } else {
+            error_log('No employees found in database query result');
+        }
+        
+        // Get attendance data with pagination
+        $attendancePage = isset($_GET['attendance_page']) ? (int)$_GET['attendance_page'] : 1;
+        $attendanceData = $this->chiefCoordinatorModel->getRecentAttendance($attendancePage, 10);
+        
+        // Get leave data with pagination
+        $leavePage = isset($_GET['leave_page']) ? (int)$_GET['leave_page'] : 1;
+        $leaveData = $this->chiefCoordinatorModel->getLeaveRecords($leavePage, 10);
+        
+        $data = [
+            'stats' => $stats,
+            'total_employees' => $totalEmployees,
+            'present_today' => $presentToday,
+            'attendance_rate' => $attendanceRate,
+            'employees' => $employeesData['employees'],
+            'employees_pagination' => [
+                'page' => $page,
+                'total' => $employeesData['total'],
+                'total_pages' => $employeesData['total_pages']
+            ],
+            'attendance' => $attendanceData['attendance'],
+            'attendance_pagination' => [
+                'page' => $attendancePage,
+                'total' => $attendanceData['total'],
+                'total_pages' => $attendanceData['total_pages']
+            ],
+            'leaves' => $leaveData['leaves'],
+            'leaves_pagination' => [
+                'page' => $leavePage,
+                'total' => $leaveData['total'],
+                'total_pages' => $leaveData['total_pages']
+            ],
+            'current_timeframe' => $timeframe,
+            'current_role' => $role
+        ];
+        
+        $this->view('chiefCoordinator/v_employees', $data);
     }
-    
-    // Get attendance data with pagination
-    $attendancePage = isset($_GET['attendance_page']) ? (int)$_GET['attendance_page'] : 1;
-    $attendanceData = $this->chiefCoordinatorModel->getRecentAttendance($attendancePage, 10);
-    
-    // Get leave data with pagination
-    $leavePage = isset($_GET['leave_page']) ? (int)$_GET['leave_page'] : 1;
-    $leaveData = $this->chiefCoordinatorModel->getLeaveRecords($leavePage, 10);
-    
-    $data = [
-        'stats' => $stats,
-        'total_employees' => $totalEmployees,
-        'present_today' => $presentToday,
-        'attendance_rate' => $attendanceRate,
-        'employees' => $employeesData['employees'],
-        'employees_pagination' => [
-            'page' => $page,
-            'total' => $employeesData['total'],
-            'total_pages' => $employeesData['total_pages']
-        ],
-        'attendance' => $attendanceData['attendance'],
-        'attendance_pagination' => [
-            'page' => $attendancePage,
-            'total' => $attendanceData['total'],
-            'total_pages' => $attendanceData['total_pages']
-        ],
-        'leaves' => $leaveData['leaves'],
-        'leaves_pagination' => [
-            'page' => $leavePage,
-            'total' => $leaveData['total'],
-            'total_pages' => $leaveData['total_pages']
-        ],
-        'current_timeframe' => $timeframe,
-        'current_role' => $role
-    ];
-    
-    $this->view('chiefCoordinator/v_employees', $data);
-}
     
     public function generateEmployeeReport() {
         // Generate report logic here
@@ -531,5 +534,146 @@ public function employees() {
         ];
         
         $this->view('chiefCoordinator/v_employeesReport', $data);
+    }
+
+    public function settings()
+    {
+        // Get user data
+        $user = $this->settingsModel->getUserById($_SESSION['user_id']);
+        
+        // Initialize data array with user info
+        $data = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'profile_picture' => $user->profile_picture,
+            'email_err' => '',
+            'phone_err' => '',
+            'profile_picture_err' => '',
+            'current_password_err' => '',
+            'new_password_err' => '',
+            'confirm_password_err' => ''
+        ];
+        
+        // Handle form submissions
+        if($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Determine which form was submitted
+            if(isset($_POST['form_type']) && $_POST['form_type'] == 'profile_update') {
+                // Profile update form submitted
+                $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+                
+                // Get form data
+                $data['email'] = trim($_POST['email']);
+                $data['phone'] = trim($_POST['phone']);
+                
+                // Validate email
+                if(empty($data['email'])) {
+                    $data['email_err'] = 'Please enter your email';
+                } elseif($this->settingsModel->emailExistsForOtherUser($data['email'], $_SESSION['user_id'])) {
+                    $data['email_err'] = 'Email is already taken by another user';
+                }
+                
+                // Validate phone
+                if (empty($data['phone'])) {
+                    $data['phone_err'] = 'Please enter your phone number';
+                } elseif (!preg_match('/^(0[0-9]{9}|[1-9][0-9]{8})$/', $data['phone'])) {
+                    $data['phone_err'] = 'Please enter a valid phone number';
+                }
+                
+                // Handle profile picture upload
+                $profileData = [
+                    'user_id' => $_SESSION['user_id'],
+                    'email' => $data['email'],
+                    'phone' => $data['phone'],
+                    'profile_picture' => $user->profile_picture // Default to current profile picture
+                ];
+                
+                if(isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] == UPLOAD_ERR_OK) {
+                    $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                    $maxSize = 2 * 1024 * 1024; // 2MB
+                    
+                    if(!in_array($_FILES['profile_picture']['type'], $allowedTypes)) {
+                        $data['profile_picture_err'] = 'Only JPG, JPEG and PNG files are allowed';
+                    } elseif($_FILES['profile_picture']['size'] > $maxSize) {
+                        $data['profile_picture_err'] = 'File size must be less than 2MB';
+                    } else {
+                        // Generate new filename
+                        $filename = uniqid() . '_' . basename($_FILES['profile_picture']['name']);
+                        $uploadDir = APPROOT . '/../public/uploads/profile_pictures/';
+                        
+                        // Create directory if it doesn't exist
+                        if(!is_dir($uploadDir)) {
+                            mkdir($uploadDir, 0777, true);
+                        }
+                        
+                        // Upload file
+                        if(move_uploaded_file($_FILES['profile_picture']['tmp_name'], $uploadDir . $filename)) {
+                            $profileData['profile_picture'] = $filename;
+                        } else {
+                            $data['profile_picture_err'] = 'Error uploading file';
+                        }
+                    }
+                }
+                
+                // If no errors, update profile
+                if(empty($data['email_err']) && empty($data['phone_err']) && empty($data['profile_picture_err'])) {
+                    if($this->settingsModel->updateProfile($profileData)) {
+                        // Update session variable with new profile picture if it was changed
+                        if($profileData['profile_picture'] != $user->profile_picture) {
+                            $_SESSION['user_picture'] = $profileData['profile_picture'];
+                        }
+                        
+                        flash('profile_message', 'Profile updated successfully', 'alert alert-success');
+                        redirect('chiefCoordinator/settings');
+                    } else {
+                        flash('profile_message', 'Something went wrong', 'alert alert-danger');
+                    }
+                }
+            } elseif(isset($_POST['form_type']) && $_POST['form_type'] == 'password_change') {
+                // Password change form submitted
+                $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+                
+                // Get form data
+                $currentPassword = trim($_POST['current_password']);
+                $newPassword = trim($_POST['new_password']);
+                $confirmPassword = trim($_POST['confirm_password']);
+                
+                // Validate current password
+                if(empty($currentPassword)) {
+                    $data['current_password_err'] = 'Please enter your current password';
+                } elseif(!$this->settingsModel->verifyPassword($_SESSION['user_id'], $currentPassword)) {
+                    $data['current_password_err'] = 'Current password is incorrect';
+                } else {
+                                    // Validate new password
+                if(empty($newPassword)) {
+                    $data['new_password_err'] = 'Please enter a new password';
+                    } elseif(strlen($newPassword) < 6) {
+                        $data['new_password_err'] = 'Password must be at least 6 characters';
+                    }
+                    
+                    // Validate confirm password
+                    if(empty($confirmPassword)) {
+                        $data['confirm_password_err'] = 'Please confirm your password';
+                    } elseif($newPassword != $confirmPassword) {
+                        $data['confirm_password_err'] = 'Passwords do not match';
+                    }
+                }
+                
+                // If no errors, change password
+                if(empty($data['current_password_err']) && empty($data['new_password_err']) && empty($data['confirm_password_err'])) {
+                    // Hash new password
+                    $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+                    
+                    if($this->settingsModel->changePassword($_SESSION['user_id'], $hashedPassword)) {
+                        flash('password_message', 'Password changed successfully', 'alert alert-success');
+                        redirect('chiefCoordinator/settings');
+                    } else {
+                        die('Something went wrong');
+                    }
+                }
+            }
+        }
+        
+        $this->view('chiefCoordinator/v_settings', $data);
     }
 }

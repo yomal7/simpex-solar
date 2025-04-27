@@ -7,6 +7,8 @@ class Client extends Controller
     private $clientSidePreProjectModel;
     private $clientSideProjectModel;
     private $customerProjectModel;
+    private $chatModel;
+    private $employeeModel;
 
     public function __construct()
     {
@@ -20,6 +22,13 @@ class Client extends Controller
         $this->clientSideProjectModel = $this->model('M_clientSideProject');
         $this->customerProjectModel = $this->model('M_CustomerProject');
         $this->shopModel = $this->model('M_Shop');
+        $this->chatModel = $this->model('M_Chat');
+        $this->employeeModel = $this->model('M_Employee');
+
+        // Set total unread count for notification badge
+        if (!isset($_GET['getUnreadStatus'])) { // Skip for AJAX requests
+            $_SESSION['total_unread_count'] = $this->chatModel->getTotalUnreadMessages($_SESSION['user_id']);
+        }
     }
 
     public function index()
@@ -34,13 +43,13 @@ class Client extends Controller
     public function dashboard()
     {
         $userId = $_SESSION['user_id'];
-        
+
         // Get customer info
         $customer = $this->clientModel->getClientByUserId($userId);
-        
+
         // Get active quotations
         $activeQuotations = $this->clientSidePreProjectModel->getActiveQuotationsByCustomerId($userId);
-        
+
         // Get ongoing projects
         $ongoingProjects = $this->clientModel->getOngoingProjects($userId);
 
@@ -49,7 +58,7 @@ class Client extends Controller
 
         // Get project statistics
         $stats = $this->clientModel->getProjectStats($userId);
-        
+
         $data = [
             'customer' => $customer,
             'quotations' => $activeQuotations,
@@ -57,7 +66,7 @@ class Client extends Controller
             'stats' => $stats,
             'notification_count' => 0 // You can update this with actual notification count
         ];
-        
+
         $this->view('client/v_clientDashboard', $data);
     }
 
@@ -980,6 +989,89 @@ class Client extends Controller
         redirect('client/firstPayment/' . $preProjectId);
     }
 
+    // public function installation($preProjectId = null)
+    // {
+    //     if (!$preProjectId) {
+    //         flash('installation_message', 'Project ID is required', 'alert alert-danger');
+    //         redirect('client/operationDashboard');
+    //     }
+
+    //     // Get project ID from pre-project ID
+    //     $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+    //     if (!$project) {
+    //         flash('installation_message', 'Project not found', 'alert alert-danger');
+    //         redirect('client/operationDashboard');
+    //     }
+
+    //     // Get installation details
+    //     $installation = $this->clientSideProjectModel->getInstallationPhase($project->project_id);
+    //     $schedule = null;
+    //     $engineer = null;
+
+    //     if ($installation) {
+    //         // Get schedule data
+    //         $schedule = $this->clientSideProjectModel->getInstallationSchedule($installation->installation_id);
+
+    //         // Get engineer data if assigned
+    //         $engineer = $this->clientSideProjectModel->getAssignedEngineer($installation->installation_id);
+    //     }
+
+    //     $data = [
+    //         'pre_project_id' => $preProjectId,
+    //         'project' => $project,
+    //         'installation' => $installation,
+    //         'schedule' => $schedule,
+    //         'engineer' => $engineer
+    //     ];
+
+    //     $this->view('client/v_clientInstallation', $data);
+    // }
+
+    // public function acceptInstallationSchedule()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    //         redirect('client/operationDashboard');
+    //     }
+
+    //     $scheduleId = $_POST['schedule_id'];
+    //     $preProjectId = $_POST['pre_project_id'];
+
+    //     // Update schedule status to accepted
+    //     if ($this->clientSideProjectModel->acceptInstallationSchedule($scheduleId)) {
+    //         flash('installation_message', 'Installation schedule accepted', 'alert alert-success');
+    //     } else {
+    //         flash('installation_message', 'Failed to accept schedule', 'alert alert-danger');
+    //     }
+
+    //     redirect('client/installation/' . $preProjectId);
+    // }
+
+    // public function requestInstallationReschedule()
+    // {
+    //     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    //         redirect('client/operationDashboard');
+    //     }
+
+    //     $scheduleId = $_POST['schedule_id'];
+    //     $preProjectId = $_POST['pre_project_id'];
+    //     $reason = $_POST['reschedule_reason'];
+
+    //     if (empty($reason)) {
+    //         flash('installation_message', 'Please provide a reason for rescheduling', 'alert alert-danger');
+    //         redirect('client/installation/' . $preProjectId);
+    //     }
+
+    //     // Update schedule status to reschedule requested
+    //     if ($this->clientSideProjectModel->requestInstallationReschedule($scheduleId, $reason)) {
+    //         flash('installation_message', 'Reschedule request submitted successfully', 'alert alert-success');
+    //     } else {
+    //         flash('installation_message', 'Failed to request reschedule', 'alert alert-danger');
+    //     }
+
+    //     redirect('client/installation/' . $preProjectId);
+    // }
+
+    // installation new
     public function installation($preProjectId = null)
     {
         if (!$preProjectId) {
@@ -987,80 +1079,585 @@ class Client extends Controller
             redirect('client/operationDashboard');
         }
 
-        // Get project ID from pre-project ID
-        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
-        if (!$project) {
-            flash('installation_message', 'Project not found', 'alert alert-danger');
-            redirect('client/operationDashboard');
+        $project_details = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+        $projectId = $project_details->project_id;
+
+        // Get project details
+        $project = $this->customerProjectModel->getProjectById($projectId);
+
+        if (!$project || $project->customer_id != $_SESSION['user_id']) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('client/dashboard');
         }
 
         // Get installation details
-        $installation = $this->clientSideProjectModel->getInstallationPhase($project->project_id);
-        $schedule = null;
-        $engineer = null;
+        $installation = $this->clientSideProjectModel->getInstallationByProjectId($projectId);
 
-        if ($installation) {
-            // Get schedule data
-            $schedule = $this->clientSideProjectModel->getInstallationSchedule($installation->installation_id);
-
-            // Get engineer data if assigned
-            $engineer = $this->clientSideProjectModel->getAssignedEngineer($installation->installation_id);
+        // Initialize empty installation object if none exists
+        if (!$installation) {
+            $installation = (object)[
+                'status' => 'pending',
+                'schedule_status' => 'pending',
+                'start_date' => null,
+                'end_date' => null,
+                'completed_date' => null,
+                'request_reason' => null
+            ];
         }
+
+        // Check if installation is active
+        $this->clientSideProjectModel->checkAndUpdateInstallationStatus();
 
         $data = [
-            'pre_project_id' => $preProjectId,
             'project' => $project,
-            'installation' => $installation,
-            'schedule' => $schedule,
-            'engineer' => $engineer
+            'installation' => $installation
         ];
 
-        $this->view('client/v_clientInstallation', $data);
+        $this->view('client/v_installation', $data);
     }
 
-    public function acceptInstallationSchedule()
+    public function acceptInstallation()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('client/operationDashboard');
+            redirect('client/dashboard');
+            return;
         }
 
-        $scheduleId = $_POST['schedule_id'];
-        $preProjectId = $_POST['pre_project_id'];
+        $installationId = $_POST['installation_id'];
+        $projectId = $_POST['project_id'];
 
-        // Update schedule status to accepted
-        if ($this->clientSideProjectModel->acceptInstallationSchedule($scheduleId)) {
-            flash('installation_message', 'Installation schedule accepted', 'alert alert-success');
+        // Accept installation schedule
+        if ($this->clientSideProjectModel->acceptInstallationSchedule($installationId)) {
+            flash('installation_message', 'Installation schedule accepted successfully', 'alert alert-success');
         } else {
-            flash('installation_message', 'Failed to accept schedule', 'alert alert-danger');
+            flash('installation_message', 'Failed to accept installation schedule', 'alert alert-danger');
         }
 
-        redirect('client/installation/' . $preProjectId);
+        redirect('client/installation/' . $projectId);
     }
 
     public function requestInstallationReschedule()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('client/operationDashboard');
+            redirect('client/dashboard');
+            return;
         }
 
-        $scheduleId = $_POST['schedule_id'];
-        $preProjectId = $_POST['pre_project_id'];
-        $reason = $_POST['reschedule_reason'];
+        $installationId = $_POST['installation_id'];
+        $projectId = $_POST['project_id'];
+        $reason = $_POST['reason'];
 
-        if (empty($reason)) {
-            flash('installation_message', 'Please provide a reason for rescheduling', 'alert alert-danger');
-            redirect('client/installation/' . $preProjectId);
-        }
-
-        // Update schedule status to reschedule requested
-        if ($this->clientSideProjectModel->requestInstallationReschedule($scheduleId, $reason)) {
+        // Request installation reschedule
+        if ($this->clientSideProjectModel->requestInstallationReschedule($installationId, $reason)) {
             flash('installation_message', 'Reschedule request submitted successfully', 'alert alert-success');
         } else {
-            flash('installation_message', 'Failed to request reschedule', 'alert alert-danger');
+            flash('installation_message', 'Failed to submit reschedule request', 'alert alert-danger');
         }
 
-        redirect('client/installation/' . $preProjectId);
+        redirect('client/installation/' . $projectId);
     }
+
+    //###################################################################################################
+    //----------------------------------------- Final Payment ----------------------------------------------
+    //###################################################################################################
+
+    /**
+     * Display the final payment page
+     * 
+     * @param int $preProjectId The pre-project ID
+     * @return void
+     */
+    public function finalPayment($preProjectId = null)
+    {
+        if ($preProjectId === null) {
+            redirect('client/project');
+        }
+
+        // Get project data
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+
+        if (!$project) {
+            flash('payment_message', 'Project not found', 'alert alert-danger');
+            redirect('client/project');
+        }
+
+        // Check if the project belongs to the logged-in user
+        if ($project->customer_id != $_SESSION['user_id']) {
+            flash('payment_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/project');
+        }
+
+        // Get agreement data (for pricing information)
+        $agreement = $this->clientSideProjectModel->getAgreementByPreProjectId($preProjectId);
+        if (!$agreement) {
+            flash('payment_message', 'Agreement not found', 'alert alert-danger');
+            redirect('client/project/' . $preProjectId);
+        }
+
+        // Get payment details (if any)
+        $payment = $this->clientSideProjectModel->getProjectPayment($project->project_id, 'final_payment');
+
+        // Get bank slip details (if any)
+        $bankSlip = $this->clientSideProjectModel->getProjectBankSlip($project->project_id, 'final_payment');
+
+        // Get first payment amount
+        $firstPayment = $this->clientSideProjectModel->getProjectPayment($project->project_id, 'first_payment');
+        $firstPaymentAmount = $firstPayment && $firstPayment->payment_status ? $firstPayment->amount : 0;
+
+        // Calculate final payment amount (remaining balance after first payment)
+        $finalPaymentAmount = $agreement->total_price - $firstPaymentAmount;
+
+        // Calculate minimum required amount (75% of total if first payment was only 25%)
+        $minimumRequired = min($finalPaymentAmount, $agreement->total_price * 0.75);
+
+        $data = [
+            'pre_project_id' => $preProjectId,
+            'project_id' => $project->project_id,
+            'base_price' => $agreement->base_price,
+            'service_charge' => $agreement->service_charge,
+            'total_price' => $agreement->total_price,
+            'first_payment_amount' => $firstPaymentAmount,
+            'payment_amount' => $finalPaymentAmount,
+            'minimum_required' => $minimumRequired,
+            'payment' => $payment,
+            'bank_slip' => $bankSlip
+        ];
+
+        $this->view('client/v_clientFinalPayment', $data);
+    }
+
+    /**
+     * Generate bank deposit slip for final payment
+     * 
+     * @return void
+     */
+    public function generateFinalBankSlip()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('client/dashboard');
+        }
+
+        $projectId = $_POST['project_id'];
+        $preProjectId = $_POST['pre_project_id'];
+        $paymentPhase = $_POST['payment_phase'];
+        $amount = $_POST['amount'];
+        $bankAccountIndex = $_POST['bank_account'];
+
+        // Validate inputs
+        if (
+            empty($projectId) || empty($preProjectId) || empty($paymentPhase) ||
+            empty($amount) || !isset($bankAccountIndex)
+        ) {
+            flash('payment_message', 'Missing required fields', 'alert alert-danger');
+            redirect('client/finalPayment/' . $preProjectId);
+        }
+
+        // Verify project belongs to the user
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+        if (!$project || $project->customer_id != $_SESSION['user_id']) {
+            flash('payment_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/dashboard');
+        }
+
+        // Get the agreement to verify amount limits
+        $agreement = $this->clientSideProjectModel->getAgreementByPreProjectId($preProjectId);
+        if (!$agreement) {
+            flash('payment_message', 'Agreement details not found', 'alert alert-danger');
+            redirect('client/finalPayment/' . $preProjectId);
+        }
+
+        // Get first payment to calculate remaining balance
+        $firstPayment = $this->clientSideProjectModel->getProjectPayment($project->project_id, 'first_payment');
+        $firstPaymentAmount = $firstPayment && $firstPayment->payment_status ? $firstPayment->amount : ($agreement->total_price * 0.25);
+        $remainingBalance = $agreement->total_price - $firstPaymentAmount;
+
+        // Validate amount (min: remaining balance)
+        if ($amount < $remainingBalance || $amount > $remainingBalance) {
+            flash('payment_message', 'Invalid payment amount', 'alert alert-danger');
+            redirect('client/finalPayment/' . $preProjectId);
+        }
+
+        // Get the selected bank account
+        if (!isset(BANK_ACCOUNTS[$bankAccountIndex])) {
+            flash('payment_message', 'Invalid bank account selected', 'alert alert-danger');
+            redirect('client/finalPayment/' . $preProjectId);
+        }
+        $bankAccount = BANK_ACCOUNTS[$bankAccountIndex];
+
+        // Customer details
+        $customer = $this->clientModel->getClientByUserId($_SESSION['user_id']);
+
+        // Generate PDF
+        require_once APPROOT . '/libraries/PdfGenerator.php';
+        $pdfGenerator = new PdfGenerator();
+        $pdf = $pdfGenerator->generateBankDepositSlip([
+            'bank_account' => $bankAccount,
+            'amount' => $amount,
+            'reference' => 'PR' . str_pad($project->project_id, 5, '0', STR_PAD_LEFT) . '-FINAL',
+            'customer_name' => $customer->name,
+            'customer_id' => $_SESSION['user_id']
+        ]);
+
+        // Record that a slip was downloaded
+        $this->clientSideProjectModel->recordSlipDownloaded($projectId, $paymentPhase, $amount);
+
+        // Output PDF to browser
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="Final_Payment_Bank_Slip.pdf"');
+        echo $pdf;
+        exit();
+    }
+
+    /**
+     * Upload bank slip for final payment
+     * 
+     * @return void
+     */
+    public function uploadFinalBankSlip()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('client/dashboard');
+        }
+
+        $projectId = $_POST['project_id'];
+        $preProjectId = $_POST['pre_project_id'];
+        $paymentPhase = $_POST['payment_phase'];
+        $amount = $_POST['amount'];
+        $slipId = $_POST['slip_id']; // Get the existing slip ID
+
+        // Verify project belongs to the user
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+        if (!$project || $project->customer_id != $_SESSION['user_id']) {
+            flash('payment_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/dashboard');
+        }
+
+        // Check if file was uploaded
+        if (!isset($_FILES['payment_slip']) || $_FILES['payment_slip']['error'] !== UPLOAD_ERR_OK) {
+            flash('payment_message', 'Please upload a valid payment slip', 'alert alert-danger');
+            redirect('client/finalPayment/' . $preProjectId);
+        }
+
+        // Validate file type (PDF only)
+        $file = $_FILES['payment_slip'];
+        $fileType = $file['type'];
+        $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+        if ($fileType !== 'application/pdf' || $fileExt !== 'pdf') {
+            flash('payment_message', 'Only PDF files are accepted', 'alert alert-danger');
+            redirect('client/finalPayment/' . $preProjectId);
+        }
+
+        // Check file size (max 5MB)
+        if ($file['size'] > 5 * 1024 * 1024) {
+            flash('payment_message', 'File size must be less than 5MB', 'alert alert-danger');
+            redirect('client/finalPayment/' . $preProjectId);
+        }
+
+        // Handle file upload
+        $uploadDir = 'uploads/projectbankslips/';
+        $fileName = uniqid('final_slip_') . '.pdf';
+
+        // Absolute path for file operations
+        $absoluteUploadDir = dirname(APPROOT) . '/public/' . $uploadDir;
+        $absoluteUploadPath = $absoluteUploadDir . $fileName;
+
+        // Create directory if it doesn't exist
+        if (!file_exists($absoluteUploadDir)) {
+            mkdir($absoluteUploadDir, 0777, true);
+        }
+
+        // Move uploaded file
+        if (move_uploaded_file($file['tmp_name'], $absoluteUploadPath)) {
+            // Update the existing bank slip record
+            if ($this->clientSideProjectModel->updateBankSlipFile($slipId, $fileName)) {
+                flash('payment_message', 'Payment slip uploaded successfully. It is now under review.', 'alert alert-success');
+            } else {
+                flash('payment_message', 'Failed to update payment slip record', 'alert alert-danger');
+            }
+
+            redirect('client/finalPayment/' . $preProjectId);
+        } else {
+            flash('payment_message', 'Failed to upload payment slip', 'alert alert-danger');
+            redirect('client/finalPayment/' . $preProjectId);
+        }
+    }
+
+    /**
+     * Process online payment for final payment
+     * 
+     * @return void
+     */
+    public function processFinalOnlinePayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('client/dashboard');
+        }
+
+        $projectId = $_POST['project_id'];
+        $preProjectId = $_POST['pre_project_id'];
+        $paymentPhase = $_POST['payment_phase'];
+        $amount = $_POST['amount'];
+
+        // Validate inputs
+        if (empty($projectId) || empty($preProjectId) || empty($paymentPhase) || empty($amount)) {
+            flash('payment_message', 'Invalid request data', 'alert alert-danger');
+            redirect('client/finalPayment/' . $preProjectId);
+        }
+
+        // Verify project belongs to the user
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+        if (!$project || $project->customer_id != $_SESSION['user_id']) {
+            flash('payment_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/dashboard');
+        }
+
+        // Create pending payment record
+        $paymentId = $this->clientSideProjectModel->createProjectPayment([
+            'project_id' => $projectId,
+            'payment_method' => 'online',
+            'amount' => $amount,
+            'payment_phase' => $paymentPhase,
+            'payment_status' => false // payment pending
+        ]);
+
+        if (!$paymentId) {
+            flash('payment_message', 'Error initiating payment', 'alert alert-danger');
+            redirect('client/finalPayment/' . $preProjectId);
+        }
+
+        // Redirect to payment gateway
+        $data = [
+            'project_id' => $projectId,
+            'pre_project_id' => $preProjectId,
+            'payment_id' => $paymentId,
+            'payment_phase' => $paymentPhase,
+            'amount' => $amount
+        ];
+
+        $this->view('client/v_finalPaymentGateway', $data);
+    }
+
+    /**
+     * Complete online payment for final payment
+     * 
+     * @return void
+     */
+    public function completeFinalOnlinePayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('client/dashboard');
+        }
+
+        $projectId = $_POST['project_id'];
+        $preProjectId = $_POST['pre_project_id'];
+        $paymentId = $_POST['payment_id'];
+        $paymentPhase = $_POST['payment_phase'];
+        $amount = $_POST['amount'];
+
+        // Verify project belongs to the user
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+        if (!$project || $project->customer_id != $_SESSION['user_id']) {
+            flash('payment_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/dashboard');
+        }
+
+        // Simulate successful payment
+        // In a real application, this would verify the payment with a payment gateway
+
+        // Generate transaction ID
+        $transactionId = 'TRANS_FINAL_' . uniqid();
+
+        // Update payment status
+        $paymentUpdated = $this->clientSideProjectModel->updateProjectPayment($paymentId, [
+            'payment_status' => true,
+            'transaction_id' => $transactionId
+        ]);
+
+        if ($paymentUpdated) {
+            // Update project phase to engineer_approval
+            $this->clientSideProjectModel->updateProjectPhase($projectId, 'engineer_approval');
+
+            flash('payment_message', 'Final payment completed successfully! Your project has been moved to the engineer approval phase.', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Failed to update payment status', 'alert alert-danger');
+        }
+
+        redirect('client/finalPayment/' . $preProjectId);
+    }
+
+    /**
+     * Record cash payment intent for final payment
+     * 
+     * @return void
+     */
+    public function recordFinalCashPayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            redirect('client/dashboard');
+        }
+
+        $projectId = $_POST['project_id'];
+        $preProjectId = $_POST['pre_project_id'];
+        $paymentPhase = $_POST['payment_phase'];
+        $amount = $_POST['amount'];
+
+        // Validate inputs
+        if (empty($projectId) || empty($preProjectId) || empty($paymentPhase) || empty($amount)) {
+            flash('payment_message', 'Invalid request data', 'alert alert-danger');
+            redirect('client/finalPayment/' . $preProjectId);
+        }
+
+        // Verify project belongs to the user
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+        if (!$project || $project->customer_id != $_SESSION['user_id']) {
+            flash('payment_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/dashboard');
+        }
+
+        // Create pending payment record for cash
+        $paymentId = $this->clientSideProjectModel->createProjectPayment([
+            'project_id' => $projectId,
+            'payment_method' => 'cash',
+            'amount' => $amount,
+            'payment_phase' => $paymentPhase,
+            'payment_status' => false // Cash payment pending
+        ]);
+
+        if ($paymentId) {
+            flash('payment_message', 'Your cash payment intention has been recorded. Please visit our office at ' . address . ' to complete the payment.', 'alert alert-success');
+        } else {
+            flash('payment_message', 'Error recording payment intention', 'alert alert-danger');
+        }
+
+        redirect('client/finalPayment/' . $preProjectId);
+    }
+
+    /**
+     * Cancel the current payment method selection for final payment
+     */
+    public function cancelFinalPayment($preProjectId)
+    {
+        if (!isset($_SESSION['user_id'])) {
+            redirect('users/login');
+        }
+
+        // Verify project belongs to the user
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+        if (!$project || $project->customer_id != $_SESSION['user_id']) {
+            flash('payment_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/dashboard');
+        }
+
+        // Delete any pending payment records
+        $this->clientSideProjectModel->deletePendingPayment($project->project_id, 'final_payment');
+
+        flash('payment_message', 'Payment method reset. You can now choose a different payment method.', 'alert alert-success');
+        redirect('client/finalPayment/' . $preProjectId);
+    }
+
+    //###################################################################################################
+    //----------------------------------------- Engineer Approval ----------------------------------------------
+    //###################################################################################################
+
+    public function engineerApproval($preProjectId = null)
+    {
+        if ($preProjectId === null) {
+            redirect('client/dashboard');
+        }
+
+
+        // Get project progress data
+        $progress = $this->clientSidePreProjectModel->getProjectProgress($preProjectId);
+
+        if (!$progress || !isset($progress['pre_project'])) {
+            flash('project_message', 'Project not found', 'alert alert-danger');
+            redirect('client/dashboard');
+            return;
+        }
+
+        if ($progress['pre_project']->customer_id != $_SESSION['user_id']) {
+            flash('project_message', 'Unauthorized access', 'alert alert-danger');
+            redirect('client/dashboard');
+            return;
+        }
+
+        // Get actual project data
+        $project = $this->clientSideProjectModel->getProjectByPreProjectId($preProjectId);
+
+        // Get certificate information if available
+        $certificate = null;
+        $engineerName = null;
+
+        if ($project) {
+            // Get certificate information
+            $certificate = $this->clientSideProjectModel->getProjectCertificate($project->project_id);
+
+            // Get engineer name if available
+            if ($certificate && $certificate->engineer_id) {
+                $engineer = $this->employeeModel->getEmployeeById($certificate->engineer_id);
+                if ($engineer) {
+                    $engineerName = $engineer->name;
+                }
+            }
+        }
+
+        // Check if this is an off-grid system
+        $isOffGrid = false;
+        if ($project && isset($project->package_id)) {
+            $packageInfo = $this->clientSideProjectModel->getPackageById($project->package_id);
+            if ($packageInfo) {
+                $isOffGrid = (bool)$packageInfo->is_off_grid;
+            }
+        }
+
+        $data = [
+            'progress' => $progress,
+            'pre_project_id' => $preProjectId,
+            'is_off_grid' => $isOffGrid,
+            'certificate' => $certificate,
+            'engineer_name' => $engineerName
+        ];
+
+        // If the project has engineer_approval_date or grid_connection_date, add them to the data
+        if ($project) {
+            if (isset($project->engineer_approval_date)) {
+                $data['progress']['engineer_approval_date'] = $project->engineer_approval_date;
+            }
+
+            if (isset($project->grid_connection_date)) {
+                $data['progress']['grid_connection_date'] = $project->grid_connection_date;
+            }
+        }
+
+        $this->view('client/v_engineerApproval', $data);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     public function settings()
@@ -1336,5 +1933,170 @@ class Client extends Controller
             }
             exit;
         }
+    }
+
+    public function chat()
+    {
+        // Get coordinator information
+        $coordinators = [
+            'operations' => $this->clientModel->getOperationsCoordinator(),
+            'supplier' => $this->clientModel->getSupplierCoordinator()
+        ];
+
+        // Get unread message counts for each coordinator
+        $unreadCounts = [
+            'operations' => $this->chatModel->getUnreadCount($coordinators['operations']->user_id, $_SESSION['user_id']),
+            'supplier' => $this->chatModel->getUnreadCount($coordinators['supplier']->user_id, $_SESSION['user_id'])
+        ];
+
+        $data = [
+            'title' => 'Chat with Coordinators',
+            'coordinators' => $coordinators,
+            'unread_counts' => $unreadCounts
+        ];
+
+        $this->view('client/v_chat', $data);
+    }
+
+    public function getChatHistory($coordinatorType)
+    {
+        if (!in_array($coordinatorType, ['operations', 'supplier', 'hr'])) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Invalid coordinator type']);
+            return;
+        }
+
+        // Get coordinator ID based on type
+        $coordinator = null;
+        if ($coordinatorType == 'operations') {
+            $coordinator = $this->clientModel->getOperationsCoordinator();
+        } elseif ($coordinatorType == 'supplier') {
+            $coordinator = $this->clientModel->getSupplierCoordinator();
+        }
+
+        if (!$coordinator) {
+            header('Content-Type: application/json');
+            echo json_encode([]);
+            return;
+        }
+
+        $messages = $this->chatModel->getClientChats($coordinator->user_id, $_SESSION['user_id']);
+
+        // Mark messages as read after retrieving them
+        $this->chatModel->markMessagesAsRead($coordinator->user_id, $_SESSION['user_id']);
+
+        header('Content-Type: application/json');
+        echo json_encode($messages);
+    }
+
+    public function saveMessage()
+    {
+        // Handle AJAX request to save a new message
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (empty($data['to_user_id']) || empty($data['message'])) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Missing required fields']);
+            return;
+        }
+
+        // Get coordinator role based on the coordinator type
+        $receiverRole = 'operationsCoordinator'; // Default
+        if (isset($data['recipient_type'])) {
+            if ($data['recipient_type'] == 'supplier') {
+                $receiverRole = 'supplierCoordinator';
+            }
+        }
+
+        $messageData = [
+            'sender_id' => $_SESSION['user_id'],
+            'sender_role' => 'customer',
+            'receiver_id' => $data['to_user_id'],
+            'receiver_role' => $receiverRole,
+            'message' => $data['message']
+        ];
+
+        if ($this->chatModel->saveMessage($messageData)) {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'success']);
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode(['status' => 'error', 'message' => 'Failed to save message']);
+        }
+    }
+
+    public function markMessagesAsRead()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Invalid request method']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (empty($data['coordinator_type'])) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Coordinator type required']);
+            return;
+        }
+
+        // Get coordinator based on type
+        $coordinator = null;
+        $coordinatorType = $data['coordinator_type'];
+
+        if ($coordinatorType == 'operations') {
+            $coordinator = $this->clientModel->getOperationsCoordinator();
+        } elseif ($coordinatorType == 'supplier') {
+            $coordinator = $this->clientModel->getSupplierCoordinator();
+        }
+
+        if (!$coordinator) {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Coordinator not found']);
+            return;
+        }
+
+        $success = $this->chatModel->markMessagesAsRead($coordinator->user_id, $_SESSION['user_id']);
+
+        header('Content-Type: application/json');
+        echo json_encode(['status' => $success ? 'success' : 'error']);
+    }
+
+    // private function getTotalUnreadCount()
+    // {
+    //     $total = 0;
+    //     $coordinators = [
+    //         'operations' => $this->clientModel->getOperationsCoordinator(),
+    //         'supplier' => $this->clientModel->getSupplierCoordinator(),
+    //         'hr' => $this->clientModel->getHRAdministrator()
+    //     ];
+
+    //     foreach ($coordinators as $coordinator) {
+    //         if ($coordinator) {
+    //             $total += $this->chatModel->getUnreadCount($coordinator->user_id, $_SESSION['user_id']);
+    //         }
+    //     }
+
+    //     return $total;
+    // }
+
+    public function getUnreadStatus()
+    {
+        // Get the total unread count directly from the chat model
+        $count = $this->chatModel->getTotalUnreadMessages($_SESSION['user_id']);
+
+        // Store the count in session for access across all views
+        $_SESSION['total_unread_count'] = $count;
+
+        // Return JSON response
+        header('Content-Type: application/json');
+        echo json_encode(['hasUnread' => ($count > 0)]);
     }
 }

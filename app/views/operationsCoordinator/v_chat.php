@@ -1,0 +1,102 @@
+<?php require APPROOT . '/views/operationsCoordinator/header.php'; ?>
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/chat.css">
+</head>
+
+<body data-user-role="operationsCoordinator" data-user-id="<?php echo $_SESSION['user_id']; ?>" data-urlroot="<?php echo URLROOT; ?>">
+    <div class="dashboard-container">
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="company-logo">
+                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
+            </div>
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
+                <div class="user-info">
+                    <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
+                    <p>Operations Coordinator</p>
+                </div>
+            </div>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/dashboard">
+                <span class="material-icons-sharp">dashboard</span>
+                <h3>Dashboard</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/preprojects">
+                <span class="material-icons-sharp">pending_actions</span>
+                <h3>Pre-Projects</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/projects">
+                <span class="material-icons-sharp">receipt_long</span>
+                <h3>Projects</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/managePackages">
+                <span class="material-icons-sharp">solar_power</span>
+                <h3>Packages</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/tasks">
+                <span class="material-icons-sharp">task</span>
+                <h3>Tasks</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/chat" class="active">
+                <span class="material-icons-sharp">chat</span>
+                <h3>Chat</h3>
+                <span class="notification-dot" style="display: <?php echo (isset($data['total_unread_count']) && $data['total_unread_count'] > 0) ? 'block' : 'none'; ?>;"></span>
+            </a>
+            <a href="#">
+                <span class="material-icons-sharp">settings</span>
+                <h3>Settings</h3>
+            </a>
+            <a href="<?php echo URLROOT; ?>/users/logout">
+                <span class="material-icons-sharp">logout</span>
+                <h3>Logout</h3>
+            </a>
+        </div>
+
+        <div class="main-content">
+            <div class="chat-container">
+                <div class="chat-sidebar">
+                    <div class="chat-search">
+                        <input type="text" id="searchClients" placeholder="Search clients...">
+                    </div>
+                    <div class="chat-list" id="clientList">
+                        <?php if (!empty($data['clients'])): ?>
+                            <?php foreach ($data['clients'] as $client): ?>
+                                <div class="contact-item"
+                                    data-id="<?php echo $client->user_id; ?>"
+                                    data-name="<?php echo $client->name; ?>">
+                                    <img src="<?php echo !empty($client->profile_picture) ? URLROOT . '/public/uploads/profile_pictures/' . $client->profile_picture : URLROOT . '/public/assets/profile.png'; ?>"
+                                        alt="<?php echo $client->name; ?>">
+                                    <div class="contact-info">
+                                        <h4><?php echo $client->name; ?></h4>
+                                    </div>
+                                    <?php if (!empty($client->unread_count) && $client->unread_count > 0): ?>
+                                        <span class="unread-count"><?php echo $client->unread_count; ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="no-chats">No chat history found</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <div class="chat-main">
+                    <div class="chat-header">
+                        <h3 id="currentClient">Select a client to start chatting</h3>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="empty-chat-message">Select a client to start chatting</div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="messageInput" placeholder="Type a message..." disabled>
+                        <button id="sendButton" disabled>Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="<?php echo URLROOT; ?>/js/chat.js"></script>
+
+        <?php require APPROOT . '/views/operationsCoordinator/footer.php'; ?>

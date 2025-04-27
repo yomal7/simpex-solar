@@ -1,5 +1,5 @@
 <?php require APPROOT . '/views/deliveryPerson/header.php'; ?>
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/dashboard.css">
+
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/deliveryPerson/viewOrder.css">
 </head>
 
@@ -9,13 +9,20 @@
 
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
-            <img
-                src="<?php echo URLROOT; ?>/public/assets/profile.png"
-                alt="manager profile-picture"
-                class="profile-picture" />
+            <div class="company-logo">
+                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
+            </div>
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
+                <div class="user-info">
+                    <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
+                    <p>Delivery Person</p>
+                </div>
+            </div>
             <a href="<?php echo URLROOT; ?>/deliveryPerson/orders" class="back-button">
                 <span class="material-icons-sharp">arrow_back</span>
-                Back to Orders
+                <h3>Back</h3>
             </a>
             <a href="<?php echo URLROOT; ?>/users/logout">
                 <span class="material-icons-sharp">logout</span>
@@ -162,9 +169,9 @@
 
                                     <div class="report-upload" <?php if ($data['order']->payment_method == 'cash'): ?>style="opacity: 0.5;" <?php endif; ?>>
                                         <label for="delivery_report">Upload Signed Delivery Report:</label>
-                                        <input type="file" name="delivery_report" id="delivery_report" accept=".pdf,.jpg,.jpeg,.png"
+                                        <input type="file" name="delivery_report" id="delivery_report" accept=".pdf"
                                             <?php if ($data['order']->payment_method == 'cash'): ?>disabled<?php endif; ?>>
-                                        <small>Upload the delivery report signed by the customer (PDF, JPG, or PNG)</small>
+                                        <small>Upload the delivery report signed by the customer (PDF)</small>
                                     </div>
 
                                     <button type="submit" class="btn confirm-btn" id="confirmDeliveryBtn"

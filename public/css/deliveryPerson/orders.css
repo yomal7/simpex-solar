@@ -141,6 +141,10 @@ body {
   padding: 20px;
 } */
 
+.orders-container {
+  display: flex;
+}
+
 .page-header {
   margin-bottom: 30px;
 }

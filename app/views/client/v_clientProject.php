@@ -103,15 +103,15 @@
                                 <p><?php echo $info['description']; ?></p>
                                 <?php if ($status === 'active'): ?>
                                     <?php if ($phase === 'quotation'): ?>
-                                        <a href="<?php 
-                                            // Check if quotation_id exists in data array
-                                            if (isset($data['quotation_id'])) {
-                                                echo URLROOT . '/client/viewQuotation/' . $data['quotation_id'];
-                                            } else {
-                                                // If no quotation_id, try to get it from the progress data
-                                                echo URLROOT . '/client/viewQuotation/' . ($data['progress']['pre_project']->quotation_id ?? '');
-                                            }
-                                        ?>" class="btn-proceed">
+                                        <a href="<?php
+                                                    // Check if quotation_id exists in data array
+                                                    if (isset($data['quotation_id'])) {
+                                                        echo URLROOT . '/client/viewQuotation/' . $data['quotation_id'];
+                                                    } else {
+                                                        // If no quotation_id, try to get it from the progress data
+                                                        echo URLROOT . '/client/viewQuotation/' . ($data['progress']['pre_project']->quotation_id ?? '');
+                                                    }
+                                                    ?>" class="btn-proceed">
                                             Proceed Now
                                         </a>
                                     <?php elseif ($phase === 'site_visit'): ?>
@@ -192,12 +192,17 @@
                                             <a href="<?php echo URLROOT . '/client/finalPayment/' . $data['pre_project_id']; ?>" class="btn-proceed">
                                                 Proceed Now
                                             </a>
+                                        <?php elseif ($phase === 'engineer_approval'): ?>
+                                            <a href="<?php echo URLROOT . '/client/engineerApproval/' . $data['pre_project_id']; ?>" class="btn-proceed">
+                                                Proceed Now
+                                            </a>
                                         <?php else: ?>
                                             <a href="<?php echo URLROOT . '/client/project/' . $data['pre_project_id'] . '/' . $phase; ?>" class="btn-proceed">
                                                 Proceed Now
                                             </a>
                                         <?php endif; ?>
                                     <?php elseif ($status === 'completed'): ?>
+
                                         <span class="check-mark">✓</span>
                                     <?php else: ?>
                                         <span class="lock-icon">🔒</span>

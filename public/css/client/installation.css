@@ -1,32 +1,129 @@
-/* General Layout */
+/* Installation Styles for Client */
+
+:root {
+  --main-color: #4caf50;
+  --light-green: #a5d6a7;
+  --dark-green: #2e7d32;
+  --gray: #f5f5f5;
+  --text-color: #333;
+  --light-text: #666;
+  --border-radius: 10px;
+  --box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background-color: #f0f0f0;
+  color: var(--text-color);
+}
+
+/* Sidebar and Navigation */
+.sidebar {
+  width: 260px;
+  position: fixed;
+  left: -260px;
+  height: 100%;
+  z-index: 1000;
+  background-color: white;
+  box-shadow: var(--box-shadow);
+  transition: 0.3s ease;
+  padding: 20px 0;
+  overflow-y: auto;
+}
+
+.sidebar.active {
+  left: 0;
+}
+
+.sidebar ul {
+  list-style: none;
+}
+
+.sidebar a {
+  display: block;
+  padding: 15px 20px;
+  text-decoration: none;
+  color: var(--text-color);
+  transition: 0.3s;
+  border-radius: 0 30px 30px 0;
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background-color: var(--light-green);
+  color: var(--dark-green);
+}
+
+.sidebar a i {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.back-buttons {
+  background-color: var(--light-green);
+  font-weight: 500;
+}
+
+/* Content Area */
+.content {
+  margin-left: 0;
+  padding: 20px;
+  transition: 0.3s ease;
+}
+
+.content.active {
+  margin-left: 260px;
+}
+
+.content nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  margin-bottom: 20px;
+}
+
+.content nav i {
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--main-color);
+}
+
 .container {
   max-width: 1200px;
-  padding: 20px;
   margin: 0 auto;
 }
 
-/* Card Styling */
+/* Card Styles */
 .card {
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
   margin-bottom: 30px;
   overflow: hidden;
 }
 
 .card-header {
-  padding: 20px 25px;
-  background: #fff;
+  padding: 20px;
   border-bottom: 1px solid #eee;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.card-header h2 {
-  color: #333;
-  margin: 0;
-  font-size: 1.8rem;
+.card-header h2,
+.card-header h3 {
+  color: var(--dark-green);
+  font-weight: 600;
 }
 
 .card-body {
@@ -35,283 +132,364 @@
 
 /* Status Badge */
 .status-badge {
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.9rem;
+  padding: 8px 15px;
+  border-radius: 30px;
+  font-size: 12px;
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .status-badge.pending {
-  background: #fff3e0;
-  color: #f57c00;
+  background-color: #fff8e1;
+  color: #f57f17;
 }
 
-.status-badge.request {
-  background: #ffebee;
-  color: #c62828;
+.status-badge.approved {
+  background-color: #e8f5e9;
+  color: var(--dark-green);
 }
 
-.status-badge.accept {
-  background: #e8f5e9;
-  color: #4caf50;
+.status-badge.active {
+  background-color: #e3f2fd;
+  color: #0d47a1;
+}
+
+.status-badge.completed {
+  background-color: var(--main-color);
+  color: white;
+}
+
+.status-badge.requested {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
 }
 
 /* Waiting Message */
 .waiting-message {
-  text-align: center;
-  padding: 40px 20px;
+  display: flex;
+  align-items: center;
+  padding: 25px;
+  background-color: #f5f5f5;
+  border-radius: var(--border-radius);
 }
 
 .waiting-message i {
-  font-size: 48px;
-  color: #f57c00;
-  margin-bottom: 15px;
+  font-size: 40px;
+  color: var(--dark-green);
+  margin-right: 20px;
 }
 
-.waiting-message h3 {
-  color: #333;
+.message-content h3 {
   margin-bottom: 10px;
+  color: var(--dark-green);
 }
 
-.waiting-message p {
-  color: #666;
-  max-width: 600px;
-  margin: 0 auto;
+.message-content p {
+  color: var(--light-text);
+  line-height: 1.6;
 }
 
-/* Schedule Details */
-.schedule-details {
-  padding: 20px 0;
+/* Schedule Approval */
+.schedule-approval {
+  padding: 25px;
+  background-color: #fff;
+  border-radius: var(--border-radius);
 }
 
-.schedule-info {
-  margin-bottom: 30px;
-}
-
-.schedule-info h3 {
+.schedule-details h3 {
   margin-bottom: 20px;
-  color: #333;
+  color: var(--dark-green);
 }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.info-item {
-  margin-bottom: 15px;
-}
-
-.info-label {
-  display: block;
-  color: #666;
-  margin-bottom: 5px;
-  font-size: 0.9rem;
-}
-
-.info-label i {
-  margin-right: 5px;
-}
-
-.info-value {
-  font-weight: 500;
-  color: #333;
-}
-
-/* Schedule Actions */
-.schedule-actions {
+.date-range {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.date {
+  text-align: center;
+  padding: 10px 20px;
+  background-color: var(--light-green);
+  color: var(--dark-green);
+  border-radius: var(--border-radius);
+  min-width: 120px;
+}
+
+.date .day {
+  font-size: 24px;
+  font-weight: 700;
+  display: block;
+}
+
+.date .month {
+  font-size: 16px;
+  font-weight: 500;
+  text-transform: uppercase;
+  display: block;
+}
+
+.date .year {
+  font-size: 14px;
+  color: var(--light-text);
+}
+
+.to {
+  margin: 0 15px;
+  font-size: 18px;
+  color: var(--light-text);
+}
+
+.schedule-notice {
+  text-align: center;
+  margin: 20px 0;
+  color: var(--light-text);
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
   gap: 15px;
   margin-top: 30px;
 }
 
-.btn {
-  padding: 12px 24px;
-  border-radius: 8px;
-  border: none;
-  font-size: 1rem;
+.btn-confirm,
+.btn-reschedule {
+  padding: 12px 25px;
+  border-radius: 30px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  border: none;
   transition: all 0.3s ease;
 }
 
-.btn-accept {
-  background: #4caf50;
+.btn-confirm {
+  background-color: var(--main-color);
   color: white;
 }
 
-.btn-accept:hover {
-  background: #388e3c;
+.btn-reschedule {
+  background-color: #f5f5f5;
+  color: var(--text-color);
 }
 
-.btn-reschedule {
-  background: #f5f5f5;
-  color: #333;
+.btn-confirm i,
+.btn-reschedule i {
+  margin-right: 8px;
+}
+
+.btn-confirm:hover {
+  background-color: var(--dark-green);
 }
 
 .btn-reschedule:hover {
-  background: #e0e0e0;
+  background-color: #e0e0e0;
 }
 
-.inline-form {
-  display: inline;
-}
-
-/* Reschedule Requested View */
+/* Reschedule Requested */
 .reschedule-requested {
-  text-align: center;
-  padding: 30px 20px;
+  display: flex;
+  align-items: flex-start;
+  padding: 25px;
+  background-color: #f5f5f5;
+  border-radius: var(--border-radius);
 }
 
 .reschedule-requested i {
-  font-size: 48px;
-  color: #9c27b0;
-  margin-bottom: 15px;
-}
-
-.reschedule-requested h3 {
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.reschedule-requested p {
-  color: #666;
-  max-width: 600px;
-  margin: 0 auto 20px;
+  font-size: 40px;
+  color: #7b1fa2;
+  margin-right: 20px;
 }
 
 .request-details {
-  background: #f5f5f5;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: left;
-  max-width: 600px;
-  margin: 0 auto;
+  margin-top: 20px;
+  padding: 15px;
+  background-color: white;
+  border-radius: var(--border-radius);
 }
 
 .request-details h4 {
-  color: #333;
+  margin-bottom: 15px;
+  color: var(--dark-green);
+}
+
+.detail-row {
   margin-bottom: 10px;
 }
 
-/* Schedule Confirmed View */
-.schedule-confirmed {
-  padding: 30px 20px;
-  text-align: center;
+.detail-row .label {
+  font-weight: 500;
+  color: var(--dark-green);
 }
 
-.schedule-confirmed i {
-  font-size: 48px;
-  color: #4caf50;
-  margin-bottom: 15px;
+.detail-row .reason {
+  padding-top: 10px;
+  color: var(--light-text);
+  line-height: 1.6;
 }
 
-.schedule-confirmed h3 {
-  color: #4caf50;
-  margin-bottom: 20px;
+/* Active Installation */
+.active-installation {
+  padding: 25px;
+  background-color: #f5f5f5;
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: flex-start;
 }
 
-.schedule-confirmed .info-grid {
-  max-width: 600px;
-  margin: 0 auto 20px;
-  text-align: left;
+.status-icon {
+  font-size: 40px;
+  color: var(--dark-green);
+  margin-right: 20px;
 }
 
-.installation-note {
-  background: #e8f5e9;
+.progress-details {
+  margin-top: 20px;
   padding: 15px;
-  border-radius: 10px;
-  max-width: 600px;
-  margin: 20px auto 0;
+  background-color: white;
+  border-radius: var(--border-radius);
 }
 
-.installation-note p {
-  color: #2e7d32;
-  margin: 0;
+.progress-bar-container {
+  height: 10px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  margin: 15px 0;
+  overflow: hidden;
 }
 
-/* Requirements Section */
-.requirements-list {
+.progress-bar {
+  height: 100%;
+  background-color: var(--main-color);
+  border-radius: 5px;
+}
+
+.progress-text {
+  text-align: center;
+  font-size: 14px;
+  color: var(--light-text);
+}
+
+/* Completed Installation */
+.completed-installation {
+  padding: 25px;
+  background-color: #f5f5f5;
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: flex-start;
+}
+
+.completed-installation .status-icon i {
+  color: var(--main-color);
+}
+
+.completion-content h3 {
+  margin-bottom: 15px;
+  color: var(--dark-green);
+}
+
+.completion-details {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: white;
+  border-radius: var(--border-radius);
+}
+
+.next-step {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px dashed #ccc;
+}
+
+.next-step h4 {
+  color: var(--dark-green);
+  margin-bottom: 10px;
+}
+
+/* Scheduled Installation */
+.scheduled-installation {
+  padding: 25px;
+  background-color: #f5f5f5;
+  border-radius: var(--border-radius);
+  display: flex;
+  align-items: flex-start;
+}
+
+.countdown {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 16px;
+}
+
+.countdown strong {
+  color: var(--dark-green);
+  font-weight: 600;
+}
+
+/* Guidelines Card */
+.guidelines-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
 }
 
-.requirement-item {
+.guideline-item {
   display: flex;
   align-items: flex-start;
-  gap: 15px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 10px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: var(--border-radius);
   transition: transform 0.3s ease;
 }
 
-.requirement-item:hover {
-  transform: translateY(-3px);
+.guideline-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.requirement-item i {
+.guideline-item i {
   font-size: 24px;
-  color: #1976d2;
+  color: var(--dark-green);
+  margin-right: 15px;
+  margin-top: 5px;
 }
 
-.requirement-item h4 {
-  margin: 0 0 8px 0;
-  color: #333;
+.guideline-item h4 {
+  margin-bottom: 10px;
+  color: var(--dark-green);
 }
 
-.requirement-item p {
-  margin: 0;
-  color: #666;
-  font-size: 0.9rem;
+.guideline-item p {
+  color: var(--light-text);
+  font-size: 14px;
+  line-height: 1.6;
 }
 
-/* Modal */
-.modal {
-  display: none;
+/* Popup Styles */
+.popup {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: white;
   width: 90%;
   max-width: 500px;
-  border-radius: 10px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  background-color: white;
+  padding: 30px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
   z-index: 1001;
-}
-
-.modal-content {
-  padding: 25px;
-}
-
-.close-button {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  font-size: 24px;
-  color: #aaa;
-  cursor: pointer;
-}
-
-.close-button:hover {
-  color: #333;
-}
-
-.modal-overlay {
   display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+}
+
+.popup h3 {
+  color: var(--dark-green);
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .form-group {
@@ -321,55 +499,118 @@
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #333;
   font-weight: 500;
+  color: var(--text-color);
 }
 
-.form-group textarea,
-.form-group input {
+.form-group textarea {
   width: 100%;
   padding: 12px;
   border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.btn-secondary {
-  background: #e0e0e0;
-  color: #333;
-  padding: 10px 16px;
   border-radius: 5px;
+  font-size: 16px;
+  resize: vertical;
+}
+
+.popup-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 10px 20px;
   border: none;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
 }
 
 .btn-primary {
-  background: #1976d2;
+  background-color: var(--main-color);
   color: white;
-  padding: 10px 16px;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
 }
 
-/* Responsive Adjustments */
+.btn-secondary {
+  background-color: #f5f5f5;
+  color: var(--text-color);
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: none;
+}
+
+/* Responsive Styles */
 @media (max-width: 768px) {
-  .schedule-actions {
+  .content {
+    padding: 15px;
+  }
+
+  .date-range {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .to {
+    margin: 0;
+  }
+
+  .action-buttons {
     flex-direction: column;
   }
 
-  .info-grid {
+  .btn-confirm,
+  .btn-reschedule {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .guidelines-list {
     grid-template-columns: 1fr;
   }
 
-  .requirements-list {
-    grid-template-columns: 1fr;
+  .popup {
+    width: 95%;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .waiting-message,
+  .reschedule-requested,
+  .active-installation,
+  .scheduled-installation,
+  .completed-installation {
+    flex-direction: column;
+  }
+
+  .waiting-message i,
+  .reschedule-requested i,
+  .status-icon {
+    margin-right: 0;
+    margin-bottom: 15px;
+    align-self: center;
+  }
+
+  .active-installation .installation-content,
+  .scheduled-installation .schedule-content,
+  .completed-installation .completion-content {
+    width: 100%;
+  }
+}
+
+/* When sidebar is active, adjust content */
+@media (min-width: 769px) {
+  .sidebar.active ~ .content {
+    margin-left: 260px;
   }
 }

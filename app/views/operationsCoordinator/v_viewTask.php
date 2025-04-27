@@ -1,15 +1,25 @@
 <?php require APPROOT . '/views/operationsCoordinator/header.php'; ?>
 
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/tasks.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/viewTasks.css">
 </head>
 
-<body>
+<body data-user-role="operationsCoordinator" data-user-id="<?php echo $_SESSION['user_id']; ?>" data-urlroot="<?php echo URLROOT; ?>">
     <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
         <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
-            <img src="<?php echo URLROOT; ?>/public/assets/profile.png" alt="manager profile-picture" class="profile-picture" />
+            <div class="company-logo">
+                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
+            </div>
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
+                <div class="user-info">
+                    <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
+                    <p>Operations Coordinator</p>
+                </div>
+            </div>
             <a href="<?php echo URLROOT ?>/operationsCoordinator/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
@@ -26,7 +36,12 @@
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/chat" class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'chat') !== false) ? 'active' : ''; ?>">
+                <span class="material-icons-sharp">chat</span>
+                <h3>Chat</h3>
+                <span class="notification-dot" style="display: <?php echo (isset($_SESSION['total_unread_count']) && $_SESSION['total_unread_count'] > 0) ? 'block' : 'none'; ?>;"></span>
+            </a>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
@@ -87,12 +102,40 @@
                                     <p><?php echo $data['task']->project_id; ?></p>
                                 </div>
                             </div>
-                            <div class="detail-item">
-                                <i class="fas fa-user"></i>
-                                <div class="detail-content">
-                                    <label>Assigned To</label>
-                                    <p><?php echo $data['task']->employee_id . ' - ' . $data['task']->employee_name . ' (' . $data['task']->employee_role . ' )'; ?></p>
+                        </div>
+
+                        <!-- Employee Card Section -->
+                        <div class="employee-card">
+                            <div class="employee-avatar">
+                                <?php if(isset($data['task']->profile_picture) && !empty($data['task']->profile_picture)): ?>
+                                    <img src="<?php echo URLROOT; ?>/public/uploads/profile_pictures/<?php echo $data['task']->profile_picture; ?>" alt="Employee Profile">
+                                <?php else: ?>
+                                    <?php echo substr($data['task']->employee_name, 0, 1); ?>
+                                <?php endif; ?>
+                            </div>
+                            <div class="employee-info">
+                                <h3 class="employee-name"><?php echo $data['task']->employee_name; ?></h3>
+                                <p class="employee-role"><?php echo $data['task']->employee_role; ?></p>
+                                <div class="employee-contact">
+                                    <i class="fas fa-id-card"></i>
+                                    <span>Employee ID: <?php echo $data['task']->employee_id; ?></span>
                                 </div>
+                                <div class="employee-contact">
+                                    <i class="fas fa-phone"></i>
+                                    <span>Contact: <?php echo isset($data['task']->phone) && !empty($data['task']->phone) ? $data['task']->phone : 'Not provided'; ?></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Comment Section -->
+                        <div class="comment-section">
+                            <h3><i class="fas fa-comment"></i> Task Comment</h3>
+                            <div class="comment-content">
+                                <?php if (!empty($data['task']->comment)): ?>
+                                    <?php echo $data['task']->comment; ?>
+                                <?php else: ?>
+                                    <p class="no-comment">No comments added to this task yet.</p>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -102,9 +145,6 @@
                             class="btn btn-edit">
                             <i class="fas fa-edit"></i> Edit Task
                         </a>
-                        <!-- <a href="<?php echo URLROOT; ?>/operationsCoordinator/deleteTask/<?php echo $data['task']->id; ?>" onclick="return confirm('Are you sure you want to delete this task?');">
-                            <button class="btn btn-danger"><i class="fas fa-trash"></i> Delete Task</button>
-                        </a> -->
                         <a href="<?php echo URLROOT; ?>/operationsCoordinator/deleteTask/<?php echo $data['task']->id; ?>"
                             class="btn btn-danger"
                             onclick="return confirm('Are you sure you want to delete this task?');">

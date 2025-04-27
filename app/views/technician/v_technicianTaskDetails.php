@@ -2,7 +2,8 @@
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-<!-- <link rel="stylesheet" href="</?php echo URLROOT; ?>/css/technician/dashboard.css"> -->
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/taskDetails.css">
+
  
 
 </head>
@@ -12,25 +13,20 @@
 
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
         <div class="sidebar" id="sidebar">
-            <img
-                src="<?php echo URLROOT ?>/assets/profile.png"
-                alt="technician profile-picture"
-                class="profile-picture" />
-            <a href="<?php echo URLROOT ?>/technician/dashboard">
-                <span class="material-icons-sharp">dashboard</span>
-                <h3>Dashboard</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/technician/tasks" class="active">
-                <span class="material-icons-sharp">task</span>
-                <h3>Tasks</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/technician/requestHoliday">
-                <span class="material-icons-sharp">event</span>
-                <h3>Request Leave</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/technician/settings">
-                <span class="material-icons-sharp">settings</span>
-                <h3>Settings</h3>
+            <div class="company-logo">
+                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
+            </div>
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
+                <div class="user-info">
+                    <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
+                    <p>Technician</p>
+                </div>
+            </div>
+            <a href="<?php echo URLROOT; ?>/technician/tasks" class="side-back-button">
+                <span class="material-icons-sharp">arrow_back</span>
+                <h3>Back</h3>
             </a>
             <a href="<?php echo URLROOT; ?>/users/logout" class="logout">
                 <span class="material-icons-sharp">logout</span>
@@ -42,50 +38,55 @@
             <div class="container">
 
                 <div class="task-details-container">
-                    <div class="actions">
-                        <button class="back-button" onclick="window.location.href='<?php echo URLROOT; ?>/technician/tasks<?php echo isset($_GET['page']) ? '?page=' . $_GET['page'] : ''; ?>'" class="back-btn">
-                            Back to Tasks
-                        </button>
-                    </div>
                     <div class="details">
                         <h2>Task Details</h2>
                         <?php if (isset($data['task']) && $data['task']): ?>
                             <div class="task-info">
-                                <div class="info-group">
-                                    <label class="fut">Task ID:</label>
-                                    <span>TSK<?php echo str_pad($data['task']->id, 6, '0', STR_PAD_LEFT); ?></span>
-                                </div>
+                                <div class="task-info-top">
+                                    <div class="info-group">
+                                        <label class="fut">Task ID:</label>
+                                        <span>TSK<?php echo str_pad($data['task']->id, 6, '0', STR_PAD_LEFT); ?></span>
+                                    </div>
 
-                                <div class="info-group">
-                                    <label>Project ID:</label>
-                                    <span>PRJ<?php echo str_pad($data['task']->project_id, 6, '0', STR_PAD_LEFT); ?></span>
-                                </div>
+                                    <div class="info-group">
+                                        <label>Project ID:</label>
+                                        <span>PRJ<?php echo str_pad($data['task']->project_id, 6, '0', STR_PAD_LEFT); ?></span>
+                                    </div>
 
-                                <div class="info-group">
-                                    <label>Title:</label>
-                                    <span><?php echo $data['task']->title; ?></span>
-                                </div>
+                                    <div class="info-group">
+                                        <label>Start Date:</label>
+                                        <span><?php echo $data['task']->start_date; ?></span>
+                                    </div>
 
-                                <div class="info-group">
-                                    <label>Description:</label>
-                                    <span><?php echo $data['task']->description; ?></span>
+                                    <div class="info-group">
+                                        <label>End Date:</label>
+                                        <span><?php echo $data['task']->end_date; ?></span>
+                                    </div>
                                 </div>
+                                <div class="task-info-bottom">
+                                    
+                                    <div class="info-group">
+                                        <label>Title:</label>
+                                        <span><?php echo $data['task']->title; ?></span>
+                                    </div>
 
-                                <div class="info-group">
-                                    <label>Start Date:</label>
-                                    <span><?php echo $data['task']->start_date; ?></span>
-                                </div>
+                                    <div class="info-group">
+                                        <label>Description:</label>
+                                        <span><?php echo $data['task']->description; ?></span>
+                                    </div>
 
-                                <div class="info-group">
-                                    <label>End Date:</label>
-                                    <span><?php echo $data['task']->end_date; ?></span>
-                                </div>
-
-                                <div class="info-group">
-                                    <label>Status:</label>
-                                    <span class="status-badge <?php echo strtolower($data['task']->status); ?>">
-                                        <?php echo str_replace('_', ' ', ucfirst($data['task']->status)); ?>
-                                    </span>
+                                    <div class="info-group">
+                                        <label>Status:</label>
+                                            <div class="status-dropdown-container">
+                                                <select class="status-dropdown <?php echo strtolower($data['task']->status); ?>" 
+                                                        onchange="updateStatus(<?php echo $data['task']->id; ?>, this.value)">
+                                                    <option value="incomplete" <?php echo $data['task']->status == 'incomplete' ? 'selected' : ''; ?>>Incomplete</option>
+                                                    <option value="in_progress" <?php echo $data['task']->status == 'in_progress' ? 'selected' : ''; ?>>In Progress</option>
+                                                    <option value="completed" <?php echo $data['task']->status == 'completed' ? 'selected' : ''; ?>>Completed</option>
+                                                </select>
+                                            </div>
+                                    </div>
+            
                                 </div>
                             </div>
 
@@ -129,9 +130,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="overlay" id="overlay"></div>
-
 
 <script src="<?php echo URLROOT; ?>/js/technician/tasks.js"></script>
 

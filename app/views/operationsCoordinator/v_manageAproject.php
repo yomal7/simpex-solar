@@ -7,10 +7,17 @@
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
         <div class="sidebar" id="sidebar">
-            <img
-                src="<?php echo URLROOT; ?>/public/assets/profile.png"
-                alt="manager profile-picture"
-                class="profile-picture" />
+            <div class="company-logo">
+                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
+            </div>
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
+                <div class="user-info">
+                    <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
+                    <p>Operations Coordinator</p>
+                </div>
+            </div>
 
             <a href="<?php echo URLROOT ?>/operationsCoordinator/projects">
                 <span class="material-icons-sharp">arrow_back</span>
@@ -156,8 +163,10 @@
                                 onclick="window.location.href='<?php echo URLROOT ?>/operationsCoordinator/firstPayment/<?php echo $data['project']->project_id; ?>'"
                                 <?php elseif ($phase === 'installation'): ?>
                                 onclick="window.location.href='<?php echo URLROOT ?>/operationsCoordinator/installation/<?php echo $data['project']->project_id; ?>'"
-                                <?php else: ?>
-                                data-url="<?php echo $url; ?>"
+                                <?php elseif ($phase === 'final_payment'): ?>
+                                onclick="window.location.href='<?php echo URLROOT ?>/operationsCoordinator/finalPayment/<?php echo $data['project']->project_id; ?>'"
+                                <?php elseif ($phase === 'engineer_approval'): ?>
+                                onclick="window.location.href='<?php echo URLROOT ?>/operationsCoordinator/engineerApproval/<?php echo $data['project']->project_id; ?>'"
                                 <?php endif; ?>>
                                 <div class="phase-icon"><?php echo $info['icon']; ?></div>
                                 <div class="phase-content">

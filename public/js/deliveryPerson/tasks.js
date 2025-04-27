@@ -1,186 +1,129 @@
-const tasks = [
-    { 
-        id: 1, 
-        deliveryID: "D0001", 
-        date: "2024/11/01", 
-        confirmation: "confirmed", 
-        address: "Keels Warehouse, 456 Main Street, Colombo", 
-        phoneNumber: "0712345678", 
-        comment: "Delivered solar panels and inverter for installation at Keels. Received by site supervisor."
-    },
-    { 
-        id: 2, 
-        deliveryID: "D0002", 
-        date: "2024/11/05", 
-        confirmation: "confirmed", 
-        address: "Watawala Industries, 123 Solar Lane, Gampaha", 
-        phoneNumber: "0723456789", 
-        comment: "Delivered maintenance kit and inverter update tools. Package received by maintenance lead."
-    },
-    { 
-        id: 3, 
-        deliveryID: "D0003", 
-        date: "2024/11/10", 
-        confirmation: "not-confirmed", 
-        address: "DB Ltd, 789 Inverter Drive, Kandy", 
-        phoneNumber: "0765432100", 
-        comment: "Replacement part for inverter delivery pending; awaiting client confirmation."
-    },
-    { 
-        id: 4, 
-        deliveryID: "D0004", 
-        date: "2024/11/15", 
-        confirmation: "confirmed", 
-        address: "No. 12, Green Avenue, Nugegoda", 
-        phoneNumber: "0776543211", 
-        comment: "Delivered battery storage system for residential client. Received by homeowner."
-    },
-    { 
-        id: 5, 
-        deliveryID: "D0005", 
-        date: "2024/11/20", 
-        confirmation: "not-confirmed", 
-        address: "City Mall, 101 Commercial Street, Colombo", 
-        phoneNumber: "0787654321", 
-        comment: "Delivered survey equipment and documentation for site survey. Awaiting client approval."
-    }
-];
+const URLROOT = "http://localhost/simpex-solar";
 
-
-const tasksTableBody = document.getElementById("tasksTableBody");
-let currentTaskID;
-
-function renderTable(tasksToRender = tasks) {
-    tasksTableBody.innerHTML = "";
-    tasksToRender.forEach(task => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${task.deliveryID}</td>
-            <td>${task.date}</td>
-            <td>
-                <button class="action-btn view-btn" onclick="openViewPopup(${task.id})">View</button>                
-            </td>
-            <td><span class="confirmation ${task.confirmation}" onclick="openConfirmationPopup(${task.id})">${getConfirmationLabel(task.confirmation)}</span></td>
-            <td>
-                <button class="action-btn add-comment-btn" onclick="openAddCommentPopup(${task.id})">Add Comment</button>                
-            </td>
-        `;
-        row.addEventListener("click", (e) => {
-            if (!e.target.classList.contains('view-btn') && !e.target.classList.contains('confirmation') && !e.target.classList.contains('add-comment-btn')) {
-                viewDetails(task.id);
-            }
-        });
-        tasksTableBody.appendChild(row);
-    });
-}
-
-function viewDetails(taskID) {
-    //alert('Viewing details for task with ID: ${taskID}');
-}
-
-function openPopup(popupId) {
-    document.getElementById(popupId).classList.add('open-popup');
-    document.getElementById('overlay').style.visibility = 'visible';
-    document.getElementById('overlay').style.opacity = '1';
-}
-
-function closePopup(popupId) {
-    document.getElementById(popupId).classList.remove('open-popup');
-    document.getElementById('overlay').style.visibility = 'hidden';
-    document.getElementById('overlay').style.opacity = '0';
-}
-
-function openViewPopup(taskID) {
-    currentTaskID = taskID;
-    const task = tasks.find(u => u.id === taskID);
-    if (task) {
-        document.getElementById("viewDeliveryID").textContent = task.deliveryID;
-        document.getElementById("viewDate").textContent = task.date;
-        document.getElementById("viewAddress").textContent = task.address;
-        document.getElementById("viewPhoneNumber").textContent = task.phoneNumber;
-    }
-    openPopup('viewPopup');
-}
-
-function confirmView() {
-    closePopup('viewPopup');
-}
-
-function getConfirmationLabel(confirmation) {
-    switch (confirmation) {
-        case "confirmed": return "Confirmed";
-        case "not-confirmed": return "Not Confirmed";
-        default: return "";
-    }
-}
-
-function openConfirmationPopup(taskID) {
-    currentTaskID = taskID;
-    openPopup('confirmationPopup');
-}
-
-function updateConfirmationChange() {
-    const newConfirmation = document.getElementById("confirmationSelect").value;
-    const task = tasks.find(u => u.id === currentTaskID);
-    if (task) {
-        task.confirmation = newConfirmation;
-        renderTable();
-    }
-    closePopup('confirmationPopup');
-}
+document.addEventListener("click", function (event) {
+  const sidebar = document.getElementById("sidebar");
+  const menuToggle = document.querySelector(".menu-toggle");
+  if (
+    window.innerWidth <= 768 &&
+    sidebar.classList.contains("active") &&
+    !sidebar.contains(event.target) &&
+    event.target !== menuToggle
+  ) {
+    sidebar.classList.remove("active");
+  }
+});
 
 function autoResize(textarea) {
-    textarea.style.height = 'auto';
-    textarea.style.height = '${textarea.scrollHeight}px';
-}
-
-function openAddCommentPopup(taskID) {
-    currentTaskID = taskID;
-    const task = tasks.find(u => u.id === taskID);
-    if (task) {
-        document.getElementById("addCommentText").value = task.comment;
-    }
-    openPopup('addCommentPopup');
-}
-
-function confirmAddComment() {
-    const task = tasks.find(u => u.id === currentTaskID);
-    if (task) {
-        task.comment = document.getElementById("addCommentText").value;
-        renderTable();
-    }
-    closePopup('addCommentPopup');
+  textarea.style.height = "auto";
+  textarea.style.height = "${textarea.scrollHeight}px";
+  // textarea.style.height = `${textarea.scrollHeight}px`;
 }
 
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('active');
+  document.getElementById("sidebar").classList.toggle("active");
 }
 
-document.addEventListener('click', function(event) {
-    if (event.target.classList.contains('overlay')) {
-        closePopup('confirmationPopup');
-        closePopup('viewPopup');
-        closePopup('addCommentPopup');
-    }
-});
+// Updated updateStatus function to change the color immediately
+function updateStatus(taskId, status) {
+  // Update the dropdown's class immediately for visual feedback
+  const dropdown = document.querySelector('.status-dropdown');
+  if (dropdown) {
+      // Remove all status classes
+      dropdown.classList.remove('incomplete', 'in_progress', 'completed');
+      // Add the new status class
+      dropdown.classList.add(status);
+  }
+  
+  // Then call the existing function to update the server
+  updateTaskStatus(taskId, status);
+}
 
-document.addEventListener('click', function(event) {
-    const sidebar = document.getElementById('sidebar');
-    const menuToggle = document.querySelector('.menu-toggle');
-    if (window.innerWidth <= 768 && sidebar.classList.contains('active') && 
-        !sidebar.contains(event.target) && event.target !== menuToggle) {
-        sidebar.classList.remove('active');
-    }
-});
+function updateTaskStatus(taskId, status) {
+  fetch(`${URLROOT}/deliveryPerson/tasks`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `id=${taskId}&status=${status}`,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        const statusButton = document.querySelector(
+          `button.status-button[onclick*="${taskId}"]`
+        );
+        if (statusButton) {
+          const formattedStatus = status
+            .split("_")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+          statusButton.textContent = formattedStatus;
 
-document.addEventListener('DOMContentLoaded', function() {
-    const overlay = document.getElementById('overlay');
-    
-    overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) {
-            closePopup('taskFormPopup');
+          statusButton.classList.remove(
+            "incomplete",
+            "in_progress",
+            "completed"
+          );
+
+          statusButton.classList.add(status.toLowerCase());
+
+          statusButton.setAttribute(
+            "onclick",
+            `openStatusPopup(${taskId}, '${status}')`
+          );
         }
+      } else {
+        alert("Failed to update status");
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("An error occurred while updating status");
     });
-});
+}
 
-renderTable();
+function addComment(taskId) {
+  const comment = document.getElementById("newComment").value.trim();
+  if (!comment) return;
+
+  // Send the request as x-www-form-urlencoded with taskId and comment
+  fetch(`${URLROOT}/deliveryPerson/details/${taskId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `id=${taskId}&comment=${encodeURIComponent(comment)}`, // Correct body format
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        location.reload(); // Reload to reflect the added comment
+      } else {
+        alert(data.message || "Failed to add comment");
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+}
+
+function deleteComment(taskId) {
+  if (!confirm("Are you sure you want to delete this comment?")) return;
+
+  // Send the request as x-www-form-urlencoded for deleting the comment
+  fetch(`${URLROOT}/deliveryPerson/details/${taskId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `action=delete_comment`, // Pass only the action for deletion
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        location.reload(); // Reload to reflect the deletion
+      } else {
+        alert("Failed to delete comment");
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+}
+

@@ -12,15 +12,22 @@
 
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
         <div class="sidebar" id="sidebar">
-            <img
-                src="<?php echo URLROOT ?>/assets/profile.png"
-                alt="manager profile-picture"
-                class="profile-picture" />
+            <div class="company-logo">
+                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
+            </div>
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
+                <div class="user-info">
+                    <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
+                    <p>Delivery Person</p>
+                </div>
+            </div>
             <a href="<?php echo URLROOT ?>/deliveryPerson/dashboard" class="active">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/deliveryPerson/orders" class="active">
+            <a href="<?php echo URLROOT ?>/deliveryPerson/orders">
                 <span class="material-icons-sharp">local_shipping</span>
                 <h3>Orders</h3>
             </a>

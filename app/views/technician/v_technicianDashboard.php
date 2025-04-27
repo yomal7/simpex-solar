@@ -2,7 +2,7 @@
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-<!-- <link rel="stylesheet" href="</?php echo URLROOT; ?>/css/technician/dashboard.css"> -->
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/technician/dashboard.css">
 
 </head>
 
@@ -11,10 +11,17 @@
 
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
         <div class="sidebar" id="sidebar">
-            <img
-                src="<?php echo URLROOT ?>/assets/profile.png"
-                alt="manager profile-picture"
-                class="profile-picture" />
+            <div class="company-logo">
+                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
+            </div>
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
+                <div class="user-info">
+                    <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
+                    <p>Technician</p>
+                </div>
+            </div>
             <a href="<?php echo URLROOT ?>/technician/dashboard" class="active">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>

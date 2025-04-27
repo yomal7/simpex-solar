@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/hRAdministrator/editEmployees.css">
 </head>
 
-<body>
+<body data-user-role="hRAdministrator" data-user-id="<?php echo $_SESSION['user_id']; ?>" data-urlroot="<?php echo URLROOT; ?>">
     <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
@@ -12,10 +12,17 @@
         <!-- ************ -->
 
         <div class="sidebar" id="sidebar">
-            <img
-                src="<?php echo URLROOT; ?>/public/assets/profile.png"
-                alt="manager profile-picture"
-                class="profile-picture" />
+            <div class="company-logo">
+                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
+            </div>
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
+                <div class="user-info">
+                    <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
+                    <p>HR Administrator</p>
+                </div>
+            </div>
             <a href="<?php echo URLROOT ?>/hRAdministrator/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
@@ -36,7 +43,7 @@
                 <span class="material-icons-sharp">money</span>
                 <h3>Payroll</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/hRAdministrator/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
@@ -96,20 +103,6 @@
                             <textarea name="address" id="address" placeholder="Address" rows="3"><?php echo isset($data['address']) ? $data['address'] : ''; ?></textarea>
                             <span class="form-invalid"><?php echo isset($data['address_err']) ? $data['address_err'] : ''; ?></span>
                         </div>
-                        <!-- Password fields in a container for inline display -->
-                        <div class="password-fields-container">
-                            <div class="form-field">
-                                <label for="password">Password</label>
-                                <input type="password" name="password" id="password" placeholder="Password" value="">
-                                <span class="form-invalid"><?php echo isset($data['password_err']) ? $data['password_err'] : ''; ?></span>
-                                <p class="help-text">Leave blank to keep current password</p>
-                            </div>
-                            <div class="form-field">
-                                <label for="confirm_password">Confirm Password</label>
-                                <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" value="">
-                                <span class="form-invalid"><?php echo isset($data['confirm_password_err']) ? $data['confirm_password_err'] : ''; ?></span>
-                            </div>
-                        </div>
                     </div>
                     <div class="form-actions">
                         <input type="submit" value="Update Employee Profile" class="btn btn-primary">
@@ -137,3 +130,4 @@
     </script>
 
     <?php require APPROOT . '/views/operationsCoordinator/footer.php'; ?>
+

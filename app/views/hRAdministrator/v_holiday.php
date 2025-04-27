@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/hRAdministrator/holiday.css">
 </head>
 
-<body>
+<body data-user-role="hRAdministrator" data-user-id="<?php echo $_SESSION['user_id']; ?>" data-urlroot="<?php echo URLROOT; ?>">
     <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
@@ -12,11 +12,17 @@
         <!-- ************ -->
 
         <div class="sidebar" id="sidebar">
-            <img
-
-                src="<?php echo URLROOT; ?>/public/assets/profile.png"
-                alt="manager profile-picture"
-                class="profile-picture" />
+            <div class="company-logo">
+                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
+            </div>
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
+                <div class="user-info">
+                    <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
+                    <p>HR Administrator</p>
+                </div>
+            </div>
             <a href="<?php echo URLROOT ?>/hRAdministrator/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
@@ -37,7 +43,7 @@
                 <span class="material-icons-sharp">money</span>
                 <h3>Payroll</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/hRAdministrator/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
@@ -55,12 +61,12 @@
                     </div>
                     <table>
                         <colgroup>
-                            <col style="width: 15%;"> <!-- employee_id -->
+                            <col style="width: 15%; text-align: left;"> <!-- employee_id -->
                             <col style="width: 15%;"> <!-- leave_type -->
-                            <col style="width: 20%;"> <!-- start_date -->
-                            <col style="width: 15%;"> <!-- number_of_days -->
-                            <col style="width: 20%;"> <!-- status -->
-                            <col style="width: 15%;"> <!-- details -->
+                            <col style="width: 20%; text-align: left;"> <!-- start_date -->
+                            <col style="width: 15%; text-align: left;"> <!-- number_of_days -->
+                            <col style="width: 20%; text-align: left;"> <!-- status -->
+                            <col style="width: 15%; text-align: left;"> <!-- details -->
                         </colgroup>
                         <thead>
                             <tr>
@@ -76,16 +82,16 @@
                             <?php if (!empty($data['holidayRecords'])): ?>
                                 <?php foreach ($data['holidayRecords'] as $record): ?>
                                     <tr>
-                                        <td class="center-align"><span>EMP<?php echo str_pad($record->employee_id, 6, '0', STR_PAD_LEFT); ?></span></td>
+                                        <td><span>EMP<?php echo str_pad($record->employee_id, 6, '0', STR_PAD_LEFT); ?></span></td>
                                         <td class="left-align"><?php echo $record->leave_type; ?></td>
-                                        <td class="center-align"><?php echo $record->start_date; ?></td>
+                                        <td><?php echo $record->start_date; ?></td>
                                         <td class="center-align"><?php echo $record->number_of_days; ?></td>
-                                        <td class="center-align">
+                                        <td>
                                             <span class="status-button <?php echo strtolower($record->status); ?>">
                                                 <?php echo str_replace('_', ' ', ucfirst($record->status)); ?>
                                             </span>
                                         </td>
-                                        <td class="center-align">
+                                        <td>
                                             <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/hRAdministrator/details/<?php echo $record->id; ?>'" title="View Details"><i class="fas fa-eye"></i></button>
                                         </td>
                                     </tr>

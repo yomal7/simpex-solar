@@ -2,7 +2,7 @@
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/engineer/dashboard.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/tasks.css">
 
 </head>
 
@@ -11,10 +11,17 @@
 
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
         <div class="sidebar" id="sidebar">
-            <img
-                src="<?php echo URLROOT ?>/assets/profile.png"
-                alt="manager profile-picture"
-                class="profile-picture" />
+            <div class="company-logo">
+                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
+            </div>
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
+                <div class="user-info">
+                    <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
+                    <p>Engineer</p>
+                </div>
+            </div>
             <a href="<?php echo URLROOT ?>/engineer/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
@@ -48,59 +55,81 @@
         <div class="main-content">
             <div class="container">
 
-                <div class="tasks-table-container">
-                    <div class="tasks-table-header">
+                <div class="projectTasks-table-container">
+                    <div class="projectTasks-table-header">
                         <h2>Tasks</h2>
                     </div>
                     <table>
+                        <colgroup>
+                            <col style="width: 12%; text-align: center;"> <!-- Task ID -->
+                            <col style="width: 12%; text-align: center;"> <!-- Project ID -->
+                            <col style="width: 33%;"> <!-- Task -->
+                            <col style="width: 20%; text-align: center;"> <!-- Due Date -->
+                            <col style="width: 15%; text-align: center;"> <!-- Completion -->
+                            <col style="width: 8%; text-align: center;"> <!-- Comment -->
+                        </colgroup>
                         <thead>
                             <tr>
-                                <th>Delivery ID</th>
-                                <th>Date</th>
+                                <th>Task ID</th>
+                                <th>Project ID</th>
+                                <th>Task</th>
+                                <th>Due Date</th>
+                                <th>Completion</th>
                                 <th>Details</th>
-                                <th>Confirmation</th>
-                                <th>Comment</th>
                             </tr>
                         </thead>
-                        <tbody id="tasksTableBody"></tbody>
+                        <tbody id="projectTasksTableBody">
+                            <?php if (!empty($data['projectTasks'])): ?>
+                                <?php foreach ($data['projectTasks'] as $task): ?>
+                                    <tr>
+                                        <td>TSK<?php echo str_pad($task->id, 6, '0', STR_PAD_LEFT); ?></td>
+                                        <td>PRJ<?php echo str_pad($task->project_id, 6, '0', STR_PAD_LEFT); ?></td>
+                                        <td><?php echo strlen($task->title) > 50 ? substr($task->title, 0, 50) . '...' : $task->title; ?></td>
+                                        <td><?php echo $task->end_date; ?></td>
+                                        <td>
+                                            <span class="status-button <?php echo strtolower($task->status); ?>">
+                                                <?php echo str_replace('_', ' ', ucfirst($task->status)); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/engineer/details/<?php echo $task->id; ?>?page=<?php echo isset($data['currentPage']) ? $data['currentPage'] : 1; ?>'"  title="View Details"><i class="fas fa-eye"></i></button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="8">No tasks found.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
                     </table>
+
+                    <?php if ($data['totalTasks'] > 1): ?>
+                        <div class="pagination">
+                            <?php if ($data['currentPage'] > 1): ?>
+                                <a href="?page=<?php echo $data['currentPage'] - 1 ?>" class="page-link">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            <?php endif; ?>
+
+                            <button class="page-info">
+                                <?php echo $data['currentPage'] ?>
+                            </button>
+
+                            <?php if ($data['currentPage'] < $data['totalPages']): ?>
+                                <a href="?page=<?php echo $data['currentPage'] + 1 ?>" class="page-link">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+
                 </div>
 
             </div>
         </div>
     </div>
-
-    <div class="overlay" id="overlay"></div>
-
-    <div class="popup" id="confirmationPopup">
-        <img src="<?php echo URLROOT ?>/assets/tick.png" alt="Success">
-        <h2>Change Confirmation</h2>
-        <p>Select the new confirmation status:</p>
-        <select id="confirmationSelect">
-            <option value="confirmed">Confirmed</option>
-            <option value="not-confirmed">Not Confirmed</option>
-        </select>
-        <button type="button" onclick="updateConfirmationChange()">Update</button>
-    </div>
-
-    <div class="popup" id="addCommentPopup">
-        <img src="<?php echo URLROOT ?>/assets/addComment.png" alt="addComment">
-        <h2>Comment</h2>
-        <textarea id="addCommentText" name="comment" rows="1" oninput="autoResize(this)"></textarea>
-        <button type="button" onclick="confirmAddComment()">Add</button>
-    </div>
-
-    <div class="popup" id="viewPopup">
-        <img src="<?php echo URLROOT ?>/assets/view.png" alt="view">
-        <h2>Details</h2>
-        <p>Delivery ID: <span id="viewDeliveryID"></span></p>
-        <p>Date: <span id="viewDate"></span></p>
-        <p>Address: <span id="viewAddress"></span></p>
-        <p>Phone Number: <span id="viewPhoneNumber"></span></p>
-        <button type="button" onclick="confirmView()">Done</button>
-    </div>
-
-
+    
     <script src="<?php echo URLROOT; ?>/js/engineer/tasks.js"></script>
 
 <?php require APPROOT.'/views/engineer/footer.php';?>

@@ -3,7 +3,8 @@
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/hRAdministrator/attendance.css">
 </head>
 
-<body>
+<body data-user-role="hRAdministrator" data-user-id="<?php echo $_SESSION['user_id']; ?>" data-urlroot="<?php echo URLROOT; ?>">
+
     <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
@@ -12,10 +13,17 @@
         <!-- ************ -->
 
         <div class="sidebar" id="sidebar">
-            <img
-                src="<?php echo URLROOT; ?>/public/assets/profile.png"
-                alt="manager profile-picture"
-                class="profile-picture" />
+            <div class="company-logo">
+                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
+            </div>
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
+                <div class="user-info">
+                    <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
+                    <p>HR Administrator</p>
+                </div>
+            </div>
             <a href="<?php echo URLROOT ?>/hRAdministrator/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
@@ -36,7 +44,7 @@
                 <span class="material-icons-sharp">money</span>
                 <h3>Payroll</h3>
             </a>
-            <a href="#">
+            <a href="<?php echo URLROOT ?>/hRAdministrator/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
@@ -50,7 +58,7 @@
             <!-- <a href="<?php echo URLROOT; ?>/operationsCoordinator/addTask"><button class="new-employee-btn" data-toggle="modal" data-target="#myModal">Select Date</button></a> -->
 
             <div class="date-selector-container">
-                <form method="POST" action="<?php echo URLROOT; ?>/clerk/viewAttendance" class="date-form">
+                <form method="POST" action="<?php echo URLROOT; ?>/hRAdministrator/attendance" class="date-form">
                     <label for="attendance_date">Select Date:</label>
                     <input type="date" id="attendance_date" name="attendance_date" value="<?php echo $data['date']; ?>">
                     <button type="submit" class="view-date-btn">View Attendance</button>

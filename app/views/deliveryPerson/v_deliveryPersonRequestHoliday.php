@@ -2,7 +2,7 @@
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-<!-- <link rel="stylesheet" href="<//?php echo URLROOT; ?>/css/deliveryPerson/requestHoliday.css"> -->
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/requestHoliday.css">
 
 </head>
 
@@ -12,15 +12,22 @@
 
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
         <div class="sidebar" id="sidebar">
-            <img
-                src="<?php echo URLROOT ?>/assets/profile.png"
-                alt="manager profile-picture"
-                class="profile-picture" />
+            <div class="company-logo">
+                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
+            </div>
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
+                <div class="user-info">
+                    <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
+                    <p>Delivery Person</p>
+                </div>
+            </div>
             <a href="<?php echo URLROOT ?>/deliveryPerson/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/deliveryPerson/orders" class="active">
+            <a href="<?php echo URLROOT ?>/deliveryPerson/orders">
                 <span class="material-icons-sharp">local_shipping</span>
                 <h3>Orders</h3>
             </a>
@@ -87,8 +94,9 @@
                             <col style="width: 12%;"> <!-- start_date -->
                             <col style="width: 12%;"> <!-- end_date -->
                             <col style="width: 10%;"> <!-- number_of_days -->
-                            <col style="width: 40%;"> <!-- reason -->
-                            <col style="width: 14%;"> <!-- status -->
+                            <col style="width: 35%;"> <!-- reason -->
+                            <col style="width: 14%; text-align: center"> <!-- status -->
+                            <col style="width: 5%; text-align: center"> <!-- details button -->
                         </colgroup>
                         <thead>
                             <tr>
@@ -98,6 +106,7 @@
                                 <th>Number of Days</th>
                                 <th>Reason</th>
                                 <th>Status</th>
+                                <th>Details</th>
                             </tr>
                         </thead>
                         <tbody id="holidayRecordsTableBody">
@@ -110,6 +119,9 @@
                                         <td class="number-of-days"><?php echo $record->number_of_days; ?></td>
                                         <td class="reason"><?php echo $record->reason; ?></td>
                                         <td><span class="<?php echo strtolower($record->status); ?>"><?php echo ucfirst($record->status); ?></span></td>
+                                        <td>
+                                                <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/deliveryPerson/holidayDetails/<?php echo $record->id; ?>'" title="View Details"><i class="fas fa-eye"></i></button>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>

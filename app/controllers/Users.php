@@ -474,6 +474,7 @@ class Users extends Controller {
         $_SESSION['user_email'] = $user->email;
         $_SESSION['user_name'] = $user->name;
         $_SESSION['role'] = $user->role;
+        $_SESSION['user_picture'] = $user->profile_picture;
 
         error_log("Session created with: " . print_r($_SESSION, true));
     }
@@ -564,6 +565,7 @@ class Users extends Controller {
         unset($_SESSION['user_email']);
         unset($_SESSION['user_name']);
         unset($_SESSION['role']);
+        unset($_SESSION['user_picture']);
         session_destroy();
         redirect('users/index');
     }

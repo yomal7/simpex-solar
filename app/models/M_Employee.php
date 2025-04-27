@@ -113,7 +113,7 @@ class M_Employee
             WHEN status = "pending" THEN 0 
             ELSE 1 
         END,
-        start_date ASC 
+        start_date DESC 
         LIMIT :limit OFFSET :offset');
 
         // $this->db->bind(':employee_id', $employee_id);

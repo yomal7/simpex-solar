@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/client/operationsDashboard.css">
 </head>
 
-<body>
+<body data-user-id="<?php echo $_SESSION['user_id']; ?>" data-user-role="customer" data-urlroot="<?php echo URLROOT; ?>">
     <?php require APPROOT.'/views/inc/components/topnavbar.php'; ?>
     <!-- Sidebar -->
     <div class="sidebar">
@@ -25,7 +25,12 @@
             <li  ><a href="<?php echo URLROOT; ?>/client/dashboard"><i class='bx bxs-dashboard'></i>Dashboard</a></li>
             <li class="active" ><a href="<?php echo URLROOT; ?>/client/operationDashboard"><i class='bx bx-analyse'></i>Quotations and Projects</a></li>
             <li ><a href="<?php echo URLROOT; ?>/client/shop"><i class='bx bx-store-alt'></i>Shop</a></li>
-            <li><a href="#"><i class='bx bx-message-square-dots'></i>Chat</a></li>
+            <li>
+                <a href="<?php echo URLROOT; ?>/client/chat">
+                    <i class='bx bx-message-square-dots'></i>Chat
+                    <span class="notification-dot" style="display: <?php echo (isset($_SESSION['total_unread_count']) && $_SESSION['total_unread_count'] > 0) ? 'block' : 'none'; ?>;"></span>
+                </a>
+            </li>
             <!-- <li><a href="#"><i class='bx bx-group'></i>Users</a></li> -->
             <li ><a href="<?php echo URLROOT; ?>/client/settings"><i class='bx bx-cog'></i>Settings</a></li>
         </ul>

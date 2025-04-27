@@ -1,6 +1,6 @@
 <nav class="nav-bar navbar">
         <div class="wrapper">
-          <div class="logo"><img src="<?php echo URLROOT; ?>/public/assets/simpex-logo.png" alt="SimpEx Logo" class="simpex-logo"></div>
+          <div class="logo"><a href="<?php echo URLROOT; ?>"><img src="<?php echo URLROOT; ?>/public/assets/simpex-logo.png" alt="SimpEx Logo" class="simpex-logo"></a></div>
           <input type="radio" name="slider" id="menu-btn">
           <input type="radio" name="slider" id="close-btn">
           <ul class="nav-links">
@@ -70,11 +70,15 @@
                 <?php if ($isLoggedIn): ?>
                     <div class="profile-section" id="profile-section">
                         <!-- <img src="<php echo $profilePicture; ?>" > -->
-                        <img src="<?php echo !empty($data['customer']->profile_picture) ? URLROOT . '/public/uploads/profile_pictures/' . $data['customer']->profile_picture : URLROOT . '/public/assets/profile.png'; ?>" alt="Profile" class="profile-pic" id="profile-pic"">
+                        <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="Profile" class="profile-pic" id="profile-pic">
 
                         <div class="profile-dropdown">
                             <ul>
-                                <li><a href="<?php echo URLROOT; ?>/client/dashboard">Profile</a></li>
+                                <?php if ($_SESSION['role'] === 'customer'): ?>
+                                    <li><a href="<?php echo URLROOT; ?>/client/dashboard">Profile</a></li>
+                                <?php else: ?>
+                                    <li><a href="<?php echo URLROOT . '/' . $_SESSION['role']; ?>/">Profile</a></li>
+                                <?php endif; ?>
                                 <li><a href="<?php echo URLROOT; ?>/users/logout" id="logout-btn">Logout</a></li>
                             </ul>
                         </div>
