@@ -336,7 +336,7 @@
     color: #664d03; 
 }
 
-.task-status.incomplete { 
+.task-status.not_started { 
     background: #fef2f2;
     color: #dc2626; 
 }

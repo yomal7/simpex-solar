@@ -93,11 +93,15 @@
                         </div>
                         <div class="form-group">
                             <label for="project_id">Project</label>
-                            <input type="text" name="project_id" id="project_id" placeholder="Project" value="<?php $data['project_id']; ?>">
-<!-- <select id="project_id" name="project_id" required>
-                                <option value="">Select Project...</option>
-                                options will be populated dynamically
-                            </select> -->
+                                <select name="project_id" id="project_id" class="form-control <?php echo (!empty($data['project_id_err'])) ? 'is-invalid' : ''; ?>">
+                                    <option value="">Select Project</option>
+                                    <?php foreach ($data['projects'] as $project) : ?>
+                                        <option value="<?php echo $project->project_id; ?>"
+                                            <?php echo (isset($data['project_id']) && $data['project_id'] == $project->project_id) ? 'selected' : ''; ?>>
+                                            <?php echo $project->project_id . ' - ' . ucfirst($project->nearest_city); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             <span class="form-invalid"><?php echo isset($data['project_id_err']) ? $data['project_id_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
@@ -107,7 +111,7 @@
                                 <?php foreach ($data['employees'] as $employee) : ?>
                                     <option value="<?php echo $employee->employee_id; ?>"
                                         <?php echo (isset($data['employee_id']) && $data['employee_id'] == $employee->employee_id) ? 'selected' : ''; ?>>
-                                        <?php echo $employee->employee_id . ' - ' . $employee->name . ' - ' . $employee->role; ?>
+                                        <?php echo $employee->employee_id . ' - ' . $employee->name . ' - ' . ucwords(preg_replace('/([a-z])([A-Z])/', '$1 $2', $employee->role)); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>

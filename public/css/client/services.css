@@ -1,0 +1,266 @@
+/* Services CSS */
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #2E7D32;
+    --light-green: #e8f5e9;
+    --text-color: #333333;
+    --light-gray: #f5f5f5;
+    --medium-gray: #e0e0e0;
+    --dark-gray: #757575;
+    --white: #ffffff;
+    --danger: #f44336;
+    --warning: #ff9800;
+    --success: #4CAF50;
+    --info: #2196F3;
+}
+
+/* Layout */
+.service-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+@media (min-width: 992px) {
+    .service-container {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.card {
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+
+.card-header {
+    padding: 20px 25px;
+    background-color: var(--white);
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.card-header h2 {
+    margin: 0;
+    color: var(--secondary-color);
+    font-size: 1.5rem;
+}
+
+.card-body {
+    padding: 25px;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--medium-gray);
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.form-control.is-invalid {
+    border-color: var(--danger);
+}
+
+.invalid-feedback {
+    color: var(--danger);
+    font-size: 0.875rem;
+    margin-top: 5px;
+    display: block;
+}
+
+.form-actions {
+    margin-top: 25px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 5px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+}
+
+/* Character Counter */
+.char-count {
+    text-align: right;
+    font-size: 0.875rem;
+    color: var(--dark-gray);
+    margin-top: 5px;
+}
+
+.text-danger {
+    color: var(--danger);
+}
+
+/* Warranty Info */
+.warranty-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.info-row {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 576px) {
+    .info-row {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+.info-label {
+    font-weight: 600;
+    min-width: 180px;
+    margin-bottom: 5px;
+}
+
+@media (min-width: 576px) {
+    .info-label {
+        margin-bottom: 0;
+    }
+}
+
+.info-value {
+    color: var(--dark-gray);
+}
+
+.info-value.highlight {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.info-value.highlight-date {
+    color: var(--info);
+    font-weight: 600;
+}
+
+.warranty-note {
+    display: flex;
+    align-items: flex-start;
+    background-color: var(--light-green);
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.warranty-note i {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.warranty-note p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.status-badge.active {
+    background-color: var(--light-green);
+    color: var(--secondary-color);
+}
+
+.status-badge.completed {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-badge.cancelled {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+/* Guidelines Section */
+.guidelines-content {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.guideline-item {
+    display: flex;
+    align-items: flex-start;
+}
+
+.guideline-icon {
+    flex-shrink: 0;
+    margin-right: 15px;
+}
+
+.guideline-icon i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.guideline-text h4 {
+    margin: 0 0 8px 0;
+    color: var(--text-color);
+}
+
+.guideline-text p {
+    margin: 0;
+    color: var(--dark-gray);
+    line-height: 1.5;
+}
+
+/* Back Button */
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary-color);
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.back-button:hover {
+    background-color: var(--light-green);
+}
+
+.back-button i {
+    font-size: 1.2rem;
+}

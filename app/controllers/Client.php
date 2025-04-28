@@ -9,6 +9,7 @@ class Client extends Controller
     private $customerProjectModel;
     private $chatModel;
     private $employeeModel;
+    private $servicesModel;
 
     public function __construct()
     {
@@ -24,6 +25,7 @@ class Client extends Controller
         $this->shopModel = $this->model('M_Shop');
         $this->chatModel = $this->model('M_Chat');
         $this->employeeModel = $this->model('M_Employee');
+        $this->servicesModel = $this->model('M_Services');
 
         // Set total unread count for notification badge
         if (!isset($_GET['getUnreadStatus'])) { // Skip for AJAX requests
@@ -588,6 +590,13 @@ class Client extends Controller
 
         if (!$project) {
             flash('document_message', 'Project not found', 'alert alert-danger');
+            redirect('client/operationDashboard');
+            return;
+        }
+
+        // IMPORTANT SECURITY CHECK: Verify that this project belongs to the current user
+        if ($project->customer_id != $_SESSION['user_id']) {
+            flash('document_message', 'Unauthorized access: You do not have permission to view these documents', 'alert alert-danger');
             redirect('client/operationDashboard');
             return;
         }
@@ -2163,33 +2172,275 @@ class Client extends Controller
         echo json_encode(['hasUnread' => ($count > 0)]);
     }
 
-    public function services()
-    {
-        $userId = $_SESSION['user_id'];
 
-        // Get customer info
-        $customer = $this->clientModel->getClientByUserId($userId);
+    public function services($preProjectId = null)
+{
+    // check project within warranty period
+    if ($preProjectId === null) {
+        flash('service_message', 'Invalid project ID', 'alert alert-danger');
+        redirect('client/project');
+    }
 
-        // Get active quotations
-        $activeQuotations = $this->clientSidePreProjectModel->getActiveQuotationsByCustomerId($userId);
+    $projectDetails = $this->servicesModel->getProjectDetailsByPreProjectID($preProjectId);
 
-        // Get ongoing projects
-        $ongoingProjects = $this->clientModel->getOngoingProjects($userId);
+    if (!$projectDetails) {
+        flash('service_message', 'Project not found', 'alert alert-danger');
+        redirect('client/operationDashboard');
+        return;
+    }
 
-        // For debugging, uncomment this line to check what data is being returned
-        // echo '<pre>'; print_r($ongoingProjects); echo '</pre>'; die();
+    // IMPORTANT SECURITY CHECK: Verify that this project belongs to the current user
+    if ($projectDetails->customer_id != $_SESSION['user_id']) {
+        flash('service_message', 'Unauthorized access', 'alert alert-danger');
+        redirect('client/operationDashboard');
+        return;
+    }
 
-        // Get project statistics
-        $stats = $this->clientModel->getProjectStats($userId);
+    $completed_date = $projectDetails->completed_date;
+    $warrantyPeriod = $this->servicesModel->getWarrantyYears($preProjectId);
 
+    // Convert warranty years to days (or modify according to specific calculation)
+    $warranty_end_date = date('Y-m-d', strtotime("+$warrantyPeriod years", strtotime($completed_date)));
+    $current_date = date('Y-m-d');
+
+    // Check if the warranty period is over
+    if ($warrantyPeriod === null || $current_date > $warranty_end_date) {
+        flash('service_message', 'Warranty period is over. You cannot request service.', 'alert alert-danger');
+        redirect('client/project');
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
         $data = [
-            'customer' => $customer,
-            'quotations' => $activeQuotations,
-            'ongoingProjects' => $ongoingProjects,
-            'stats' => $stats,
-            'notification_count' => 0 // You can update this with actual notification count
+            'project_id' => $projectDetails->project_id,  // Add project ID
+            'issue_type' => trim($_POST['issue_type']),
+            'description' => trim($_POST['description']),
+            'issue_type_err' => '',
+            'description_err' => '',
+            'pre_project_id' => $preProjectId,           // Pass pre_project
+            'projectDetails' => $projectDetails,         // Pass project details
+            'warrantyPeriod' => $warrantyPeriod,         // Pass warranty period
+            'warranty_end_date' => $warranty_end_date,   // Pass warranty end date
+            'completed_date' => $completed_date          // Pass completed date
+        ];
+
+        // Validation
+        if (empty($data['issue_type'])) {
+            $data['issue_type_err'] = 'Please select issue type';
+        }
+        if (empty($data['description'])) {
+            $data['description_err'] = 'Please enter description';
+        }
+        
+        // Make sure no errors
+        if (empty($data['issue_type_err']) && empty($data['description_err'])) {  // Fixed logic error here
+            
+            // Validated
+            $serviceData = [
+                'project_id' => $projectDetails->project_id,
+                'pre_project_id' => $preProjectId,
+                'customer_id' => $_SESSION['user_id'],
+                'issue_type' => $data['issue_type'],
+                'description' => $data['description']
+            ];
+            
+            if ($this->servicesModel->createServiceRequest($serviceData)) {
+                flash('service_msg', 'Service request submitted successfully');
+                redirect('client/services/' . $preProjectId);
+            } else {
+                die('Something went wrong');
+            }
+        } else {
+            // Load view with errors
+            $this->view('client/v_clientServices', $data);
+        }
+    } else {
+        // For GET requests
+        $data = [
+            'pre_project_id' => $preProjectId,
+            'issue_type' => '',
+            'description' => '',
+            'issue_type_err' => '',
+            'description_err' => '',
+            'projectDetails' => $projectDetails,        // Pass project details
+            'warrantyPeriod' => $warrantyPeriod,        // Pass warranty period
+            'warranty_end_date' => $warranty_end_date,  // Pass warranty end date
+            'completed_date' => $completed_date         // Pass completed date
         ];
 
         $this->view('client/v_clientServices', $data);
     }
+}
+
+
+
+//     $userId = $_SESSION['user_id'];
+    
+//     // Get projects within warranty
+//     $eligibleProjects = $this->servicesModel->getProjectsWithinWarranty($userId);
+    
+//     // Get service request history
+//     $serviceRequests = $this->servicesModel->getServiceRequests($userId);
+    
+//     // Default selected project (if provided in URL)
+//     $selectedProject = null;
+//     if ($preProjectId) {
+//         foreach ($eligibleProjects as $project) {
+//             if ($project->pre_project_id == $preProjectId) {
+//                 $selectedProject = $project;
+//                 break;
+//             }
+//         }
+//     }
+    
+//     $data = [
+//         'title' => 'Service Requests',
+//         'eligible_projects' => $eligibleProjects,
+//         'service_requests' => $serviceRequests,
+//         'selected_project' => $selectedProject,
+//         'issue_types' => [
+//             'electrical' => 'Electrical Issues',
+//             'mechanical' => 'Mechanical Issues',
+//             'performance' => 'Performance Issues',
+//             'other' => 'Other Issues'
+//         ]
+//     ];
+
+//     $this->view('client/v_clientServices', $data);
+// }
+
+/**
+ * Submit a new service request
+ * 
+ * @return void
+ */
+public function submitServiceRequest()
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        redirect('client/services');
+    }
+    
+    // Validate inputs
+    $projectId = $_POST['project_id'] ?? '';
+    $issueType = $_POST['issue_type'] ?? '';
+    $description = $_POST['description'] ?? '';
+    
+    $errors = [];
+    
+    if (empty($projectId)) {
+        $errors['project_id'] = 'Please select a project';
+    }
+    
+    if (empty($issueType)) {
+        $errors['issue_type'] = 'Please select an issue type';
+    }
+    
+    if (empty($description)) {
+        $errors['description'] = 'Please describe the issue';
+    } elseif (strlen($description) < 20) {
+        $errors['description'] = 'Description must be at least 20 characters';
+    }
+    
+    // Check if project is eligible (within warranty)
+    if (!empty($projectId) && !$this->servicesModel->isProjectInWarranty($projectId)) {
+        $errors['project_id'] = 'Selected project is not eligible for service (outside warranty)';
+    }
+    
+    // If there are errors, redirect back with error messages
+    if (!empty($errors)) {
+        // Convert errors to flash messages
+        foreach ($errors as $key => $value) {
+            flash('service_' . $key . '_error', $value, 'alert alert-danger');
+        }
+        
+        // Save form values in session
+        $_SESSION['service_form_data'] = [
+            'project_id' => $projectId,
+            'issue_type' => $issueType,
+            'description' => $description
+        ];
+        
+        redirect('client/services');
+        return;
+    }
+    
+    // No errors, create service request
+    $data = [
+        'project_id' => $projectId,
+        'customer_id' => $_SESSION['user_id'],
+        'issue_type' => $issueType,
+        'description' => $description
+    ];
+    
+    if ($this->servicesModel->createServiceRequest($data)) {
+        flash('service_message', 'Service request submitted successfully', 'alert alert-success');
+    } else {
+        flash('service_message', 'Failed to submit service request', 'alert alert-danger');
+    }
+    
+    redirect('client/services');
+}
+
+/**
+ * View details of a service request
+ * 
+ * @param int $serviceId The service request ID
+ * @return void
+ */
+public function viewServiceRequest($serviceId)
+{
+    $serviceRequest = $this->servicesModel->getServiceRequestById($serviceId);
+    
+    if (!$serviceRequest || $serviceRequest->customer_id != $_SESSION['user_id']) {
+        flash('service_message', 'Service request not found', 'alert alert-danger');
+        redirect('client/services');
+    }
+    
+    // Get project details
+    $projectDetails = $this->servicesModel->getProjectDetails($serviceRequest->project_id);
+    
+    $data = [
+        'title' => 'Service Request Details',
+        'service' => $serviceRequest,
+        'project' => $projectDetails
+    ];
+    
+    $this->view('client/v_clientServiceDetails', $data);
+}
+
+/**
+ * Cancel a service request
+ * 
+ * @param int $serviceId The service request ID
+ * @return void
+ */
+public function cancelServiceRequest($serviceId)
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        redirect('client/services');
+    }
+    
+    $serviceRequest = $this->servicesModel->getServiceRequestById($serviceId);
+    
+    if (!$serviceRequest || $serviceRequest->customer_id != $_SESSION['user_id']) {
+        flash('service_message', 'Service request not found', 'alert alert-danger');
+        redirect('client/services');
+    }
+    
+    // Only allow cancellation of pending requests
+    if ($serviceRequest->status !== 'pending') {
+        flash('service_message', 'Only pending service requests can be cancelled', 'alert alert-danger');
+        redirect('client/viewServiceRequest/' . $serviceId);
+    }
+    
+    if ($this->servicesModel->cancelServiceRequest($serviceId)) {
+        flash('service_message', 'Service request cancelled successfully', 'alert alert-success');
+    } else {
+        flash('service_message', 'Failed to cancel service request', 'alert alert-danger');
+    }
+    
+    redirect('client/services');
+}
+
+
 }

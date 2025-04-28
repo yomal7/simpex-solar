@@ -7,10 +7,6 @@
     <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
-        <!-- ************ -->
-        <!-- Sidebar -->
-        <!-- ************ -->
-
         <div class="sidebar" id="sidebar">
             <div class="company-logo">
                 <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
@@ -81,10 +77,10 @@
                             <?php foreach ($data['employees'] as $employee): ?>
                                 <tr>
                                     <td><?php echo $employee->employee_id; ?></td>
-                                    <td><?php echo $employee->name; ?></td>
+                                    <td><?php echo ucwords($employee->name); ?></td>
                                     <td><?php echo $employee->email; ?></td>
                                     <td><?php echo $employee->phone; ?></td>
-                                    <td><?php echo $employee->role; ?></td>
+                                    <td><?php echo ucwords(preg_replace('/([a-z])([A-Z])/', '$1 $2', $employee->role)); ?></td>
                                     <td><a href="<?php echo URLROOT; ?>/hRAdministrator/viewEmployee/<?php echo $employee->employee_id; ?>"><button class="view-btn" onclick="">View</button></a></td>
                                 </tr>
                             <?php endforeach; ?>
