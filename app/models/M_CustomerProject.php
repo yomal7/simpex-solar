@@ -995,4 +995,18 @@ class M_CustomerProject
                      ORDER BY u.name');
         return $this->db->resultSet();
     }
+
+    public function getPackageTypeByTitle($packageTitle)
+    {
+        $this->db->query('SELECT type FROM packages WHERE title = :title AND deleted_at IS NULL');
+        $this->db->bind(':title', $packageTitle);
+
+        $result = $this->db->single();
+
+        if ($result) {
+            return $result->type;
+        }
+
+        return null;
+    }
 }
