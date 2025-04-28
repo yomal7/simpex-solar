@@ -508,3 +508,16 @@ nav input{
       padding: 10px 40px;
   }
 }
+
+.first-row-links{
+  color: #00ED64; 
+}
+
+#first-row-links li a {
+  color: #00ED64; 
+}
+
+#first-row-links li a:hover {
+  color: #058f3e; 
+  background: transparent;
+}

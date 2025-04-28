@@ -209,43 +209,42 @@ class Client extends Controller
     public function downloadQuotation($quotationId)
     {
         error_log("Attempting to download quotation ID: " . $quotationId);
-        error_log("User ID: " . $_SESSION['user_id']);
-        
-        // Verify user has access to this quotation
-        $quotation = $this->clientSidePreProjectModel->getReviewedQuotationDetails($quotationId);
-        
-        if (!$quotation || $quotation->user_id !== $_SESSION['user_id']) {
-            flash('quotation_message', 'Quotation not found', 'error');
-            redirect('client/operationDashboard');
-            return;
-        }
         
         try {
+            // Verify user has access
+            $quotation = $this->clientSidePreProjectModel->getReviewedQuotationDetails($quotationId);
+            
+            // if (!$quotation || $quotation->user_id !== $_SESSION['user_id']) {
+            //     throw new Exception("Access denied");
+            // }
+            
             $equipment = $this->clientSidePreProjectModel->getReviewedQuotationEquipment($quotationId);
             
-            // Create PDF Generator instance
-            require_once APPROOT . '/libraries/PdfGenerator.php';
-            $pdfGenerator = new PdfGenerator();
+            // Clear all output buffers
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
             
-            // Set appropriate headers before any output
-            // Make sure there's no whitespace or output before these headers
-            ob_clean(); // Clean (erase) the output buffer
-            
+            // Set headers
             header('Content-Type: application/pdf');
             header('Content-Disposition: attachment; filename="Quotation_QT' . 
-                str_pad($quotationId, 5, '0', STR_PAD_LEFT) . '.pdf"');
-            header('Cache-Control: max-age=0');
+                   str_pad($quotationId, 5, '0', STR_PAD_LEFT) . '.pdf"');
+            header('Cache-Control: no-cache, no-store, must-revalidate');
+            header('Pragma: no-cache');
+            header('Expires: 0');
             
-            // Generate and output PDF
+            // Generate PDF
+            require_once APPROOT . '/libraries/PdfGenerator.php';
+            $pdfGenerator = new PdfGenerator();
             $pdf = $pdfGenerator->generateQuotationPDF($quotation, $equipment);
             
-            // Output PDF content
             echo $pdf;
-            exit(); // Important to prevent any additional output
+            exit;
+            
         } catch (Exception $e) {
             error_log("PDF Generation Error: " . $e->getMessage());
-            flash('quotation_message', 'Error generating PDF', 'error');
-            redirect('client/viewQuotation/' . $quotationId);
+            flash('quotation_message', 'Error generating PDF: ' . $e->getMessage(), 'error');
+            redirect('client/operationDashboard');
         }
     }
 

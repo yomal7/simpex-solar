@@ -8,17 +8,8 @@
             <li><a href="<?php echo URLROOT; ?>">Home</a></li>
             <li><a href="<?php echo URLROOT; ?>/pages/about">About</a></li>
             <li><a href="<?php echo URLROOT; ?>/packages">Packages</a></li>
-            <!-- <li>
-              <a href="#" class="desktop-item">Dropdown Menu</a>
-              <input type="checkbox" id="showDrop">
-              <label for="showDrop" class="mobile-item">Dropdown Menu</label>
-              <ul class="drop-menu">
-                <li><a href="#">Drop menu 1</a></li>
-                <li><a href="#">Drop menu 2</a></li>
-                <li><a href="#">Drop menu 3</a></li>
-                <li><a href="#">Drop menu 4</a></li>
-              </ul>
-            </li> -->
+            <li><a href="<?php echo URLROOT; ?>/store">Shop</a></li>
+ 
             <li>
               <a href="<?php echo URLROOT; ?>/blog" class="desktop-item">Blog</a>
               <input type="checkbox" id="showMega">
@@ -28,9 +19,9 @@
                   <div class="row">
                     <img src="<?php echo URLROOT; ?>/public/assets/solar_panels.jpg" alt="Default Image">
                   </div>
-                  <div class="row">
+                  <div class="row" id="first-row">
                     <header>Get to know</header>
-                    <ul class="mega-links">
+                    <ul class="mega-links" id="first-row-links">
                       <li><a href="<?php echo URLROOT; ?>/blog?category=package-selection">Package selection</a></li>
                       <li><a href="<?php echo URLROOT; ?>/blog?category=equipment">Equipment section</a></li>
                       <li><a href="<?php echo URLROOT; ?>/blog?category=energy-management">Energy managment</a></li>
@@ -38,17 +29,17 @@
                       
                     </ul>
                   </div>
-                  <div class="row">
+                  <div class="row" id="second-row">
                     <header>Project services</header>
-                    <ul class="mega-links">
+                    <ul class="mega-links" id="second-row-links">
                       <li><a href="<?php echo URLROOT; ?>/blog?category=agreements">Agreemnet and documentation</a></li>
                       <li><a href="#">Installation Process</a></li>
                       <li><a href="<?php echo URLROOT; ?>/blog?category=payment-financing">Payment and financing</a></li>
                     </ul>
                   </div>
-                  <div class="row">
+                  <div class="row" id="last-row">
                     <header>Other sections</header>
-                    <ul class="mega-links">
+                    <ul class="mega-links" id="last-row-links">
                       <li><a href="<?php echo URLROOT; ?>/blog?category=customer-support">Customer support</a></li>
                       <li><a href="<?php echo URLROOT; ?>/blog?category=industry-news">Industry news and innovations</a></li>
                       <li><a href="<?php echo URLROOT; ?>/blog?category=sustainability">Enviromental</a></li>

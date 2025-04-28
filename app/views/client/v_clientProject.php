@@ -144,15 +144,11 @@
                                             ?>" class="btn-view">
                                                 View Details
                                             </a>
-                                            <a href="<?php 
-                                                if (isset($data['quotation_id']) && !empty($data['quotation_id'])) {
-                                                    echo URLROOT . '/client/downloadQuotation/' . $data['quotation_id'];
-                                                } elseif (isset($data['progress']['pre_project']->quotation_id) && !empty($data['progress']['pre_project']->quotation_id)) {
-                                                    echo URLROOT . '/client/downloadQuotation/' . $data['progress']['pre_project']->quotation_id;
-                                                }
-                                            ?>" class="btn-download" target="_blank" onClick="event.preventDefault(); window.location.href=this.href;">
-                                                <i class='bx bx-download'></i> Download
-                                            </a>
+                                            
+                                            <?php if (isset($data['progress']['pre_project']->quotation_id) && !empty($data['progress']['pre_project']->quotation_id)): ?>
+                                                <a href="<?php echo URLROOT; ?>/client/downloadQuotation/<?php echo $data['progress']['pre_project']->quotation_id; ?>" 
+                                                class="btn btn-outline">Download PDF</a>
+                                            <?php endif; ?>
                                         </div>
                                     <?php elseif ($phase === 'site_visit'): ?>
                                         <a href="<?php echo URLROOT . '/client/siteVisit/' . $data['pre_project_id']; ?>" class="btn-view">
@@ -163,12 +159,10 @@
                                             <a href="<?php echo URLROOT . '/client/agreement/' . $data['pre_project_id']; ?>" class="btn-view">
                                                 View Details
                                             </a>
-                                            <?php 
                                             // Check if agreement exists and is completed
-                                            if (isset($data['agreement_id']) && !empty($data['agreement_id'])) : ?>
-                                                <a href="<?php echo URLROOT . '/client/downloadAgreement/' . $data['agreement_id']; ?>" class="btn-download">
-                                                    <i class='bx bx-download'></i> Download
-                                                </a>
+                                            <?php if (isset($data['progress']['pre_project']->quotation_id) && !empty($data['progress']['pre_project']->quotation_id)): ?>
+                                                <a href="<?php echo URLROOT; ?>/client/downloadQuotation/<?php echo $data['progress']['pre_project']->quotation_id; ?>" 
+                                                   class="btn btn-outline">Download PDF</a>
                                             <?php endif; ?>
                                         </div>
                                     <?php else: ?>
@@ -263,5 +257,8 @@
                 </div>
             </div>
         </main>
+        <script>
+
+        </script>
         <script src="<?php echo URLROOT; ?>/js/client/project.js"></script>
         <?php require APPROOT . '/views/client/footer.php'; ?>
