@@ -220,4 +220,23 @@ class M_Tasks
         $this->db->bind(':id', $taskId);
         return $this->db->execute();
     }
+
+    public function getTaskByStatus($status) {
+        $this->db->query('SELECT * FROM tasks WHERE status = :status');
+        $this->db->bind(':status', $status);
+        return $this->db->resultSet();
+    }
+
+    public function getTaskCountByStatusForEmployee($status, $employeeId) {
+        $this->db->query('SELECT COUNT(*) as count FROM tasks WHERE status = :status AND employee_id = :employee_id');
+        $this->db->bind(':employee_id', $employeeId);
+        $this->db->bind(':status', $status);
+        return $this->db->single()->count;
+    }
+
+    public function getTaskStatus($taskId) {
+        $this->db->query('SELECT status FROM tasks WHERE id = :id');
+        $this->db->bind(':id', $taskId);
+        return $this->db->single()->status;
+    }
 }

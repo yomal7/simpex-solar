@@ -193,7 +193,7 @@ class SupplierCoordinator extends Controller
         $this->view('supplierCoordinator/v_suppliers', $data);
     }
 
-
+    
     public function getSupplierDetails()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {

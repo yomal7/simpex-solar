@@ -148,3 +148,16 @@
     gap: 0.5rem;
   }
 }
+
+.modal {
+  opacity: 1 !important; /* Override any opacity:0 */
+  z-index: 2000 !important; /* Make sure it's on top */
+  background-color: rgba(0, 0, 0, 0.5) !important; /* Ensure overlay is visible */
+}
+
+.modal-content {
+  z-index: 2001 !important; /* Make sure content is above overlay */
+  background-color: white !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+  padding: 20px !important;
+}

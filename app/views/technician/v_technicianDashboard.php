@@ -3,6 +3,7 @@
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/technician/dashboard.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/engineer/dashboard.css">
 
 </head>
 
@@ -47,20 +48,54 @@
         <div class="main-content">
             <div class="container">
 
+            <h2>My Tasks Overview</h2>
+            <div class="dashboard-cards">
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-status-button <?php echo strtolower($data['not_started']); ?>">
+                            <?php echo str_replace('_', ' ', ucfirst($data['not_started'])); ?>
+                        </div>
+                        <span class="material-icons-sharp">new_releases</span>
+                    </div>
+                    <h1><?php echo $data['notStartedCount']; ?></h1>
+                </div>
+                
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-status-button <?php echo strtolower($data['in_progress']); ?>">
+                            <?php echo str_replace('_', ' ', ucfirst($data['in_progress'])); ?>
+                        </div>
+                        <span class="material-icons-sharp">sync</span>
+                    </div>
+                    <h1><?php echo $data['inProgressCount']; ?></h1>
+                </div>
+                
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-status-button <?php echo strtolower($data['completed']); ?>">
+                            <?php echo str_replace('_', ' ', ucfirst($data['completed'])); ?>
+                        </div>
+                        <span class="material-icons-sharp">check_circle</span>
+                    </div>
+                    <h1><?php echo $data['completedCount']; ?></h1>
+                </div>
+
+            </div>
+
                 <section class="dashboard-cards">
                     <?php if (isset($data['tasks']) && is_array($data['tasks'])): ?>
                         <?php foreach ($data['tasks'] as $task): ?>
                             <div class="card" onclick="window.location='<?php echo URLROOT; ?>/technician/details/<?php echo $task->id; ?>';">
                                 <div class="card-header">
                                     <i class="fas fa-tasks"></i>
-                                    <h2 class="card-title">TSK<?php echo str_pad($task->id, 6, '0', STR_PAD_LEFT); ?></h2>
+                                    <h2 class="card-title">Project ID:<?php echo $task->id; ?></h2>
 
                                     <div class="card-status-button <?php echo strtolower($task->status); ?>">
                                         <?php echo str_replace('_', ' ', ucfirst($task->status)); ?>
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <h2>PRJ<?php echo str_pad($task->project_id, 6, '0', STR_PAD_LEFT); ?></h2>
+                                    <h2>Task ID:<?php echo $task->project_id; ?></h2>
 
                                     <h4><?php echo strlen($task->title) > 60 ? substr($task->title, 0, 60) . '...' : $task->title; ?></h4>
 

@@ -110,5 +110,5 @@
             </div>
         </div>
         <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/edit_suppliers.js"></script>
-        <script src="<?php echo URLROOT; ?>/js/supplier.js"></script>
+        
         <?php require APPROOT . '/views/supplierCoordinator/footer.php'; ?>

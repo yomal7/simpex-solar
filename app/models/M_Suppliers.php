@@ -10,7 +10,7 @@ class M_Suppliers
 
     public function getSuppliers()
     {
-        $this->db->query('SELECT * FROM suppliers ORDER BY created_at DESC');
+        $this->db->query('SELECT * FROM suppliers WHERE deleted_at IS NULL ORDER BY created_at DESC');
         return $this->db->resultSet();
     }
 
@@ -59,7 +59,7 @@ class M_Suppliers
 
     public function deleteSupplier($id)
     {
-        $this->db->query('DELETE FROM suppliers WHERE id = :id');
+        $this->db->query('UPDATE suppliers SET deleted_at = NOW() WHERE id = :id');
         $this->db->bind(':id', $id);
         return $this->db->execute();
     }
