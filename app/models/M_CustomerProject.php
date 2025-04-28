@@ -978,7 +978,8 @@ class M_CustomerProject
     {
         // Update project phase directly without transactions
         $this->db->query('UPDATE projects 
-                SET current_phase = "grid_connection", 
+                SET current_phase = "completed",
+                    status = "completed", 
                     updated_at = CURRENT_TIMESTAMP 
                 WHERE project_id = :project_id');
         $this->db->bind(':project_id', $projectId);
