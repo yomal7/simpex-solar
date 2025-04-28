@@ -208,36 +208,40 @@ class Client extends Controller
 
     public function downloadQuotation($quotationId)
     {
-
         error_log("Attempting to download quotation ID: " . $quotationId);
         error_log("User ID: " . $_SESSION['user_id']);
+        
         // Verify user has access to this quotation
         $quotation = $this->clientSidePreProjectModel->getReviewedQuotationDetails($quotationId);
-
+        
         if (!$quotation || $quotation->user_id !== $_SESSION['user_id']) {
             flash('quotation_message', 'Quotation not found', 'error');
             redirect('client/operationDashboard');
             return;
         }
-
+        
         try {
             $equipment = $this->clientSidePreProjectModel->getReviewedQuotationEquipment($quotationId);
-
+            
             // Create PDF Generator instance
             require_once APPROOT . '/libraries/PdfGenerator.php';
             $pdfGenerator = new PdfGenerator();
-
+            
+            // Set appropriate headers before any output
+            // Make sure there's no whitespace or output before these headers
+            ob_clean(); // Clean (erase) the output buffer
+            
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="Quotation_QT' . 
+                str_pad($quotationId, 5, '0', STR_PAD_LEFT) . '.pdf"');
+            header('Cache-Control: max-age=0');
+            
             // Generate and output PDF
             $pdf = $pdfGenerator->generateQuotationPDF($quotation, $equipment);
-
-            // Output headers
-            header('Content-Type: application/pdf');
-            header('Content-Disposition: attachment; filename="Quotation_QT' .
-                str_pad($quotationId, 5, '0', STR_PAD_LEFT) . '.pdf"');
-
+            
             // Output PDF content
             echo $pdf;
-            exit();
+            exit(); // Important to prevent any additional output
         } catch (Exception $e) {
             error_log("PDF Generation Error: " . $e->getMessage());
             flash('quotation_message', 'Error generating PDF', 'error');
@@ -484,6 +488,49 @@ class Client extends Controller
 
         header('Content-Type: application/json');
         echo json_encode($response);
+    }
+
+    public function downloadAgreement($agreementId)
+    {
+        // Verify user has access to this agreement
+        $agreement = $this->clientSidePreProjectModel->getAgreementById($agreementId);
+        
+        if (!$agreement || $agreement->customer_id !== $_SESSION['user_id']) {
+            flash('agreement_message', 'Agreement not found or access denied', 'error');
+            redirect('client/project');
+            return;
+        }
+        
+        if ($agreement->status !== 'completed') {
+            flash('agreement_message', 'Agreement must be completed to download', 'error');
+            redirect('client/agreement/' . $agreement->pre_project_id);
+            return;
+        }
+        
+        try {
+            // Get equipment for the agreement
+            $equipment = $this->clientSidePreProjectModel->getAgreementEquipment($agreementId);
+            
+            // Generate PDF
+            require_once APPROOT . '/libraries/AgreementPDFGenerator.php';
+            $pdfGenerator = new PDFGenerator();
+            
+            // Generate and output PDF
+            $pdf = $pdfGenerator->generateAgreementPDF($agreement, $equipment);
+            
+            // Output headers
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="Agreement_AG' . 
+                   str_pad($agreementId, 5, '0', STR_PAD_LEFT) . '.pdf"');
+            
+            // Output PDF content
+            echo $pdf;
+            exit();
+        } catch (Exception $e) {
+            error_log("PDF Generation Error: " . $e->getMessage());
+            flash('agreement_message', 'Error generating PDF', 'error');
+            redirect('client/agreement/' . $agreement->pre_project_id);
+        }
     }
 
     public function cancelProject()

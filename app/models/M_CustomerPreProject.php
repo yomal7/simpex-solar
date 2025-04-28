@@ -787,54 +787,7 @@ class M_CustomerPreProject {
         return true;
     }
 
-    // public function getAgreementById($agreementId) {
-    //     $this->db->query('SELECT pa.*, cs.signature_image as coordinator_signature,
-    //                     pre.customer_name, pre.phone
-    //                     FROM project_agreements pa
-    //                     LEFT JOIN coordinator_signatures cs ON pa.coordinator_signature_id = cs.signature_id
-    //                     LEFT JOIN pre_projects pre ON pa.pre_project_id = pre.pre_project_id
-    //                     WHERE pa.agreement_id = :agreement_id');
-        
-    //     $this->db->bind(':agreement_id', $agreementId);
-    //     return $this->db->single();
-    // }
 
-    // public function getAgreementById($agreementId) {
-    //     error_log("Getting agreement by ID: " . $agreementId);
-        
-    //     // First, get the agreement data
-    //     $query = 'SELECT pa.*, cs.signature_image as coordinator_signature
-    //              FROM project_agreements pa
-    //              LEFT JOIN coordinator_signatures cs ON pa.coordinator_signature_id = cs.signature_id
-    //              WHERE pa.agreement_id = :agreement_id';
-                 
-    //     error_log("Executing query: " . $query);
-        
-    //     $this->db->query($query);
-    //     $this->db->bind(':agreement_id', $agreementId);
-        
-    //     $agreement = $this->db->single();
-        
-    //     if ($agreement) {
-    //         // If agreement exists, get the customer details from pre_projects
-    //         $this->db->query('SELECT pp.*, u.name as customer_name, u.phone 
-    //                          FROM pre_projects pp
-    //                          JOIN users u ON pp.customer_id = u.user_id
-    //                          WHERE pp.pre_project_id = :pre_project_id');
-    //         $this->db->bind(':pre_project_id', $agreement->pre_project_id);
-            
-    //         $projectData = $this->db->single();
-            
-    //         if ($projectData) {
-    //             // Merge project data with agreement data
-    //             $agreement->customer_name = $projectData->customer_name;
-    //             $agreement->phone = $projectData->phone;
-    //         }
-    //     }
-        
-    //     error_log("Final agreement data: " . print_r($agreement, true));
-    //     return $agreement;
-    // }
 
     public function getAgreementById($agreementId) {
         // Get basic agreement data

@@ -21,22 +21,28 @@ class PdfGenerator
     }
 
 
-
-    public function generateQuotationPDF($quotation, $equipment)
-    {
+    public function generateQuotationPDF($quotation, $equipment) {
         $logoPath = URLROOT . '/public/assets/simpex-logo.png';
         
-        // First, correct the numeric values
-        // For equipment items
+        // Ensure the equipment and total price values are correct
+        $subtotal = 0;
         foreach ($equipment as $item) {
-            // Check if unit_price needs correction (e.g., if 100 should be 100000)
-            if ($item->unit_price < 1000 && $item->total_price >= 1000 * $item->quantity) {
-                $item->unit_price *= 1000; // Multiply by 1000 to correct the value
-            }
+            // Make sure the unit_price and total_price are correct
+            // Sometimes values in the database might be stored differently than display needs
+            $item->unit_price = floatval($item->unit_price);
             
-            // Recalculate total_price based on corrected unit_price
+            // Recalculate the total price for this item to be sure it's correct
             $item->total_price = $item->unit_price * $item->quantity;
+            
+            // Add to subtotal
+            $subtotal += $item->total_price;
         }
+        
+        // Ensure service charge is a proper float
+        $serviceCharge = floatval($quotation->service_charge);
+        
+        // Calculate the final total
+        $totalPrice = $subtotal + $serviceCharge;
         
         $html = '
             <html>
@@ -194,7 +200,6 @@ class PdfGenerator
                         <th style="text-align: right">Total</th>
                     </tr>';
 
-        $subtotal = 0;
         foreach ($equipment as $item) {
             $html .= '
                     <tr>
@@ -203,22 +208,15 @@ class PdfGenerator
                         <td style="text-align: right">Rs. ' . number_format($item->unit_price, 2) . '</td>
                         <td style="text-align: right">Rs. ' . number_format($item->total_price, 2) . '</td>
                     </tr>';
-            $subtotal += $item->total_price;
         }
-
-        // Recalculate the total price based on corrected values
-        $total = $subtotal + $quotation->service_charge;
-        
-        // Update the quotation's total price
-        $quotation->total_price = $total;
 
         $html .= '
                 </table>
         
                 <div class="total-section">
                     <div class="total-row">Subtotal: Rs. ' . number_format($subtotal, 2) . '</div>
-                    <div class="total-row">Service Charge: Rs. ' . number_format($quotation->service_charge, 2) . '</div>
-                    <div class="final-total">Total: Rs. ' . number_format($quotation->total_price, 2) . '</div>
+                    <div class="total-row">Service Charge: Rs. ' . number_format($serviceCharge, 2) . '</div>
+                    <div class="final-total">Total: Rs. ' . number_format($totalPrice, 2) . '</div>
                 </div>
         
                 <div class="terms-section">
@@ -243,6 +241,343 @@ class PdfGenerator
         $this->dompdf->render();
         return $this->dompdf->output();
     }
+    
+
+
+    public function generateAgreementPDF($agreement, $equipment) {
+        $logoPath = URLROOT . '/public/assets/simpex-logo.png';
+        
+        $html = '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Solar System Installation Agreement</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 40px;
+                    color: #333;
+                    line-height: 1.6;
+                }
+                
+                .header {
+                    margin-bottom: 30px;
+                    border-bottom: 2px solid #2e7d32;
+                    padding-bottom: 20px;
+                }
+                
+                .company-info {
+                    float: left;
+                    width: 50%;
+                }
+                
+                .company-info h1 {
+                    color: #2e7d32;
+                    font-size: 24px;
+                    margin: 0 0 10px 0;
+                }
+                
+                .agreement-info {
+                    float: right;
+                    width: 40%;
+                    text-align: right;
+                }
+                
+                .agreement-number {
+                    color: #2e7d32;
+                    font-size: 18px;
+                    margin: 0 0 10px 0;
+                }
+                
+                .clearfix::after {
+                    content: "";
+                    clear: both;
+                    display: table;
+                }
+                
+                .title {
+                    text-align: center;
+                    color: #2e7d32;
+                    font-size: 22px;
+                    margin: 30px 0;
+                    text-transform: uppercase;
+                }
+                
+                .section {
+                    margin-bottom: 30px;
+                }
+                
+                .section-title {
+                    color: #2e7d32;
+                    border-bottom: 1px solid #2e7d32;
+                    padding-bottom: 5px;
+                    margin-bottom: 15px;
+                }
+                
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 20px 0;
+                }
+                
+                th {
+                    background-color: #2e7d32;
+                    color: white;
+                    text-align: left;
+                    padding: 10px;
+                }
+                
+                td {
+                    padding: 10px;
+                    border-bottom: 1px solid #ddd;
+                }
+                
+                tr:nth-child(even) {
+                    background-color: #f8f8f8;
+                }
+                
+                .price-summary {
+                    width: 60%;
+                    float: right;
+                    margin-top: 20px;
+                }
+                
+                .price-row {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 8px 0;
+                    border-bottom: 1px solid #eee;
+                }
+                
+                .price-row.total {
+                    font-weight: bold;
+                    border-top: 2px solid #2e7d32;
+                    border-bottom: 2px solid #2e7d32;
+                    margin-top: 10px;
+                    color: #2e7d32;
+                }
+                
+                .terms {
+                    margin-top: 40px;
+                    font-size: 12px;
+                }
+                
+                .signature-block {
+                    margin-top: 50px;
+                    page-break-inside: avoid;
+                }
+                
+                .signature {
+                    display: inline-block;
+                    width: 45%;
+                    margin-right: 5%;
+                    vertical-align: top;
+                }
+                
+                .signature-line {
+                    border-top: 1px solid #333;
+                    margin-top: 50px;
+                    padding-top: 10px;
+                }
+                
+                .signature img {
+                    max-width: 200px;
+                    max-height: 80px;
+                    margin-bottom: 10px;
+                }
+                
+                .date {
+                    font-style: italic;
+                    color: #666;
+                }
+                
+                .footer {
+                    margin-top: 50px;
+                    text-align: center;
+                    font-size: 10px;
+                    color: #666;
+                    border-top: 1px solid #eee;
+                    padding-top: 10px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header clearfix">
+                <div class="company-info">
+                    <h1>SimplEx Solar Solutions</h1>
+                    <p>123 Energy Street<br>
+                    Green City, GC 12345<br>
+                    Tel: (555) 123-4567<br>
+                    Email: info@simplex.com</p>
+                </div>
+                <div class="agreement-info">
+                    <h2 class="agreement-number">Agreement #AG' . str_pad($agreement->agreement_id, 5, '0', STR_PAD_LEFT) . '</h2>
+                    <p>Date: ' . date('F d, Y', strtotime($agreement->created_at)) . '<br>
+                    Status: ' . ucfirst($agreement->status) . '</p>
+                </div>
+            </div>
+            
+            <div class="title">Solar System Installation Agreement</div>
+            
+            <div class="section">
+                <h3 class="section-title">Client Information</h3>
+                <p>
+                    <strong>Client Name:</strong> ' . $agreement->customer_name . '<br>
+                    <strong>Phone:</strong> ' . $agreement->phone . '<br>
+                </p>
+            </div>
+            
+            <div class="section">
+                <h3 class="section-title">System Specifications</h3>
+                <p>
+                    <strong>System Capacity:</strong> ' . $agreement->system_capacity . ' kW<br>
+                    <strong>Estimated Annual Generation:</strong> ' . $agreement->estimated_generation . ' kWh/year<br>
+                </p>
+            </div>
+            
+            <div class="section">
+                <h3 class="section-title">Equipment List</h3>
+                <table>
+                    <tr>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>';
+        
+        $subtotal = 0;
+        foreach($equipment as $item) {
+            $subtotal += $item->total_price;
+            $html .= '
+                    <tr>
+                        <td>' . $item->item_name . '</td>
+                        <td>' . $item->quantity . '</td>
+                        <td>Rs. ' . number_format($item->unit_price, 2) . '</td>
+                        <td>Rs. ' . number_format($item->total_price, 2) . '</td>
+                    </tr>';
+        }
+        
+        $html .= '
+                </table>
+                
+                <div class="price-summary">
+                    <div class="price-row">
+                        <span>Subtotal:</span>
+                        <span>Rs. ' . number_format($subtotal, 2) . '</span>
+                    </div>
+                    <div class="price-row">
+                        <span>Service Charge:</span>
+                        <span>Rs. ' . number_format($agreement->service_charge, 2) . '</span>
+                    </div>
+                    <div class="price-row total">
+                        <span>Total Price:</span>
+                        <span>Rs. ' . number_format($agreement->total_price, 2) . '</span>
+                    </div>
+                </div>
+                <div style="clear: both;"></div>
+            </div>
+            
+            <div class="section">
+                <h3 class="section-title">Notes</h3>
+                <p>' . nl2br(htmlspecialchars($agreement->notes)) . '</p>
+            </div>
+            
+            <div class="section">
+                <h3 class="section-title">Payment Terms</h3>
+                <p>The total price of this agreement is payable in two installments:</p>
+                <ol>
+                    <li><strong>First Payment (50%):</strong> Rs. ' . number_format($agreement->total_price * 0.5, 2) . ' - Due upon signing this agreement</li>
+                    <li><strong>Final Payment (50%):</strong> Rs. ' . number_format($agreement->total_price * 0.5, 2) . ' - Due upon completion of installation</li>
+                </ol>
+            </div>
+            
+            <div class="terms">
+                <h3 class="section-title">Terms and Conditions</h3>
+                <ol>
+                    <li><strong>Scope of Work:</strong> SimplEx Solar Solutions agrees to install the solar system as specified in this agreement at the client\'s property.</li>
+                    
+                    <li><strong>Payment Schedule:</strong> The client agrees to make payments according to the payment terms outlined in this agreement.</li>
+                    
+                    <li><strong>Cancellation Policy:</strong> After signing this agreement, the project cannot be cancelled. If the first payment has been made, it is non-refundable.</li>
+                    
+                    <li><strong>Installation Timeline:</strong> Installation will commence within 30 days of the first payment, subject to permit approvals and weather conditions.</li>
+                    
+                    <li><strong>Warranty:</strong> All equipment is covered by manufacturer warranties. SimplEx Solar Solutions provides a 2-year workmanship warranty on the installation.</li>
+                    
+                    <li><strong>Access to Property:</strong> The client agrees to provide SimplEx Solar Solutions with reasonable access to the property for installation and maintenance purposes.</li>
+                    
+                    <li><strong>Permits and Approvals:</strong> SimplEx Solar Solutions will obtain all necessary permits and approvals for the installation. The client agrees to provide any required documentation promptly.</li>
+                    
+                    <li><strong>System Performance:</strong> The estimated annual generation is based on historical weather data and system specifications. Actual generation may vary based on weather patterns and other factors.</li>
+                    
+                    <li><strong>Changes to Agreement:</strong> Any changes to this agreement must be made in writing and agreed upon by both parties.</li>
+                    
+                    <li><strong>Legal Jurisdiction:</strong> This agreement is governed by the laws of Sri Lanka. Any disputes arising from this agreement shall be resolved in the courts of Sri Lanka.</li>
+                </ol>
+            </div>
+            
+            <div class="signature-block">
+                <h3 class="section-title">Signatures</h3>
+                <p>By signing below, both parties acknowledge that they have read, understood, and agree to the terms and conditions of this agreement.</p>
+                
+                <div class="signature">
+                    <strong>SimplEx Solar Solutions:</strong>';
+        
+        if ($agreement->signature_image) {
+            $coordinatorSignaturePath = APPROOT . '/../public/uploads/signatures/' . $agreement->signature_image;
+            if (file_exists($coordinatorSignaturePath)) {
+                // Convert image to base64 for embedding in PDF
+                $type = pathinfo($coordinatorSignaturePath, PATHINFO_EXTENSION);
+                $data = file_get_contents($coordinatorSignaturePath);
+                $coordinatorSigBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                $html .= '<img src="' . $coordinatorSigBase64 . '" alt="Coordinator Signature">';
+            }
+        }
+        
+        $html .= '
+                    <div class="signature-line">
+                        <strong>Authorized Representative</strong><br>
+                        <span class="date">Date: ' . date('F d, Y', strtotime($agreement->created_at)) . '</span>
+                    </div>
+                </div>
+                
+                <div class="signature">
+                    <strong>Client:</strong>';
+        
+        if ($agreement->customer_signature) {
+            $customerSignaturePath = APPROOT . '/../public/uploads/signatures/customers/' . $agreement->customer_signature;
+            if (file_exists($customerSignaturePath)) {
+                // Convert image to base64 for embedding in PDF
+                $type = pathinfo($customerSignaturePath, PATHINFO_EXTENSION);
+                $data = file_get_contents($customerSignaturePath);
+                $customerSigBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+                $html .= '<img src="' . $customerSigBase64 . '" alt="Customer Signature">';
+            }
+        }
+        
+        $html .= '
+                    <div class="signature-line">
+                        <strong>' . $agreement->customer_name . '</strong><br>
+                        <span class="date">Date: ' . date('F d, Y', strtotime($agreement->updated_at)) . '</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>Agreement #AG' . str_pad($agreement->agreement_id, 5, '0', STR_PAD_LEFT) . ' | Page 1 of 1</p>
+                <p>&copy; ' . date('Y') . ' SimplEx Solar Solutions. All rights reserved.</p>
+            </div>
+        </body>
+        </html>';
+
+        $this->dompdf->loadHtml($html);
+        $this->dompdf->setPaper('A4', 'portrait');
+        $this->dompdf->render();
+        return $this->dompdf->output();
+    }
+
+    
 
     public function generateBankDepositSlip($data)
     {
