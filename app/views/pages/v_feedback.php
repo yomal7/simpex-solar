@@ -24,11 +24,6 @@
                 <span class="invalid-feedback"><?php echo isset($data['email_err']) ? $data['email_err'] : ''; ?></span>
             </div>
             
-            <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" value="<?php echo isset($data['phone']) ? $data['phone'] : ''; ?>">
-                <small>Optional - Format: 0771234567</small>
-            </div>
             
             <div class="form-group">
                 <label for="feedback_type">Feedback Type <span class="required">*</span></label>
@@ -45,6 +40,7 @@
             
             <div class="form-group">
                 <label for="subject">Subject <span class="required">*</span></label>
+                <!-- pattern="^07\d{8}$" -->
                 <input type="text" id="subject" name="subject" value="<?php echo isset($data['subject']) ? $data['subject'] : ''; ?>" required>
                 <span class="invalid-feedback"><?php echo isset($data['subject_err']) ? $data['subject_err'] : ''; ?></span>
             </div>
