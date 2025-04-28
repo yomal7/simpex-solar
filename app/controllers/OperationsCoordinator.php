@@ -1130,7 +1130,33 @@ class OperationsCoordinator extends Controller
     //     }
 
     //     $agreement = $this->projectModel->getAgreementById($project->agreement_id);
-
+    // function sortTableByPhone(direction) {
+    //     const tbody = table.querySelector('tbody');
+    //     const rowsArray = Array.from(tbody.querySelectorAll('tr'));
+        
+    //     rowsArray.sort((a, b) => {
+    //         // Adjust the index to match your phone number column position
+    //         const phoneColIndex = 3; 
+            
+    //         // Remove non-numeric characters for consistent sorting
+    //         const phoneA = a.cells[phoneColIndex].textContent.replace(/\D/g, '');
+    //         const phoneB = b.cells[phoneColIndex].textContent.replace(/\D/g, '');
+            
+    //         // Sort numerically
+    //         if (direction === 'asc') {
+    //             return phoneA - phoneB;
+    //         } else {
+    //             return phoneB - phoneA;
+    //         }
+    //     });
+        
+    //     // Clear and repopulate table body
+    //     while (tbody.firstChild) {
+    //         tbody.removeChild(tbody.firstChild);
+    //     }
+        
+    //     rowsArray.forEach(row => tbody.appendChild(row));
+    // }
     //     // Get customer details
     //     $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
     //     if ($customerDetails) {
