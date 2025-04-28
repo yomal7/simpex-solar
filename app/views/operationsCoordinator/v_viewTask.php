@@ -64,7 +64,7 @@
                     <div class="task-header">
                         <h1 class="task-title"><?php echo $data['task']->title; ?></h1>
                         <span class="task-status <?php echo strtolower($data['task']->status); ?>">
-                            <?php echo $data['task']->status; ?>
+                            <?php echo str_replace('_', ' ', ucfirst($data['task']->status)); ?>
                         </span>
                     </div>
 
@@ -115,7 +115,7 @@
                             </div>
                             <div class="employee-info">
                                 <h3 class="employee-name"><?php echo $data['task']->employee_name; ?></h3>
-                                <p class="employee-role"><?php echo $data['task']->employee_role; ?></p>
+                                <p class="employee-role"><?php echo ucwords(preg_replace('/([a-z])([A-Z])/', '$1 $2', $data['task']->employee_role)); ?></p>
                                 <div class="employee-contact">
                                     <i class="fas fa-id-card"></i>
                                     <span>Employee ID: <?php echo $data['task']->employee_id; ?></span>

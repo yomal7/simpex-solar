@@ -357,8 +357,6 @@ class HRAdministrator extends Controller
     // Delete an employee
     public function deleteEmployee($employeeId)
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Get existing employee from model
             $employee = $this->employeeModel->getEmployeeById($employeeId);
 
             if ($this->employeeModel->delete($employeeId)) {
@@ -367,9 +365,6 @@ class HRAdministrator extends Controller
             } else {
                 die('Something went wrong');
             }
-        } else {
-            redirect('hRAdministrator/employees');
-        }
     }
 
     // view attendance records by date

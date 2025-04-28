@@ -26,7 +26,7 @@ class M_Tasks
                       FROM tasks t 
                       LEFT JOIN employees e ON t.employee_id = e.employee_id
                       LEFT JOIN users u ON e.user_id = u.user_id
-                      ORDER BY t.id');
+                      ORDER BY t.start_date DESC');
         return $this->db->resultSet();
     }
 
@@ -55,16 +55,25 @@ class M_Tasks
     //     return $row;
     // }
 
+    public function getProjectIdsWithCity()
+    {
+        $this->db->query('SELECT p.project_id, cq.nearest_city  
+                          FROM projects p
+                          INNER JOIN customerquotation cq ON p.pre_project_id = cq.pre_project_id
+                          ORDER BY p.project_id DESC');
+        return $this->db->resultSet();
+    }
+
     public function create($data)
     {
-        $this->db->query('INSERT INTO tasks (title, description, start_date, end_date, project_id, employee_id, status) VALUES(:title, :description, :start_date, :end_date, :project_id, :employee_id, :status)');
+        $this->db->query('INSERT INTO tasks (title, description, start_date, end_date, project_id, employee_id, status) VALUES (:title, :description, :start_date, :end_date, :project_id, :employee_id, :status)');
         $this->db->bind(':title', $data['title']);
         $this->db->bind(':description', $data['description']);
         $this->db->bind(':start_date', $data['start_date']);
         $this->db->bind(':end_date', $data['end_date']);
         $this->db->bind(':project_id', $data['project_id']);
         $this->db->bind(':employee_id', $data['employee_id']);
-        $this->db->bind(':status', $data['status']);
+        $this->db->bind(':status', 'not_started');
 
         if ($this->db->execute()) {
             return true;
@@ -73,19 +82,6 @@ class M_Tasks
         }
     }
 
-    // public function edit($data)
-    // {
-    //     $this->db->query('UPDATE posts SET title = :title, body = :body WHERE id = :id');
-    //     $this->db->bind(':title', $data['title']);
-    //     $this->db->bind(':body', $data['body']);
-    //     $this->db->bind(':id', $data['post_id']);
-
-    //     if ($this->db->execute()) {
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-    // }
 
     public function edit($data)
     {

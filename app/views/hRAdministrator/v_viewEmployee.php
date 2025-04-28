@@ -75,7 +75,7 @@
                             <div class="employee-info">
                                 <h1 class="employee-name"><?php echo $data['employee']->name; ?></h1>
                                 <span class="employee-role">
-                                    <?php echo $data['employee']->role; ?>
+                                    <?php echo ucwords(preg_replace('/([a-z])([A-Z])/', '$1 $2', $data['employee']->role)); ?>
                                 </span>
                             </div>
                         </div>

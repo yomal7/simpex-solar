@@ -1884,6 +1884,7 @@ class OperationsCoordinator extends Controller
                 'project_id' => trim($_POST['project_id']),
                 'employee_id' => trim($_POST['employee_id']),
                 'employees' => $this->employeeModel->getAllEmployees(), // Add employees list
+                'projects' => $this->tasksModel->getProjectIdsWithCity(), // Add projects list
                 'title_err' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',
@@ -1922,9 +1923,6 @@ class OperationsCoordinator extends Controller
                 empty($data['end_date_err']) && empty($data['description_err']) && 
                 empty($data['project_id_err']) && empty($data['employee_id_err'])) {
                 
-                // Set default status as 'incomplete' for new tasks
-                $data['status'] = 'incomplete';
-                
                 // Validated
                 if ($this->tasksModel->create($data)) {
                     flash('task_msg', 'Task assigned successfully');
@@ -1945,6 +1943,7 @@ class OperationsCoordinator extends Controller
                 'project_id' => '',
                 'employee_id' => '',
                 'employees' => $this->employeeModel->getAllEmployees(), // Add employees list
+                'projects' => $this->tasksModel->getProjectIdsWithCity(),
                 'title_err' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',
@@ -1964,14 +1963,15 @@ class OperationsCoordinator extends Controller
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
             $data = [
                 'id' => $taskId,
-                'title' => trim($_POST['title']),
+                'title' => $this->tasksModel->getTaskById($taskId)->title,
                 'start_date' => trim($_POST['start_date']),
                 'end_date' => trim($_POST['end_date']),
                 'description' => trim($_POST['description']),
                 'project_id' => trim($_POST['project_id']),
-                'employee_id' => trim($_POST['employee_id']),
+                'employee_id' => $this->tasksModel->getTaskById($taskId)->employee_id,
                 'status' => trim($_POST['status']),
                 'employees' => $this->employeeModel->getAllEmployees(),
+                'projects' => $this->tasksModel->getProjectIdsWithCity(),
                 'title_err' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',
@@ -2036,6 +2036,7 @@ class OperationsCoordinator extends Controller
                 'employee_id' => $task->employee_id,
                 'status' => $task->status,
                 'employees' => $this->employeeModel->getAllEmployees(),
+                'projects' => $this->tasksModel->getProjectIdsWithCity(),
                 'title_err' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',
