@@ -232,6 +232,8 @@ class ChiefCoordinator extends Controller {
             'feedbacks' => $feedbacks,
             'stats' => $stats
         ];
+
+
         
         $this->view('chiefCoordinator/v_feedbacks', $data);
     }

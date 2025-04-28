@@ -487,8 +487,8 @@ class PdfGenerator
                 <h3 class="section-title">Payment Terms</h3>
                 <p>The total price of this agreement is payable in two installments:</p>
                 <ol>
-                    <li><strong>First Payment (50%):</strong> Rs. ' . number_format($agreement->total_price * 0.5, 2) . ' - Due upon signing this agreement</li>
-                    <li><strong>Final Payment (50%):</strong> Rs. ' . number_format($agreement->total_price * 0.5, 2) . ' - Due upon completion of installation</li>
+                    <li><strong>First Payment (25%):</strong> Rs. ' . number_format($agreement->total_price * 0.25, 2) . ' - Due upon signing this agreement</li>
+                    <li><strong>Final Payment (75%):</strong> Rs. ' . number_format($agreement->total_price * 0.75, 2) . ' - Due upon completion of installation</li>
                 </ol>
             </div>
             

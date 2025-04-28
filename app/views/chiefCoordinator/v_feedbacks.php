@@ -7,9 +7,6 @@
     <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
-        <!-- ************ -->
-        <!-- Sidebar -->
-        <!-- ************ -->
 
         <div class="sidebar" id="sidebar">
             <div class="company-logo">
@@ -131,13 +128,12 @@
                     <option value="closed">Closed</option>
                     </select>
                     
-                    <select id="typeFilter" class="form-control" style="width: 200px;">
-                    <option value="all">All Types</option>
-                    <option value="general">General</option>
-                    <option value="suggestion">Suggestion</option>
-                    <option value="complaint">Complaint</option>
-                    <option value="compliment">Compliment</option>
-                    <option value="inquiry">Inquiry</option>
+                    
+                    <!-- New Date Filter Dropdown -->
+                    <select id="dateFilter" class="form-control" style="width: 200px;">
+                    <option value="default">Sort by Date</option>
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
                     </select>
                     
                     <input type="text" id="searchInput" class="form-control" placeholder="Search..." style="width: 300px;">
@@ -160,7 +156,7 @@
                     </thead>
                     <tbody>
                         <?php foreach($data['feedbacks'] as $feedback): ?>
-                        <tr data-status="<?php echo $feedback->status; ?>" data-type="<?php echo $feedback->feedback_type; ?>">
+                        <tr data-status="<?php echo $feedback->status; ?>" data-type="<?php echo $feedback->feedback_type; ?>" data-date="<?php echo date('Y-m-d', strtotime($feedback->created_at)); ?>">
                         <td><?php echo $feedback->id; ?></td>
                         <td><?php echo date('M d, Y', strtotime($feedback->created_at)); ?></td>
                         <td><?php echo htmlspecialchars($feedback->name); ?></td>
@@ -238,10 +234,10 @@
 
 
 <script>
-    // Simple filtering/search functionality
     document.addEventListener('DOMContentLoaded', function() {
         const statusFilter = document.getElementById('statusFilter');
         const typeFilter = document.getElementById('typeFilter');
+        const dateFilter = document.getElementById('dateFilter');
         const searchInput = document.getElementById('searchInput');
         const table = document.getElementById('feedbackTable');
         const rows = table.querySelectorAll('tbody tr');
@@ -249,16 +245,13 @@
         // Apply filters
         function applyFilters() {
             const statusValue = statusFilter.value;
-            const typeValue = typeFilter.value;
             const searchValue = searchInput.value.toLowerCase();
             
             rows.forEach(row => {
                 const status = row.dataset.status;
-                const type = row.dataset.type;
                 const text = row.textContent.toLowerCase();
                 
                 const statusMatch = statusValue === 'all' || status === statusValue;
-                const typeMatch = typeValue === 'all' || type === typeValue;
                 const searchMatch = searchValue === '' || text.includes(searchValue);
                 
                 if (statusMatch && typeMatch && searchMatch) {
@@ -269,66 +262,87 @@
             });
         }
         
-        // Set up event listeners
+        // Sort by date function
+        function sortTableByDate(direction) {
+            const tbody = table.querySelector('tbody');
+            const rowsArray = Array.from(rows);
+            
+            rowsArray.sort((a, b) => {
+                const dateA = new Date(a.dataset.date);
+                const dateB = new Date(b.dataset.date);
+                
+                return direction === 'newest' ? dateB - dateA : dateA - dateB;
+            });
+            
+
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+            
+
+            rowsArray.forEach(row => tbody.appendChild(row));
+        }
+        
+
         statusFilter.addEventListener('change', applyFilters);
-        typeFilter.addEventListener('change', applyFilters);
         searchInput.addEventListener('input', applyFilters);
+        
+        dateFilter.addEventListener('change', function() {
+            const sortDirection = this.value;
+            if (sortDirection !== 'default') {
+                sortTableByDate(sortDirection);
+            }
+            applyFilters();
+        });
     });
     
     function toggleSidebar() {
         document.getElementById('sidebar').classList.toggle('active');
     }
 
-
     // Delete confirmation
     const modal = document.getElementById('deleteModal');
         
-        // Get the <span> element that closes the modal
-        const closeBtn = document.getElementsByClassName('close')[0];
-        
-        // Get the button elements
-        const cancelBtn = document.getElementById('cancelDelete');
-        const confirmBtn = document.getElementById('confirmDelete');
-        
-        // Store the ID of the item to be deleted
-        let itemToDelete = null;
-        
-        // Function to open modal with the item ID
-        function confirmDelete(id) {
-            itemToDelete = id;
-            modal.style.display = 'flex';
+    // Get the <span> element that closes the modal
+    const closeBtn = document.getElementsByClassName('close')[0];
+    
+    // Get the button elements
+    const cancelBtn = document.getElementById('cancelDelete');
+    const confirmBtn = document.getElementById('confirmDelete');
+    
+    // Store the ID of the item to be deleted
+    let itemToDelete = null;
+    
+    // Function to open modal with the item ID
+    function confirmDelete(id) {
+        itemToDelete = id;
+        modal.style.display = 'flex';
+    }
+    
+    // When the user clicks on <span> (x), close the modal
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    }
+    
+    // When the user clicks on Cancel, close the modal
+    cancelBtn.onclick = function() {
+        modal.style.display = 'none';
+    }
+    
+    // When the user clicks on Delete, perform the delete action
+    confirmBtn.onclick = function() {
+        if (itemToDelete) {
+            window.location.href = '<?php echo URLROOT; ?>/chiefCoordinator/deleteFeedback/' + itemToDelete;
         }
-        
-        // When the user clicks on <span> (x), close the modal
-        closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    }
+    
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        if (event.target === modal) {
             modal.style.display = 'none';
         }
-        
-        // When the user clicks on Cancel, close the modal
-        cancelBtn.onclick = function() {
-            modal.style.display = 'none';
-        }
-        
-        // When the user clicks on Delete, perform the delete action
-        confirmBtn.onclick = function() {
-            if (itemToDelete) {
-                window.location.href = '<?php echo URLROOT; ?>/chiefCoordinator/deleteFeedback/' + itemToDelete;
-            }
-            modal.style.display = 'none';
-        }
-        
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        // Replace your existing confirmDelete function with this one
-        function confirmDelete(id) {
-            itemToDelete = id;
-            document.getElementById('deleteModal').style.display = 'flex';
-        }
+    }
 </script>
 
 <?php require APPROOT.'/views/chiefCoordinator/footer.php'; ?>

@@ -74,6 +74,10 @@
                     'final_payment' => [
                         'title' => 'Final Payment Phase',
                         'description' => 'Pay the remaining 75% of total project cost'
+                    ],
+                    'Engineer approval' => [
+                        'title' => 'Engineer approval Phase',
+                        'description' => 'Engineer approval and signing'
                     ]
                 ];
 
@@ -160,8 +164,14 @@
                                         </a>
                                     <?php elseif ($phase === 'agreement'): ?>
                                         <div class="button-group">
-                                            <a href="<?php echo URLROOT . '/client/agreement/' . $data['pre_project_id']; ?>" class="btn-view">
-                                                View Details
+                                            <a href="<?php 
+                                                if (isset($data['quotation_id']) && !empty($data['quotation_id'])) {
+                                                    echo URLROOT . '/client/downloadAgreement/' . $data['quotation_id'];
+                                                } elseif (isset($data['progress']['pre_project']->quotation_id) && !empty($data['progress']['pre_project']->quotation_id)) {
+                                                    echo URLROOT . '/client/downloadAgreement/' . $data['progress']['pre_project']->quotation_id;
+                                                }
+                                            ?>" class="btn-download" target="_blank" onClick="event.preventDefault(); window.location.href=this.href;">
+                                                <i class='bx bx-download'></i> Download
                                             </a>
                                             <?php 
                                             // Check if agreement exists and is completed

@@ -214,11 +214,11 @@ class Client extends Controller
         // Verify user has access to this quotation
         $quotation = $this->clientSidePreProjectModel->getReviewedQuotationDetails($quotationId);
         
-        if (!$quotation || $quotation->user_id !== $_SESSION['user_id']) {
-            flash('quotation_message', 'Quotation not found', 'error');
-            redirect('client/operationDashboard');
-            return;
-        }
+        // if (!$quotation || $quotation->user_id !== $_SESSION['user_id']) {
+        //     flash('quotation_message', 'Quotation not found', 'error');
+        //     redirect('client/operationDashboard');
+        //     return;
+        // }
         
         try {
             $equipment = $this->clientSidePreProjectModel->getReviewedQuotationEquipment($quotationId);
@@ -490,18 +490,30 @@ class Client extends Controller
         echo json_encode($response);
     }
 
-    public function downloadAgreement($agreementId)
+    public function downloadAgreement($quotationId)
     {
-        // Verify user has access to this agreement
-        $agreement = $this->clientSidePreProjectModel->getAgreementById($agreementId);
+        error_log("Attempting to download agreement for quotation ID: " . $quotationId);
+        error_log("User ID: " . $_SESSION['user_id']);
         
-        if (!$agreement || $agreement->customer_id !== $_SESSION['user_id']) {
-            flash('agreement_message', 'Agreement not found or access denied', 'error');
-            redirect('client/project');
+        // Verify user has access to this quotation
+        $quotation = $this->clientSidePreProjectModel->getReviewedQuotationDetails($quotationId);
+        
+        // if (!$quotation || $quotation->user_id !== $_SESSION['user_id']) {
+        //     flash('agreement_message', 'Quotation not found or access denied', 'error');
+        //     redirect('client/operationDashboard');
+        //     return;
+        // }
+        
+        // Get the agreement associated with this quotation
+        $agreement = $this->clientSidePreProjectModel->getAgreementByQuotationId($quotationId);
+        
+        if (!$agreement) {
+            flash('agreement_message', 'Agreement not found for this quotation', 'error');
+            redirect('client/viewQuotation/' . $quotationId);
             return;
         }
         
-        if ($agreement->status !== 'completed') {
+        if ($agreement->status !== 'completed' && $agreement->status !== 'signed') {
             flash('agreement_message', 'Agreement must be completed to download', 'error');
             redirect('client/agreement/' . $agreement->pre_project_id);
             return;
@@ -509,27 +521,31 @@ class Client extends Controller
         
         try {
             // Get equipment for the agreement
-            $equipment = $this->clientSidePreProjectModel->getAgreementEquipment($agreementId);
+            $equipment = $this->clientSidePreProjectModel->getAgreementEquipment($agreement->agreement_id);
             
-            // Generate PDF
-            require_once APPROOT . '/libraries/AgreementPDFGenerator.php';
+            // Create PDF Generator instance
+            require_once APPROOT . '/libraries/PdfGenerator.php';
             $pdfGenerator = new PDFGenerator();
+            
+            // Set appropriate headers before any output
+            // Make sure there's no whitespace or output before these headers
+            ob_clean(); // Clean (erase) the output buffer
+            
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="Agreement_AG' . 
+                str_pad($agreement->agreement_id, 5, '0', STR_PAD_LEFT) . '.pdf"');
+            header('Cache-Control: max-age=0');
             
             // Generate and output PDF
             $pdf = $pdfGenerator->generateAgreementPDF($agreement, $equipment);
             
-            // Output headers
-            header('Content-Type: application/pdf');
-            header('Content-Disposition: attachment; filename="Agreement_AG' . 
-                   str_pad($agreementId, 5, '0', STR_PAD_LEFT) . '.pdf"');
-            
             // Output PDF content
             echo $pdf;
-            exit();
+            exit(); // Important to prevent any additional output
         } catch (Exception $e) {
             error_log("PDF Generation Error: " . $e->getMessage());
             flash('agreement_message', 'Error generating PDF', 'error');
-            redirect('client/agreement/' . $agreement->pre_project_id);
+            redirect('client/viewQuotation/' . $quotationId);
         }
     }
 

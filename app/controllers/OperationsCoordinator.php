@@ -1118,6 +1118,8 @@ class OperationsCoordinator extends Controller
     //     if (!$projectId) {
     //         flash('installation_message', 'Project ID is required', 'alert alert-danger');
     //         redirect('operationsCoordinator/projects');
+
+    //  pattern="^\d{9}[vVxX]$|^\d{12}$"
     //     }
 
     //     // Get project details
