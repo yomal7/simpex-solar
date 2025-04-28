@@ -470,6 +470,26 @@ class M_clientSidePreProject{
         }
     }
 
+    public function getAgreementById($agreementId) {
+        // Get basic agreement data with additional customer information
+        $query = 'SELECT pa.*, 
+                   cs.signature_image,
+                   u.name as customer_name,
+                   u.phone
+               FROM project_agreements pa
+               LEFT JOIN coordinator_signatures cs ON pa.coordinator_signature_id = cs.signature_id
+               LEFT JOIN pre_projects pp ON pa.pre_project_id = pp.pre_project_id
+               LEFT JOIN users u ON pp.customer_id = u.user_id
+               WHERE pa.agreement_id = :agreement_id';
+        
+        $this->db->query($query);
+        $this->db->bind(':agreement_id', $agreementId);
+        
+        $agreement = $this->db->single();
+        
+        return $agreement;
+    }
+
 
 
     public function cancelProject($preProjectId) {

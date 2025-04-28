@@ -307,17 +307,32 @@ class OperationsCoordinator extends Controller
     }
 
 
-    public function saveReviewedQuotation()
-    {
+    public function saveReviewedQuotation() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('operationsCoordinator/preProjects');
         }
-
+    
         $postData = json_decode(file_get_contents("php://input"), true);
-
+        
+        // Ensure numeric values are properly formatted
+        $postData['base_price'] = (float)$postData['base_price'];
+        $postData['service_charge'] = (float)$postData['service_charge'];
+        $postData['total_price'] = (float)$postData['total_price'];
+        $postData['system_capacity'] = (float)$postData['system_capacity'];
+        $postData['estimated_generation'] = (float)$postData['estimated_generation'];
+        
+        // Ensure each equipment item has proper numeric values
+        foreach ($postData['equipment'] as &$item) {
+            $item['inventory_id'] = (int)$item['inventory_id'];
+            $item['quantity'] = (int)$item['quantity'];
+            $item['unit_price'] = (float)$item['unit_price'];
+            $item['total_price'] = (float)$item['total_price'];
+            $item['is_from_package'] = (int)$item['is_from_package'];
+        }
+    
         if ($this->preProjectModel->createReviewedQuotation($postData)) {
             $response = ['success' => true, 'message' => 'Quotation saved successfully'];
-
+            
             // Update quotation status
             $this->preProjectModel->updateQuotationStatus(
                 $postData['quotation_id'],
@@ -326,7 +341,7 @@ class OperationsCoordinator extends Controller
         } else {
             $response = ['success' => false, 'message' => 'Error saving quotation'];
         }
-
+    
         header('Content-Type: application/json');
         echo json_encode($response);
     }
