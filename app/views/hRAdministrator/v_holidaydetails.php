@@ -47,7 +47,7 @@
 
                                                 <div class="info-group">
                                                     <label class="fut">Employee ID :</label>
-                                                    <span>EMP<?php echo str_pad($data['record']->employee_id, 4, '0', STR_PAD_LEFT); ?></span>
+                                                    <span><?php echo $data['record']->employee_id; ?></span>
                                                 </div>
 
                                                 <div class="info-group">

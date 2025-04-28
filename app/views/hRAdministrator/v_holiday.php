@@ -82,7 +82,7 @@
                             <?php if (!empty($data['holidayRecords'])): ?>
                                 <?php foreach ($data['holidayRecords'] as $record): ?>
                                     <tr>
-                                        <td><span>EMP<?php echo str_pad($record->employee_id, 6, '0', STR_PAD_LEFT); ?></span></td>
+                                        <td><span><?php echo $record->employee_id; ?></span></td>
                                         <td class="left-align"><?php echo $record->leave_type; ?></td>
                                         <td><?php echo $record->start_date; ?></td>
                                         <td class="center-align"><?php echo $record->number_of_days; ?></td>

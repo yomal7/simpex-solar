@@ -247,7 +247,7 @@
 }
 
 /* Apply the same status colors */
-.status-dropdown.not_strated {
+.status-dropdown.not_started {
   background-color: #fff8e1;
   color: #f57c00;
 }
