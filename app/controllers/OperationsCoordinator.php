@@ -1425,19 +1425,6 @@ class OperationsCoordinator extends Controller
     // }
 
     // installations new
-    public function projectInstallations()
-    {
-        // Get all projects in installation phase
-        $projects = $this->projectModel->getProjectsInInstallationPhase();
-
-        $data = [
-            'title' => 'Installation Management',
-            'projects' => $projects
-        ];
-
-        $this->view('operationsCoordinator/v_projectInstallations', $data);
-    }
-
     public function installation($projectId)
     {
         // Get project details
@@ -1585,7 +1572,7 @@ class OperationsCoordinator extends Controller
         // Update installation status to completed
         if ($this->projectModel->updateInstallationStatus($installationId, 'completed')) {
             // Update project phase to next phase (engineer_approval)
-            $this->projectModel->updateProjectsPhase($projectId, 'engineer_approval');
+            $this->projectModel->updateProjectsPhase($projectId, 'final_payment');
 
             flash('installation_message', 'Installation marked as completed', 'alert alert-success');
         } else {

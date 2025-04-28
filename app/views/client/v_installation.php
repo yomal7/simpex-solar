@@ -11,8 +11,9 @@
     <div class="sidebar">
         <ul class="side-menu">
             <li>
-                <a href="<?php echo URLROOT; ?>/client/operationDashboard" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a>
-            </li>
+                <a href="<?php echo URLROOT; ?>/client/project/<?php echo $data['project']->pre_project_id; ?>" style="background-color: rgb(192, 236, 192);" class="back-buttons">
+                    <i class='bx bx-arrow-back'></i>Back
+                </a>
             </li>
         </ul>
     </div>
