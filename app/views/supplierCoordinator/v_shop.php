@@ -106,9 +106,6 @@
                                     <?php echo htmlspecialchars($product->category); ?>
                                 </td>
                                 <td class="actions">
-                                    <button onclick="viewProduct(<?php echo $product->id; ?>)" class="btn-icon view-btn">
-                                        <span class="material-icons-sharp">visibility</span>
-                                    </button>
                                     <button onclick="editProduct(<?php echo $product->id; ?>)" class="btn-icon edit-btn">
                                         <span class="material-icons-sharp">edit</span>
                                     </button>
