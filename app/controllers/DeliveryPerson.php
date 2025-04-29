@@ -27,11 +27,33 @@ class DeliveryPerson extends Controller
 
     public function index()
     {
-        redirect('deliveryPerson/dashboard');
+                // Get the delivery person's employee ID from the user ID in session
+                $userId = $_SESSION['user_id'];
+
+                // Add a method to fetch employee_id from user_id
+                $employee = $this->deliveryPersonModel->getEmployeeByUserId($userId);
+                if (!$employee) {
+                    flash('order_message', 'Employee profile not found', 'alert alert-danger');
+                    redirect('deliveryPerson/dashboard');
+                }
+        
+                $employeeId = $employee->employee_id;
+        
+                // Get pending and completed orders for this delivery person
+                $pendingOrders = $this->shopModel->getDeliveryPersonPendingOrders($employeeId);
+                $completedOrders = $this->shopModel->getDeliveryPersonCompletedOrders($employeeId);
+        
+                $data = [
+                    'pendingOrders' => $pendingOrders,
+                    'completedOrders' => $completedOrders
+                ];
+        
+                $this->view('deliveryPerson/v_deliveryPersonOrders', $data);
     }
 
     public function dashboard()
     {
+
         $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
 
         if (!$employee) {
@@ -69,6 +91,7 @@ class DeliveryPerson extends Controller
         ];
 
         $this->view('deliveryPerson/v_deliveryPersonDashboard', $data);
+
     }
 
     public function requestHoliday()

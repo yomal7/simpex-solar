@@ -45,37 +45,26 @@ class SupplierCoordinator extends Controller
 
     public function index()
     {
-        // Get all required order data
-        $pendingOrders = $this->shopModel->getPendingOrders();
-        $processingOrders = $this->shopModel->getProcessingOrders();
-        $activeOrders = $this->shopModel->getActiveOrders();
-
         $data = [
-            'pending_orders' => $pendingOrders,
-            'processing_orders' => $processingOrders,
-            'active_orders' => $activeOrders,
-            'orders' => $pendingOrders, // Default view
-            'show_status' => false
+            'orders' => $this->shopModel->getAllOrders(),
+            'pendingCount' => $this->orderModel->getOrderCountByStatus('pending'),
+            'processingCount' => $this->orderModel->getOrderCountByStatus('processing'),
+            'shippedCount' => $this->orderModel->getOrderCountByStatus('shipped')
         ];
 
-        $this->view('supplierCoordinator/v_dashboard', $data);
+        $this->view('supplierCoordinator/v_orders', $data);
     }
 
     public function dashboard()
     {
-        $pendingOrders = $this->shopModel->getPendingOrders();
-        $processingOrders = $this->shopModel->getProcessingOrders();
-        $activeOrders = $this->shopModel->getActiveOrders();
-
         $data = [
-            'pending_orders' => $pendingOrders,
-            'processing_orders' => $processingOrders,
-            'active_orders' => $activeOrders,
-            'orders' => $pendingOrders, // Default view
-            'show_status' => false
+            'orders' => $this->shopModel->getAllOrders(),
+            'pendingCount' => $this->orderModel->getOrderCountByStatus('pending'),
+            'processingCount' => $this->orderModel->getOrderCountByStatus('processing'),
+            'shippedCount' => $this->orderModel->getOrderCountByStatus('shipped')
         ];
 
-        $this->view('supplierCoordinator/v_dashboard', $data);
+        $this->view('supplierCoordinator/v_orders', $data);
     }
 
     public function getOrders($type)
