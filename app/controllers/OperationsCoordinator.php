@@ -10,6 +10,8 @@ class OperationsCoordinator extends Controller
     private $operationsCoordinatorModel;
     private $settingsModel;
     private $chatModel;
+    private $servicesModel;
+    private $userModel;
 
     public function __construct()
     {
@@ -26,6 +28,8 @@ class OperationsCoordinator extends Controller
         $this->operationsCoordinatorModel = $this->model('M_OperationsCoordinator');
         $this->settingsModel = $this->model('M_Settings');
         $this->chatModel = $this->model('M_Chat');
+        $this->servicesModel = $this->model('M_Services');
+        $this->userModel = $this->model('M_Users');
 
         // Check for unread messages on every page load
         $clients = $this->operationsCoordinatorModel->getClientsWithChats();
@@ -2647,4 +2651,69 @@ class OperationsCoordinator extends Controller
         header('Content-Type: application/json');
         echo json_encode(['hasUnread' => ($totalUnreadCount > 0)]);
     }
+
+
+    public function services()
+    {
+        // $client = $this->clientModel->getClientByUserId($_SESSION['user_id']);
+        $services = $this->servicesModel->getAllServices();
+        $data = [
+            'services' => $services
+        ];
+        $this->view('operationsCoordinator/v_services', $data);
+    }
+
+    // View a task by ID
+    public function viewService($serviceId = null)
+    {
+        // Check if service ID is provided
+        if ($serviceId === null) {
+            flash('service_message', 'Service ID is required', 'alert alert-danger');
+            redirect('operationsCoordinator/services');
+        }
+
+        // Get service details
+        $service = $this->servicesModel->getServiceRequestById($serviceId);
+
+        // Get customer details
+        $customer = $this->userModel->getUserById($service->customer_id);
+
+        // Set data for view
+        $data = [
+            'service' => $service,
+            'customer' => $customer
+        ];
+
+        // Load view
+        $this->view('operationsCoordinator/v_viewService', $data);
+    }
+
+    public function updateServiceStatus()
+        {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                redirect('operationsCoordinator/services');
+                return;
+            }
+
+            // Get form data
+            $serviceId = $_POST['service_id'];
+            $status = $_POST['status'];
+            $comments = isset($_POST['comments']) ? $_POST['comments'] : '';
+            
+            // For accepted status, set default comment if none provided
+            if ($status === 'accepted' && empty($comments)) {
+                $comments = 'Service request accepted on ' . date('Y-m-d H:i:s');
+            }
+
+            // Update service status
+            if ($this->servicesModel->updateServiceStatus($serviceId, $status, $comments)) {
+                flash('service_message', 'Service status updated successfully', 'alert alert-success');
+            } else {
+                flash('service_message', 'Failed to update service status', 'alert alert-danger');
+            }
+
+            // Redirect back to service view
+            redirect('operationsCoordinator/viewService/' . $serviceId);
+        }
+
 }
