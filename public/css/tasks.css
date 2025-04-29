@@ -82,9 +82,9 @@ table tr:hover {
   transition: all 0.3s ease;
 }
 
-.status-button.incomplete {
-  background-color: #ffebee;
-    color: #c62828;
+.status-button.not_started {
+  background-color: #fff8e1;
+  color: #f57c00;
 }
 
 .status-button.in_progress {

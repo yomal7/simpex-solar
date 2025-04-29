@@ -32,8 +32,45 @@ class engineer extends Controller
 
     public function dashboard()
     {
-        //$engineer = $this->employeeModel->getEngineerByUserId($_SESSION['employee_id']);
-        $data = [];
+        $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+    
+        if (!$employee) {
+            flash('error_msg', 'Employee not found');
+            redirect('users/login');
+        }
+    
+        // Fetch tasks for the engineer
+        $tasks = $this->tasksModel->getTotalProjectTasksById($employee->employee_id);
+    
+        
+        // Get task counts by status
+        $inProgressCount = $this->tasksModel->getTaskCountByStatusForEmployee('in_progress', $employee->employee_id);
+        $notStartedCount = $this->tasksModel->getTaskCountByStatusForEmployee('not_started', $employee->employee_id);
+        $completedCount = $this->tasksModel->getTaskCountByStatusForEmployee('completed', $employee->employee_id);
+    
+        // Get project counts by status
+        $initialCount = $this->engineerModel->getProjectCountByStatusForEmployee('initial', $employee->employee_id);
+        $activeCount = $this->engineerModel->getProjectCountByStatusForEmployee('active', $employee->employee_id);
+        $completedProjectCount = $this->engineerModel->getProjectCountByStatusForEmployee('completed', $employee->employee_id);
+    
+        // Prepare data for view
+        $data = [
+            'employee' => $employee,
+            'tasks' => $tasks,
+            'not_started' => 'not_started',
+            'in_progress' => 'in_progress',
+            'completed' => 'completed',
+            'initial' => 'initial',
+            'active' => 'active', 
+            'completed_project' => 'completed',
+            'inProgressCount' => $inProgressCount,
+            'notStartedCount' => $notStartedCount,
+            'completedCount' => $completedCount,
+            'initialCount' => $initialCount,
+            'activeCount' => $activeCount,
+            'completedProjectCount' => $completedProjectCount
+        ];
+    
         $this->view('engineer/v_engineerDashboard', $data);
     }
 

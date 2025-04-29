@@ -170,9 +170,9 @@
     color: #f57c00;
 }
 
-.completion-button.incomplete {
-    background-color: #ffebee;
-    color: #c62828;
+.completion-button.not_started {
+    background-color: #fff8e1;
+    color: #f57c00;
 }
 
 .status-button.approved,

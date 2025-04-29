@@ -22,43 +22,40 @@ class technician extends Controller
 
     public function index()
     {
-        $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
-
-        if (!$employee) {
-            flash('error_msg', 'Employee not found');
-            redirect('users/login');
-        }
-
-        // Fetch tasks for the technician
-        $tasks = $this->tasksModel->getTotalProjectTasksById($employee->employee_id);
-
-        // Prepare data for view
-        $data = [
-            'employee' => $employee,
-            'tasks' => $tasks
-        ];
-        
-        $this->view('technician/v_technicianDashboard', $data);
+        redirect('technician/dashboard');
     }
 
     public function dashboard()
     {
         $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
-
+    
         if (!$employee) {
             flash('error_msg', 'Employee not found');
             redirect('users/login');
         }
-
+    
         // Fetch tasks for the technician
         $tasks = $this->tasksModel->getTotalProjectTasksById($employee->employee_id);
-
+    
+        // Get task counts by status
+        $inProgressCount = $this->tasksModel->getTaskCountByStatusForEmployee('in_progress', $employee->employee_id);
+        $notStartedCount = $this->tasksModel->getTaskCountByStatusForEmployee('not_started', $employee->employee_id);
+        $completedCount = $this->tasksModel->getTaskCountByStatusForEmployee('completed', $employee->employee_id);
+        
+        
+    
         // Prepare data for view
         $data = [
             'employee' => $employee,
-            'tasks' => $tasks
+            'tasks' => $tasks,
+            'not_started' => 'not_started',
+            'in_progress' => 'in_progress',
+            'completed' => 'completed',
+            'inProgressCount' => $inProgressCount,
+            'notStartedCount' => $notStartedCount,
+            'completedCount' => $completedCount
         ];
-
+    
         $this->view('technician/v_technicianDashboard', $data);
     }
 

@@ -68,7 +68,7 @@
     text-align: center;
   }
   
-  .card-status-button.incomplete {
+  .card-status-button.not_started {
     background: #fff8e1;
     color: #f57c00;
   }

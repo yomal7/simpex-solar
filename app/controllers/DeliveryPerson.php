@@ -32,8 +32,42 @@ class DeliveryPerson extends Controller
 
     public function dashboard()
     {
-        //$deliveryPerson = $this->leavesModel->getDeliveryPersonByUserId($_SESSION['user_id']);
-        $data = [];
+        $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+
+        if (!$employee) {
+            flash('error_msg', 'Employee not found');
+            redirect('users/login');
+        }
+
+        
+        // Fetch tasks for the delivery person
+        $tasks = $this->tasksModel->getTotalProjectTasksById($employee->employee_id);
+
+        // Get task counts by status
+        $inProgressCount = $this->tasksModel->getTaskCountByStatusForEmployee('in_progress', $employee->employee_id);
+        $notStartedCount = $this->tasksModel->getTaskCountByStatusForEmployee('not_started', $employee->employee_id);
+        $completedCount = $this->tasksModel->getTaskCountByStatusForEmployee('completed', $employee->employee_id);
+
+        // Get order counts by status
+        $pendingCount = $this->deliveryPersonModel->getOrderCountByStatusForEmployee('pending', $employee->employee_id);
+        $deliveredCount = $this->deliveryPersonModel->getOrderCountByStatusForEmployee('delivered', $employee->employee_id);
+
+        // Prepare data for view
+        $data = [
+            'employee' => $employee,
+            'tasks' => $tasks,
+            'not_started' => 'not_started',
+            'in_progress' => 'in_progress',
+            'completed' => 'completed',
+            'pending' => 'pending',
+            'delivered' => 'delivered',
+            'inProgressCount' => $inProgressCount,
+            'notStartedCount' => $notStartedCount,
+            'completedCount' => $completedCount,
+            'pendingCount' => $pendingCount,
+            'deliveredCount' => $deliveredCount
+        ];
+
         $this->view('deliveryPerson/v_deliveryPersonDashboard', $data);
     }
 
