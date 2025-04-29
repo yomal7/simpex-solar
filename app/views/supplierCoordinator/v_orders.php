@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/supplierCoordinator/orders.css">
 </head>
 
-<body>
+<body data-user-role="supplierCoordinator" data-user-id="<?php echo $_SESSION['user_id']; ?>" data-urlroot="<?php echo URLROOT; ?>">
     <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
@@ -23,17 +23,13 @@
                     <p>Supplier Coordinator</p>
                 </div>
             </div>
-            <a href="<?php echo URLROOT ?>/supplierCoordinator/dashboard">
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/dashboard" class="active">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
             <a href="<?php echo URLROOT ?>/supplierCoordinator/shop">
                 <span class="material-icons-sharp">storefront</span>
                 <h3>Shop</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/supplierCoordinator/orders" class="active">
-                <span class="material-icons-sharp">shopping_cart</span>
-                <h3>Orders</h3>
             </a>
             <a href="<?php echo URLROOT ?>/supplierCoordinator/projects">
                 <span class="material-icons-sharp">assignment</span>
@@ -42,6 +38,11 @@
             <a href="<?php echo URLROOT ?>/supplierCoordinator/suppliers">
                 <span class="material-icons-sharp">business</span>
                 <h3>Suppliers</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/supplierCoordinator/chat" class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'chat') !== false) ? 'active' : ''; ?>">
+                <span class="material-icons-sharp">chat</span>
+                <h3>Chat</h3>
+                <span class="notification-dot" style="display: <?php echo (isset($_SESSION['total_unread_count']) && $_SESSION['total_unread_count'] > 0) ? 'block' : 'none'; ?>;"></span>
             </a>
             <a href="<?php echo URLROOT ?>/supplierCoordinator/inventory">
                 <span class="material-icons-sharp">inventory</span>
