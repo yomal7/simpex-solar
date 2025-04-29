@@ -24,10 +24,6 @@
                     <p>HR Administrator</p>
                 </div>
             </div>
-            <a href="<?php echo URLROOT ?>/hRAdministrator/dashboard">
-                <span class="material-icons-sharp">dashboard</span>
-                <h3>Dashboard</h3>
-            </a>
             <a href="<?php echo URLROOT ?>/hRAdministrator/employees">
                 <span class="material-icons-sharp">group</span>
                 <h3>Employees</h3>
@@ -38,12 +34,8 @@
             </a>
             <a href="<?php echo URLROOT ?>/hRAdministrator/holiday">
                 <span class="material-icons-sharp">date_range</span>
-                <h3>Holiday</h3>
-            </a>
-            <a href="<?php echo URLROOT ?>/hRAdministrator/payroll">
-                <span class="material-icons-sharp">money</span>
-                <h3>Payroll</h3>
-            </a>
+                <h3>Leaves</h3>
+            </a>          
             <a href="<?php echo URLROOT ?>/hRAdministrator/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>

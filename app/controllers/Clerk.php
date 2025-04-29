@@ -19,12 +19,11 @@ class Clerk extends Controller {
     }
 
     public function index() {
-        redirect('clerk/dashboard');
+        redirect('clerk/attendance');
     }
 
     public function dashboard() {
-        $data = [];
-        $this->view('clerk/v_dashboard', $data);
+        redirect('clerk/attendance');
     }
 
     // Mark today attendance for employees

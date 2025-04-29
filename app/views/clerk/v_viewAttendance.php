@@ -20,10 +20,6 @@
                     <p>Clerk</p>
                 </div>
             </div>
-            <a href="<?php echo URLROOT ?>/clerk/dashboard">
-                <span class="material-icons-sharp">dashboard</span>
-                <h3>Dashboard</h3>
-            </a>
             <a href="<?php echo URLROOT ?>/clerk/attendance" class="active">
                 <span class="material-icons-sharp">checklist_rtl</span>
                 <h3>Attendance</h3>
@@ -34,7 +30,7 @@
             </a>
             <a href="<?php echo URLROOT ?>/clerk/requestHoliday">
                 <span class="material-icons-sharp">event</span>
-                <h3>Request Holiday</h3>
+                <h3>Request Leave</h3>
             </a>
             <a href="<?php echo URLROOT ?>/clerk/settings">
                 <span class="material-icons-sharp">settings</span>

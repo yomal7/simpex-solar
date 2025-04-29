@@ -24,14 +24,12 @@ class HRAdministrator extends Controller
 
     public function index()
     {
-        redirect('hRAdministrator/dashboard');
+        redirect('hRAdministrator/employees');
     }
 
     public function dashboard()
     {
-
-        $data = [];
-        $this->view('hRAdministrator/v_dashboard', $data);
+        redirect('hRAdministrator/employees');
     }
 
     public function employees()

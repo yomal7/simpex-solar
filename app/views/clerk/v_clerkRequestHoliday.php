@@ -11,7 +11,7 @@
     <div class="request-holiday-container">
 
     <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-        <div class="sidebar" id="sidebar">
+    <div class="sidebar" id="sidebar">
             <div class="company-logo">
                 <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
             </div>
@@ -23,10 +23,6 @@
                     <p>Clerk</p>
                 </div>
             </div>
-            <a href="<?php echo URLROOT ?>/clerk/dashboard">
-                <span class="material-icons-sharp">dashboard</span>
-                <h3>Dashboard</h3>
-            </a>
             <a href="<?php echo URLROOT ?>/clerk/attendance">
                 <span class="material-icons-sharp">checklist_rtl</span>
                 <h3>Attendance</h3>

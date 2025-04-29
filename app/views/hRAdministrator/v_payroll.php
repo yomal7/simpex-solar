@@ -37,7 +37,7 @@
             </a>
             <a href="<?php echo URLROOT ?>/hRAdministrator/holiday">
                 <span class="material-icons-sharp">date_range</span>
-                <h3>Holiday</h3>
+                <h3>Leaves</h3>
             </a>
             <a href="<?php echo URLROOT ?>/hRAdministrator/payroll" class="active">
                 <span class="material-icons-sharp">money</span>

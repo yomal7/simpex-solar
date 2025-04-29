@@ -22,10 +22,6 @@
                     <p>Clerk</p>
                 </div>
             </div>
-            <a href="<?php echo URLROOT ?>/clerk/dashboard">
-                <span class="material-icons-sharp">dashboard</span>
-                <h3>Dashboard</h3>
-            </a>
             <a href="<?php echo URLROOT ?>/clerk/attendance">
                 <span class="material-icons-sharp">checklist_rtl</span>
                 <h3>Attendance</h3>

@@ -49,9 +49,9 @@
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/signature">
-                <span class="material-icons-sharp">draw</span>
-                <h3>Signature</h3>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/services">
+                <span class="material-icons-sharp">build</span>
+                <h3>Services</h3>
             </a>
             <a href="<?php echo URLROOT; ?>/users/logout">
                 <span class="material-icons-sharp">logout</span>
