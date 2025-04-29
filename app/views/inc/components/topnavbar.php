@@ -8,6 +8,7 @@
             <li><a href="<?php echo URLROOT; ?>">Home</a></li>
             <li><a href="<?php echo URLROOT; ?>/pages/about">About</a></li>
             <li><a href="<?php echo URLROOT; ?>/packages">Packages</a></li>
+            <li><a href="<?php echo URLROOT; ?>/store">Shop</a></li>
             <!-- <li>
               <a href="#" class="desktop-item">Dropdown Menu</a>
               <input type="checkbox" id="showDrop">
