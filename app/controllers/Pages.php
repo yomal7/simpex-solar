@@ -47,16 +47,14 @@
 
     public function submitFeedback(){
         if($_SERVER['REQUEST_METHOD'] == 'POST'){
-            if (isset($this-> feedbackModel)){
-                $this->feedbackModel = $this-> model('M_Feedback');
+            if (isset($this->feedbackModel)){
+                $this->feedbackModel = $this->model('M_Feedback');
             }
-
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-
             $data = [
                 'name' => trim($_POST['name']),
                 'email' => trim($_POST['email']),
-                'phone' => isset($_POST['phone']) ? trim($_POST['phone']) : null,
+                // 'phone' => isset($_POST['phone']) ? trim($_POST['phone']) : null,
                 'feedback_type' => trim($_POST['feedback_type']),
                 'subject' => trim($_POST['subject']),
                 'message' => trim($_POST['message']),
@@ -71,61 +69,60 @@
                 'subject_err' => '',
                 'message_err' => ''
             ];
-
             if (empty($data['name'])) {
                 $data['name_err'] = 'Please enter your name';
             }
-            
+           
             // Validate email
             if (empty($data['email'])) {
                 $data['email_err'] = 'Please enter your email';
             } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
                 $data['email_err'] = 'Please enter a valid email address';
             }
-            
+           
             // Validate feedback type
             if (empty($data['feedback_type'])) {
                 $data['feedback_type_err'] = 'Please select a feedback type';
             }
-            
+           
             // Validate subject
             if (empty($data['subject'])) {
                 $data['subject_err'] = 'Please enter a subject';
             }
-            
+           
             // Validate message
             if (empty($data['message'])) {
                 $data['message_err'] = 'Please enter your message';
             }
-            
+           
             // Check for errors
             if (
-                empty($data['name_err']) && 
-                empty($data['email_err']) && 
-                empty($data['feedback_type_err']) && 
-                empty($data['subject_err']) && 
+                empty($data['name_err']) &&
+                empty($data['email_err']) &&
+                empty($data['feedback_type_err']) &&
+                empty($data['subject_err']) &&
                 empty($data['message_err'])
             ) {
                 // No errors, save feedback to database
                 if ($this->feedbackModel->saveFeedback($data)) {
                     // Successfully saved, send email notification
                     // $this->sendFeedbackNotification($data);
-                    
+                   
                     // Set success message
-                    flash('feedback_message', 'Thank you for your feedback! We appreciate your input and will review it shortly.', 'alert alert-success');
-                    
-                    // Redirect to feedback page
+                    flash('feedback_message', 'Thank you for your feedback! We appreciate your input and will review it shortly.', 'flash-success');
+                   
+                    // Redirect to the same page instead of feedback page
                     redirect('pages/feedback');
                 } else {
                     // Database error occurred
                     flash('feedback_message', 'Sorry, there was a problem saving your feedback. Please try again later.', 'alert alert-danger');
-                    
+                   
                     // Reload the form with user data
-                    $this->view('pages/v_submitFeedback', $data);
+                    $this->view('pages/feedback', $data);
                 }
             } else {
                 // Validation errors, reload form with errors and user input
-                $this->view('pages/v_submitFeedback', $data);
+                $this->view('pages/feedback', $data);
             }
         } else {
             // Not a POST request, redirect to the feedback form
