@@ -82,112 +82,157 @@ class M_Client
         return $this->db->execute();
     }
 
-    public function getOngoingProjects($userId)
-    {
-        // Get projects with accepted quotations
-        $this->db->query('SELECT 
-                pp.pre_project_id, 
-                pp.customer_id, 
-                pp.current_phase as pre_project_phase, 
-                pp.status as pre_project_status,
-                pp.created_at, 
-                pp.updated_at,
-                cq.quotation_id, 
-                cq.package_id, 
-                cq.package_type,
-                cq.nearest_city,
-                p.title as package_name, 
-                p.type as system_type,
-                proj.project_id,
-                proj.current_phase as project_phase,
-                proj.status as project_status
-            FROM pre_projects pp
-            LEFT JOIN customerquotation cq ON pp.pre_project_id = cq.pre_project_id
-            LEFT JOIN package p ON cq.package_id = p.package_id
-            LEFT JOIN projects proj ON pp.pre_project_id = proj.pre_project_id
-            WHERE pp.customer_id = :user_id 
-            AND (pp.status = "active" OR (proj.status = "active" AND proj.customer_id = :user_id2))
-            ORDER BY pp.created_at DESC');
-
-        $this->db->bind(':user_id', $userId);
-        $this->db->bind(':user_id2', $userId);
-        $projects = $this->db->resultSet();
-
-        // Enhance project data with progress information
-        if ($projects) {
-            foreach ($projects as &$project) {
-                // Determine if this is in pre-project or main project phase
-                $projectPhases = [
-                    'document_submission',
-                    'first_payment',
-                    'installation',
-                    'final_payment',
-                    'engineer_approval',
-                    'grid_connection',
-                    'completed'
-                ];
-
-                // If main project exists and is active, use its phase instead
-                if (isset($project->project_id) && $project->project_status == 'active') {
-                    $project->current_phase = $project->project_phase;
-                    $project->is_project_phase = true;
-                    $project->is_pre_project_phase = false;
-
-                    // Calculate progress based on main project phase
-                    switch ($project->current_phase) {
-                        case 'document_submission':
-                            $project->progress_percentage = 45;
-                            break;
-                        case 'first_payment':
-                            $project->progress_percentage = 55;
-                            break;
-                        case 'installation':
-                            $project->progress_percentage = 70;
-                            break;
-                        case 'final_payment':
-                            $project->progress_percentage = 80;
-                            break;
-                        case 'engineer_approval':
-                            $project->progress_percentage = 90;
-                            break;
-                        case 'grid_connection':
-                            $project->progress_percentage = 95;
-                            break;
-                        case 'completed':
-                            $project->progress_percentage = 100;
-                            break;
-                        default:
-                            $project->progress_percentage = 50;
-                            break;
+    
+        // Get all projects (both ongoing and completed)
+        public function getOngoingProjects($userId)
+        {
+            // Get projects with accepted quotations
+            $this->db->query('SELECT 
+                    pp.pre_project_id, 
+                    pp.customer_id, 
+                    pp.current_phase as pre_project_phase, 
+                    pp.status as pre_project_status,
+                    pp.created_at, 
+                    pp.updated_at,
+                    cq.quotation_id, 
+                    cq.package_id, 
+                    cq.package_type,
+                    cq.nearest_city,
+                    p.title as package_name, 
+                    p.type as system_type,
+                    proj.project_id,
+                    proj.current_phase as project_phase,
+                    proj.status as project_status
+                FROM pre_projects pp
+                LEFT JOIN customerquotation cq ON pp.pre_project_id = cq.pre_project_id
+                LEFT JOIN package p ON cq.package_id = p.package_id
+                LEFT JOIN projects proj ON pp.pre_project_id = proj.pre_project_id
+                WHERE pp.customer_id = :user_id 
+                ORDER BY pp.created_at DESC');
+    
+            $this->db->bind(':user_id', $userId);
+            $projects = $this->db->resultSet();
+    
+            // Enhance project data with progress information
+            if ($projects) {
+                foreach ($projects as &$project) {
+                    // Determine if this is in pre-project or main project phase
+                    $projectPhases = [
+                        'document_submission',
+                        'first_payment',
+                        'installation',
+                        'final_payment',
+                        'engineer_approval',
+                        'grid_connection',
+                        'completed'
+                    ];
+    
+                    // If main project exists, use its phase instead
+                    if (isset($project->project_id)) {
+                        $project->current_phase = $project->project_phase;
+                        $project->is_project_phase = true;
+                        $project->is_pre_project_phase = false;
+    
+                        // Calculate progress based on main project phase
+                        switch ($project->current_phase) {
+                            case 'document_submission':
+                                $project->progress_percentage = 45;
+                                break;
+                            case 'first_payment':
+                                $project->progress_percentage = 55;
+                                break;
+                            case 'installation':
+                                $project->progress_percentage = 70;
+                                break;
+                            case 'final_payment':
+                                $project->progress_percentage = 80;
+                                break;
+                            case 'engineer_approval':
+                                $project->progress_percentage = 90;
+                                break;
+                            case 'grid_connection':
+                                $project->progress_percentage = 95;
+                                break;
+                            case 'completed':
+                                $project->progress_percentage = 100;
+                                break;
+                            default:
+                                $project->progress_percentage = 50;
+                                break;
+                        }
                     }
-                }
-                // Otherwise, use pre-project phase
-                else {
-                    $project->current_phase = $project->pre_project_phase;
-                    $project->is_project_phase = false;
-                    $project->is_pre_project_phase = true;
-
-                    // Calculate progress based on pre-project phase
-                    switch ($project->current_phase) {
-                        case 'quotation':
-                            $project->progress_percentage = 10;
-                            break;
-                        case 'site_visit':
-                            $project->progress_percentage = 25;
-                            break;
-                        case 'agreement':
-                            $project->progress_percentage = 40;
-                            break;
-                        default:
-                            $project->progress_percentage = 10;
-                            break;
+                    // Otherwise, use pre-project phase
+                    else {
+                        $project->current_phase = $project->pre_project_phase;
+                        $project->is_project_phase = false;
+                        $project->is_pre_project_phase = true;
+    
+                        // Calculate progress based on pre-project phase
+                        switch ($project->current_phase) {
+                            case 'quotation':
+                                $project->progress_percentage = 10;
+                                break;
+                            case 'site_visit':
+                                $project->progress_percentage = 25;
+                                break;
+                            case 'agreement':
+                                $project->progress_percentage = 40;
+                                break;
+                            default:
+                                $project->progress_percentage = 10;
+                                break;
+                        }
                     }
                 }
             }
+    
+            return $projects;
         }
-
-        return $projects;
-    }
+    
+        // Get completed projects only - direct query for better performance
+        public function getCompletedProjects($customerId)
+        {
+            // Query directly for completed projects
+            $this->db->query('SELECT 
+                    pp.pre_project_id, 
+                    pp.customer_id, 
+                    pp.current_phase as pre_project_phase, 
+                    pp.status as pre_project_status,
+                    pp.created_at, 
+                    pp.updated_at,
+                    cq.quotation_id, 
+                    cq.package_id, 
+                    cq.package_type,
+                    cq.nearest_city,
+                    p.title as package_name, 
+                    p.type as system_type,
+                    proj.project_id,
+                    proj.current_phase as project_phase,
+                    proj.status as project_status,
+                    proj.updated_at as completion_date
+                FROM projects proj
+                JOIN pre_projects pp ON proj.pre_project_id = pp.pre_project_id
+                LEFT JOIN customerquotation cq ON pp.pre_project_id = cq.pre_project_id
+                LEFT JOIN package p ON cq.package_id = p.package_id
+                WHERE proj.customer_id = :user_id 
+                AND (proj.status = "completed" OR proj.current_phase = "completed")
+                ORDER BY proj.updated_at DESC');
+                
+            $this->db->bind(':user_id', $customerId);
+            $completedProjects = $this->db->resultSet();
+            
+            // Calculate progress percentage for all projects (always 100% for completed)
+            if ($completedProjects) {
+                foreach ($completedProjects as &$project) {
+                    $project->current_phase = 'completed';
+                    $project->progress_percentage = 100;
+                    $project->is_project_phase = true;
+                    $project->is_pre_project_phase = false;
+                }
+            }
+            
+            return $completedProjects;
+        }
 
     public function getProjectStats($userId)
     {
@@ -301,6 +346,25 @@ class M_Client
         $this->db->bind(':user_id', $userId);
         return $this->db->resultSet();
     }
+
+    
+    // public function getCompletedProjects($customerId)
+    // {
+    //     // Get all projects
+    //     $allProjects = $this->getOngoingProjects($customerId);
+    //     $completedProjects = [];
+        
+    //     foreach ($allProjects as $project) {
+    //         // Check for completion using the actual properties from the database
+    //         if ((isset($project->project_status) && $project->project_status === 'completed') || 
+    //             (isset($project->current_phase) && $project->current_phase === 'completed') ||
+    //             (isset($project->project_phase) && $project->project_phase === 'completed')) {
+    //             $completedProjects[] = $project;
+    //         }
+    //     }
+        
+    //     return $completedProjects;
+    // }
 
     // Get project progress details for both pre-project and project phases
     public function getProjectProgress($preProjectId)

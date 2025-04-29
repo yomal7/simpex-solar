@@ -2,103 +2,6 @@
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/client/project.css">
-<style>
-    .project-summary {
-        background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        padding: 25px;
-        margin-bottom: 20px;
-    }
-    
-    .project-summary h2 {
-        color: #4CAF50;
-        margin-bottom: 15px;
-        font-size: 1.5rem;
-    }
-    
-    .project-summary p {
-        color: #555;
-        margin-bottom: 10px;
-        font-size: 1.1rem;
-    }
-    
-    .detail-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 12px;
-        padding-bottom: 8px;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .detail-row strong {
-        font-weight: 600;
-        color: #333;
-    }
-    
-    .completion-badge {
-        display: inline-block;
-        background-color: #4CAF50;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        margin-top: 10px;
-    }
-    
-    .action-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 20px;
-    }
-    
-    .btn-download, .btn-service {
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-download {
-        background-color: #2196F3;
-        color: white;
-        border: none;
-    }
-    
-    .btn-download:hover {
-        background-color: #0b7dda;
-    }
-    
-    .btn-service {
-        background-color: #673AB7;
-        color: white;
-        border: none;
-    }
-    
-    .btn-service:hover {
-        background-color: #5e35b1;
-    }
-    
-    .certificate-info {
-        background-color: #f9f9f9;
-        padding: 15px;
-        border-radius: 5px;
-        margin-top: 15px;
-    }
-    
-    .completed-icon {
-        font-size: 3rem;
-        color: #4CAF50;
-        margin-bottom: 15px;
-        display: block;
-        text-align: center;
-    }
-</style>
 </head>
 
 <body>
@@ -141,6 +44,8 @@
             // Check if project is completed
             $isProjectCompleted = false;
             if (isset($data['progress']['project']) && 
+                is_object($data['progress']['project']) && 
+                isset($data['progress']['project']->current_phase) &&
                 $data['progress']['project']->current_phase === 'completed') {
                 $isProjectCompleted = true;
             }
@@ -276,9 +181,12 @@
                     ]
                 ];
 
-                $currentPhase = $data['progress']['project'] ?
-                    $data['progress']['project']->current_phase :
-                    $data['progress']['pre_project']->current_phase;
+                $currentPhase = '';
+                if (isset($data['progress']['project']) && is_object($data['progress']['project']) && isset($data['progress']['project']->current_phase)) {
+                    $currentPhase = $data['progress']['project']->current_phase;
+                } elseif (isset($data['progress']['pre_project']) && is_object($data['progress']['pre_project']) && isset($data['progress']['pre_project']->current_phase)) {
+                    $currentPhase = $data['progress']['pre_project']->current_phase;
+                }
                 ?>
 
                 <div class="progress-list">

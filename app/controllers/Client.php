@@ -72,30 +72,48 @@ class Client extends Controller
     public function operationDashboard()
     {
         $userId = $_SESSION['user_id'];
-
+        
         // Get active quotations
         $activeQuotations = $this->clientSidePreProjectModel->getActiveQuotationsByCustomerId($userId);
-
-        // Get ongoing projects (pre-projects with accepted quotations)
-        $ongoingProjects = $this->clientModel->getOngoingProjects($userId);
-
-        // Calculate stats
+        
+        // Get all projects (both ongoing and completed)
+        $allProjects = $this->clientModel->getOngoingProjects($userId);
+        
+        // Separate projects into ongoing and completed
+        $ongoingProjects = [];
+        $completedProjects = [];
+        
+        foreach ($allProjects as $project) {
+            // Check if project is completed
+            if ((isset($project->project_status) && $project->project_status === 'completed') || 
+                (isset($project->current_phase) && $project->current_phase === 'completed') ||
+                (isset($project->project_phase) && $project->project_phase === 'completed')) {
+                $completedProjects[] = $project;
+            } else {
+                $ongoingProjects[] = $project;
+            }
+        }
+        
+        // Calculate stats - with proper property checks
+        $activeProjectCount = count($ongoingProjects);
+        $completedProjectCount = count($completedProjects);
+        
         $stats = [
-            'active_projects' => count($ongoingProjects),
+            'active_projects' => $activeProjectCount,
             'pending_quotations' => count($activeQuotations),
-            'total_projects' => count($ongoingProjects)
+            'total_projects' => count($allProjects)
         ];
-
+        
         $data = [
             'title' => 'Dashboard',
             'stats' => $stats,
             'quotations' => $activeQuotations,
-            'ongoingProjects' => $ongoingProjects
+            'ongoingProjects' => $ongoingProjects,
+            'completedProjects' => $completedProjects // Pass completed projects separately
         ];
-
+        
         $this->view('client/v_operationsDashboard', $data);
     }
-
     public function viewQuotation($quotationId)
     {
         $quotation = $this->clientSidePreProjectModel->getQuotationById($quotationId);
