@@ -1,4 +1,4 @@
-<?php require APPROOT . '/views/technician/header.php'; ?>
+<?php require APPROOT . '/views/clerk/header.php'; ?>
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -10,7 +10,7 @@
 
     <div class="request-holiday-container">
 
-        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
         <div class="sidebar" id="sidebar">
             <div class="company-logo">
                 <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
@@ -20,22 +20,26 @@
                 <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
                 <div class="user-info">
                     <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
-                    <p>Technician</p>
+                    <p>Clerk</p>
                 </div>
             </div>
-            <a href="<?php echo URLROOT ?>/technician/dashboard">
+            <a href="<?php echo URLROOT ?>/clerk/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/technician/tasks">
+            <a href="<?php echo URLROOT ?>/clerk/attendance">
+                <span class="material-icons-sharp">checklist_rtl</span>
+                <h3>Attendance</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/clerk/tasks">
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/technician/requestHoliday" class="active">
+            <a href="<?php echo URLROOT ?>/clerk/requestHoliday" class="active">
                 <span class="material-icons-sharp">event</span>
                 <h3>Request Leave</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/technician/settings">
+            <a href="<?php echo URLROOT ?>/clerk/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
@@ -116,7 +120,7 @@
                                         <td class="reason"><?php echo $record->reason; ?></td>
                                         <td><span class="<?php echo strtolower($record->status); ?>"><?php echo ucfirst($record->status); ?></span></td>
                                         <td>
-                                            <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/technician/holidayDetails/<?php echo $record->id; ?>'" title="View Details"><i class="fas fa-eye"></i></button>
+                                                <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/clerk/holidayDetails/<?php echo $record->id; ?>'" title="View Details"><i class="fas fa-eye"></i></button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -160,6 +164,6 @@
     // Assuming you have the employee ID from the PHP session
     const employeeId = <?php echo $data['employee']->employee_id ?? 0; ?>;
 </script>
-<script src="<?php echo URLROOT; ?>/js/technician/requestHoliday.js"></script>
+<script src="<?php echo URLROOT; ?>/js/clerk/requestHoliday.js"></script>
 
-<?php require APPROOT . '/views/technician/footer.php'; ?>
+<?php require APPROOT . '/views/clerk/footer.php'; ?>
