@@ -9,7 +9,6 @@ class M_Feedback{
         $this->db->query('Insert Into feedback(
                    name, 
             email, 
-            phone, 
             feedback_type, 
             subject, 
             message, 
@@ -20,7 +19,6 @@ class M_Feedback{
         ) VALUES (
             :name, 
             :email, 
-            :phone, 
             :feedback_type, 
             :subject, 
             :message, 
@@ -32,7 +30,7 @@ class M_Feedback{
 
         $this->db->bind(":name", $data["name"]);
         $this->db->bind(":email", $data["email"]);
-        $this->db->bind(":phone", $data["phone"]);
+        // $this->db->bind(":phone", $data["phone"]);
         $this->db->bind(":feedback_type", $data["feedback_type"]);
         $this->db->bind(":subject", $data["subject"]);
         $this->db->bind(":message", $data["message"]);
