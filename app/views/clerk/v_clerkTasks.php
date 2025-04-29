@@ -1,4 +1,4 @@
-<?php require APPROOT . '/views/deliveryPerson/header.php'; ?>
+<?php require APPROOT . '/views/clerk/header.php'; ?>
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -19,26 +19,26 @@
                 <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
                 <div class="user-info">
                     <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
-                    <p>Delivery Person</p>
+                    <p>Clerk</p>
                 </div>
             </div>
-            <a href="<?php echo URLROOT ?>/deliveryPerson/dashboard">
+            <a href="<?php echo URLROOT ?>/clerk/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/deliveryPerson/orders">
-                <span class="material-icons-sharp">local_shipping</span>
-                <h3>Orders</h3>
+            <a href="<?php echo URLROOT ?>/clerk/attendance">
+                <span class="material-icons-sharp">checklist_rtl</span>
+                <h3>Attendance</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/deliveryPerson/tasks" class="active">
+            <a href="<?php echo URLROOT ?>/clerk/tasks" class="active">
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/deliveryPerson/requestHoliday">
+            <a href="<?php echo URLROOT ?>/clerk/requestHoliday">
                 <span class="material-icons-sharp">event</span>
                 <h3>Request Leave</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/deliveryPerson/settings">
+            <a href="<?php echo URLROOT ?>/clerk/settings">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
@@ -88,7 +88,7 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/deliveryPerson/details/<?php echo $task->id; ?>?page=<?php echo isset($data['currentPage']) ? $data['currentPage'] : 1; ?>'"  title="View Details"><i class="fas fa-eye"></i></button>
+                                            <button class="icon-button view-details-btn" onclick="location.href='<?php echo URLROOT; ?>/clerk/details/<?php echo $task->id; ?>?page=<?php echo isset($data['currentPage']) ? $data['currentPage'] : 1; ?>'"  title="View Details"><i class="fas fa-eye"></i></button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -126,6 +126,6 @@
         </div>
     </div>
 
-    <script src="<?php echo URLROOT; ?>/js/deliveryPerson/tasks.js"></script>
+<script src="<?php echo URLROOT; ?>/js/clerk/tasks.js"></script>
 
-    <?php require APPROOT . '/views/deliveryPerson/footer.php'; ?>
+<?php require APPROOT . '/views/clerk/footer.php'; ?>

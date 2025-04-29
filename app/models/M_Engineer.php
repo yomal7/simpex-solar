@@ -145,4 +145,34 @@ class M_Engineer
 
         return $this->db->execute();
     }
+
+    public function getProjectByStatus($status, $employeeId) {
+        $this->db->query('SELECT DISTINCT p.* 
+        FROM tasks t 
+        JOIN projects p ON t.project_id = p.project_id 
+        WHERE t.employee_id = :employee_id 
+        AND p.status = :status');
+
+        $this->db->bind(':employee_id', $employeeId);
+        $this->db->bind(':status', $status);
+
+        return $this->db->resultSet();
+        
+    }
+    
+
+    public function getProjectCountByStatusForEmployee($status, $employeeId) {
+        $this->db->query('SELECT COUNT(DISTINCT p.project_id) as count 
+                     FROM tasks t 
+                     JOIN projects p ON t.project_id = p.project_id 
+                     WHERE t.employee_id = :employee_id 
+                     AND p.status = :status');
+                     
+    $this->db->bind(':employee_id', $employeeId);
+    $this->db->bind(':status', $status);
+    
+    $result = $this->db->single();
+    return $result ? $result->count : 0;
+        
+    }
 }

@@ -53,63 +53,63 @@
 
             <div class="container">
 
-                <section class="dashboard-cards">
+                <!-- Task Status Cards -->
+                <h2>My Tasks Overview</h2>
+                <div class="dashboard-cards">
                     <div class="card">
-                        <div class="card-header">
-                            <span class="material-icons card-icon">local_shipping</span>
-                            <h2 class="card-title">Delivery 1</h2>
+                        <div class="card-inner">
+                        <div class="card-status-button <?php echo strtolower($data['not_started']); ?>">
+                                        <?php echo str_replace('_', ' ', ucfirst($data['not_started'])); ?>
+                                    </div>
+                            <span class="material-icons-sharp">new_releases</span>
                         </div>
-                        <h3 class="card-value">Project Name:</h3>
-                        <h2>Keels Installation</h2>
-                        <h3 class="card-value">Delivery Details:</h3>
-                        <h4>Delivered solar panels and inverter for installation.</h4>
+                        <h1><?php echo $data['notStartedCount']; ?></h1>
                     </div>
-
+                    
                     <div class="card">
-                        <div class="card-header">
-                            <span class="material-icons card-icon">local_shipping</span>
-                            <h2 class="card-title">Delivery 2</h2>
+                        <div class="card-inner">
+                        <div class="card-status-button <?php echo strtolower($data['in_progress']); ?>">
+                                        <?php echo str_replace('_', ' ', ucfirst($data['in_progress'])); ?>
+                                    </div>
+                            <span class="material-icons-sharp">sync</span>
                         </div>
-                        <h3 class="card-value">Project Name:</h3>
-                        <h2>Watawala Industries Maintenance</h2>
-                        <h3 class="card-value">Delivery Details:</h3>
-                        <h4>Delivered maintenance kit and inverter update tools.</h4>
+                        <h1><?php echo $data['inProgressCount']; ?></h1>
                     </div>
-
+                    
                     <div class="card">
-                        <div class="card-header">
-                            <span class="material-icons card-icon">local_shipping</span>
-                            <h2 class="card-title">Delivery 3</h2>
+                        <div class="card-inner">
+                        <div class="card-status-button <?php echo $data['completed']; ?>">
+                            <?php echo str_replace('_', ' ', ucfirst($data['completed'])); ?>
                         </div>
-                        <h3 class="card-value">Project Name:</h3>
-                        <h2>DB Ltd Repair</h2>
-                        <h3 class="card-value">Delivery Details:</h3>
-                        <h4>Replacement part for solar inverter pending delivery.</h4>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="material-icons card-icon">local_shipping</span>
-                            <h2 class="card-title">Delivery 4</h2>
+                            <span class="material-icons-sharp">check_circle</span>
                         </div>
-                        <h3 class="card-value">Project Name:</h3>
-                        <h2>Residential Battery Installation</h2>
-                        <h3 class="card-value">Delivery Details:</h3>
-                        <h4>Delivered battery storage system for installation.</h4>
+                        <h1><?php echo $data['completedCount']; ?></h1>
                     </div>
+                </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <span class="material-icons card-icon">local_shipping</span>
-                            <h2 class="card-title">Delivery 5</h2>
+                <h2>My Orders Overview</h2>
+                <div class="dashboard-cards">
+                    <div class="card pending">
+                        <div class="card-inner">
+                        <div class="card-status-button <?php echo $data['pending']; ?>">
+                            <?php echo str_replace('_', ' ', ucfirst($data['pending'])); ?>
                         </div>
-                        <h3 class="card-value">Project Name:</h3>
-                        <h2>City Mall Site Survey</h2>
-                        <h3 class="card-value">Delivery Details:</h3>
-                        <h4>Delivered survey equipment and documentation for site survey.</h4>
+                            <span class="material-icons-sharp">schedule</span>
+                        </div>
+                        <h1><?php echo $data['pendingCount']; ?></h1>
                     </div>
-                </section>
-
+                    
+                    <div class="card delivered">
+                        <div class="card-inner">
+                        <div class="card-status-button <?php echo $data['delivered']; ?>">
+                            <?php echo str_replace('_', ' ', ucfirst($data['delivered'])); ?>
+                        </div>
+                            <span class="material-icons-sharp">check_circle</span>
+                        </div>
+                        <h1><?php echo $data['deliveredCount']; ?></h1>
+                    </div>
+                    
+                </div>
 
             </div>
         </div>

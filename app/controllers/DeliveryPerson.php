@@ -53,28 +53,45 @@ class DeliveryPerson extends Controller
 
     public function dashboard()
     {
-                // Get the delivery person's employee ID from the user ID in session
-                $userId = $_SESSION['user_id'];
 
-                // Add a method to fetch employee_id from user_id
-                $employee = $this->deliveryPersonModel->getEmployeeByUserId($userId);
-                if (!$employee) {
-                    flash('order_message', 'Employee profile not found', 'alert alert-danger');
-                    redirect('deliveryPerson/dashboard');
-                }
+        $employee = $this->employeeModel->getEmployeeByUserId($_SESSION['user_id']);
+
+        if (!$employee) {
+            flash('error_msg', 'Employee not found');
+            redirect('users/login');
+        }
+
         
-                $employeeId = $employee->employee_id;
-        
-                // Get pending and completed orders for this delivery person
-                $pendingOrders = $this->shopModel->getDeliveryPersonPendingOrders($employeeId);
-                $completedOrders = $this->shopModel->getDeliveryPersonCompletedOrders($employeeId);
-        
-                $data = [
-                    'pendingOrders' => $pendingOrders,
-                    'completedOrders' => $completedOrders
-                ];
-        
-                $this->view('deliveryPerson/v_deliveryPersonOrders', $data);
+        // Fetch tasks for the delivery person
+        $tasks = $this->tasksModel->getTotalProjectTasksById($employee->employee_id);
+
+        // Get task counts by status
+        $inProgressCount = $this->tasksModel->getTaskCountByStatusForEmployee('in_progress', $employee->employee_id);
+        $notStartedCount = $this->tasksModel->getTaskCountByStatusForEmployee('not_started', $employee->employee_id);
+        $completedCount = $this->tasksModel->getTaskCountByStatusForEmployee('completed', $employee->employee_id);
+
+        // Get order counts by status
+        $pendingCount = $this->deliveryPersonModel->getOrderCountByStatusForEmployee('pending', $employee->employee_id);
+        $deliveredCount = $this->deliveryPersonModel->getOrderCountByStatusForEmployee('delivered', $employee->employee_id);
+
+        // Prepare data for view
+        $data = [
+            'employee' => $employee,
+            'tasks' => $tasks,
+            'not_started' => 'not_started',
+            'in_progress' => 'in_progress',
+            'completed' => 'completed',
+            'pending' => 'pending',
+            'delivered' => 'delivered',
+            'inProgressCount' => $inProgressCount,
+            'notStartedCount' => $notStartedCount,
+            'completedCount' => $completedCount,
+            'pendingCount' => $pendingCount,
+            'deliveredCount' => $deliveredCount
+        ];
+
+        $this->view('deliveryPerson/v_deliveryPersonDashboard', $data);
+
     }
 
     public function requestHoliday()

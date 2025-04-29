@@ -101,7 +101,7 @@
                                     <td><?php echo $supplier->address; ?></td>
                                     <td><?php echo date('M d, Y', strtotime($supplier->created_at)); ?></td>
                                     <td class="actions">
-                                        <button onclick="viewSupplier(<?php echo $supplier->id; ?>)" class="btn-icon view view-btn">
+                                    <button onclick="viewSupplier(<?php echo $supplier->id; ?>)" class="btn-icon view view-btn">
                                             <span class="material-icons-sharp">visibility</span>
                                         </button>
                                         <button onclick="location.href='<?php echo URLROOT; ?>/supplierCoordinator/edit/<?php echo $supplier->id ?>'" class="btn-icon edit edit-btn">
@@ -119,7 +119,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- View Modal -->
     <div id="viewModal" class="modal">
         <div class="modal-content">
@@ -312,5 +312,5 @@
     </style>
 
     <script src="<?php echo URLROOT; ?>/js/supplierCoordinator/suppliers.js"></script>
-    <script src="<?php echo URLROOT; ?>/js/supplier.js"></script>
+
     <?php require APPROOT . '/views/supplierCoordinator/footer.php'; ?>

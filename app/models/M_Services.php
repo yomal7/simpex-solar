@@ -50,6 +50,26 @@ class M_Services
         return $this->db->execute();
     }
 
+
+    public function getServiceRequestByPreProjectId($preProjectId)
+    {
+        $this->db->query('SELECT * FROM services WHERE pre_project_id = :pre_project_id AND status != "completed" ORDER BY requested_date DESC');
+        $this->db->bind(':pre_project_id', $preProjectId);
+
+        return $this->db->resultSet();
+    }
+
+    public function getAllServices()
+    {
+        $this->db->query('SELECT s.*, u.name AS customer_name
+                          FROM services s
+                          INNER JOIN users u ON s.customer_id = u.user_id
+                          WHERE s.status != "completed"
+                          ORDER BY s.requested_date DESC');
+
+        return $this->db->resultSet();
+    }
+
     /**
      * Get completed projects for a customer that are within warranty period
      * 
@@ -103,13 +123,8 @@ class M_Services
      */
     public function getServiceRequestById($serviceId)
     {
-        $this->db->query('SELECT s.*, p.pre_project_id, pk.name AS package_name,
-                          p.status AS project_status, p.current_phase
-                          FROM services s
-                          INNER JOIN projects p ON s.project_id = p.project_id
-                          INNER JOIN customerquotation q ON p.quotation_id = q.quotation_id
-                          INNER JOIN package pk ON q.package_id = pk.package_id
-                          WHERE s.service_id = :service_id');
+        $this->db->query('SELECT * FROM services
+                          WHERE service_id = :service_id');
 
         $this->db->bind(':service_id', $serviceId);
 
@@ -117,11 +132,28 @@ class M_Services
     }
 
     /**
-     * Check if a project is within warranty period
+     * Update service request status
      * 
-     * @param int $projectId The project ID
-     * @return bool True if in warranty, false otherwise
+     * @param int $serviceId The service ID
+     * @param string $status The new status
+     * @param string $comments Optional comments for status change
+     * @return bool True if updated, false otherwise
      */
+    public function updateServiceStatus($serviceId, $status, $comments = '')
+    {
+        $this->db->query('UPDATE services SET status = :status, 
+                     comments = CASE WHEN :comments = "" THEN comments ELSE :comments END,
+                     updated_at = NOW() 
+                     WHERE service_id = :service_id');
+
+        $this->db->bind(':status', $status);
+        $this->db->bind(':comments', $comments);
+        $this->db->bind(':service_id', $serviceId);
+
+        return $this->db->execute();
+    }
+
+
     public function isProjectInWarranty($projectId)
     {
         $this->db->query('SELECT p.project_id, pk.warranty_years, 
@@ -149,4 +181,5 @@ class M_Services
 
         return $this->db->execute();
     }
+
 }

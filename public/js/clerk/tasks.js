@@ -1,4 +1,4 @@
-const URLROOT = "http://localhost/simpex-solar";
+// const URLROOT = "http://localhost/simpex-solar";
 
 document.addEventListener("click", function (event) {
   const sidebar = document.getElementById("sidebar");
@@ -39,7 +39,7 @@ function updateStatus(taskId, status) {
 }
 
 function updateTaskStatus(taskId, status) {
-  fetch(`${URLROOT}/engineer/tasks`, {
+  fetch(`${URLROOT}/clerk/tasks`, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -87,7 +87,7 @@ function addComment(taskId) {
   if (!comment) return;
 
   // Send the request as x-www-form-urlencoded with taskId and comment
-  fetch(`${URLROOT}/engineer/details/${taskId}`, {
+  fetch(`${URLROOT}/clerk/details/${taskId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -109,7 +109,7 @@ function deleteComment(taskId) {
   if (!confirm("Are you sure you want to delete this comment?")) return;
 
   // Send the request as x-www-form-urlencoded for deleting the comment
-  fetch(`${URLROOT}/engineer/details/${taskId}`, {
+  fetch(`${URLROOT}/clerk/details/${taskId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",

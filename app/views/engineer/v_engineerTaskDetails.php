@@ -45,12 +45,12 @@
                                 <div class="task-info-top">
                                     <div class="info-group">
                                         <label class="fut">Task ID:</label>
-                                        <span>TSK<?php echo str_pad($data['task']->id, 6, '0', STR_PAD_LEFT); ?></span>
+                                        <span><?php echo $data['task']->id; ?></span>
                                     </div>
 
                                     <div class="info-group">
                                         <label>Project ID:</label>
-                                        <span>PRJ<?php echo str_pad($data['task']->project_id, 6, '0', STR_PAD_LEFT); ?></span>
+                                        <span><?php echo $data['task']->project_id; ?></span>
                                     </div>
                                 
                                     <div class="info-group">
@@ -79,7 +79,7 @@
                                             <div class="status-dropdown-container">
                                                 <select class="status-dropdown <?php echo strtolower($data['task']->status); ?>" 
                                                         onchange="updateStatus(<?php echo $data['task']->id; ?>, this.value)">
-                                                    <option value="incomplete" <?php echo $data['task']->status == 'incomplete' ? 'selected' : ''; ?>>Incomplete</option>
+                                                    <option value="not_started" <?php echo $data['task']->status == 'not_started' ? 'selected' : ''; ?>>Not Started</option>
                                                     <option value="in_progress" <?php echo $data['task']->status == 'in_progress' ? 'selected' : ''; ?>>In Progress</option>
                                                     <option value="completed" <?php echo $data['task']->status == 'completed' ? 'selected' : ''; ?>>Completed</option>
                                                 </select>

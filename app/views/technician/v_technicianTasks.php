@@ -74,8 +74,8 @@
                             <?php if (!empty($data['projectTasks'])): ?>
                                 <?php foreach ($data['projectTasks'] as $task): ?>
                                     <tr>
-                                        <td>TSK<?php echo str_pad($task->id, 6, '0', STR_PAD_LEFT); ?></td>
-                                        <td>PRJ<?php echo str_pad($task->project_id, 6, '0', STR_PAD_LEFT); ?></td>
+                                        <td><?php echo $task->id; ?></td>
+                                        <td><?php echo $task->project_id; ?></td>
                                         <td><?php echo strlen($task->title) > 50 ? substr($task->title, 0, 50) . '...' : $task->title; ?></td>
                                         <td><?php echo $task->end_date; ?></td>
                                         <td>

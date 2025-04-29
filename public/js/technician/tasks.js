@@ -29,7 +29,7 @@ function updateStatus(taskId, status) {
   const dropdown = document.querySelector('.status-dropdown');
   if (dropdown) {
       // Remove all status classes
-      dropdown.classList.remove('incomplete', 'in_progress', 'completed');
+      dropdown.classList.remove('not_started', 'in_progress', 'completed');
       // Add the new status class
       dropdown.classList.add(status);
   }
@@ -60,7 +60,7 @@ function updateTaskStatus(taskId, status) {
           statusButton.textContent = formattedStatus;
 
           statusButton.classList.remove(
-            "incomplete",
+            "not_started",
             "in_progress",
             "completed"
           );

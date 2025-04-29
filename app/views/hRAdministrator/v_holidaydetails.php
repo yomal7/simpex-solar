@@ -47,7 +47,7 @@
 
                                                 <div class="info-group">
                                                     <label class="fut">Employee ID :</label>
-                                                    <span>EMP<?php echo str_pad($data['record']->employee_id, 4, '0', STR_PAD_LEFT); ?></span>
+                                                    <span><?php echo $data['record']->employee_id; ?></span>
                                                 </div>
 
                                                 <div class="info-group">
@@ -92,12 +92,12 @@
                                                     <div class="task-info-top">
                                                         <div class="info-group">
                                                             <label>Project ID :</label>
-                                                            <span>PRJ<?php echo str_pad($task->project_id, 6, '0', STR_PAD_LEFT); ?></span>
+                                                            <span><?php echo $task->project_id; ?></span>
                                                         </div>
 
                                                         <div class="info-group">
                                                             <label>Task ID :</label>
-                                                            <span>TSK<?php echo str_pad($task->id, 6, '0', STR_PAD_LEFT); ?></span>
+                                                            <span><?php echo $task->id; ?></span>
                                                         </div>
 
                                                         <div class="info-group">

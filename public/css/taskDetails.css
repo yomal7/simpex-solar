@@ -75,7 +75,7 @@
     font-weight: 500;
   }
   
-  .status-badge.incomplete {
+  .status-badge.not_strated {
     background-color: #ffebee;
     color: #c62828;
   }
@@ -247,9 +247,9 @@
 }
 
 /* Apply the same status colors */
-.status-dropdown.incomplete {
-  background-color: #ffebee;
-    color: #c62828;
+.status-dropdown.not_started {
+  background-color: #fff8e1;
+  color: #f57c00;
 }
 
 .status-dropdown.in_progress {
