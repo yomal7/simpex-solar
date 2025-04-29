@@ -404,7 +404,7 @@
                             <i class='bx bx-download'></i> Agreement
                         </a>
                         <?php endif; ?>
-                        <a href="<?php echo URLROOT; ?>/client/services" class="btn btn-service">
+                        <a href="<?php echo URLROOT; ?>/client/services/<?php echo $project->pre_project_id; ?>" class="btn btn-service">
                             <i class='bx bx-support'></i> After Sales Support
                         </a>
                     </div>

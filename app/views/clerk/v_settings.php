@@ -7,10 +7,6 @@
     <div class="dashboard-container">
         <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
-        <!-- ************ -->
-        <!-- Sidebar -->
-        <!-- ************ -->
-
         <div class="sidebar" id="sidebar">
             <div class="company-logo">
                 <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
@@ -23,10 +19,6 @@
                     <p>Clerk</p>
                 </div>
             </div>
-            <a href="<?php echo URLROOT ?>/clerk/dashboard">
-                <span class="material-icons-sharp">dashboard</span>
-                <h3>Dashboard</h3>
-            </a>
             <a href="<?php echo URLROOT ?>/clerk/attendance">
                 <span class="material-icons-sharp">checklist_rtl</span>
                 <h3>Attendance</h3>
@@ -37,9 +29,9 @@
             </a>
             <a href="<?php echo URLROOT ?>/clerk/requestHoliday">
                 <span class="material-icons-sharp">event</span>
-                <h3>Request Holiday</h3>
+                <h3>Request Leave</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/clerk/settings"  class="active">
+            <a href="<?php echo URLROOT ?>/clerk/settings" class="active">
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
