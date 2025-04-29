@@ -1,6 +1,6 @@
 <?php require APPROOT . '/views/operationsCoordinator/header.php'; ?>
 
-<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/viewTasks.css">
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/services.css">
 </head>
 
 <body data-user-role="operationsCoordinator" data-user-id="<?php echo $_SESSION['user_id']; ?>" data-urlroot="<?php echo URLROOT; ?>">
@@ -27,6 +27,10 @@
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/preProjects">
+                <span class="material-icons-sharp">solar_power</span>
+                <h3>Pre-Project</h3>
+            </a>
             <a href="<?php echo URLROOT ?>/operationsCoordinator/manageAproject">
                 <span class="material-icons-sharp">receipt_long</span>
                 <h3>Projects</h3>
@@ -35,9 +39,13 @@
                 <span class="material-icons-sharp">solar_power</span>
                 <h3>Packages</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/tasks" class="active">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/tasks">
                 <span class="material-icons-sharp">task</span>
                 <h3>Tasks</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/services" class="active">
+                <span class="material-icons-sharp">build</span>
+                <h3>Services</h3>
             </a>
             <a href="<?php echo URLROOT ?>/operationsCoordinator/chat" class="<?php echo (strpos($_SERVER['REQUEST_URI'], 'chat') !== false) ? 'active' : ''; ?>">
                 <span class="material-icons-sharp">chat</span>
@@ -55,45 +63,39 @@
         </div>
         <div class="main-content">
             <div class="container">
-
-                <a href="<?php echo URLROOT; ?>/operationsCoordinator/addTask"><button class="new-task-btn" data-toggle="modal" data-target="#myModal">Assign New Task</button></a>
-                <!-- <div class="card-container">
-                    <div class="card" id="total-projects">
-
-                    </div>
-                </div> -->
-
-
-                <!-- /* Task table */ -->
+                <!-- /* Services table */ -->
                 <div class="table-section">
 
                     <table class="project-table">
                         <thead>
                             <tr>
-                                <th>No.</th>
-                                <th>Task Title</th>
-                                <th>Assigned To</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
+                                <th>Service ID</th>
+                                <th>Customer Name</th>
+                                <th>Project ID</th>
+                                <th>Issue Type</th>
                                 <th>Status</th>
+                                <th>Requested Date</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
 
-                            <?php foreach ($data['tasks'] as $task): ?>
+                            <?php foreach ($data['services'] as $service): ?>
                                 <tr>
-                                    <td><?php echo $task->id; ?></td>
-                                    <td><?php echo $task->title; ?></td>
-                                    <td><?php echo $task->employee_name; ?></td>
-                                    <td><?php echo $task->start_date; ?></td>
-                                    <td><?php echo $task->end_date; ?></td>
-                                    <td><span class="task-status <?php echo strtolower($task->status); ?>"><?php echo str_replace('_', ' ', ucfirst($task->status)); ?></span></td>
-                                    <td><a href="<?php echo URLROOT; ?>/operationsCoordinator/viewTask/<?php echo $task->id; ?>"><button class="view-btn" onclick="downloadQuotation('${project.id}')">View</button></a></td>
+                                    <td><?php echo $service->service_id; ?></td>
+                                    <td><?php echo $service->customer_name; ?></td>
+                                    <td><?php echo $service->project_id; ?></td>
+                                    <td><?php echo ucwords($service->issue_type); ?></td>
+                                    <td><span class="task-status <?php echo strtolower($service->status); ?>"><?php echo str_replace('_', ' ', ucfirst($service->status)); ?></span></td>
+                                    <td><?php echo date('Y-m-d', strtotime($service->requested_date)); ?></td>
+                                    <td><a href="<?php echo URLROOT; ?>/operationsCoordinator/viewService/<?php echo $service->service_id; ?>"><button class="view-btn">View</button></a></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
+                    <div class="pagination" id="pagination">
+                        <!-- Pagination will be populated by JavaScript -->
+                    </div>
                 </div>
 
 
