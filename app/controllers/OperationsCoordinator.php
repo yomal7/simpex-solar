@@ -307,17 +307,32 @@ class OperationsCoordinator extends Controller
     }
 
 
-    public function saveReviewedQuotation()
-    {
+    public function saveReviewedQuotation() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             redirect('operationsCoordinator/preProjects');
         }
-
+    
         $postData = json_decode(file_get_contents("php://input"), true);
-
+        
+        // Ensure numeric values are properly formatted
+        $postData['base_price'] = (float)$postData['base_price'];
+        $postData['service_charge'] = (float)$postData['service_charge'];
+        $postData['total_price'] = (float)$postData['total_price'];
+        $postData['system_capacity'] = (float)$postData['system_capacity'];
+        $postData['estimated_generation'] = (float)$postData['estimated_generation'];
+        
+        // Ensure each equipment item has proper numeric values
+        foreach ($postData['equipment'] as &$item) {
+            $item['inventory_id'] = (int)$item['inventory_id'];
+            $item['quantity'] = (int)$item['quantity'];
+            $item['unit_price'] = (float)$item['unit_price'];
+            $item['total_price'] = (float)$item['total_price'];
+            $item['is_from_package'] = (int)$item['is_from_package'];
+        }
+    
         if ($this->preProjectModel->createReviewedQuotation($postData)) {
             $response = ['success' => true, 'message' => 'Quotation saved successfully'];
-
+            
             // Update quotation status
             $this->preProjectModel->updateQuotationStatus(
                 $postData['quotation_id'],
@@ -326,7 +341,7 @@ class OperationsCoordinator extends Controller
         } else {
             $response = ['success' => false, 'message' => 'Error saving quotation'];
         }
-
+    
         header('Content-Type: application/json');
         echo json_encode($response);
     }
@@ -1125,6 +1140,8 @@ class OperationsCoordinator extends Controller
     //     if (!$projectId) {
     //         flash('installation_message', 'Project ID is required', 'alert alert-danger');
     //         redirect('operationsCoordinator/projects');
+
+    //  pattern="^\d{9}[vVxX]$|^\d{12}$"
     //     }
 
     //     // Get project details
@@ -1135,7 +1152,33 @@ class OperationsCoordinator extends Controller
     //     }
 
     //     $agreement = $this->projectModel->getAgreementById($project->agreement_id);
-
+    // function sortTableByPhone(direction) {
+    //     const tbody = table.querySelector('tbody');
+    //     const rowsArray = Array.from(tbody.querySelectorAll('tr'));
+        
+    //     rowsArray.sort((a, b) => {
+    //         // Adjust the index to match your phone number column position
+    //         const phoneColIndex = 3; 
+            
+    //         // Remove non-numeric characters for consistent sorting
+    //         const phoneA = a.cells[phoneColIndex].textContent.replace(/\D/g, '');
+    //         const phoneB = b.cells[phoneColIndex].textContent.replace(/\D/g, '');
+            
+    //         // Sort numerically
+    //         if (direction === 'asc') {
+    //             return phoneA - phoneB;
+    //         } else {
+    //             return phoneB - phoneA;
+    //         }
+    //     });
+        
+    //     // Clear and repopulate table body
+    //     while (tbody.firstChild) {
+    //         tbody.removeChild(tbody.firstChild);
+    //     }
+        
+    //     rowsArray.forEach(row => tbody.appendChild(row));
+    // }
     //     // Get customer details
     //     $customerDetails = $this->projectModel->getCustomerDetailsByProjectId($projectId);
     //     if ($customerDetails) {
@@ -1893,6 +1936,7 @@ class OperationsCoordinator extends Controller
                 'project_id' => trim($_POST['project_id']),
                 'employee_id' => trim($_POST['employee_id']),
                 'employees' => $this->employeeModel->getAllEmployees(), // Add employees list
+                'projects' => $this->tasksModel->getProjectIdsWithCity(), // Add projects list
                 'title_err' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',
@@ -1927,15 +1971,11 @@ class OperationsCoordinator extends Controller
             }
 
             // Make sure no errors
-            if (
-                empty($data['title_err']) && empty($data['start_date_err']) &&
-                empty($data['end_date_err']) && empty($data['description_err']) &&
-                empty($data['project_id_err']) && empty($data['employee_id_err'])
-            ) {
 
-                // Set default status as 'incomplete' for new tasks
-                $data['status'] = 'incomplete';
-
+            if (empty($data['title_err']) && empty($data['start_date_err']) && 
+                empty($data['end_date_err']) && empty($data['description_err']) && 
+                empty($data['project_id_err']) && empty($data['employee_id_err'])) {
+                
                 // Validated
                 if ($this->tasksModel->create($data)) {
                     flash('task_msg', 'Task assigned successfully');
@@ -1956,6 +1996,7 @@ class OperationsCoordinator extends Controller
                 'project_id' => '',
                 'employee_id' => '',
                 'employees' => $this->employeeModel->getAllEmployees(), // Add employees list
+                'projects' => $this->tasksModel->getProjectIdsWithCity(),
                 'title_err' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',
@@ -1975,14 +2016,15 @@ class OperationsCoordinator extends Controller
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
             $data = [
                 'id' => $taskId,
-                'title' => trim($_POST['title']),
+                'title' => $this->tasksModel->getTaskById($taskId)->title,
                 'start_date' => trim($_POST['start_date']),
                 'end_date' => trim($_POST['end_date']),
                 'description' => trim($_POST['description']),
                 'project_id' => trim($_POST['project_id']),
-                'employee_id' => trim($_POST['employee_id']),
+                'employee_id' => $this->tasksModel->getTaskById($taskId)->employee_id,
                 'status' => trim($_POST['status']),
                 'employees' => $this->employeeModel->getAllEmployees(),
+                'projects' => $this->tasksModel->getProjectIdsWithCity(),
                 'title_err' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',
@@ -2047,6 +2089,7 @@ class OperationsCoordinator extends Controller
                 'employee_id' => $task->employee_id,
                 'status' => $task->status,
                 'employees' => $this->employeeModel->getAllEmployees(),
+                'projects' => $this->tasksModel->getProjectIdsWithCity(),
                 'title_err' => '',
                 'start_date_err' => '',
                 'end_date_err' => '',

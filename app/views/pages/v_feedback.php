@@ -24,11 +24,6 @@
                 <span class="invalid-feedback"><?php echo isset($data['email_err']) ? $data['email_err'] : ''; ?></span>
             </div>
             
-            <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" value="<?php echo isset($data['phone']) ? $data['phone'] : ''; ?>">
-                <small>Optional - Format: 0771234567</small>
-            </div>
             
             <div class="form-group">
                 <label for="feedback_type">Feedback Type <span class="required">*</span></label>
@@ -45,6 +40,7 @@
             
             <div class="form-group">
                 <label for="subject">Subject <span class="required">*</span></label>
+                <!-- pattern="^07\d{8}$" -->
                 <input type="text" id="subject" name="subject" value="<?php echo isset($data['subject']) ? $data['subject'] : ''; ?>" required>
                 <span class="invalid-feedback"><?php echo isset($data['subject_err']) ? $data['subject_err'] : ''; ?></span>
             </div>
@@ -139,6 +135,47 @@
         form.addEventListener('submit', function(e) {
             // Form will submit normally - the modal will show after redirect if successful
         });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get references to elements
+        const modal = document.getElementById('successModal');
+        const closeBtn = document.querySelector('.close');
+        const continueBtn = document.getElementById('closeModalBtn');
+        const form = document.getElementById('feedbackForm');
+        
+        // Check if there's a success message in the session flash
+        // This is the key part - only show the modal if there's actually a success flash message
+        const flashMessage = document.querySelector('.flash-success');
+        
+        if (flashMessage && flashMessage.style.display !== 'none') {
+            modal.style.display = 'block';
+            // Hide the flash message since we're showing the modal
+            flashMessage.style.display = 'none';
+        } else {
+            // Make sure modal is hidden otherwise
+            modal.style.display = 'none';
+        }
+        
+        // Close modal when clicking the X
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+            window.location.href = '<?php echo URLROOT; ?>/pages/index';
+        }
+        
+        // Close modal when clicking the Continue button
+        continueBtn.onclick = function() {
+            modal.style.display = 'none';
+            window.location.href = '<?php echo URLROOT; ?>/pages/index';
+        }
+        
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+                window.location.href = '<?php echo URLROOT; ?>/pages/index';
+            }
+        }
     });
 </script>
 

@@ -88,7 +88,7 @@
                                     <td><?php echo $task->employee_name; ?></td>
                                     <td><?php echo $task->start_date; ?></td>
                                     <td><?php echo $task->end_date; ?></td>
-                                    <td><span class="task-status <?php echo strtolower($task->status); ?>"><?php echo $task->status; ?></span></td>
+                                    <td><span class="task-status <?php echo strtolower($task->status); ?>"><?php echo str_replace('_', ' ', ucfirst($task->status)); ?></span></td>
                                     <td><a href="<?php echo URLROOT; ?>/operationsCoordinator/viewTask/<?php echo $task->id; ?>"><button class="view-btn" onclick="downloadQuotation('${project.id}')">View</button></a></td>
                                 </tr>
                             <?php endforeach; ?>

@@ -1,47 +1,40 @@
 <?php require APPROOT.'/views/client/header.php';?>
 
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/client/agreement.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/client/agreement.css">
 
 </head>
 <body>
-    
-
     <?php require APPROOT.'/views/inc/components/topnavbar.php'; ?>
     <!-- Sidebar -->
     <div class="sidebar">
-        <!-- <a href="#" class="logo">
-            <i class='bx bx-code-alt'></i>
-            <div class="logo-name"><span>Asmr</span>Prog</div>
-        </a> -->
         <ul class="side-menu">
             <li>
-                <a href="<?php echo URLROOT; ?>/client/project" style="background-color: rgb(192, 236, 192);" class="back-buttons"><i class='bx bx-arrow-back'></i>Back</a></li>
+                <a href="<?php echo URLROOT; ?>/client/project" class="back-buttons">
+                    <i class='bx bx-arrow-back'></i>Back
+                </a>
             </li>
         </ul>
     </div>
     <!-- End of Sidebar -->
 
     <div class="content">
-            <!-- Navbar -->
-            <nav>
-                <i class='bx bx-menu'></i>
-            </nav>
-
-            <!-- End of Navbar -->
-            
+        <!-- Navbar -->
+        <nav>
+            <i class='bx bx-menu'></i>
+        </nav>
+        <!-- End of Navbar -->
         
         <div class="container">
             <div class="card">
                 <div class="header-text">
                     <h1>Project Agreement</h1>
-                    <div class="status-badge">Pending Review</div>
+                    <div class="status-badge"><?php echo ucfirst($data['agreement']->status); ?></div>
                 </div>
                 
                 <div class="agreement-details">
-                    <input type="hidden" name="agreement_id" value="<?php echo $data['agreement']->agreement_id; ?>">
-                    <input type="hidden" name="pre_project_id" value="<?php echo $data['agreement']->pre_project_id; ?>">
+                    <input type="hidden" id="agreement_id" value="<?php echo $data['agreement']->agreement_id; ?>">
+                    <input type="hidden" id="pre_project_id" value="<?php echo $data['agreement']->pre_project_id; ?>">
                     
                     <!-- System Details -->
                     <div class="details-section">
@@ -107,6 +100,17 @@
                         <?php endif; ?>
                     </div>
 
+                    <!-- Customer Signature Section (if signed) -->
+                    <?php if ($data['agreement']->customer_signature): ?>
+                    <div class="details-section">
+                        <h3>Your Signature</h3>
+                        <div class="signature-display">
+                            <img src="<?php echo URLROOT; ?>/public/uploads/signatures/customers/<?php echo $data['agreement']->customer_signature; ?>" 
+                                alt="Customer Signature">
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
                 </div>
 
                 <div class="button-group">
@@ -120,15 +124,20 @@
                         <button class="btn btn-danger" onclick="openCancelPopup()">
                             <i>✕</i> Cancel Project
                         </button>
+                    <?php elseif ($data['agreement']->status === 'completed'): ?>
+                        <button class="btn btn-primary" onclick="downloadAgreement(<?php echo $data['agreement']->agreement_id; ?>)">
+                            <i class='bx bx-download'></i> Download Agreement
+                        </button>
+                        <div class="status-message">
+                            <p class="status success">Agreement has been signed successfully</p>
+                            <p class="notice">Note: After signing this agreement, the project cannot be cancelled.</p>
+                        </div>
                     <?php else: ?>
                         <div class="status-message">
                             <?php 
                             switch($data['agreement']->status) {
                                 case 'revision_requested':
                                     echo '<p class="status warning">Agreement is under revision</p>';
-                                    break;
-                                case 'completed':
-                                    echo '<p class="status success">Agreement has been signed</p>';
                                     break;
                                 case 'cancelled':
                                     echo '<p class="status danger">Agreement has been cancelled</p>';
@@ -138,15 +147,13 @@
                         </div>
                     <?php endif; ?>
                 </div>
-
-
             </div>
         </div>
 
         <!-- Toast Container -->
         <div class="toast-container" id="toastContainer"></div>
 
-        <!-- Popup forms remain the same but moved outside the agreement-details div -->
+        <!-- Popup forms -->
         <div class="popup" id="approvePopup">
             <h2>Sign Agreement</h2>
             <p>By signing this agreement, you confirm that you have read and understood all terms and conditions.</p>
@@ -162,7 +169,7 @@
 
         <div class="popup" id="submitAgainPopup">
             <h2>Request Revision</h2>
-            <textarea class="comment-box" placeholder="Enter your comments for changes..."></textarea>
+            <textarea id="revisionNote" class="comment-box" placeholder="Enter your comments for changes..."></textarea>
             <button class="btn btn-primary" onclick="submitReview()">Submit</button>
             <button class="btn btn-secondary" onclick="closePopup('submitAgainPopup')">Cancel</button>
         </div>
@@ -174,11 +181,11 @@
             <button class="btn btn-secondary" onclick="closePopup('cancelPopup')">No, Keep</button>
         </div>
 
-    <div class="overlay" id="overlay"></div>
+        <div class="overlay" id="overlay"></div>
+    </div>
+
     <script>
-
         const URLROOT = '<?php echo URLROOT; ?>';
-
     </script>
     <script src="<?php echo URLROOT; ?>/js/client/agreement.js"></script>
 <?php require APPROOT.'/views/client/footer.php';?>

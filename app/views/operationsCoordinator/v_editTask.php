@@ -61,7 +61,24 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label for="title">Task Title</label>
-                            <input type="text" name="title" id="title" placeholder="Task Title" value="<?php echo $data['title']; ?>">
+                            <select name="title" id="title" class="form-control <?php echo (!empty($data['title_err'])) ? 'is-invalid' : ''; ?>" disabled>
+                                <option value="">Select Task Title...</option>
+                                <option value="Site Assessment" <?php echo ($data['title'] == 'Site Assessment') ? 'selected' : ''; ?>>Site Assessment</option>
+                                <option value="Permit Application" <?php echo ($data['title'] == 'Permit Application') ? 'selected' : ''; ?>>Permit Application</option>
+                                <option value="Equipment Procurement" <?php echo ($data['title'] == 'Equipment Procurement') ? 'selected' : ''; ?>>Equipment Procurement</option>
+                                <option value="Roof Inspection" <?php echo ($data['title'] == 'Roof Inspection') ? 'selected' : ''; ?>>Roof Inspection</option>
+                                <option value="Mounting System Installation" <?php echo ($data['title'] == 'Mounting System Installation') ? 'selected' : ''; ?>>Mounting System Installation</option>
+                                <option value="Panel Installation" <?php echo ($data['title'] == 'Panel Installation') ? 'selected' : ''; ?>>Panel Installation</option>
+                                <option value="Electrical Wiring" <?php echo ($data['title'] == 'Electrical Wiring') ? 'selected' : ''; ?>>Electrical Wiring</option>
+                                <option value="Inverter Installation" <?php echo ($data['title'] == 'Inverter Installation') ? 'selected' : ''; ?>>Inverter Installation</option>
+                                <option value="Battery Installation" <?php echo ($data['title'] == 'Battery Installation') ? 'selected' : ''; ?>>Battery Installation</option>
+                                <option value="System Testing" <?php echo ($data['title'] == 'System Testing') ? 'selected' : ''; ?>>System Testing</option>
+                                <option value="Grid Connection" <?php echo ($data['title'] == 'Grid Connection') ? 'selected' : ''; ?>>Grid Connection</option>
+                                <option value="Final Inspection" <?php echo ($data['title'] == 'Final Inspection') ? 'selected' : ''; ?>>Final Inspection</option>
+                                <option value="Customer Handover" <?php echo ($data['title'] == 'Customer Handover') ? 'selected' : ''; ?>>Customer Handover</option>
+                                <option value="Maintenance Visit" <?php echo ($data['title'] == 'Maintenance Visit') ? 'selected' : ''; ?>>Maintenance Visit</option>
+                                <option value="Other" <?php echo ($data['title'] == 'Other') ? 'selected' : ''; ?>>Other</option>
+                            </select>
                             <span class="form-invalid"><?php echo isset($data['title_err']) ? $data['title_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
@@ -76,22 +93,26 @@
                         </div>
                         <div class="form-group">
                             <label for="project_id">Project</label>
-                            <input type="text" name="project_id" id="project_id" placeholder="Project" value="<?php echo $data['project_id']; ?>">
-                            <!-- <select id="project_id" name="project_id" required>
-                                <option value="">Select Project...</option>
-                                options will be populated dynamically
-                            </select> -->
+                            <select name="project_id" id="project_id" class="form-control <?php echo (!empty($data['project_id_err'])) ? 'is-invalid' : ''; ?>">
+                                <option value="">Select Project</option>
+                                <?php foreach ($data['projects'] as $project) : ?>
+                                    <option value="<?php echo $project->project_id; ?>"
+                                        <?php echo (isset($data['project_id']) && $data['project_id'] == $project->project_id) ? 'selected' : ''; ?>>
+                                        <?php echo $project->project_id . ' - ' . ucfirst($project->nearest_city); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                             <span class="form-invalid"><?php echo isset($data['project_id_err']) ? $data['project_id_err'] : ''; ?></span>
                         </div>
                         <div class="form-group">
                             <label for="employee_id">Assign To</label>
                             <select name="employee_id" id="employee_id"
-                                class="form-control <?php echo (!empty($data['employee_id_err'])) ? 'is-invalid' : ''; ?>">
+                                class="form-control <?php echo (!empty($data['employee_id_err'])) ? 'is-invalid' : ''; ?>" disabled>
                                 <option value="">Select Employee</option>
                                 <?php foreach ($data['employees'] as $employee) : ?>
                                     <option value="<?php echo $employee->employee_id; ?>"
                                         <?php echo (isset($data['employee_id']) && $data['employee_id'] == $employee->employee_id) ? 'selected' : ''; ?>>
-                                        <?php echo $employee->employee_id . ' - ' . $employee->name . ' - ' . $employee->role; ?>
+                                        <?php echo $employee->employee_id . ' - ' . $employee->name . ' - ' . ucwords(preg_replace('/([a-z])([A-Z])/', '$1 $2', $employee->role)); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -104,9 +125,9 @@
                         </div>
                         <div class="form-group">
                             <label for="status">Status</label>
-                            <select id="status" name="status"">
+                            <select id="status" name="status">
                                 <option value="">Select Status...</option>
-                                <option value=" incomplete" <?php echo $data['status'] == 'incomplete' ? 'selected' : ''; ?>>Incomplete</option>
+                                <option value="not_started" <?php echo $data['status'] == 'not_started' ? 'selected' : ''; ?>>Not Started</option>
                                 <option value="in_progress" <?php echo $data['status'] == 'in_progress' ? 'selected' : ''; ?>>In Progress</option>
                                 <option value="completed" <?php echo $data['status'] == 'completed' ? 'selected' : ''; ?>>Completed</option>
                             </select>
@@ -136,12 +157,37 @@
 
     <script>
         // Set the min attribute of the start date input to today's date
-        document.getElementById('start_date').min = new Date().toISOString().split('T')[0];
+        // Get the start date field, end date field, and current date
+        const startDateField = document.getElementById('start_date');
+        const endDateField = document.getElementById('end_date');
+        const currentDate = new Date().toISOString().split('T')[0];
 
-        // Add an event listener to the start date input to update the min attribute of the end date input
-        document.getElementById('start_date').addEventListener('change', function() {
-            document.getElementById('end_date').min = this.value;
+        // Get the existing start date from PHP
+        const existingStartDate = "<?php echo $data['start_date']; ?>";
+
+        // Set the minimum date for the start date field
+        if (existingStartDate) {
+            // If the existing start date is in the past, set the min date to the existing start date
+            if (new Date(existingStartDate) < new Date()) {
+                startDateField.min = new Date(existingStartDate).toISOString().split('T')[0];
+            } else {
+                // If the existing start date is in the future, set the min date to today
+                startDateField.min = currentDate;
+            }
+        } else {
+            // If no existing start date (new task), set the min date to today
+            startDateField.min = currentDate;
+        }
+
+        // Add an event listener to update the min attribute of the end date field
+        startDateField.addEventListener('change', function() {
+            endDateField.min = this.value;
         });
+
+        // Set the initial min date for the end date field based on the start date field's value
+        if (startDateField.value) {
+            endDateField.min = startDateField.value;
+        }
     </script>
 
 

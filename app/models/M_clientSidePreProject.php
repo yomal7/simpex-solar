@@ -364,17 +364,6 @@ class M_clientSidePreProject{
         return $this->db->execute();
     }
 
-    // public function uploadSignature($agreementId, $signaturePath) {
-    //     $this->db->query("UPDATE project_agreements 
-    //                      SET status = 'completed', 
-    //                          customer_signature = :signature,
-    //                          updated_at = CURRENT_TIMESTAMP 
-    //                      WHERE agreement_id = :agreement_id");
-        
-    //     $this->db->bind(':agreement_id', $agreementId);
-    //     $this->db->bind(':signature', $signaturePath);
-    //     return $this->db->execute();
-    // }
     public function uploadSignature($agreementId, $signaturePath) {
         try {
             // Let's add debug logs for each step
@@ -480,6 +469,63 @@ class M_clientSidePreProject{
             return false;
         }
     }
+
+    public function getAgreementById($agreementId) {
+        // Get basic agreement data with additional customer information
+        $query = 'SELECT pa.*, 
+                   cs.signature_image,
+                   u.name as customer_name,
+                   u.phone
+               FROM project_agreements pa
+               LEFT JOIN coordinator_signatures cs ON pa.coordinator_signature_id = cs.signature_id
+               LEFT JOIN pre_projects pp ON pa.pre_project_id = pp.pre_project_id
+               LEFT JOIN users u ON pp.customer_id = u.user_id
+               WHERE pa.agreement_id = :agreement_id';
+        
+        $this->db->query($query);
+        $this->db->bind(':agreement_id', $agreementId);
+        
+        $agreement = $this->db->single();
+        
+        return $agreement;
+    }
+
+    // public function getAgreementEquipment($agreementId) {
+    //     $query = 'SELECT ae.*, 
+    //                 i.name as item_name,
+    //                 i.description as item_description,
+    //                 i.category as item_category
+    //             FROM agreement_equipment ae
+    //             LEFT JOIN inventory i ON ae.inventory_id = i.inventory_id
+    //             WHERE ae.agreement_id = :agreement_id';
+        
+    //     $this->db->query($query);
+    //     $this->db->bind(':agreement_id', $agreementId);
+        
+    //     return $this->db->resultSet();
+    // }
+
+    public function getAgreementByQuotationId($quotationId) {
+        // Get agreement data based on quotation ID
+        $query = 'SELECT pa.*,
+                    cs.signature_image,
+                    u.name as customer_name,
+                    u.phone,
+                    pp.customer_id
+                FROM project_agreements pa
+                LEFT JOIN coordinator_signatures cs ON pa.coordinator_signature_id = cs.signature_id
+                LEFT JOIN pre_projects pp ON pa.pre_project_id = pp.pre_project_id
+                LEFT JOIN users u ON pp.customer_id = u.user_id
+                WHERE pa.quotation_id = :quotation_id';
+        
+        $this->db->query($query);
+        $this->db->bind(':quotation_id', $quotationId);
+        
+        $agreement = $this->db->single();
+        
+        return $agreement;
+    }
+
 
 
 

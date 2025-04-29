@@ -82,59 +82,44 @@
         </div>
       </section>
 
-        <section class="banner-section">
-          <div class="banner-background"></div>
-          <div class="banner-overlay"></div>
-          
-          <h2 class="section-title">Featured Projects</h2>
-          
-          <div class="project-slider">
-              <div class="slider-track">
-                  <div class="project-slide">
-                      <div class="project-card">
-                          <img src="<?php echo URLROOT; ?>/assets/project1.jpeg" alt="Project 1" class="project-image">
-                          <div class="project-info">
-                              <h3 class="project-title">Solar Innovation Park</h3>
-                          </div>
-                      </div>
-                  </div>
-
-                  <div class="project-slide">
-                      <div class="project-card">
-                          <img src="<?php echo URLROOT; ?>/assets/project2.jpg" alt="Project 2" class="project-image">
-                          <div class="project-info">
-                              <h3 class="project-title">Coastal Wind Farm</h3>
-                          </div>
-                      </div>
-                  </div>
-
-                  <div class="project-slide">
-                      <div class="project-card">
-                          <img src="<?php echo URLROOT; ?>/assets/project3.jpg" alt="Project 3" class="project-image">
-                          <div class="project-info">
-                              <h3 class="project-title">Green Office Complex</h3>
-                          </div>
-                      </div>
-                  </div>
-
-                  <div class="project-slide">
-                      <div class="project-card">
-                          <img src="<?php echo URLROOT; ?>/assets/project4.jpg" alt="Project 4" class="project-image">
-                          <div class="project-info">
-                              <h3 class="project-title">10kW Energy Plant</h3>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-
-              <div class="slider-nav">
-                  <button class="nav-button prev">‹</button>
-                  <button class="nav-button next">›</button>
-              </div>
-          </div>
-      </section>
+      <section class="banner-section">
+        <div class="banner-background"></div>
+        <div class="banner-overlay"></div>
         
-      <!-- <section id="services" class="services">
+        <h2 class="section-title">Featured Projects</h2>
+        
+        <div class="projects-collage">
+            <div class="project-item">
+            <img src="<?php echo URLROOT; ?>/assets/project1.jpeg" alt="Project 1" class="project-image">
+            <div class="project-info">
+                <h3 class="project-title">Solar Innovation Park</h3>
+            </div>
+            </div>
+            
+            <div class="project-item">
+            <img src="<?php echo URLROOT; ?>/assets/project2.jpg" alt="Project 2" class="project-image">
+            <div class="project-info">
+                <h3 class="project-title">Coastal Wind Farm</h3>
+            </div>
+            </div>
+            
+            <div class="project-item">
+            <img src="<?php echo URLROOT; ?>/assets/project3.jpg" alt="Project 3" class="project-image">
+            <div class="project-info">
+                <h3 class="project-title">Green Office Complex</h3>
+            </div>
+            </div>
+            
+            <div class="project-item">
+            <img src="<?php echo URLROOT; ?>/assets/project4.jpg" alt="Project 4" class="project-image">
+            <div class="project-info">
+                <h3 class="project-title">10kW Energy Plant</h3>
+            </div>
+            </div>
+        </div>
+        </section>
+
+      <section id="services" class="services">
           <h2>Our Services</h2>
           <div class="services-grid">
               <div class="service-card">
@@ -153,7 +138,7 @@
                   <p>Effortless installation and maintenance</p>
               </div>
           </div>
-    </section> -->
+    </section>
 
     <!-- <section id="products" class="products">
         <h2>Featured Products</h2>
@@ -184,11 +169,11 @@
         <div class="testimonial-container">
             <div class="testimonial">
                 <div class="quote">"Outstanding service and remarkable results. Helped us reduce our carbon footprint by 40%."</div>
-                <div class="author">- John Smith, CEO</div>
+                <div class="author">- Waruna Baalasuuriya, CEO</div>
             </div>
             <div class="testimonial">
                 <div class="quote">"The team's expertise in sustainable solutions is unmatched. Highly recommended!"</div>
-                <div class="author">- Sarah Johnson, Director</div>
+                <div class="author">- Nimal Perera, Director</div>
             </div>
         </div>
     </section>

@@ -168,14 +168,12 @@
                                             target="_blank" class="btn view-btn">
                                             <span class="material-icons-sharp">visibility</span> View Delivery Report
                                         </a>
-                                    </div>
-                                    <div class="confirm-actions">
                                         <a href="<?php echo URLROOT; ?>/supplierCoordinator/confirmOrder/<?php echo $data['order']->id; ?>"
                                             class="btn confirm-btn">
                                             <span class="material-icons-sharp">check_circle</span> Confirm Delivery
                                         </a>
-                                        <p class="info-text">Click to confirm and upload signed delivery receipt</p>
                                     </div>
+                                    <p class="info-text">Click to confirm after viewing the delivery report</p>
                                 <?php endif; ?>
                             <?php endif; ?>
                         </div>
