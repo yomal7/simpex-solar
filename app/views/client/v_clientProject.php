@@ -2,6 +2,103 @@
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/client/project.css">
+<style>
+    .project-summary {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+    
+    .project-summary h2 {
+        color: #4CAF50;
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+    }
+    
+    .project-summary p {
+        color: #555;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .detail-row strong {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .completion-badge {
+        display: inline-block;
+        background-color: #4CAF50;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin-top: 10px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .btn-download, .btn-service {
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-download {
+        background-color: #2196F3;
+        color: white;
+        border: none;
+    }
+    
+    .btn-download:hover {
+        background-color: #0b7dda;
+    }
+    
+    .btn-service {
+        background-color: #673AB7;
+        color: white;
+        border: none;
+    }
+    
+    .btn-service:hover {
+        background-color: #5e35b1;
+    }
+    
+    .certificate-info {
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 15px;
+    }
+    
+    .completed-icon {
+        font-size: 3rem;
+        color: #4CAF50;
+        margin-bottom: 15px;
+        display: block;
+        text-align: center;
+    }
+</style>
 </head>
 
 <body>
@@ -40,6 +137,104 @@
                 <h2>Project ID: <?php echo $data['pre_project_id']; ?></h2>
             </div>
 
+            <?php
+            // Check if project is completed
+            $isProjectCompleted = false;
+            if (isset($data['progress']['project']) && 
+                $data['progress']['project']->current_phase === 'completed') {
+                $isProjectCompleted = true;
+            }
+            
+            if ($isProjectCompleted): 
+            ?>
+            <!-- Project Completed Summary View -->
+            <div class="project-summary container">
+                <i class='bx bx-check-circle completed-icon'></i>
+                <h2>Project Successfully Completed!</h2>
+                <span class="completion-badge">Completed</span>
+                
+                <div class="detail-row">
+                    <strong>Project ID:</strong>
+                    <span>PR-<?php echo str_pad($data['pre_project_id'], 5, '0', STR_PAD_LEFT); ?></span>
+                </div>
+                
+                <?php if (isset($data['progress']['project']->completion_date)): ?>
+                <div class="detail-row">
+                    <strong>Completion Date:</strong>
+                    <span><?php echo date('F j, Y', strtotime($data['progress']['project']->completion_date)); ?></span>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (isset($data['progress']['project']->total_capacity)): ?>
+                <div class="detail-row">
+                    <strong>System Capacity:</strong>
+                    <span><?php echo $data['progress']['project']->total_capacity; ?> kW</span>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (isset($data['progress']['engineer_approval_date'])): ?>
+                <div class="detail-row">
+                    <strong>Engineer Approval Date:</strong>
+                    <span><?php echo date('F j, Y', strtotime($data['progress']['engineer_approval_date'])); ?></span>
+                </div>
+                <?php endif; ?>
+                
+                <?php if (isset($data['progress']['grid_connection_date'])): ?>
+                <div class="detail-row">
+                    <strong>Grid Connection Date:</strong>
+                    <span><?php echo date('F j, Y', strtotime($data['progress']['grid_connection_date'])); ?></span>
+                </div>
+                <?php endif; ?>
+                
+                <p>Thank you for choosing us for your solar energy project. Your system is now fully operational.</p>
+                
+                <?php if (isset($data['progress']['project']->warranty_period)): ?>
+                <div class="certificate-info">
+                    <strong>Warranty Information:</strong>
+                    <p>Your system is covered by a <?php echo $data['progress']['project']->warranty_period; ?> year warranty.</p>
+                </div>
+                <?php endif; ?>
+                
+                <div class="action-buttons">
+                    <!-- Quotation Download Button -->
+                    <a href="<?php 
+                        if (isset($data['quotation_id']) && !empty($data['quotation_id'])) {
+                            echo URLROOT . '/client/downloadQuotation/' . $data['quotation_id'];
+                        } elseif (isset($data['progress']['pre_project']->quotation_id) && !empty($data['progress']['pre_project']->quotation_id)) {
+                            echo URLROOT . '/client/downloadQuotation/' . $data['progress']['pre_project']->quotation_id;
+                        }
+                    ?>" class="btn-download" target="_blank">
+                        <i class='bx bx-download'></i> Download Quotation
+                    </a>
+                    
+                    <!-- Agreement Download Button -->
+                    <a href="<?php 
+                        if (isset($data['quotation_id']) && !empty($data['quotation_id'])) {
+                            echo URLROOT . '/client/downloadAgreement/' . $data['quotation_id'];
+                        } elseif (isset($data['progress']['pre_project']->quotation_id) && !empty($data['progress']['pre_project']->quotation_id)) {
+                            echo URLROOT . '/client/downloadAgreement/' . $data['progress']['pre_project']->quotation_id;
+                        }
+                    ?>" class="btn-download" target="_blank">
+                        <i class='bx bx-download'></i> Download Agreement
+                    </a>
+                    
+                    <!-- Certificate Download Button (if available) -->
+                    <?php if (isset($data['certificate']) && $data['certificate']): ?>
+                    <a href="<?php echo URLROOT; ?>/client/downloadCertificate/<?php echo $data['certificate']->certificate_id; ?>" 
+                       class="btn-download" target="_blank">
+                        <i class='bx bx-certification'></i> Download Certificate
+                    </a>
+                    <?php endif; ?>
+                    
+                    <!-- After Sales Service Button -->
+                    <a href="<?php echo URLROOT; ?>/client/services" class="btn-service">
+                        <i class='bx bx-support'></i> After Sales Support
+                    </a>
+                </div>
+            </div>
+            
+            <?php else: ?>
+            <!-- Regular Project Progress View -->
             <div class="progress-container container">
                 <!-- Pre-project Phases -->
                 <?php
@@ -75,8 +270,8 @@
                         'title' => 'Final Payment Phase',
                         'description' => 'Pay the remaining 75% of total project cost'
                     ],
-                    'Engineer approval' => [
-                        'title' => 'Engineer approval Phase',
+                    'engineer_approval' => [
+                        'title' => 'Engineer Approval Phase',
                         'description' => 'Engineer approval and signing'
                     ]
                 ];
@@ -272,6 +467,7 @@
                     <?php endif; ?>
                 </div>
             </div>
+            <?php endif; ?>
         </main>
         <script src="<?php echo URLROOT; ?>/js/client/project.js"></script>
         <?php require APPROOT . '/views/client/footer.php'; ?>
