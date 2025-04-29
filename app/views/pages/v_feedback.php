@@ -136,6 +136,47 @@
             // Form will submit normally - the modal will show after redirect if successful
         });
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get references to elements
+        const modal = document.getElementById('successModal');
+        const closeBtn = document.querySelector('.close');
+        const continueBtn = document.getElementById('closeModalBtn');
+        const form = document.getElementById('feedbackForm');
+        
+        // Check if there's a success message in the session flash
+        // This is the key part - only show the modal if there's actually a success flash message
+        const flashMessage = document.querySelector('.flash-success');
+        
+        if (flashMessage && flashMessage.style.display !== 'none') {
+            modal.style.display = 'block';
+            // Hide the flash message since we're showing the modal
+            flashMessage.style.display = 'none';
+        } else {
+            // Make sure modal is hidden otherwise
+            modal.style.display = 'none';
+        }
+        
+        // Close modal when clicking the X
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+            window.location.href = '<?php echo URLROOT; ?>/pages/index';
+        }
+        
+        // Close modal when clicking the Continue button
+        continueBtn.onclick = function() {
+            modal.style.display = 'none';
+            window.location.href = '<?php echo URLROOT; ?>/pages/index';
+        }
+        
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+                window.location.href = '<?php echo URLROOT; ?>/pages/index';
+            }
+        }
+    });
 </script>
 
 <?php require APPROOT.'/views/inc/components/bottomfooter.php'; ?>
