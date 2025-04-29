@@ -848,6 +848,24 @@ class OperationsCoordinator extends Controller
     {
         // Get project details with all required information
         $project = $this->projectModel->getProjectById($projectId);
+        $preprojectId = $project->pre_project_id;
+
+        $preproject = $this->preProjectModel->getPreProjectById($preprojectId);
+
+        // $firstpayment = $this->projectModel->getProjectPayment($projectId, 'first_payment');
+        // $finalpayment = $this->projectModel->getProjectPayment($projectId, 'final_payment');
+
+        // $firstpayment_amount = null;
+        // $finalpayment_amount = null;
+
+        // if ($firstpayment && isset($firstpayment->payment_status) && $firstpayment->payment_status) {
+        //     $firstpayment_amount = $firstpayment->amount;
+        // }
+
+        // if ($finalpayment && isset($finalpayment->payment_status) && $finalpayment->payment_status) {
+        //     $finalpayment_amount = $finalpayment->amount;
+        // }
+
 
         // If project doesn't exist, redirect
         if (!$project) {
@@ -856,11 +874,15 @@ class OperationsCoordinator extends Controller
         }
 
         // Get additional project data like customer details
-        $data = $this->projectModel->getCustomerDetailsByProjectId($projectId);
+        $customer = $this->projectModel->getCustomerDetailsByProjectId($projectId);
 
 
         $data = [
-            'project' => $project
+            'project' => $project,
+            'customer' => $customer,
+            'preproject' => $preproject,
+            // 'firstpayment_amount' => $firstpayment_amount,
+            // 'finalpayment_amount' => $finalpayment_amount
         ];
 
         // Change this line to load v_manageAproject.php instead of v_projectDashboard.php
@@ -1446,19 +1468,6 @@ class OperationsCoordinator extends Controller
     // }
 
     // installations new
-    public function projectInstallations()
-    {
-        // Get all projects in installation phase
-        $projects = $this->projectModel->getProjectsInInstallationPhase();
-
-        $data = [
-            'title' => 'Installation Management',
-            'projects' => $projects
-        ];
-
-        $this->view('operationsCoordinator/v_projectInstallations', $data);
-    }
-
     public function installation($projectId)
     {
         // Get project details
@@ -1606,7 +1615,7 @@ class OperationsCoordinator extends Controller
         // Update installation status to completed
         if ($this->projectModel->updateInstallationStatus($installationId, 'completed')) {
             // Update project phase to next phase (engineer_approval)
-            $this->projectModel->updateProjectsPhase($projectId, 'engineer_approval');
+            $this->projectModel->updateProjectsPhase($projectId, 'final_payment');
 
             flash('installation_message', 'Installation marked as completed', 'alert alert-success');
         } else {
@@ -1935,33 +1944,34 @@ class OperationsCoordinator extends Controller
                 'project_id_err' => '',
                 'employee_id_err' => ''
             ];
-    
+
             // Validation
             if (empty($data['title'])) {
                 $data['title_err'] = 'Please enter title';
             }
-    
+
             if (empty($data['start_date'])) {
                 $data['start_date_err'] = 'Please enter start date';
             }
-    
+
             if (empty($data['end_date'])) {
                 $data['end_date_err'] = 'Please enter end date';
             }
-    
+
             if (empty($data['description'])) {
                 $data['description_err'] = 'Please enter description';
             }
-    
+
             if (empty($data['project_id'])) {
                 $data['project_id_err'] = 'Please select project';
             }
-    
+
             if (empty($data['employee_id'])) {
                 $data['employee_id_err'] = 'Please select employee';
             }
-    
+
             // Make sure no errors
+
             if (empty($data['title_err']) && empty($data['start_date_err']) && 
                 empty($data['end_date_err']) && empty($data['description_err']) && 
                 empty($data['project_id_err']) && empty($data['employee_id_err'])) {
@@ -1994,7 +2004,7 @@ class OperationsCoordinator extends Controller
                 'project_id_err' => '',
                 'employee_id_err' => ''
             ];
-    
+
             $this->view('operationsCoordinator/v_addTask', $data);
         }
     }

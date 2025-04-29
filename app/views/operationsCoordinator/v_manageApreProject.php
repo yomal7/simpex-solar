@@ -1,5 +1,5 @@
-<?php require APPROOT.'/views/operationsCoordinator/header.php';?>
-    <link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/manageApreProject.css">
+<?php require APPROOT . '/views/operationsCoordinator/header.php'; ?>
+<link rel="stylesheet" href="<?php echo URLROOT; ?>/css/operationsCoordinator/manageApreProject.css">
 </head>
 
 <body>
@@ -35,7 +35,7 @@
             <div class="container">
                 <!-- Customer Information Card -->
                 <div class="info-section">
-                    <h2>Customer Information 
+                    <h2>Customer Information
                         <span class="status-tag <?php echo strtolower($data['project']->current_phase); ?>">
                             <?php echo ucfirst($data['project']->current_phase) . ' Phase'; ?>
                         </span>
@@ -59,9 +59,9 @@
                         </div>
                     </div>
                 </div>
-            
-            <!-- Phase Cards -->
-            <div class="details-section">
+
+                <!-- Phase Cards -->
+                <div class="details-section">
                     <h3>Project Details</h3>
                     <div class="details-grid">
                         <div class="detail-card">
@@ -81,61 +81,61 @@
 
 
                 <div class="phase-list">
-                <?php
-                $phases = [
-                    'quotation' => [
-                        'icon' => '📄', 
-                        'title' => 'Quotation Phase',
-                        'url' => URLROOT . '/operationsCoordinator/manageQuotation/' . $data['project']->pre_project_id
-                    ],
-                    'site_visit' => [
-                        'icon' => '🏠', 
-                        'title' => 'Site Visit Phase',
-                        'url' => URLROOT . '/operationsCoordinator/manageSiteVisit/' . $data['project']->pre_project_id
-                    ],
-                    'agreement' => [
-                        'icon' => '📋', 
-                        'title' => 'Agreement Phase',
-                        'url' => URLROOT . '/operationsCoordinator/manageAgreement/' . $data['project']->pre_project_id
-                    ]
-                ];
-                
-                $currentPhaseIndex = array_search($data['project']->current_phase, array_keys($phases));
-                
-                foreach ($phases as $phase => $info):
-                    $phaseIndex = array_search($phase, array_keys($phases));
-                    $status = '';
-                    
-                    if ($phaseIndex < $currentPhaseIndex) {
-                        $status = 'completed';
-                    } elseif ($phaseIndex === $currentPhaseIndex) {
-                        $status = 'active';
-                        if ($phase === 'quotation' && $data['project']->quotation_status) {
-                            $status = $data['project']->quotation_status;
+                    <?php
+                    $phases = [
+                        'quotation' => [
+                            'icon' => '📄',
+                            'title' => 'Quotation Phase',
+                            'url' => URLROOT . '/operationsCoordinator/manageQuotation/' . $data['project']->pre_project_id
+                        ],
+                        'site_visit' => [
+                            'icon' => '🏠',
+                            'title' => 'Site Visit Phase',
+                            'url' => URLROOT . '/operationsCoordinator/manageSiteVisit/' . $data['project']->pre_project_id
+                        ],
+                        'agreement' => [
+                            'icon' => '📋',
+                            'title' => 'Agreement Phase',
+                            'url' => URLROOT . '/operationsCoordinator/manageAgreement/' . $data['project']->pre_project_id
+                        ]
+                    ];
+
+                    $currentPhaseIndex = array_search($data['project']->current_phase, array_keys($phases));
+
+                    foreach ($phases as $phase => $info):
+                        $phaseIndex = array_search($phase, array_keys($phases));
+                        $status = '';
+
+                        if ($phaseIndex < $currentPhaseIndex) {
+                            $status = 'completed';
+                        } elseif ($phaseIndex === $currentPhaseIndex) {
+                            $status = 'active';
+                            if ($phase === 'quotation' && $data['project']->quotation_status) {
+                                $status = $data['project']->quotation_status;
+                            }
+                        } else {
+                            $status = 'pending';
                         }
-                    } else {
-                        $status = 'pending';
-                    }
-                ?>
-                <div class="phase-card" data-url="<?php echo $info['url']; ?>">
-                    <div class="phase-icon"><?php echo $info['icon']; ?></div>
-                    <div class="phase-content">
-                        <h3><?php echo $info['title']; ?></h3>
-                        <?php if ($phase === 'quotation' && $data['project']->quotation_status): ?>
-                            <p class="phase-status"><?php echo ucfirst($data['project']->quotation_status); ?></p>
-                        <?php endif; ?>
-                    </div>
-                    <span class="status-badge <?php echo $status; ?>">
-                        <?php echo ucfirst($status); ?>
-                    </span>
+                    ?>
+                        <div class="phase-card" data-url="<?php echo $info['url']; ?>">
+                            <div class="phase-icon"><?php echo $info['icon']; ?></div>
+                            <div class="phase-content">
+                                <h3><?php echo $info['title']; ?></h3>
+                                <?php if ($phase === 'quotation' && $data['project']->quotation_status): ?>
+                                    <p class="phase-status"><?php echo ucfirst($data['project']->quotation_status); ?></p>
+                                <?php endif; ?>
+                            </div>
+                            <span class="status-badge <?php echo $status; ?>">
+                                <?php echo ucfirst($status); ?>
+                            </span>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
-                <?php endforeach; ?>
-            </div>
 
             </div>
 
-                <!-- Action Buttons -->
-                <!-- <div class="actions-section">
+            <!-- Action Buttons -->
+            <!-- <div class="actions-section">
                     <?php if ($data['project']->current_phase === 'quotation'): ?>
                         <button class="action-btn review-btn" onclick="reviewQuotation(<?php echo $data['project']->pre_project_id; ?>)">
                             Review Quotation
@@ -150,10 +150,10 @@
                         </button>
                     <?php endif; ?>
                 </div> -->
-            </div>
         </div>
-        
-                    
+    </div>
+
+
 
     </div>
 
@@ -165,4 +165,4 @@
 
     <script src="<?php echo URLROOT; ?>/js/operationsCoordinator/manageApreProject.js"></script>
 
-<?php require APPROOT.'/views/operationsCoordinator/footer.php';?>
+    <?php require APPROOT . '/views/operationsCoordinator/footer.php'; ?>

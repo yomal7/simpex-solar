@@ -108,7 +108,7 @@
                 <?php if (!is_null($data['payment']) && $data['payment']->status == 'pending_verification' && $data['payment']->payment_method == 'bank_deposit'): ?>
                     <div class="payment-verifying">
                         <h3>Your Payment is being verifing.</h3>
-                        <p>Please awite.</p>
+                        <p>Please await.</p>
                     </div>
                 <?php endif; ?>
                 <?php if (!is_null($data['payment']) && $data['payment']->status == 'approved' && $data['payment']->payment_method == 'bank_deposit'): ?>

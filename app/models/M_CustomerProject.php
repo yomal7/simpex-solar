@@ -437,12 +437,12 @@ class M_CustomerProject
      * @param int $installationId Installation ID
      * @return object|bool Schedule object or false
      */
-    public function getInstallationSchedule($installationId)
-    {
-        $this->db->query('SELECT * FROM installation_schedule WHERE installation_id = :installation_id ORDER BY id DESC LIMIT 1');
-        $this->db->bind(':installation_id', $installationId);
-        return $this->db->single();
-    }
+    // public function getInstallationSchedule($installationId)
+    // {
+    //     $this->db->query('SELECT * FROM installation_schedule WHERE installation_id = :installation_id ORDER BY id DESC LIMIT 1');
+    //     $this->db->bind(':installation_id', $installationId);
+    //     return $this->db->single();
+    // }
 
     /**
      * Create installation phase
@@ -450,81 +450,81 @@ class M_CustomerProject
      * @param array $data Installation data
      * @return int|bool Installation ID or false
      */
-    public function createInstallationPhase($data)
-    {
-        $this->db->query('INSERT INTO installation_phase (project_id, status) 
-                     VALUES (:project_id, :status)');
+    // public function createInstallationPhase($data)
+    // {
+    //     $this->db->query('INSERT INTO installation_phase (project_id, status) 
+    //                  VALUES (:project_id, :status)');
 
-        $this->db->bind(':project_id', $data['project_id']);
-        $this->db->bind(':status', $data['status']);
+    //     $this->db->bind(':project_id', $data['project_id']);
+    //     $this->db->bind(':status', $data['status']);
 
-        if ($this->db->execute()) {
-            return $this->db->lastInsertId();
-        }
+    //     if ($this->db->execute()) {
+    //         return $this->db->lastInsertId();
+    //     }
 
-        return false;
-    }
+    //     return false;
+    // }
 
-    public function assignEngineerToInstallation($installationId, $engineerId)
-    {
-        $this->db->query('INSERT INTO installation_engineer (installation_id, engineer_id) 
-                     VALUES (:installation_id, :engineer_id)');
+    // public function assignEngineerToInstallation($installationId, $engineerId)
+    // {
+    //     $this->db->query('INSERT INTO installation_engineer (installation_id, engineer_id) 
+    //                  VALUES (:installation_id, :engineer_id)');
 
-        $this->db->bind(':installation_id', $installationId);
-        $this->db->bind(':engineer_id', $engineerId);
+    //     $this->db->bind(':installation_id', $installationId);
+    //     $this->db->bind(':engineer_id', $engineerId);
 
-        return $this->db->execute();
-    }
+    //     return $this->db->execute();
+    // }
 
-    public function getAssignedEngineer($installationId)
-    {
-        $this->db->query('SELECT e.*, u.name, u.email, u.phone
-                     FROM installation_engineer ie
-                     JOIN employees e ON ie.engineer_id = e.employee_id
-                     JOIN users u ON e.user_id = u.user_id
-                     WHERE ie.installation_id = :installation_id
-                     AND ie.assign = TRUE
-                     ORDER BY ie.created_at DESC
-                     LIMIT 1');
+    // public function getAssignedEngineer($installationId)
+    // {
+    //     $this->db->query('SELECT e.*, u.name, u.email, u.phone
+    //                  FROM installation_engineer ie
+    //                  JOIN employees e ON ie.engineer_id = e.employee_id
+    //                  JOIN users u ON e.user_id = u.user_id
+    //                  WHERE ie.installation_id = :installation_id
+    //                  AND ie.assign = TRUE
+    //                  ORDER BY ie.created_at DESC
+    //                  LIMIT 1');
 
-        $this->db->bind(':installation_id', $installationId);
-        return $this->db->single();
-    }
+    //     $this->db->bind(':installation_id', $installationId);
+    //     return $this->db->single();
+    // }
 
-    public function reassignEngineer($installationId, $engineerId)
-    {
-        // First set all current assignments to false
-        $this->db->query('UPDATE installation_engineer 
-                     SET assign = FALSE, 
-                         updated_at = CURRENT_TIMESTAMP
-                     WHERE installation_id = :installation_id 
-                     AND assign = TRUE');
+    // public function reassignEngineer($installationId, $engineerId)
+    // {
+    //     // First set all current assignments to false
+    //     $this->db->query('UPDATE installation_engineer 
+    //                  SET assign = FALSE, 
+    //                      updated_at = CURRENT_TIMESTAMP
+    //                  WHERE installation_id = :installation_id 
+    //                  AND assign = TRUE');
 
-        $this->db->bind(':installation_id', $installationId);
-        $this->db->execute();
+    //     $this->db->bind(':installation_id', $installationId);
+    //     $this->db->execute();
 
-        // Then create a new assignment
-        return $this->assignEngineerToInstallation($installationId, $engineerId);
-    }
+    //     // Then create a new assignment
+    //     return $this->assignEngineerToInstallation($installationId, $engineerId);
+    // }
     /**
      * Create installation schedule
      * 
      * @param array $data Schedule data
      * @return bool Success status
      */
-    public function createInstallationSchedule($data)
-    {
-        $this->db->query('INSERT INTO installation_schedule (installation_id, start_date, start_time, end_date, status) 
-                     VALUES (:installation_id, :start_date, :start_time, :end_date, :status)');
+    // public function createInstallationSchedule($data)
+    // {
+    //     $this->db->query('INSERT INTO installation_schedule (installation_id, start_date, start_time, end_date, status) 
+    //                  VALUES (:installation_id, :start_date, :start_time, :end_date, :status)');
 
-        $this->db->bind(':installation_id', $data['installation_id']);
-        $this->db->bind(':start_date', $data['start_date']);
-        $this->db->bind(':start_time', $data['start_time']);
-        $this->db->bind(':end_date', $data['end_date']);
-        $this->db->bind(':status', $data['status']);
+    //     $this->db->bind(':installation_id', $data['installation_id']);
+    //     $this->db->bind(':start_date', $data['start_date']);
+    //     $this->db->bind(':start_time', $data['start_time']);
+    //     $this->db->bind(':end_date', $data['end_date']);
+    //     $this->db->bind(':status', $data['status']);
 
-        return $this->db->execute();
-    }
+    //     return $this->db->execute();
+    // }
 
     /**
      * Update installation schedule
@@ -587,23 +587,23 @@ class M_CustomerProject
     //     return $this->db->execute();
     // }
 
-    public function getUpcomingInstallations()
-    {
-        $this->db->query('SELECT ip.installation_id, ip.project_id, ip.status as phase_status, 
-                     insched.start_date, insched.start_time, insched.end_date, 
-                     insched.status as schedule_status,
-                     u.name AS engineer_name
-                     FROM installation_phase ip
-                     JOIN installation_schedule insched ON ip.installation_id = insched.installation_id
-                     LEFT JOIN installation_engineer ie ON ip.installation_id = ie.installation_id AND ie.assign = 1
-                     LEFT JOIN employees e ON ie.engineer_id = e.employee_id
-                     LEFT JOIN users u ON e.user_id = u.user_id
-                     WHERE insched.start_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 MONTH)
-                     AND insched.status IN ("pending", "accept")
-                     ORDER BY insched.start_date ASC');
+    // public function getUpcomingInstallations()
+    // {
+    //     $this->db->query('SELECT ip.installation_id, ip.project_id, ip.status as phase_status, 
+    //                  insched.start_date, insched.start_time, insched.end_date, 
+    //                  insched.status as schedule_status,
+    //                  u.name AS engineer_name
+    //                  FROM installation_phase ip
+    //                  JOIN installation_schedule insched ON ip.installation_id = insched.installation_id
+    //                  LEFT JOIN installation_engineer ie ON ip.installation_id = ie.installation_id AND ie.assign = 1
+    //                  LEFT JOIN employees e ON ie.engineer_id = e.employee_id
+    //                  LEFT JOIN users u ON e.user_id = u.user_id
+    //                  WHERE insched.start_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 1 MONTH)
+    //                  AND insched.status IN ("pending", "accept")
+    //                  ORDER BY insched.start_date ASC');
 
-        return $this->db->resultSet();
-    }
+    //     return $this->db->resultSet();
+    // }
 
     /**
      * Get installation team members
@@ -611,85 +611,85 @@ class M_CustomerProject
      * @param int $installationId Installation ID
      * @return array Team members
      */
-    public function getInstallationTeamMembers($installationId)
-    {
-        $this->db->query('SELECT ie.id, e.employee_id, u.name, u.email, u.phone
-                     FROM installation_employees ie
-                     JOIN employees e ON ie.employee_id = e.employee_id
-                     JOIN users u ON e.user_id = u.user_id
-                     WHERE ie.installation_id = :installation_id
-                     AND ie.assign = 1
-                     ORDER BY u.name');
+    // public function getInstallationTeamMembers($installationId)
+    // {
+    //     $this->db->query('SELECT ie.id, e.employee_id, u.name, u.email, u.phone
+    //                  FROM installation_employees ie
+    //                  JOIN employees e ON ie.employee_id = e.employee_id
+    //                  JOIN users u ON e.user_id = u.user_id
+    //                  WHERE ie.installation_id = :installation_id
+    //                  AND ie.assign = 1
+    //                  ORDER BY u.name');
 
-        $this->db->bind(':installation_id', $installationId);
-        return $this->db->resultSet();
-    }
+    //     $this->db->bind(':installation_id', $installationId);
+    //     return $this->db->resultSet();
+    // }
 
-    public function assignTechnicianToInstallation($installationId, $technicianId)
-    {
-        $this->db->query('INSERT INTO installation_employees 
-                      (installation_id, employee_id, assign, created_at, updated_at) 
-                      VALUES (:installation_id, :employee_id, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)');
+    // public function assignTechnicianToInstallation($installationId, $technicianId)
+    // {
+    //     $this->db->query('INSERT INTO installation_employees 
+    //                   (installation_id, employee_id, assign, created_at, updated_at) 
+    //                   VALUES (:installation_id, :employee_id, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)');
 
-        $this->db->bind(':installation_id', $installationId);
-        $this->db->bind(':employee_id', $technicianId);
+    //     $this->db->bind(':installation_id', $installationId);
+    //     $this->db->bind(':employee_id', $technicianId);
 
-        return $this->db->execute();
-    }
+    //     return $this->db->execute();
+    // }
 
-    public function removeAllTechnicians($installationId)
-    {
-        $this->db->query('UPDATE installation_employees 
-                     SET assign = FALSE,
-                         updated_at = CURRENT_TIMESTAMP
-                     WHERE installation_id = :installation_id');
+    // public function removeAllTechnicians($installationId)
+    // {
+    //     $this->db->query('UPDATE installation_employees 
+    //                  SET assign = FALSE,
+    //                      updated_at = CURRENT_TIMESTAMP
+    //                  WHERE installation_id = :installation_id');
 
-        $this->db->bind(':installation_id', $installationId);
-        return $this->db->execute();
-    }
+    //     $this->db->bind(':installation_id', $installationId);
+    //     return $this->db->execute();
+    // }
 
-    public function getEngineerID($userId)
-    {
-        $this->db->query('SELECT employee_id FROM employees WHERE user_id = :user_id AND role = "engineer"');
-        $this->db->bind(':user_id', $userId);
-        return $this->db->single();
-    }
+    // public function getEngineerID($userId)
+    // {
+    //     $this->db->query('SELECT employee_id FROM employees WHERE user_id = :user_id AND role = "engineer"');
+    //     $this->db->bind(':user_id', $userId);
+    //     return $this->db->single();
+    // }
 
-    public function getAssignedInstallations($EngineerId)
-    {
-        $this->db->query('SELECT installation_id FROM installation_engineer WHERE engineer_id = :engineer_id AND assign = 1');
-        $this->db->bind(':engineer_id', $EngineerId);
-        return $this->db->resultSet();
-    }
+    // public function getAssignedInstallations($EngineerId)
+    // {
+    //     $this->db->query('SELECT installation_id FROM installation_engineer WHERE engineer_id = :engineer_id AND assign = 1');
+    //     $this->db->bind(':engineer_id', $EngineerId);
+    //     return $this->db->resultSet();
+    // }
 
-    public function getEngineerProjects($installationIds)
-    {
-        // Create placeholder string for IN clause
-        $placeholders = rtrim(str_repeat('?,', count($installationIds)), ',');
+    // public function getEngineerProjects($installationIds)
+    // {
+    //     // Create placeholder string for IN clause
+    //     $placeholders = rtrim(str_repeat('?,', count($installationIds)), ',');
 
-        // Query to get project details - filter by schedule status = 'accept'
-        $this->db->query('SELECT DISTINCT
-                 ip.installation_id, ip.project_id, ip.status AS installation_status,
-                 ins.start_date, ins.start_time, ins.end_date, ins.status AS schedule_status,
-                 p.current_phase,
-                 u.name AS customer_name,
-                 IFNULL(cq.nearest_city, "No Location") AS location
-                 FROM installation_phase ip
-                 JOIN projects p ON ip.project_id = p.project_id
-                 LEFT JOIN installation_schedule ins ON ip.installation_id = ins.installation_id AND ins.status = "accept"
-                 LEFT JOIN users u ON p.customer_id = u.user_id
-                 LEFT JOIN customerquotation cq ON p.pre_project_id = cq.pre_project_id
-                 WHERE ip.installation_id IN (' . $placeholders . ')
-                 ORDER BY ins.start_date');
+    //     // Query to get project details - filter by schedule status = 'accept'
+    //     $this->db->query('SELECT DISTINCT
+    //              ip.installation_id, ip.project_id, ip.status AS installation_status,
+    //              ins.start_date, ins.start_time, ins.end_date, ins.status AS schedule_status,
+    //              p.current_phase,
+    //              u.name AS customer_name,
+    //              IFNULL(cq.nearest_city, "No Location") AS location
+    //              FROM installation_phase ip
+    //              JOIN projects p ON ip.project_id = p.project_id
+    //              LEFT JOIN installation_schedule ins ON ip.installation_id = ins.installation_id AND ins.status = "accept"
+    //              LEFT JOIN users u ON p.customer_id = u.user_id
+    //              LEFT JOIN customerquotation cq ON p.pre_project_id = cq.pre_project_id
+    //              WHERE ip.installation_id IN (' . $placeholders . ')
+    //              ORDER BY ins.start_date');
 
-        // Bind installation IDs
-        $paramIndex = 1;
-        foreach ($installationIds as $id) {
-            $this->db->bind($paramIndex++, $id);
-        }
+    // Bind installation IDs
+    //     $paramIndex = 1;
+    //     foreach ($installationIds as $id) {
+    //         $this->db->bind($paramIndex++, $id);
+    //     }
 
-        return $this->db->resultSet();
-    }
+    //     return $this->db->resultSet();
+    // }
 
     // public function updateInstallationStatus($installationId, $status)
     // {
@@ -704,34 +704,34 @@ class M_CustomerProject
     //     return $this->db->execute();
     // }
 
-    public function completeInstallationStep($installationId, $step)
-    {
-        $column = 'step_' . $step;
-        $dateColumn = 'step_' . $step . '_date';
+    // public function completeInstallationStep($installationId, $step)
+    // {
+    //     $column = 'step_' . $step;
+    //     $dateColumn = 'step_' . $step . '_date';
 
-        $this->db->query("UPDATE installation_phase 
-                     SET $column = TRUE,
-                         $dateColumn = NOW(),
-                         updated_at = NOW()
-                     WHERE installation_id = :installation_id");
+    //     $this->db->query("UPDATE installation_phase 
+    //                  SET $column = TRUE,
+    //                      $dateColumn = NOW(),
+    //                      updated_at = NOW()
+    //                  WHERE installation_id = :installation_id");
 
-        $this->db->bind(':installation_id', $installationId);
+    //     $this->db->bind(':installation_id', $installationId);
 
-        return $this->db->execute();
-    }
+    //     return $this->db->execute();
+    // }
 
-    public function saveInstallationNotes($installationId, $notes)
-    {
-        $this->db->query('UPDATE installation_phase 
-                     SET notes = :notes,
-                         updated_at = NOW()
-                     WHERE installation_id = :installation_id');
+    // public function saveInstallationNotes($installationId, $notes)
+    // {
+    //     $this->db->query('UPDATE installation_phase 
+    //                  SET notes = :notes,
+    //                      updated_at = NOW()
+    //                  WHERE installation_id = :installation_id');
 
-        $this->db->bind(':installation_id', $installationId);
-        $this->db->bind(':notes', $notes);
+    //     $this->db->bind(':installation_id', $installationId);
+    //     $this->db->bind(':notes', $notes);
 
-        return $this->db->execute();
-    }
+    //     return $this->db->execute();
+    // }
 
     public function getProjectWithCustomerInfo($projectId)
     {
@@ -820,15 +820,17 @@ class M_CustomerProject
      */
     public function updateInstallationScheduleStatus($installationId, $status, $reason = null)
     {
+        $now = date('Y-m-d H:i:s');
         $this->db->query('UPDATE installation SET 
                           schedule_status = :schedule_status,
                           request_reason = :request_reason,
-                          updated_at = CURRENT_TIMESTAMP
+                          updated_at = :now
                           WHERE id = :id');
 
         $this->db->bind(':id', $installationId);
         $this->db->bind(':schedule_status', $status);
         $this->db->bind(':request_reason', $reason);
+        $this->db->bind(':now', $now);
 
         return $this->db->execute();
     }
@@ -838,59 +840,62 @@ class M_CustomerProject
      */
     public function updateInstallationStatus($installationId, $status)
     {
-        $this->db->query('UPDATE installation SET 
-                          status = :status,
-                          updated_at = CURRENT_TIMESTAMP');
+        $now = date('Y-m-d H:i:s');
 
         // If status is completed, set the completed date
         if ($status === 'completed') {
             $this->db->query('UPDATE installation SET 
-                              status = :status,
-                              completed_date = CURRENT_DATE,
-                              updated_at = CURRENT_TIMESTAMP
-                              WHERE id = :id');
+                          status = :status,
+                          completed_date = :now,
+                          updated_at = :now
+                          WHERE id = :id');
         } else {
             $this->db->query('UPDATE installation SET 
-                              status = :status,
-                              updated_at = CURRENT_TIMESTAMP
-                              WHERE id = :id');
+                          status = :status,
+                          updated_at = :now
+                          WHERE id = :id');
         }
 
         $this->db->bind(':id', $installationId);
         $this->db->bind(':status', $status);
+        $this->db->bind(':now', $now);
 
         return $this->db->execute();
     }
-
     /**
      * Update installation end date
      */
     public function updateInstallationEndDate($installationId, $endDate)
     {
+        $now = date('Y-m-d H:i:s');
         $this->db->query('UPDATE installation SET 
                           end_date = :end_date,
-                          updated_at = CURRENT_TIMESTAMP
+                          updated_at = :now
                           WHERE id = :id');
 
         $this->db->bind(':id', $installationId);
         $this->db->bind(':end_date', $endDate);
+        $this->db->bind(':now', $now);
 
         return $this->db->execute();
     }
 
     public function updateInstallationSchedule($installationId, $data)
     {
+        $now = date('Y-m-d H:i:s');
+
         $this->db->query('UPDATE installation SET 
                      start_date = :start_date, 
                      end_date = :end_date, 
                      schedule_status = :schedule_status,
-                     updated_at = CURRENT_TIMESTAMP 
+                     updated_at = :now 
                      WHERE id = :id');
 
         $this->db->bind(':id', $installationId);
         $this->db->bind(':start_date', $data['start_date']);
         $this->db->bind(':end_date', $data['end_date']);
         $this->db->bind(':schedule_status', $data['schedule_status']);
+        $this->db->bind(':now', $now);
 
         return $this->db->execute();
     }
@@ -976,12 +981,15 @@ class M_CustomerProject
 
     public function completeEngineerApproval($projectId)
     {
+        $now = date('Y-m-d H:i:s');
         // Update project phase directly without transactions
         $this->db->query('UPDATE projects 
-                SET current_phase = "grid_connection", 
-                    updated_at = CURRENT_TIMESTAMP 
+                SET current_phase = "completed",
+                    status = "completed", 
+                    updated_at = :now 
                 WHERE project_id = :project_id');
         $this->db->bind(':project_id', $projectId);
+        $this->db->bind(':now', $now);
 
         return $this->db->execute();
     }
@@ -994,5 +1002,19 @@ class M_CustomerProject
                      WHERE e.role = "engineer"
                      ORDER BY u.name');
         return $this->db->resultSet();
+    }
+
+    public function getPackageTypeByTitle($packageTitle)
+    {
+        $this->db->query('SELECT type FROM packages WHERE title = :title AND deleted_at IS NULL');
+        $this->db->bind(':title', $packageTitle);
+
+        $result = $this->db->single();
+
+        if ($result) {
+            return $result->type;
+        }
+
+        return null;
     }
 }

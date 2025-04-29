@@ -60,16 +60,6 @@
         <div class="main-content">
             <div class="page-header">
                 <h1>Order Management</h1>
-                <div class="header-actions">
-                    <button onclick="location.href='<?php echo URLROOT; ?>/supplierCoordinator/generateOrderReport'" class="add-button">
-                        <span class="material-icons-sharp">assessment</span>
-                        Generate Report
-                    </button>
-                    <button onclick="location.href='<?php echo URLROOT; ?>/supplierCoordinator/exportOrders'" class="add-button">
-                        <span class="material-icons-sharp">file_download</span>
-                        Export CSV
-                    </button>
-                </div>
             </div>
 
             <div class="message"><?php flash('order_message'); ?></div>

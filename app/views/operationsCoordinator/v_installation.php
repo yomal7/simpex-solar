@@ -20,7 +20,7 @@
                     <p>Operations Coordinator</p>
                 </div>
             </div>
-            <a href="<?php echo URLROOT ?>/operationsCoordinator/projectInstallations">
+            <a href="<?php echo URLROOT ?>/operationsCoordinator/manageAproject/<?php echo $data['project']->project_id; ?>" class="sidebar-link">
                 <span class="material-icons-sharp">arrow_back</span>
                 <h3>Back</h3>
             </a>
@@ -34,11 +34,6 @@
             <div class="content">
                 <div class="page-header">
                     <h2>Manage Installation</h2>
-                    <nav class="breadcrumb">
-                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/dashboard">Dashboard</a> /
-                        <a href="<?php echo URLROOT; ?>/operationsCoordinator/projectInstallations">Installations</a> /
-                        <span>Project #<?php echo $data['project']->project_id; ?></span>
-                    </nav>
                 </div>
 
                 <div class="installation-container">
