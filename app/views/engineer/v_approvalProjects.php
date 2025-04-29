@@ -4,14 +4,19 @@
 
 <body>
     <div class="dashboard-container">
-        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
         <div class="sidebar" id="sidebar">
-            <img
-                src="<?php echo URLROOT; ?>/public/assets/profile.png"
-                alt="engineer profile-picture"
-                class="profile-picture" />
-
+            <div class="company-logo">
+                <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
+            </div>
+            <!-- User Profile Section -->
+            <div class="user-profile">
+                <img src="<?php echo isset($_SESSION['user_picture']) && !empty($_SESSION['user_picture']) ? URLROOT . '/public/uploads/profile_pictures/' . $_SESSION['user_picture'] : URLROOT . '/public/assets/profile.png'; ?>" alt="User profile picture" class="profile-picture" />
+                <div class="user-info">
+                    <h4><?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User Name'; ?></h4>
+                    <p>Engineer</p>
+                </div>
+            </div>
             <a href="<?php echo URLROOT ?>/engineer/dashboard">
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
@@ -20,13 +25,17 @@
                 <span class="material-icons-sharp">home</span>
                 <h3>Site Visits</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/engineer/projects">
-                <span class="material-icons-sharp">engineering</span>
-                <h3>Installations</h3>
-            </a>
             <a href="<?php echo URLROOT ?>/engineer/approvalProjects" class="active">
                 <span class="material-icons-sharp">fact_check</span>
                 <h3>Approvals</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/engineer/tasks">
+                <span class="material-icons-sharp">task</span>
+                <h3>Tasks</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/engineer/requestHoliday">
+                <span class="material-icons-sharp">event</span>
+                <h3>Request Leave</h3>
             </a>
             <a href="<?php echo URLROOT ?>/engineer/settings">
                 <span class="material-icons-sharp">settings</span>

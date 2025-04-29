@@ -9,7 +9,7 @@
 <body>
     <div class="tasks-container">
 
-        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
         <div class="sidebar" id="sidebar">
             <div class="company-logo">
                 <img src="<?php echo URLROOT; ?>/public/assets/simpex-logo-sidebar.png" alt="Simpex Solar Logo">
@@ -26,13 +26,13 @@
                 <span class="material-icons-sharp">dashboard</span>
                 <h3>Dashboard</h3>
             </a>
-            <a href="<?php echo URLROOT ?>/engineer/projects">
-                <span class="material-icons-sharp">receipt_long</span>
-                <h3>Projects</h3>
-            </a>
             <a href="<?php echo URLROOT ?>/engineer/siteVisits">
-                <span class="material-icons-sharp">location_on</span>
+                <span class="material-icons-sharp">home</span>
                 <h3>Site Visits</h3>
+            </a>
+            <a href="<?php echo URLROOT ?>/engineer/approvalProjects">
+                <span class="material-icons-sharp">fact_check</span>
+                <h3>Approvals</h3>
             </a>
             <a href="<?php echo URLROOT ?>/engineer/tasks" class="active">
                 <span class="material-icons-sharp">task</span>
@@ -46,10 +46,11 @@
                 <span class="material-icons-sharp">settings</span>
                 <h3>Settings</h3>
             </a>
-            <a href="<?php echo URLROOT; ?>/users/logout" class="logout">
+            <a href="<?php echo URLROOT; ?>/users/logout">
                 <span class="material-icons-sharp">logout</span>
                 <h3>Logout</h3>
             </a>
+        
         </div>
 
         <div class="main-content">
